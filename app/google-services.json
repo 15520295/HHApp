@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "581685338631",
+    "firebase_url": "https://hhapp-17eeb.firebaseio.com",
+    "project_id": "hhapp-17eeb",
+    "storage_bucket": "hhapp-17eeb.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:581685338631:android:326eaf611261a897",
+        "android_client_info": {
+          "package_name": "com.example.huydaoduc.hieu.chi.hhapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "581685338631-8kqlmtm4vga8asi4kv9vmgj24v4euj6s.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBRPFdYAh05Q07yxAOZUaGSaRz-X4en9A4"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
