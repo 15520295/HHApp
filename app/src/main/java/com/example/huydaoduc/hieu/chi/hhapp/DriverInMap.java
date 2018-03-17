@@ -192,6 +192,7 @@ public class DriverInMap extends FragmentActivity implements OnMapReadyCallback,
                 final double longitude = mLastLocation.getLongitude();
 
                 //Update To Firebase
+                //Todo: Chi update firebase
                 geoFire.setLocation(FirebaseAuth.getInstance().getCurrentUser().getUid(), new GeoLocation(latitude, longitude), new GeoFire.CompletionListener() {
                     @Override
                     public void onComplete(String key, DatabaseError error) {
