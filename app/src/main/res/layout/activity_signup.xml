@@ -5,7 +5,7 @@
         xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context="com.example.huydaoduc.hieu.chi.hhapp.SplashActivity">
+        tools:context="com.example.huydaoduc.hieu.chi.hhapp.SignupActivity">
 
         <android.support.v7.widget.Toolbar
             android:id="@+id/toolbar"
@@ -71,7 +71,8 @@
                 android:layout_width="match_parent"
                 android:layout_below="@id/et_password"
                 android:layout_marginTop="20dp"
-                android:text="@string/signup_btn_label" />
+                android:onClick="signup"
+                android:text="@string/signup_btn_label"/>
 
             <RelativeLayout
                 android:id="@+id/divider"
