@@ -7,7 +7,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.MenuItem;
 import android.view.View;
 
-import com.example.huydaoduc.hieu.chi.hhapp.databinding.ActivitySignupBinding;
 //import com.md.splashloginsignup.databinding.ActivitySignupBinding;
 
 import com.mikepenz.iconics.context.IconicsLayoutInflater2;

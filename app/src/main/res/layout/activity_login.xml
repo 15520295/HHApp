@@ -1,9 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:android="http://schemas.android.com/apk/res/android">
 
     <RelativeLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        tools:context="com.example.huydaoduc.hieu.chi.hhapp.SplashActivity">
 
         <android.support.v7.widget.Toolbar
             android:id="@+id/toolbar"
@@ -72,7 +75,8 @@
                 android:layout_width="match_parent"
                 android:layout_below="@id/forgot_password"
                 android:layout_marginTop="@dimen/layout_in_between_margins"
-                android:text="@string/login_btn_label" />
+                android:onClick="login"
+                android:text="@string/login_btn_label"/>
 
             <RelativeLayout
                 android:id="@+id/divider"
@@ -153,4 +157,3 @@
 
 
     </RelativeLayout>
-</layout>

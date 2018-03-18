@@ -2,7 +2,8 @@
     <string name="app_name">HHApp</string>
     <string name="map_api_key">AIzaSyBkkQDgvA15rzRJy1J3OukK3Q_m7IzQX6E</string>
 
-    <!--@@@@ LOGIN -->
+    <!--   LOGIN Activity   -->
+    <!-- ......... -->
     <!--Titles-->
     <string name="login_title">Login</string>
     <string name="signup_title">Sign up</string>
@@ -11,7 +12,6 @@
     <string name="splash_welcome_txt">Easiest way to\nfind the best product</string>
     <string name="login_welcome_txt">Hello there !\nWelcome Back</string>
     <string name="signup_welcome_txt">Hello there !\nWelcome to you</string>
-
 
     <!--Button labels-->
     <string name="login_btn_label">Login</string>
@@ -30,11 +30,20 @@
     <string name="full_name_hint">Full Name</string>
     <string name="password_hint">Password</string>
 
-
     <!--Misc texts-->
     <string name="forgot_password">Forgot password?</string>
     <string name="no_account">Don\’t have an account?</string>
     <string name="have_account">Have an account?</string>
     <string name="divider_or">OR</string>
+
+
+    <!--   LOGIN Facebook   -->
+    <!-- ......... -->
+    <!-- Facebook application ID and custom URL scheme (app ID prefixed by 'fb'). -->
+    <string name="facebook_application_id" translatable="false">YOUR_APP_ID</string>
+    <string name="facebook_login_protocol_scheme" translatable="false">fbYOUR_APP_ID</string>
+    <!-- Twitter consumer key and secret -->
+    <string name="twitter_consumer_key" translatable="false">YOUR_CONSUMER_KEY</string>
+    <string name="twitter_consumer_secret" translatable="false">YOUR_CONSUMER_SECRET</string>
 
 </resources>

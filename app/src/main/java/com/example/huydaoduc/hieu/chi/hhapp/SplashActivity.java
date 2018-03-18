@@ -5,7 +5,6 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 
-import com.example.huydaoduc.hieu.chi.hhapp.databinding.ActivitySplashBinding;
 
 public class SplashActivity extends AppCompatActivity {
 
