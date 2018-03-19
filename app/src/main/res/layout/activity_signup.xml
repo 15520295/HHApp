@@ -71,7 +71,7 @@
                 android:layout_width="match_parent"
                 android:layout_below="@id/et_password"
                 android:layout_marginTop="20dp"
-                android:onClick="signup"
+                android:onClick="signup_email"
                 android:text="@string/signup_btn_label"/>
 
             <RelativeLayout
@@ -144,7 +144,7 @@
                     style="@style/LabelStyle"
                     android:layout_toEndOf="@id/have_account"
                     android:fontFamily="@font/sf_pro_display_medium"
-                    android:onClick="login"
+                    android:onClick="login_email"
                     android:text="@string/login_label"
                     android:textColor="@color/orange"
                     android:textSize="16sp" />

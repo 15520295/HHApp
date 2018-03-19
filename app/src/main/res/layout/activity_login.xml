@@ -4,6 +4,7 @@
         xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto"
         xmlns:tools="http://schemas.android.com/tools"
+        android:id="@+id/rootLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         tools:context="com.example.huydaoduc.hieu.chi.hhapp.LoginActivity">
@@ -75,7 +76,7 @@
                 android:layout_width="match_parent"
                 android:layout_below="@id/forgot_password"
                 android:layout_marginTop="@dimen/layout_in_between_margins"
-                android:onClick="login"
+                android:onClick="login_email"
                 android:text="@string/login_btn_label"/>
 
             <RelativeLayout
@@ -148,7 +149,7 @@
                     style="@style/LabelStyle"
                     android:layout_toEndOf="@id/no_account"
                     android:fontFamily="@font/sf_pro_display_medium"
-                    android:onClick="signup"
+                    android:onClick="signup_email"
                     android:text="@string/signup_label"
                     android:textColor="@color/orange"
                     android:textSize="16sp" />
