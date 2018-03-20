@@ -1,19 +1,73 @@
 package com.example.huydaoduc.hieu.chi.hhapp.activity;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
+import android.view.WindowManager;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.EditText;
+import android.widget.TextView;
 
 import com.example.huydaoduc.hieu.chi.hhapp.R;
+import com.google.firebase.FirebaseException;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.PhoneAuthCredential;
+import com.google.firebase.auth.PhoneAuthProvider;
+
+import java.util.concurrent.TimeUnit;
 
 public class EnterPhoneNumberActivity extends AppCompatActivity {
+
+    TextView tv_connect_social;
+    EditText et_phone_number;
+
+    FirebaseAuth firebaseAuth;
+    PhoneAuthProvider.OnVerificationStateChangedCallbacks mCallback;
+
+
     @Override
     public void finish() {
         super.finish();
+
+        // turn Activity transfer Animation off
         overridePendingTransition(R.anim.anim_activity_none, R.anim.anim_activity_none);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+    }
+
+    private void AnimationIn()
+    {
+        Animation animation = AnimationUtils.loadAnimation(this,R.anim.anim_fade_out);
+        animation.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+                et_phone_number.requestFocus();
+                InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                imm.showSoftInput(et_phone_number, InputMethodManager.SHOW_IMPLICIT);
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {
+
+            }
+        });
+        animation.reset();
+        tv_connect_social.clearAnimation();
+        tv_connect_social.startAnimation(animation);
     }
 
     @Override
@@ -24,6 +78,50 @@ public class EnterPhoneNumberActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        Init();
+        AnimationIn();
+    }
+
+    private void send_sms()
+    {
+        String number = null;
+        PhoneAuthProvider.getInstance().verifyPhoneNumber(
+                number,
+                60,
+                TimeUnit.SECONDS,
+                this,
+                mCallback
+        );
+    }
+
+    private void Init() {
+        // Init Firebase
+        firebaseAuth = FirebaseAuth.getInstance();
+
+        // Firebase Events
+        mCallback = new PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
+            @Override
+            public void onVerificationCompleted(PhoneAuthCredential phoneAuthCredential) {
+
+            }
+
+            @Override
+            public void onVerificationFailed(FirebaseException e) {
+
+            }
+
+            @Override
+            public void onCodeSent(String s, PhoneAuthProvider.ForceResendingToken forceResendingToken) {
+                super.onCodeSent(s, forceResendingToken);
+
+            }
+        };
+
+        // Init Views
+        tv_connect_social = findViewById(R.id.tv_connect_social);
+        et_phone_number = findViewById(R.id.et_phone_number);
+
+        // Events
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -33,5 +131,6 @@ public class EnterPhoneNumberActivity extends AppCompatActivity {
             }
         });
     }
+
 
 }
