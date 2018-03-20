@@ -2,36 +2,28 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/rootLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.example.huydaoduc.hieu.chi.hhapp.activity.PhoneAuthActivity">
+    tools:context="com.example.huydaoduc.hieu.chi.hhapp.activity.EnterPhoneNumberActivity"
+    tools:showIn="@layout/activity_enter_phone_number">
 
-    <TextView
-        android:id="@+id/tv_connect_social"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginBottom="13dp"
-        android:text="TextView" />
 
-    <View
-        android:id="@+id/bar"
-        android:layout_width="fill_parent"
-        android:layout_height="1dp"
-        android:layout_above="@+id/tv_connect_social"
-        android:layout_alignParentEnd="true"
-        android:layout_marginBottom="12dp"
-        android:layout_marginEnd="12dp"
-        android:background="#d9d9d9" />
+    <ImageButton
+        android:id="@+id/imageButton"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:layout_marginStart="25dp"
+        android:layout_marginTop="15dp"
+        android:background="@color/fui_transparent"
+        android:scaleType="fitCenter"
+        app:srcCompat="@drawable/ic_back_black"/>
 
     <RelativeLayout
-        android:id="@+id/input_phone_number"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignBottom="@id/bar"
-        android:layout_marginBottom="10dp">
+        android:layout_below="@+id/imageButton"
+        android:layout_marginTop="10dp"
+        >
 
         <ImageView
             android:id="@+id/iv_flag"
@@ -39,7 +31,7 @@
             android:layout_height="wrap_content"
             android:layout_alignParentStart="true"
             android:layout_centerInParent="true"
-            android:layout_marginStart="20dp"
+            android:layout_marginStart="22dp"
             android:scaleX="1.4"
             android:scaleY="1.4"
             app:srcCompat="@drawable/vn_flag_icon"/>
@@ -49,7 +41,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
-            android:layout_marginStart="10dp"
+            android:layout_marginStart="14dp"
             android:layout_toEndOf="@id/iv_flag"
             android:layout_toLeftOf="@+id/iv_flag"
             android:drawablePadding="4dp"
@@ -71,5 +63,4 @@
             />
 
     </RelativeLayout>
-
 </RelativeLayout>
