@@ -1,5 +1,5 @@
 <resources>
     <string name="app_name">HHApp</string>
-    <string name="map_api_key">AIzaSyCX246jFZgbT8412dRAmRVG4KNfZyeBtFU</string>
+    <string name="map_api_key">AIzaSyDdrNdC2sIbOYQirRIHthf1_VIcgYEDuk0</string>
     <string name="title_activity_driver_in_map">Map</string>
 </resources>

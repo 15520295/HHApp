@@ -11,6 +11,7 @@ import android.os.SystemClock;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
+import android.support.design.widget.TabLayout;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.support.v7.app.AppCompatActivity;
@@ -79,8 +80,8 @@ public class MainActivity extends AppCompatActivity {
 
 
     public void AutoLogin() {
-        String email = "huydd.1997@gmail.com";
-        String password = "8172686504272583628";
+        String email = "123@yahoo.com";
+        String password = "123456";
 
         mAuth.signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
@@ -91,7 +92,7 @@ public class MainActivity extends AppCompatActivity {
 //                            Log.d(TAG, "signInWithEmail:success");
 //                            FirebaseUser user = mAuth.getCurrentUser();
 //                            updateUI(user);
-                            Toast.makeText(getApplicationContext(), "login succsee", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(getApplicationContext(), "login success", Toast.LENGTH_SHORT).show();
                         } else {
                             // If sign in fails, display a message to the user.
 //                            Log.w(TAG, "signInWithEmail:failure", task.getException());
@@ -104,7 +105,7 @@ public class MainActivity extends AppCompatActivity {
                         // ...
                     }
                 });
-
     }
+
 }
 

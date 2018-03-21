@@ -29,8 +29,13 @@ import com.github.glomadrian.materialanimatedswitch.MaterialAnimatedSwitch;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.places.Place;
+import com.google.android.gms.location.places.ui.PlaceAutocomplete;
+import com.google.android.gms.location.places.ui.PlaceAutocompleteFragment;
+import com.google.android.gms.location.places.ui.PlaceSelectionListener;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -46,6 +51,9 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.gms.maps.model.SquareCap;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseError;
@@ -103,7 +111,7 @@ public class DriverInMap extends FragmentActivity implements OnMapReadyCallback,
     private LatLng startPostion, endPosition, currentPosition;
     private int index, next;
     private Button btnGo;
-    private EditText edtPlace;
+    private PlaceAutocompleteFragment place;
     private String destination;
     private PolylineOptions polylineOptions, blackPolylineOptions;
     private Polyline blackPolyline, greyPolyline;
@@ -122,13 +130,13 @@ public class DriverInMap extends FragmentActivity implements OnMapReadyCallback,
                 endPosition = polyLineList.get(next);
             }
 
-            final ValueAnimator valueAnimator = ValueAnimator.ofFloat(0, 1);
+            ValueAnimator valueAnimator = ValueAnimator.ofFloat(0, 1);
             valueAnimator.setDuration(3000);
             valueAnimator.setInterpolator(new LinearInterpolator());
             valueAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
                 @Override
                 public void onAnimationUpdate(ValueAnimator animation) {
-                    v = valueAnimator.getAnimatedFraction();
+                    v = animation.getAnimatedFraction();
                     lng = v * endPosition.longitude + (1 - v) * startPostion.longitude;
                     lat = v * endPosition.latitude + (1 - v) * startPostion.latitude;
                     LatLng newPos = new LatLng(lat, lng);
@@ -196,15 +204,35 @@ public class DriverInMap extends FragmentActivity implements OnMapReadyCallback,
 
         polyLineList = new ArrayList<>();
         btnGo = findViewById(R.id.btnGo);
-        edtPlace = findViewById(R.id.edtPlace);
+        place = (PlaceAutocompleteFragment) getFragmentManager().findFragmentById(R.id.place_autocomplete_fragment);
+        place.setOnPlaceSelectedListener(new PlaceSelectionListener() {
+            @Override
+            public void onPlaceSelected(Place place) {
+                if (location_switch.isChecked()) {
+                    destination = place.getAddress().toString();
+                    destination = destination.replace(" ", "+");
+
+                    getDirection();
+                } else {
+                    Toast.makeText(getApplicationContext(), "Your are Offline", Toast.LENGTH_SHORT).show();
+                }
+
+            }
+
+            @Override
+            public void onError(Status status) {
+                Toast.makeText(getApplicationContext(), "" + status.toString(), Toast.LENGTH_SHORT).show();
+            }
+        });
+
+
 
         btnGo.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                destination = edtPlace.getText().toString();
                 destination = destination.replace(" ", "+"); //Replace space with + for fetch data
-                Log.d("EDMTDEV", destination);
-
+                Toast.makeText(getApplicationContext(), "SS", Toast.LENGTH_SHORT).show();
+                //Log.d("EDMTDEV", destination);
                 getDirection();
 
             }
@@ -230,7 +258,7 @@ public class DriverInMap extends FragmentActivity implements OnMapReadyCallback,
                     "origin=" + currentPosition.latitude + "," + currentPosition.longitude + "&" +
                     "destination=" + destination + "&" +
                     "key=" + getResources().getString(R.string.map_api_key);
-            Log.d("EDMTDEV", requestApi); // Print URL for debug
+            Log.d("Test", requestApi); // Print URL for debug
             mService.getPath(requestApi)
                     .enqueue(new Callback<String>() {
                         @Override
@@ -301,7 +329,7 @@ public class DriverInMap extends FragmentActivity implements OnMapReadyCallback,
 
                                 handler = new Handler();
                                 index = -1;
-                                next = -1;
+                                next = 1;
                                 handler.postDelayed(drawPathRunnable, 3000);
 
 
@@ -317,14 +345,14 @@ public class DriverInMap extends FragmentActivity implements OnMapReadyCallback,
                         }
                     });
         } catch (Exception e) {
-
+            e.printStackTrace();
         }
 
     }
 
-    private List decodePoly(String encoded) {
+    private List<LatLng> decodePoly(String encoded) {
 
-        List poly = new ArrayList();
+        List<LatLng> poly = new ArrayList<LatLng>();
         int index = 0, len = encoded.length();
         int lat = 0, lng = 0;
 
@@ -441,9 +469,12 @@ public class DriverInMap extends FragmentActivity implements OnMapReadyCallback,
             if (location_switch.isChecked()){
                 final double latitude = mLastLocation.getLatitude();
                 final double longitude = mLastLocation.getLongitude();
+                //
+                final double lat = 10.8702118;
+                final double lng = 106.7996835;
+
 
                 //Update To Firebase
-                //Todo: Chi update firebase
                 geoFire.setLocation(FirebaseAuth.getInstance().getCurrentUser().getUid(), new GeoLocation(latitude, longitude), new GeoFire.CompletionListener() {
                     @Override
                     public void onComplete(String key, DatabaseError error) {
