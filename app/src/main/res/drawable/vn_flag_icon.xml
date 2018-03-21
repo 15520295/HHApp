@@ -5,20 +5,20 @@
         <shape android:padding="10dp" android:shape="rectangle"
             >
             <size
-                android:width="32dp"
+                android:width="30dp"
                 android:height="20dp"/>
             <corners
-                android:bottomLeftRadius="1dp"
-                android:bottomRightRadius="1dp"
-                android:topLeftRadius="1dp"
-                android:topRightRadius="1dp"/>
+                android:bottomLeftRadius="2dp"
+                android:bottomRightRadius="2dp"
+                android:topLeftRadius="2dp"
+                android:topRightRadius="2dp"/>
             <solid android:color="#d11f2a"/>
         </shape>
     </item>
 
     <item
-        android:width="12dp"
-        android:height="12dp"
+        android:width="10dp"
+        android:height="10dp"
         android:drawable="@drawable/yellow_star"
         android:gravity="center"
     />

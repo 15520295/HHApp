@@ -3,6 +3,7 @@
     package="com.example.huydaoduc.hieu.chi.hhapp">
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.SEND_SMS" />
 
     <application
         android:allowBackup="true"
@@ -28,10 +29,11 @@
             android:name=".activity.EnterPhoneNumberActivity"
             android:label="@string/title_activity_enter_phone_number"
             android:windowSoftInputMode="stateHidden|adjustResize" />
-        <activity android:name=".activity.VerifyPhoneActivity"
+        <activity
+            android:name=".activity.VerifyPhoneActivity"
             android:label="@string/title_activity_enter_phone_number"
-            android:theme="@style/Theme.AppCompat.NoActionBar"
-            android:windowSoftInputMode="stateHidden|adjustResize">></activity>
+            android:windowSoftInputMode="stateVisible|adjustResize" />
+        <activity android:name=".activity.EnterPassActivity"></activity>
     </application>
 
 </manifest>

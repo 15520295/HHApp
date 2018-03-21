@@ -6,20 +6,18 @@ import android.os.Bundle;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
-import android.widget.EditText;
 import android.widget.TextView;
 
 import com.example.huydaoduc.hieu.chi.hhapp.R;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.PhoneAuthProvider;
-import com.google.firebase.database.FirebaseDatabase;
 
 public class PhoneAuthActivity extends AppCompatActivity {
 
     FirebaseAuth firebaseAuth;
     PhoneAuthProvider.OnVerificationStateChangedCallbacks mCallback;
 
-    EditText et_phone_number;
+    TextView tv_phone_number;
     TextView tv_connect_social;
 
 
@@ -56,7 +54,7 @@ public class PhoneAuthActivity extends AppCompatActivity {
 
     private void Init() {
         // Init Views
-        et_phone_number = findViewById(R.id.et_phone_number);
+        tv_phone_number = findViewById(R.id.et_phone_number);
         tv_connect_social = findViewById(R.id.tv_connect_social);
         tv_connect_social.setEnabled(false);
 
@@ -64,7 +62,7 @@ public class PhoneAuthActivity extends AppCompatActivity {
         firebaseAuth = FirebaseAuth.getInstance();
 
         // Events
-        et_phone_number.setOnClickListener(new View.OnClickListener() {
+        tv_phone_number.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 AnimationOut();
@@ -73,4 +71,6 @@ public class PhoneAuthActivity extends AppCompatActivity {
             }
         });
     }
+
+
 }

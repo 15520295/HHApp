@@ -2,10 +2,10 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/rootLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="com.example.huydaoduc.hieu.chi.hhapp.activity.EnterPhoneNumberActivity">
-
 
     <ImageButton
         android:id="@+id/imageButton"
@@ -39,10 +39,10 @@
 
 
     <RelativeLayout
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@+id/tv_phone_number"
-        android:layout_marginStart="25dp"
+        android:layout_centerHorizontal="true"
         android:layout_marginTop="14dp"
         >
 
@@ -51,7 +51,10 @@
             android:layout_width="40dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="10dp"
+            android:cursorVisible="false"
             android:hint="0"
+            android:inputType="numberDecimal"
+            android:maxLength="1"
             android:textAlignment="center"
             android:textSize="22sp"
             />
@@ -62,7 +65,10 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="10dp"
             android:layout_toEndOf="@id/et_number1"
+            android:cursorVisible="false"
             android:hint="0"
+            android:inputType="numberDecimal"
+            android:maxLength="1"
             android:textAlignment="center"
             android:textSize="22sp"
             />
@@ -73,7 +79,10 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="10dp"
             android:layout_toEndOf="@id/et_number2"
+            android:cursorVisible="false"
             android:hint="0"
+            android:inputType="numberDecimal"
+            android:maxLength="1"
             android:textAlignment="center"
             android:textSize="22sp"
             />
@@ -84,7 +93,38 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="10dp"
             android:layout_toEndOf="@id/et_number3"
+            android:cursorVisible="false"
             android:hint="0"
+            android:inputType="numberDecimal"
+            android:maxLength="1"
+            android:textAlignment="center"
+            android:textSize="22sp"
+            />
+
+        <EditText
+            android:id="@+id/et_number5"
+            android:layout_width="40dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:layout_toEndOf="@id/et_number4"
+            android:cursorVisible="false"
+            android:hint="0"
+            android:inputType="numberDecimal"
+            android:maxLength="1"
+            android:textAlignment="center"
+            android:textSize="22sp"
+            />
+
+        <EditText
+            android:id="@+id/et_number6"
+            android:layout_width="40dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:layout_toEndOf="@id/et_number5"
+            android:cursorVisible="false"
+            android:hint="0"
+            android:inputType="numberDecimal"
+            android:maxLength="1"
             android:textAlignment="center"
             android:textSize="22sp"
             />
@@ -98,11 +138,13 @@
         android:layout_alignParentBottom="true"
         android:layout_alignParentEnd="true"
         android:layout_margin="@dimen/fab_margin"
+        android:onClick="verify"
         app:backgroundTint="#f000"
         app:borderWidth="0dp"
         app:elevation="2dp"
-        app:fabSize="mini"
-        app:srcCompat="@drawable/ic_forward"/>
+        app:fabSize="normal"
+        app:srcCompat="@drawable/ic_forward"
+        tools:ignore="OnClick" />
 
     <TextView
         android:id="@+id/tv_connect_social"
