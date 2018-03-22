@@ -1,5 +1,6 @@
 package com.example.huydaoduc.hieu.chi.hhapp.activity;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
@@ -8,11 +9,13 @@ import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.util.Pair;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.huydaoduc.hieu.chi.hhapp.R;
@@ -20,6 +23,8 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.PhoneAuthCredential;
 import com.google.firebase.auth.PhoneAuthProvider;
 
@@ -28,12 +33,15 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class VerifyPhoneActivity extends AppCompatActivity {
+    private static final String TAG = "VerifyPhoneAct";
 
-    FirebaseAuth firebaseAuth;
-    EditText n1, n2, n3, n4;
+    TextView tv_error;
     Map<Integer,EditText> editTextMap;
     RelativeLayout rootLayout;
+
+    FirebaseAuth firebaseAuth;
     private String verify_code;
+
 
     @Override
     public void finish() {
@@ -50,11 +58,14 @@ public class VerifyPhoneActivity extends AppCompatActivity {
         AnimationIn();
     }
 
+
     private void Init() {
         // Init Firebase
         firebaseAuth = FirebaseAuth.getInstance();
 
         // Init views
+        tv_error = findViewById(R.id.tv_error);
+
         editTextMap = new HashMap<>();
         editTextMap.put(1,(EditText) findViewById(R.id.et_number1));
         editTextMap.put(2,(EditText) findViewById(R.id.et_number2));
@@ -65,7 +76,8 @@ public class VerifyPhoneActivity extends AppCompatActivity {
         rootLayout = findViewById(R.id.rootLayout);
 
         // Events
-        for (final Map.Entry<Integer,EditText> pair : editTextMap.entrySet()) {
+        for (final Map.Entry<Integer,EditText> pair : editTextMap.entrySet())
+        {
             pair.getValue().addTextChangedListener(new TextWatcher() {
                 @Override
                 public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -74,7 +86,14 @@ public class VerifyPhoneActivity extends AppCompatActivity {
 
                 @Override
                 public void onTextChanged(CharSequence s, int start, int before, int count) {
-
+                    if(start == 0 && count == 0)
+                    {
+                        if(pair.getKey() != 1)
+                        {
+                            int i = pair.getKey() - 1;
+                            editTextMap.get(i).requestFocus();
+                        }
+                    }
                 }
 
                 @Override
@@ -103,17 +122,11 @@ public class VerifyPhoneActivity extends AppCompatActivity {
                 }
             });
 
-            pair.getValue().setOnKeyListener(new View.OnKeyListener() {
+            pair.getValue().setOnKeyListener(new View.OnKeyListener()
+            {
                 @Override
                 public boolean onKey(View v, int keyCode, KeyEvent event) {
-                    if (event.getAction() == KeyEvent.ACTION_UP) {
-                        if(pair.getKey() != 1)
-                        {
-                            if(keyCode == KeyEvent.KEYCODE_DEL ) {
-                                int i = pair.getKey() - 1;
-                                editTextMap.get(i).requestFocus();
-                            }
-                        }
+                    if (event.getAction() == KeyEvent.ACTION_DOWN) {
                     }
                     return false;
                 }
@@ -140,7 +153,20 @@ public class VerifyPhoneActivity extends AppCompatActivity {
                 .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
-                        Toast.makeText(getApplicationContext(),task.getResult().toString(),Toast.LENGTH_LONG).show();
+                        if (task.isSuccessful()) {
+                            // Sign in Success, update UI with the signed-in user's information
+                            Log.d(TAG, "signInWithCredential:success");
+                            FirebaseUser user = task.getResult().getUser();
+                            openEnterPassActivity();
+
+                        } else {
+                            // Failed, display a message and update the UI
+                            Log.w(TAG, "signInWithCredential:failure", task.getException());
+                            if (task.getException() instanceof FirebaseAuthInvalidCredentialsException) {
+                                // The verification code entered was invalid
+                                tv_error.setText("The verification code entered was invalid. Please check a gain!");
+                            }
+                        }
                     }
                 });
 
@@ -166,7 +192,6 @@ public class VerifyPhoneActivity extends AppCompatActivity {
                 input_code.append(pair.getValue().getText().toString());
             }
 
-
             PhoneAuthCredential credential = PhoneAuthProvider.getCredential(verify_code, input_code.toString());
             signInWithPhone(credential);
         }
@@ -183,5 +208,11 @@ public class VerifyPhoneActivity extends AppCompatActivity {
                     }
                 })
                 .show();
+    }
+
+    private void openEnterPassActivity()
+    {
+        Intent intent = new Intent(getApplicationContext(),EnterPassActivity.class);
+        startActivity(intent);
     }
 }

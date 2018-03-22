@@ -24,49 +24,54 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/imageButton"
         android:layout_marginStart="25dp"
-        android:layout_marginTop="25dp"
+        android:layout_marginTop="@dimen/margin_default_wide"
         android:text="Please enter your mobile number"
         android:textSize="@dimen/normal_text_size" />
 
-    <RelativeLayout
+    <android.support.constraint.ConstraintLayout
         android:id="@+id/input_phone_number_group"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@+id/tv_request"
+        android:layout_marginTop="@dimen/margin_default_wide"
         >
 
         <ImageView
             android:id="@+id/iv_flag"
-            android:layout_width="wrap_content"
+            android:layout_width="30dp"
             android:layout_height="wrap_content"
-            android:layout_alignParentStart="true"
-            android:layout_centerInParent="true"
-            android:layout_marginStart="@dimen/margin_default_wide"
+
+            android:layout_marginStart="25dp"
             android:scaleX="1.2"
             android:scaleY="1.2"
-            app:srcCompat="@drawable/vn_flag_icon"/>
+            app:layout_constraintBottom_toBottomOf="@+id/tv_country_code"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/tv_country_code"
+            app:srcCompat="@drawable/vn_flag_icon" />
 
         <TextView
             android:id="@+id/tv_country_code"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_centerInParent="true"
-            android:layout_marginStart="14dp"
+            android:layout_marginStart="10dp"
             android:layout_toEndOf="@id/iv_flag"
             android:layout_toLeftOf="@+id/iv_flag"
             android:drawablePadding="8dp"
             android:text="+84"
             android:textSize="@dimen/normal_text_size"
-            android:textStyle="bold"/>
+            android:textStyle="bold"
+            app:layout_constraintBottom_toBottomOf="@+id/et_phone_number"
+            app:layout_constraintStart_toEndOf="@+id/iv_flag"
+            app:layout_constraintTop_toTopOf="@+id/et_phone_number"
+            app:layout_constraintVertical_bias="0.523" />
 
         <EditText
             android:id="@+id/et_phone_number"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_alignParentEnd="true"
-            android:layout_centerInParent="true"
-            android:layout_marginEnd="@dimen/margin_default_wide"
-            android:layout_marginStart="8dp"
+            android:layout_marginEnd="25dp"
+            android:layout_marginStart="6dp"
             android:layout_toEndOf="@id/tv_country_code"
             android:focusable="true"
             android:focusableInTouchMode="true"
@@ -74,21 +79,28 @@
             android:inputType="numberDecimal"
             android:textColorHint="@color/edit_text_hint"
             android:textSize="@dimen/normal_text_size"
-            />
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/tv_country_code"
+            app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
-            android:layout_width="wrap_content"
+            android:id="@+id/tv_error"
+            android:layout_width="244dp"
             android:layout_height="wrap_content"
             android:layout_alignStart="@+id/et_phone_number"
             android:layout_below="@+id/et_phone_number"
+            android:layout_marginEnd="25dp"
+
             android:layout_marginStart="4dp"
-            android:layout_marginTop="10dp"
+            android:layout_marginTop="6dp"
             android:text="Please enter your mobile number"
             android:textColor="@color/color_error"
             android:textSize="16sp"
-
-            />
-    </RelativeLayout>
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="@+id/et_phone_number"
+            app:layout_constraintTop_toBottomOf="@+id/et_phone_number" />
+    </android.support.constraint.ConstraintLayout>
 
 
 

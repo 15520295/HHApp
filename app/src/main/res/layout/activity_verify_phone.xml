@@ -11,7 +11,7 @@
         android:id="@+id/imageButton"
         android:layout_width="20dp"
         android:layout_height="20dp"
-        android:layout_marginStart="25dp"
+        android:layout_marginStart="@dimen/margin_default_wide"
         android:layout_marginTop="15dp"
         android:background="@color/fui_transparent"
         android:scaleType="fitCenter"
@@ -22,35 +22,36 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@+id/imageButton"
-        android:layout_marginStart="25dp"
-        android:layout_marginTop="10dp"
+        android:layout_marginStart="@dimen/margin_default_wide"
+        android:layout_marginTop="@dimen/margin_default_wide"
         android:text="Enter the 4-digit code sent to you at"
-        android:textSize="20sp"/>
+        android:textSize="@dimen/normal_text_size"/>
 
     <TextView
         android:id="@+id/tv_phone_number"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@+id/tv_guid_line"
-        android:layout_marginStart="25dp"
-        android:layout_marginTop="10dp"
+        android:layout_marginStart="@dimen/margin_default_wide"
+        android:layout_marginTop="@dimen/margin_default_wide"
         android:text="+84 34 92 888"
-        android:textSize="20sp"/>
+        android:textSize="@dimen/normal_text_size"
+        android:textStyle="bold"/>
 
 
     <RelativeLayout
+        android:id="@+id/group_code"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@+id/tv_phone_number"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="14dp"
+        android:layout_marginTop="@dimen/margin_default_wide"
         >
 
         <EditText
             android:id="@+id/et_number1"
             android:layout_width="40dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="10dp"
             android:cursorVisible="false"
             android:hint="0"
             android:inputType="numberDecimal"
@@ -130,6 +131,20 @@
             />
 
     </RelativeLayout>
+
+    <TextView
+        android:id="@+id/tv_error"
+        android:layout_width="244dp"
+        android:layout_height="wrap_content"
+        android:layout_alignEnd="@id/group_code"
+        android:layout_alignStart="@id/group_code"
+        android:layout_below="@+id/group_code"
+        android:layout_marginEnd="6dp"
+        android:layout_marginStart="6dp"
+        android:layout_marginTop="6dp"
+        android:text="Please input the code"
+        android:textColor="@color/color_error"
+        android:textSize="16sp"/>
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/fab"

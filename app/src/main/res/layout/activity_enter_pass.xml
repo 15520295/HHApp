@@ -25,43 +25,38 @@
         android:text="Please enter your password"
         android:textSize="@dimen/normal_text_size" />
 
-    <RelativeLayout
-        android:id="@+id/input_phone_number_group"
+    <EditText
+        android:id="@+id/et_phone_number"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
         android:layout_below="@+id/tv_request"
-        >
+        android:layout_marginEnd="@dimen/margin_default_wide"
+        android:layout_marginStart="@dimen/margin_default_wide"
+        android:layout_marginTop="@dimen/margin_default_wide"
+        android:layout_toEndOf="@id/tv_country_code"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
+        android:hint="Enter your pass word"
+        android:inputType="numberDecimal"
+        android:textColorHint="@color/edit_text_hint"
+        android:textSize="@dimen/normal_text_size"
+        />
 
-        <EditText
-            android:id="@+id/et_phone_number"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_alignParentEnd="true"
-            android:layout_centerInParent="true"
-            android:layout_marginEnd="@dimen/margin_default_wide"
-            android:layout_marginStart="8dp"
-            android:layout_toEndOf="@id/tv_country_code"
-            android:focusable="true"
-            android:focusableInTouchMode="true"
-            android:hint="Enter pass word"
-            android:inputType="numberDecimal"
-            android:textColorHint="@color/edit_text_hint"
-            android:textSize="@dimen/normal_text_size"
-            />
+    <TextView
+        android:id="@+id/tv_error"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignStart="@+id/et_phone_number"
+        android:layout_below="@+id/et_phone_number"
+        android:layout_marginEnd="@dimen/margin_default_wide"
+        android:layout_marginStart="4dp"
+        android:layout_marginTop="10dp"
+        android:text="Please enter your pass word"
+        android:textColor="@color/color_error"
+        android:textSize="16sp"
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignStart="@+id/et_phone_number"
-            android:layout_below="@+id/et_phone_number"
-            android:layout_marginStart="4dp"
-            android:layout_marginTop="10dp"
-            android:text="Please enter your mobile number"
-            android:textColor="@color/color_error"
-            android:textSize="16sp"
-
-            />
-    </RelativeLayout>
+        />
 
 
 

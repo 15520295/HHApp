@@ -3,10 +3,12 @@ package com.example.huydaoduc.hieu.chi.hhapp.activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
@@ -14,10 +16,16 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.huydaoduc.hieu.chi.hhapp.R;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.FirebaseException;
+import com.google.firebase.FirebaseTooManyRequestsException;
+import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
 import com.google.firebase.auth.PhoneAuthCredential;
 import com.google.firebase.auth.PhoneAuthProvider;
 
@@ -25,7 +33,8 @@ import java.util.concurrent.TimeUnit;
 
 public class EnterPhoneNumberActivity extends AppCompatActivity {
 
-    TextView tv_connect_social;
+    private static final String TAG = "EnterPhoneNumberAct";
+    TextView tv_connect_social, tv_error;
     EditText et_phone_number;
     RelativeLayout rootLayout;
 
@@ -89,32 +98,9 @@ public class EnterPhoneNumberActivity extends AppCompatActivity {
         // Init Firebase
         firebaseAuth = FirebaseAuth.getInstance();
 
-        // Firebase Events
-        mCallback = new PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
-            @Override
-            public void onVerificationCompleted(PhoneAuthCredential phoneAuthCredential) {
-                Snackbar.make(rootLayout, "onVerificationCompleted", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-
-            @Override
-            public void onVerificationFailed(FirebaseException e) {
-                Snackbar.make(rootLayout, "Fail:" + e.getMessage().toString(), Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-                et_phone_number.setText(e.getMessage().toString());
-
-            }
-
-            @Override
-            public void onCodeSent(String s, PhoneAuthProvider.ForceResendingToken forceResendingToken) {
-                super.onCodeSent(s, forceResendingToken);
-                verification_code = s;
-                openVerifyActivity();
-            }
-        };
-
         // Init Views
         tv_connect_social = findViewById(R.id.tv_connect_social);
+        tv_error = findViewById(R.id.tv_error);
         et_phone_number = findViewById(R.id.et_phone_number);
         rootLayout = findViewById(R.id.rootLayout);
 
@@ -128,10 +114,68 @@ public class EnterPhoneNumberActivity extends AppCompatActivity {
                 send_sms();
             }
         });
+
+        // Firebase Events
+        mCallback = new PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
+            @Override
+            public void onVerificationCompleted(PhoneAuthCredential phoneAuthCredential) {
+                Log.w(TAG, "onVerificationCompleted");
+
+                // This callback will be invoked in two situations:
+                // 1 - Instant verification. In some cases the phone number can be instantly
+                //     verified without needing to send or enter a verification code.
+                // 2 - Auto-retrieval. On some devices Google Play services can automatically
+                //     detect the incoming verification SMS and perform verification without
+                //     user action.
+
+                // ---> Sign In right away and go to EnterPass
+                firebaseAuth.signInWithCredential(phoneAuthCredential)
+                        .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+                            @Override
+                            public void onComplete(@NonNull Task<AuthResult> task) {
+                                Toast.makeText(getApplicationContext(),task.getResult().toString(),Toast.LENGTH_LONG).show();
+                            }
+                        });
+
+                Intent intent = new Intent(getApplicationContext(),EnterPassActivity.class);
+                EnterPhoneNumberActivity.this.startActivity(intent);
+            }
+
+            @Override
+            public void onVerificationFailed(FirebaseException e) {
+                tv_error.setText(e.getMessage());
+                // This callback is invoked in an invalid request for verification is made,
+                // for instance if the the phone number format is not valid.
+                Log.w(TAG, "onVerificationFailed", e);
+
+                if (e instanceof FirebaseAuthInvalidCredentialsException) {
+                    // Invalid request
+                    tv_error.setText("Failed to send sms to your number. Please Try again!");
+                } else if (e instanceof FirebaseTooManyRequestsException) {
+                    // The SMS quota for the project has been exceeded
+                    tv_error.setText("The server storage quota has been exceeded. Please go back other time.");
+                }
+            }
+
+            @Override
+            public void onCodeSent(String s, PhoneAuthProvider.ForceResendingToken forceResendingToken) {
+                super.onCodeSent(s, forceResendingToken);
+                // The SMS verification code has been sent to the provided phone number, we
+                // now need to ask the user to enter the code and then construct a credential
+                // by combining the code with a verification ID.
+                Log.d(TAG, "onCodeSent:" + verification_code);
+
+                // Save verification ID and resending token so we can use them later
+                verification_code = s;
+
+                openVerifyActivity();
+            }
+        };
     }
 
     public void send_sms()
     {
+        //todo: check invalid number
         String number = "+84" + et_phone_number.getText().toString();
         PhoneAuthProvider.getInstance().verifyPhoneNumber(
                 number,
