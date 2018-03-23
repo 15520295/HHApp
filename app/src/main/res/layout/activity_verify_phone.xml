@@ -144,7 +144,8 @@
         android:layout_marginTop="6dp"
         android:text="Please input the code"
         android:textColor="@color/color_error"
-        android:textSize="16sp"/>
+        android:textSize="16sp"
+        android:visibility="invisible"/>
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/fab"

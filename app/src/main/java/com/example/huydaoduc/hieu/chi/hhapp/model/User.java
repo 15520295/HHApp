@@ -28,13 +28,14 @@ public class User implements Parcelable {
             return new User[size];
         }
     };
-
-    private final String mProviderId;
-    private final String mPassword;
-    private final String mPhoneNumber;
-    private final String mName;
-    private final String mDateOfBirth;
-    private final Uri mPhotoUri;
+    private String mProviderId;
+    private String mPassword;
+    private String mPhoneNumber;
+    private String mName;
+    private String mDateOfBirth;
+    private Uri mPhotoUri;
+    public User() {
+    }
 
     private User(String providerId, String password, String phoneNumber, String name, String dateOfBirth, Uri photoUri) {
         mProviderId = providerId;

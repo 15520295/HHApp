@@ -43,8 +43,8 @@ public class EnterPassActivity extends AppCompatActivity {
 
         Init();
 
-        //                                // Put the User to the FirebaseDatabase with User's information
-        //                                databaseReference.child("users").child(uid).setValue(user);
+        // // Put the User to the FirebaseDatabase with User's information
+        // databaseReference.child("users").child(uid).setValue(user);
         //todo: check password instantly
         Bundle bundle = getIntent().getExtras();
         if(bundle == null)
@@ -58,8 +58,9 @@ public class EnterPassActivity extends AppCompatActivity {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 User user = dataSnapshot.getValue(User.class);
-
-                user_password = user.getPassword();
+                if (user != null) {
+                    user_password = user.getPassword();
+                }
             }
 
             @Override
@@ -108,10 +109,21 @@ public class EnterPassActivity extends AppCompatActivity {
 
     private void checkPassword()
     {
-        if(et_password.getText().toString().equals(user_password))
-        {
-            Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-            startActivity(intent);
+        if (user_password == null) {
+            //todo: them phan nhap thong tin
+            // user chua co password
+            //Put the User to the FirebaseDatabase with User 's information
+
+            User user =new User.Builder(uid,et_password.getText().toString()).build();
+
+            databaseReference.child("users").child(uid).setValue(user);
+
+        } else {
+
+            if (et_password.getText().toString().equals(user_password)) {
+                Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+                startActivity(intent);
+            }
         }
     }
 

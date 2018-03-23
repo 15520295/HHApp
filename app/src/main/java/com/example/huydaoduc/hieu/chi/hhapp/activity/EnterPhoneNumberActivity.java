@@ -17,6 +17,7 @@ import android.widget.EditText;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.example.huydaoduc.hieu.chi.hhapp.MainActivity;
 import com.example.huydaoduc.hieu.chi.hhapp.R;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -112,8 +113,6 @@ public class EnterPhoneNumberActivity extends AppCompatActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "fab click", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
                 send_sms();
             }
         });
@@ -140,8 +139,7 @@ public class EnterPhoneNumberActivity extends AppCompatActivity {
                                     // Get User Firebase id
                                     String uid = task.getResult().getUser().getUid();
 
-                                    Intent intent = new Intent(getApplicationContext(),EnterPassActivity.class);
-                                    intent.putExtra("uid",uid);
+                                    Intent intent = new Intent(getApplicationContext(), MainActivity.class);
                                     EnterPhoneNumberActivity.this.startActivity(intent);
                                 }
                             }
@@ -151,18 +149,26 @@ public class EnterPhoneNumberActivity extends AppCompatActivity {
 
             @Override
             public void onVerificationFailed(FirebaseException e) {
-                tv_error.setText(e.getMessage());
                 // This callback is invoked in an invalid request for verification is made,
                 // for instance if the the phone number format is not valid.
                 Log.w(TAG, "onVerificationFailed", e);
 
-                if (e instanceof FirebaseAuthInvalidCredentialsException) {
+                if (e.getMessage().toLowerCase().contains("network")) {
+                    tv_error.setText("Can't connect to the network. Please check your connection");
+                }
+                else if (e instanceof FirebaseAuthInvalidCredentialsException) {
                     // Invalid request
                     tv_error.setText("Failed to send sms to your number. Please Try again!");
-                } else if (e instanceof FirebaseTooManyRequestsException) {
+                }
+                else if (e instanceof FirebaseTooManyRequestsException) {
                     // The SMS quota for the project has been exceeded
                     tv_error.setText("The server storage quota has been exceeded. Please go back other time.");
                 }
+                else
+                {
+                    tv_error.setText(e.getMessage());
+                }
+                tv_error.setVisibility(View.VISIBLE);
             }
 
             @Override

@@ -82,6 +82,7 @@
         android:text="Please enter your mobile number"
         android:textColor="@color/color_error"
         android:textSize="@dimen/text_size_small"
+        android:visibility="invisible"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="@+id/et_password"

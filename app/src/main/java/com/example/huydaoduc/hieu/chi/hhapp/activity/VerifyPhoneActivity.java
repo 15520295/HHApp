@@ -18,6 +18,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.huydaoduc.hieu.chi.hhapp.MainActivity;
 import com.example.huydaoduc.hieu.chi.hhapp.R;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -170,8 +171,7 @@ public class VerifyPhoneActivity extends AppCompatActivity {
                             // Get User Firebase id
                             String uid = task.getResult().getUser().getUid();
 
-                            Intent intent = new Intent(getApplicationContext(),EnterPassActivity.class);
-                            intent.putExtra("uid",uid);
+                            Intent intent = new Intent(getApplicationContext(), MainActivity.class);
                             VerifyPhoneActivity.this.startActivity(intent);
                         } else {
                             // Failed, display a message and update the UI
