@@ -27,6 +27,8 @@ import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.PhoneAuthCredential;
 import com.google.firebase.auth.PhoneAuthProvider;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -35,12 +37,13 @@ import java.util.Map;
 public class VerifyPhoneActivity extends AppCompatActivity {
     private static final String TAG = "VerifyPhoneAct";
 
-    TextView tv_error;
-    Map<Integer,EditText> editTextMap;
-    RelativeLayout rootLayout;
+    private TextView tv_error;
+    private Map<Integer,EditText> editTextMap;
+    private RelativeLayout rootLayout;
 
-    FirebaseAuth firebaseAuth;
+    private FirebaseAuth firebaseAuth;
     private String verify_code;
+    private DatabaseReference databaseReference;
 
 
     @Override
@@ -55,6 +58,23 @@ public class VerifyPhoneActivity extends AppCompatActivity {
         setContentView(R.layout.activity_verify_phone);
 
         Init();
+
+        // Get Extra
+        Bundle extras = getIntent().getExtras();
+        if (extras == null) {
+            verify_code = null;
+            Snackbar.make(rootLayout, "Can't get user information.Please try again!", Snackbar.LENGTH_SHORT)
+                    .setAction("Ok", new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            Intent intent = new Intent(getApplicationContext(),EnterPhoneNumberActivity.class);
+                            VerifyPhoneActivity.this.startActivity(intent);
+                        }
+                    }).show();
+        } else {
+            verify_code = extras.getString("verify_code");
+        }
+
         AnimationIn();
     }
 
@@ -62,6 +82,7 @@ public class VerifyPhoneActivity extends AppCompatActivity {
     private void Init() {
         // Init Firebase
         firebaseAuth = FirebaseAuth.getInstance();
+        databaseReference = FirebaseDatabase.getInstance().getReference();
 
         // Init views
         tv_error = findViewById(R.id.tv_error);
@@ -132,16 +153,6 @@ public class VerifyPhoneActivity extends AppCompatActivity {
                 }
             });
         }
-
-
-        // Get Extra
-        Bundle extras = getIntent().getExtras();
-        if (extras == null) {
-            verify_code = null;
-            Snackbar.make(rootLayout, "Can't send the code.Please try again!", Snackbar.LENGTH_SHORT).show();
-        } else {
-            verify_code = extras.getString("verify_code");
-        }
     }
 
     private void AnimationIn() {
@@ -156,9 +167,12 @@ public class VerifyPhoneActivity extends AppCompatActivity {
                         if (task.isSuccessful()) {
                             // Sign in Success, update UI with the signed-in user's information
                             Log.d(TAG, "signInWithCredential:success");
-                            FirebaseUser user = task.getResult().getUser();
-                            openEnterPassActivity();
+                            // Get User Firebase id
+                            String uid = task.getResult().getUser().getUid();
 
+                            Intent intent = new Intent(getApplicationContext(),EnterPassActivity.class);
+                            intent.putExtra("uid",uid);
+                            VerifyPhoneActivity.this.startActivity(intent);
                         } else {
                             // Failed, display a message and update the UI
                             Log.w(TAG, "signInWithCredential:failure", task.getException());
@@ -208,11 +222,5 @@ public class VerifyPhoneActivity extends AppCompatActivity {
                     }
                 })
                 .show();
-    }
-
-    private void openEnterPassActivity()
-    {
-        Intent intent = new Intent(getApplicationContext(),EnterPassActivity.class);
-        startActivity(intent);
     }
 }

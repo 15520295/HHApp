@@ -14,11 +14,11 @@ import com.google.firebase.auth.PhoneAuthProvider;
 
 public class PhoneAuthActivity extends AppCompatActivity {
 
-    FirebaseAuth firebaseAuth;
-    PhoneAuthProvider.OnVerificationStateChangedCallbacks mCallback;
+    private FirebaseAuth firebaseAuth;
+    private PhoneAuthProvider.OnVerificationStateChangedCallbacks mCallback;
 
-    TextView tv_phone_number;
-    TextView tv_connect_social;
+    private TextView tv_phone_number;
+    private TextView tv_connect_social;
 
 
     @Override
@@ -54,7 +54,7 @@ public class PhoneAuthActivity extends AppCompatActivity {
 
     private void Init() {
         // Init Views
-        tv_phone_number = findViewById(R.id.et_phone_number);
+        tv_phone_number = findViewById(R.id.et_password);
         tv_connect_social = findViewById(R.id.tv_connect_social);
         tv_connect_social.setEnabled(false);
 

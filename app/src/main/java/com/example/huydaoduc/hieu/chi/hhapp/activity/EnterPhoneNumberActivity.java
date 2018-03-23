@@ -16,7 +16,6 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.example.huydaoduc.hieu.chi.hhapp.R;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -28,19 +27,22 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
 import com.google.firebase.auth.PhoneAuthCredential;
 import com.google.firebase.auth.PhoneAuthProvider;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.concurrent.TimeUnit;
 
 public class EnterPhoneNumberActivity extends AppCompatActivity {
 
     private static final String TAG = "EnterPhoneNumberAct";
-    TextView tv_connect_social, tv_error;
-    EditText et_phone_number;
-    RelativeLayout rootLayout;
+    private TextView tv_connect_social, tv_error;
+    private EditText et_phone_number;
+    private RelativeLayout rootLayout;
 
-    FirebaseAuth firebaseAuth;
-    PhoneAuthProvider.OnVerificationStateChangedCallbacks mCallback;
-    String verification_code;
+    private FirebaseAuth firebaseAuth;
+    private DatabaseReference databaseReference;
+    private PhoneAuthProvider.OnVerificationStateChangedCallbacks mCallback;
+    private String verification_code;
 
 
     @Override
@@ -97,11 +99,12 @@ public class EnterPhoneNumberActivity extends AppCompatActivity {
     private void Init() {
         // Init Firebase
         firebaseAuth = FirebaseAuth.getInstance();
+        databaseReference = FirebaseDatabase.getInstance().getReference();
 
         // Init Views
         tv_connect_social = findViewById(R.id.tv_connect_social);
         tv_error = findViewById(R.id.tv_error);
-        et_phone_number = findViewById(R.id.et_phone_number);
+        et_phone_number = findViewById(R.id.et_password);
         rootLayout = findViewById(R.id.rootLayout);
 
         // Events
@@ -120,7 +123,6 @@ public class EnterPhoneNumberActivity extends AppCompatActivity {
             @Override
             public void onVerificationCompleted(PhoneAuthCredential phoneAuthCredential) {
                 Log.w(TAG, "onVerificationCompleted");
-
                 // This callback will be invoked in two situations:
                 // 1 - Instant verification. In some cases the phone number can be instantly
                 //     verified without needing to send or enter a verification code.
@@ -128,17 +130,23 @@ public class EnterPhoneNumberActivity extends AppCompatActivity {
                 //     detect the incoming verification SMS and perform verification without
                 //     user action.
 
-                // ---> Sign In right away and go to EnterPass
+                // ---> Sign In right away and sent to uid to EnterPass
                 firebaseAuth.signInWithCredential(phoneAuthCredential)
                         .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                             @Override
                             public void onComplete(@NonNull Task<AuthResult> task) {
-                                Toast.makeText(getApplicationContext(),task.getResult().toString(),Toast.LENGTH_LONG).show();
+                                if(task.isSuccessful())
+                                {
+                                    // Get User Firebase id
+                                    String uid = task.getResult().getUser().getUid();
+
+                                    Intent intent = new Intent(getApplicationContext(),EnterPassActivity.class);
+                                    intent.putExtra("uid",uid);
+                                    EnterPhoneNumberActivity.this.startActivity(intent);
+                                }
                             }
                         });
 
-                Intent intent = new Intent(getApplicationContext(),EnterPassActivity.class);
-                EnterPhoneNumberActivity.this.startActivity(intent);
             }
 
             @Override

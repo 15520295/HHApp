@@ -9,9 +9,10 @@
     <dimen name="divider_start_and_end_margins">8dp</dimen>
     <dimen name="divider_top_and_bottom_margins">8dp</dimen>
     <dimen name="fab_margin">16dp</dimen>
-    <dimen name="normal_text_size">20sp</dimen>
+    <dimen name="text_size_normal">20sp</dimen>
 
     <!-- DEFAULT MARGIN -->
     <dimen name="margin_default_wide">25dp</dimen>
     <dimen name="margin_default_normal">20dp</dimen>
+    <dimen name="text_size_small">16sp</dimen>
 </resources>
