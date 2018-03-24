@@ -76,7 +76,7 @@ public class EnterPassActivity extends AppCompatActivity {
         databaseReference = FirebaseDatabase.getInstance().getReference();
 
         // init views
-        rootLayout = findViewById(R.id.rootLayout);
+        rootLayout = findViewById(R.id.root);
         et_password = findViewById(R.id.et_password);
         tv_error = findViewById(R.id.tv_error);
 

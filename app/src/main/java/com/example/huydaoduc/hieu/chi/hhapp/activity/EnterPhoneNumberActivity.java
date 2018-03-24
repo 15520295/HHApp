@@ -1,17 +1,39 @@
 package com.example.huydaoduc.hieu.chi.hhapp.activity;
 
+import android.animation.TimeInterpolator;
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.RequiresApi;
+import android.support.constraint.ConstraintLayout;
+import android.support.constraint.ConstraintSet;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
+import android.support.v4.view.animation.FastOutLinearInInterpolator;
+import android.support.v4.view.animation.FastOutSlowInInterpolator;
+import android.support.v4.view.animation.LinearOutSlowInInterpolator;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.transition.AutoTransition;
+import android.transition.ChangeBounds;
+import android.transition.ChangeClipBounds;
+import android.transition.ChangeScroll;
+import android.transition.ChangeTransform;
+import android.transition.Fade;
+import android.transition.Slide;
+import android.transition.Transition;
+import android.transition.TransitionManager;
+import android.transition.TransitionSet;
 import android.util.Log;
 import android.view.View;
+import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.view.animation.AnticipateInterpolator;
+import android.view.animation.AnticipateOvershootInterpolator;
+import android.view.animation.DecelerateInterpolator;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.RelativeLayout;
@@ -38,13 +60,103 @@ public class EnterPhoneNumberActivity extends AppCompatActivity {
     private static final String TAG = "EnterPhoneNumberAct";
     private TextView tv_connect_social, tv_error;
     private EditText et_phone_number;
-    private RelativeLayout rootLayout;
+    private ConstraintLayout root;
 
     private FirebaseAuth firebaseAuth;
     private DatabaseReference databaseReference;
     private PhoneAuthProvider.OnVerificationStateChangedCallbacks mCallback;
     private String verification_code;
 
+    @Override
+    public void onWindowFocusChanged(boolean hasFocus) {
+        super.onWindowFocusChanged(hasFocus);
+        ConstrainAnimation();
+        showKeyBoard();
+    }
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        overridePendingTransition(R.anim.anim_activity_none, R.anim.anim_activity_none);
+        setContentView(R.layout.activity_enter_phone_number_e);
+        Init();
+    }
+
+
+    private void ConstrainAnimation() {
+//        TransitionManager.beginDelayedTransition(mConstraintLayout);
+//        if (mOld = !mOld) {
+//            mConstraintSet1.applyTo(mConstraintLayout); // set new constraints
+//        }  else {
+//            mConstraintSet2.applyTo(mConstraintLayout); // set new constraints
+//        }
+
+//        TimeInterpolator timeInterpolator = new AnticipateOvershootInterpolator(1.0f);
+//        Transition transition = null;
+//
+//
+//        transition = new ChangeBounds();
+//        transition.setInterpolator(timeInterpolator);
+//        transition.setDuration(1000);
+
+        ConstraintLayout root = findViewById(R.id.root);
+
+        ConstraintSet constraintSetTo = new ConstraintSet();
+        constraintSetTo.clone(this,R.layout.activity_enter_phone_number);
+
+        TransitionSet transitionSet = new TransitionSet(){
+            {
+                setDuration(500);
+                setOrdering(ORDERING_TOGETHER);
+                addTransition(new TransitionSet() {
+                    {
+                        addTransition(new Fade(Fade.OUT));
+                        addTransition(new ChangeBounds());
+                        addTransition(new Fade(Fade.IN));
+                    }
+                });
+                setInterpolator(new AnticipateOvershootInterpolator());
+
+            }
+
+            @Override
+            public TransitionSet addListener(TransitionListener listener) {
+                listener.onTransitionEnd(this);
+                return super.addListener(listener);
+            }
+        };
+
+        transitionSet.addListener(new Transition.TransitionListener() {
+            @Override
+            public void onTransitionStart(Transition transition) {
+
+            }
+
+            @Override
+            public void onTransitionEnd(Transition transition) {
+                showKeyBoard();
+            }
+
+            @Override
+            public void onTransitionCancel(Transition transition) {
+
+            }
+
+            @Override
+            public void onTransitionPause(Transition transition) {
+
+            }
+
+            @Override
+            public void onTransitionResume(Transition transition) {
+
+            }
+        });
+
+        TransitionManager.beginDelayedTransition(root, transitionSet);
+        constraintSetTo.applyTo(root);
+
+    }
 
     @Override
     public void finish() {
@@ -70,9 +182,7 @@ public class EnterPhoneNumberActivity extends AppCompatActivity {
 
             @Override
             public void onAnimationEnd(Animation animation) {
-                et_phone_number.requestFocus();
-                InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                imm.showSoftInput(et_phone_number, InputMethodManager.SHOW_IMPLICIT);
+
             }
 
             @Override
@@ -85,19 +195,17 @@ public class EnterPhoneNumberActivity extends AppCompatActivity {
         tv_connect_social.startAnimation(animation);
     }
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        overridePendingTransition(R.anim.anim_activity_none, R.anim.anim_activity_none);
-        setContentView(R.layout.activity_enter_phone_number);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
 
-        Init();
-        AnimationIn();
-    }
 
     private void Init() {
+        ((TextView) findViewById(R.id.tv_connect_social))
+                .setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        ConstrainAnimation();
+
+                    }
+                });
         // Init Firebase
         firebaseAuth = FirebaseAuth.getInstance();
         databaseReference = FirebaseDatabase.getInstance().getReference();
@@ -106,7 +214,7 @@ public class EnterPhoneNumberActivity extends AppCompatActivity {
         tv_connect_social = findViewById(R.id.tv_connect_social);
         tv_error = findViewById(R.id.tv_error);
         et_phone_number = findViewById(R.id.et_password);
-        rootLayout = findViewById(R.id.rootLayout);
+        root = findViewById(R.id.root);
 
         // Events
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
@@ -205,6 +313,12 @@ public class EnterPhoneNumberActivity extends AppCompatActivity {
         Intent intent = new Intent(getApplicationContext(),VerifyPhoneActivity.class);
         intent.putExtra("verify_code",verification_code);
         this.startActivity(intent);
+    }
+
+    private void showKeyBoard() {
+        et_phone_number.requestFocus();
+        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.showSoftInput(et_phone_number, InputMethodManager.SHOW_IMPLICIT);
     }
 
 }

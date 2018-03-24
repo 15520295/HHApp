@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/rootLayout"
+    android:id="@+id/root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="com.example.huydaoduc.hieu.chi.hhapp.activity.PhoneAuthActivity">
@@ -12,10 +12,12 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:layout_marginBottom="20dp"
-        android:layout_marginStart="@dimen/margin_default_wide"
+        android:layout_marginBottom="25dp"
+        android:layout_marginStart="25dp"
         android:text="Or connect with socail"
-        android:textColor="@color/text_link" />
+        android:textColor="@color/text_link"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 
     <View
         android:id="@+id/bar"
@@ -23,8 +25,11 @@
         android:layout_height="1dp"
         android:layout_above="@+id/tv_connect_social"
         android:layout_alignParentEnd="true"
-        android:layout_marginBottom="@dimen/margin_default_normal"
-        android:background="#d9d9d9" />
+        android:layout_marginBottom="25dp"
+        android:background="#d9d9d9"
+        app:layout_constraintBottom_toTopOf="@+id/tv_connect_social"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 
     <ImageView
         android:id="@+id/iv_flag"
@@ -33,11 +38,13 @@
         android:layout_alignBottom="@id/tv_country_code"
         android:layout_alignParentStart="true"
         android:layout_alignTop="@id/tv_country_code"
-        android:layout_marginStart="@dimen/margin_default_wide"
+        android:layout_marginStart="25dp"
         android:scaleX="1.2"
         android:scaleY="1.2"
-        app:srcCompat="@drawable/vn_flag_icon"
-        />
+        app:layout_constraintBottom_toBottomOf="@+id/tv_country_code"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/tv_country_code"
+        app:srcCompat="@drawable/vn_flag_icon" />
 
 
     <TextView
@@ -45,21 +52,22 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_above="@id/bar"
-        android:layout_marginBottom="@dimen/margin_default_wide"
-        android:layout_marginStart="14dp"
+        android:layout_marginBottom="30dp"
+        android:layout_marginStart="16dp"
         android:layout_toEndOf="@id/iv_flag"
-        android:drawablePadding="8dp"
         android:text="+84"
-        android:textSize="@dimen/text_size_normal" />
+        android:textSize="@dimen/text_size_normal"
+        app:layout_constraintBottom_toTopOf="@+id/bar"
+        app:layout_constraintStart_toEndOf="@+id/iv_flag" />
 
     <TextView
-        android:id="@+id/et_password"
-        android:layout_width="wrap_content"
+        android:id="@+id/tv_request"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_alignBottom="@id/tv_country_code"
         android:layout_alignParentEnd="true"
         android:layout_alignTop="@id/tv_country_code"
-        android:layout_marginEnd="@dimen/margin_default_wide"
+        android:layout_marginEnd="25dp"
         android:layout_marginStart="8dp"
         android:layout_toEndOf="@id/tv_country_code"
         android:focusable="false"
@@ -67,15 +75,20 @@
         android:text="Enter your mobile number"
         android:textColor="@color/edit_text_hint"
         android:textSize="@dimen/text_size_normal"
-        />
+        app:layout_constraintBottom_toBottomOf="@+id/tv_country_code"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/tv_country_code"
+        app:layout_constraintTop_toTopOf="@+id/tv_country_code" />
 
     <TextView
         android:id="@+id/tv_wellcome"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_above="@id/tv_country_code"
-        android:layout_marginBottom="35dp"
-        android:layout_marginStart="@dimen/margin_default_wide"
+        android:layout_marginBottom="40dp"
+        android:layout_marginStart="25dp"
         android:text="Wellcome to SBike"
-        android:textSize="28dp"/>
-</RelativeLayout>
+        android:textSize="28dp"
+        app:layout_constraintBottom_toTopOf="@+id/tv_country_code"
+        app:layout_constraintStart_toStartOf="parent" />
+</android.support.constraint.ConstraintLayout>

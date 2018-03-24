@@ -16,9 +16,7 @@ import android.widget.Toast;
 
 //import com.md.splashloginsignup.databinding.ActivitySignupBinding;
 
-import com.example.huydaoduc.hieu.chi.hhapp.model.User;
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
@@ -55,7 +53,7 @@ public class SignupActivity extends AppCompatActivity {
         users = db.getReference("Users");
 
         // init Views
-        rootLayout = findViewById(R.id.rootLayout);
+        rootLayout = findViewById(R.id.root);
         et_fullname = findViewById(R.id.et_full_name);
         et_email = findViewById(R.id.et_email_address);
         et_pass = findViewById(R.id.et_password);

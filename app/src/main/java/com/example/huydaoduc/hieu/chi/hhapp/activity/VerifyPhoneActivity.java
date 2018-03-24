@@ -1,6 +1,5 @@
 package com.example.huydaoduc.hieu.chi.hhapp.activity;
 
-import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
@@ -10,13 +9,11 @@ import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.Log;
-import android.util.Pair;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.example.huydaoduc.hieu.chi.hhapp.MainActivity;
 import com.example.huydaoduc.hieu.chi.hhapp.R;
@@ -25,14 +22,12 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.PhoneAuthCredential;
 import com.google.firebase.auth.PhoneAuthProvider;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class VerifyPhoneActivity extends AppCompatActivity {
@@ -95,7 +90,7 @@ public class VerifyPhoneActivity extends AppCompatActivity {
         editTextMap.put(4,(EditText) findViewById(R.id.et_number4));
         editTextMap.put(5,(EditText) findViewById(R.id.et_number5));
         editTextMap.put(6,(EditText) findViewById(R.id.et_number6));
-        rootLayout = findViewById(R.id.rootLayout);
+        rootLayout = findViewById(R.id.root);
 
         // Events
         for (final Map.Entry<Integer,EditText> pair : editTextMap.entrySet())

@@ -3,7 +3,6 @@ package com.example.huydaoduc.hieu.chi.hhapp;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.design.widget.BaseTransientBottomBar;
 import android.support.design.widget.Snackbar;
 import android.support.v4.view.LayoutInflaterCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -53,7 +52,7 @@ public class LoginActivity extends AppCompatActivity {
         users = db.getReference("Users");
 
         // init Views
-        rootLayout = findViewById(R.id.rootLayout);
+        rootLayout = findViewById(R.id.root);
         et_email = findViewById(R.id.et_email_address);
         et_pass = findViewById(R.id.et_password);
 

@@ -17,7 +17,7 @@ public class PhoneAuthActivity extends AppCompatActivity {
     private FirebaseAuth firebaseAuth;
     private PhoneAuthProvider.OnVerificationStateChangedCallbacks mCallback;
 
-    private TextView tv_phone_number;
+    private TextView tv_request;
     private TextView tv_connect_social;
 
 
@@ -27,13 +27,12 @@ public class PhoneAuthActivity extends AppCompatActivity {
         setContentView(R.layout.activity_phone_auth);
 
         Init();
-
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        AnimationIn();
+        //AnimationIn();
     }
 
     private void AnimationOut()
@@ -54,7 +53,7 @@ public class PhoneAuthActivity extends AppCompatActivity {
 
     private void Init() {
         // Init Views
-        tv_phone_number = findViewById(R.id.et_password);
+        tv_request = findViewById(R.id.tv_request);
         tv_connect_social = findViewById(R.id.tv_connect_social);
         tv_connect_social.setEnabled(false);
 
@@ -62,10 +61,10 @@ public class PhoneAuthActivity extends AppCompatActivity {
         firebaseAuth = FirebaseAuth.getInstance();
 
         // Events
-        tv_phone_number.setOnClickListener(new View.OnClickListener() {
+        tv_request.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                AnimationOut();
+                //AnimationOut();
                 Intent intent = new Intent(PhoneAuthActivity.this, EnterPhoneNumberActivity.class);
                 PhoneAuthActivity.this.startActivity(intent);
             }
