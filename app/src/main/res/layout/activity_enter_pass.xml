@@ -7,7 +7,7 @@
     android:layout_height="match_parent"
     tools:context="com.example.huydaoduc.hieu.chi.hhapp.activity.EnterPassActivity">
     <ImageButton
-        android:id="@+id/imageButton"
+        android:id="@+id/btn_back"
         android:layout_width="20dp"
         android:layout_height="20dp"
         android:layout_marginStart="25dp"
@@ -20,14 +20,14 @@
         android:id="@+id/tv_request"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/imageButton"
+        android:layout_below="@+id/btn_back"
         android:layout_marginStart="25dp"
         android:layout_marginTop="25dp"
         android:text="Please enter your password"
         android:textSize="@dimen/text_size_normal" />
 
     <EditText
-        android:id="@+id/et_password"
+        android:id="@+id/et_phone_number"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentEnd="true"

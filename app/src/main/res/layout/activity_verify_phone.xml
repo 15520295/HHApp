@@ -8,7 +8,7 @@
     tools:context="com.example.huydaoduc.hieu.chi.hhapp.activity.EnterPhoneNumberActivity">
 
     <ImageButton
-        android:id="@+id/imageButton"
+        android:id="@+id/btn_back"
         android:layout_width="20dp"
         android:layout_height="20dp"
         android:layout_marginStart="@dimen/margin_default_wide"
@@ -21,7 +21,7 @@
         android:id="@+id/tv_guid_line"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/imageButton"
+        android:layout_below="@+id/btn_back"
         android:layout_marginStart="@dimen/margin_default_wide"
         android:layout_marginTop="@dimen/margin_default_wide"
         android:text="Enter the 4-digit code sent to you at"

@@ -1,7 +1,9 @@
 package com.example.huydaoduc.hieu.chi.hhapp.activity;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.support.annotation.NonNull;
+import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -11,6 +13,8 @@ import android.text.TextWatcher;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.EditText;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -24,33 +28,32 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
 import com.google.firebase.auth.PhoneAuthCredential;
 import com.google.firebase.auth.PhoneAuthProvider;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.HashMap;
 import java.util.Map;
 
 public class VerifyPhoneActivity extends AppCompatActivity {
     private static final String TAG = "VerifyPhoneAct";
-
+    FloatingActionButton fab;
     private TextView tv_error;
     private Map<Integer,EditText> editTextMap;
     private RelativeLayout rootLayout;
-
     private FirebaseAuth firebaseAuth;
     private String verify_code;
-    private DatabaseReference databaseReference;
+
+    private ProgressDialog dialog;
 
 
     @Override
     public void finish() {
         super.finish();
+        overridePendingTransition(R.anim.anim_activity_none, R.anim.slide_out_right);
     }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        overridePendingTransition(R.anim.anim_activity_none, R.anim.anim_activity_none);
+        overridePendingTransition(R.anim.anim_fade_in, R.anim.slide_out_left);
         setContentView(R.layout.activity_verify_phone);
 
         Init();
@@ -78,7 +81,6 @@ public class VerifyPhoneActivity extends AppCompatActivity {
     private void Init() {
         // Init Firebase
         firebaseAuth = FirebaseAuth.getInstance();
-        databaseReference = FirebaseDatabase.getInstance().getReference();
 
         // Init views
         tv_error = findViewById(R.id.tv_error);
@@ -93,6 +95,13 @@ public class VerifyPhoneActivity extends AppCompatActivity {
         rootLayout = findViewById(R.id.root);
 
         // Events
+        (findViewById(R.id.btn_back)).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
+
         for (final Map.Entry<Integer,EditText> pair : editTextMap.entrySet())
         {
             pair.getValue().addTextChangedListener(new TextWatcher() {
@@ -152,7 +161,27 @@ public class VerifyPhoneActivity extends AppCompatActivity {
     }
 
     private void AnimationIn() {
+        Animation fab_button_anim = AnimationUtils.loadAnimation(this, R.anim.slide_in_right);
+        fab_button_anim.reset();
+        fab = (FloatingActionButton)findViewById (R.id.fab);
+        fab.clearAnimation();
+        fab.startAnimation(fab_button_anim);
+    }
 
+    private void showLoading() {
+        dialog = new ProgressDialog(this);
+        dialog.setMessage("Loading...");
+        dialog.setCancelable(false);
+        dialog.setInverseBackgroundForced(false);
+        dialog.show();
+    }
+
+    private void hideLoading() {
+        // hide showLoading dialog
+        if (dialog != null) {
+            if(dialog.isShowing())
+                dialog.hide();
+        }
     }
 
     private void signInWithPhone(PhoneAuthCredential credential) {

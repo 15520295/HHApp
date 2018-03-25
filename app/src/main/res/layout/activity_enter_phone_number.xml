@@ -7,9 +7,8 @@
     android:layout_height="match_parent"
     tools:context="com.example.huydaoduc.hieu.chi.hhapp.activity.EnterPhoneNumberActivity">
 
-
     <ImageButton
-        android:id="@+id/imageButton"
+        android:id="@+id/btn_back"
         android:layout_width="20dp"
         android:layout_height="20dp"
         android:layout_marginStart="25dp"
@@ -24,13 +23,13 @@
         android:id="@+id/tv_request"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/imageButton"
+        android:layout_below="@+id/btn_back"
         android:layout_marginStart="25dp"
         android:layout_marginTop="25dp"
         android:text="Please enter your mobile number"
         android:textSize="@dimen/text_size_normal"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/imageButton" />
+        app:layout_constraintTop_toBottomOf="@+id/btn_back" />
 
     <ImageView
         android:id="@+id/iv_flag"
@@ -64,7 +63,7 @@
         app:layout_constraintTop_toBottomOf="@+id/tv_request" />
 
     <EditText
-        android:id="@+id/et_password"
+        android:id="@+id/et_phone_number"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_alignBaseline="@id/tv_country_code"
@@ -78,28 +77,28 @@
         android:inputType="numberDecimal"
         android:textColorHint="@color/edit_text_hint"
         android:textSize="@dimen/text_size_normal"
-        app:layout_constraintBottom_toBottomOf="@+id/tv_country_code"
+        app:layout_constraintBaseline_toBaselineOf="@id/tv_country_code"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toEndOf="@+id/tv_country_code"
-        app:layout_constraintTop_toTopOf="@+id/tv_country_code" />
+        tools:layout_editor_absoluteY="107dp" />
 
     <TextView
         android:id="@+id/tv_error"
         android:layout_width="244dp"
         android:layout_height="wrap_content"
-        android:layout_alignStart="@+id/et_password"
-        android:layout_below="@+id/et_password"
+        android:layout_alignStart="@+id/et_phone_number"
+        android:layout_below="@+id/et_phone_number"
         android:layout_marginEnd="25dp"
         android:layout_marginStart="4dp"
         android:layout_marginTop="6dp"
         android:text="Please enter your mobile number"
         android:textColor="@color/color_error"
         android:textSize="@dimen/text_size_small"
-        android:visibility="invisible"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="@+id/et_password"
-        app:layout_constraintTop_toBottomOf="@+id/et_password" />
+        app:layout_constraintStart_toStartOf="@+id/et_phone_number"
+        app:layout_constraintTop_toBottomOf="@+id/et_phone_number" />
 
 
     <android.support.design.widget.FloatingActionButton

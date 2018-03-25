@@ -52,7 +52,7 @@
                 android:inputType="textEmailAddress" />
 
             <EditText
-                android:id="@+id/et_password"
+                android:id="@+id/et_phone_number"
                 style="@style/EditTextStyle"
                 android:layout_below="@id/et_email_address"
                 android:layout_marginTop="@dimen/layout_in_between_margins"

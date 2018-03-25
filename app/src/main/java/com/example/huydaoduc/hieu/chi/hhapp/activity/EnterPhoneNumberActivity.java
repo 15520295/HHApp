@@ -1,42 +1,27 @@
 package com.example.huydaoduc.hieu.chi.hhapp.activity;
 
-import android.animation.TimeInterpolator;
-import android.annotation.SuppressLint;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.annotation.RequiresApi;
 import android.support.constraint.ConstraintLayout;
 import android.support.constraint.ConstraintSet;
 import android.support.design.widget.FloatingActionButton;
-import android.support.v4.view.animation.FastOutLinearInInterpolator;
 import android.support.v4.view.animation.FastOutSlowInInterpolator;
-import android.support.v4.view.animation.LinearOutSlowInInterpolator;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
-import android.transition.AutoTransition;
 import android.transition.ChangeBounds;
-import android.transition.ChangeClipBounds;
-import android.transition.ChangeScroll;
-import android.transition.ChangeTransform;
 import android.transition.Fade;
-import android.transition.Slide;
 import android.transition.Transition;
 import android.transition.TransitionManager;
 import android.transition.TransitionSet;
 import android.util.Log;
 import android.view.View;
-import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
-import android.view.animation.AnticipateInterpolator;
 import android.view.animation.AnticipateOvershootInterpolator;
-import android.view.animation.DecelerateInterpolator;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.example.huydaoduc.hieu.chi.hhapp.MainActivity;
@@ -58,9 +43,11 @@ import java.util.concurrent.TimeUnit;
 public class EnterPhoneNumberActivity extends AppCompatActivity {
 
     private static final String TAG = "EnterPhoneNumberAct";
+    FloatingActionButton fab;
     private TextView tv_connect_social, tv_error;
     private EditText et_phone_number;
     private ConstraintLayout root;
+    private ProgressDialog dialog;
 
     private FirebaseAuth firebaseAuth;
     private DatabaseReference databaseReference;
@@ -115,7 +102,14 @@ public class EnterPhoneNumberActivity extends AppCompatActivity {
                         addTransition(new Fade(Fade.IN));
                     }
                 });
-                setInterpolator(new AnticipateOvershootInterpolator());
+                addTransition(new TransitionSet(){
+                    {
+                        setInterpolator(new AnticipateOvershootInterpolator());
+                        addTransition(new Fade(Fade.IN));
+                        addTarget(R.id.tv_request);
+                    }
+                });
+                setInterpolator(new FastOutSlowInInterpolator());
 
             }
 
@@ -161,20 +155,27 @@ public class EnterPhoneNumberActivity extends AppCompatActivity {
     @Override
     public void finish() {
         super.finish();
-
-        // turn Activity transfer Animation off
-        overridePendingTransition(R.anim.anim_activity_none, R.anim.anim_activity_none);
+        overridePendingTransition(R.anim.anim_activity_none, R.anim.anim_fade_out);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
+
+        hideLoading();
     }
 
     private void AnimationIn()
     {
         Animation animation = AnimationUtils.loadAnimation(this,R.anim.anim_fade_out);
-        animation.setAnimationListener(new Animation.AnimationListener() {
+        animation.reset();
+        tv_connect_social.clearAnimation();
+        tv_connect_social.startAnimation(animation);
+    }
+
+    private void AnimationOut() {
+        Animation fab_out_anim = AnimationUtils.loadAnimation(this, R.anim.slide_out_left);
+        fab_out_anim.setAnimationListener(new Animation.AnimationListener() {
             @Override
             public void onAnimationStart(Animation animation) {
 
@@ -182,7 +183,7 @@ public class EnterPhoneNumberActivity extends AppCompatActivity {
 
             @Override
             public void onAnimationEnd(Animation animation) {
-
+                openVerifyActivity();
             }
 
             @Override
@@ -190,9 +191,9 @@ public class EnterPhoneNumberActivity extends AppCompatActivity {
 
             }
         });
-        animation.reset();
-        tv_connect_social.clearAnimation();
-        tv_connect_social.startAnimation(animation);
+        fab_out_anim.reset();
+        fab.clearAnimation();
+        fab.startAnimation(fab_out_anim);
     }
 
 
@@ -213,15 +214,24 @@ public class EnterPhoneNumberActivity extends AppCompatActivity {
         // Init Views
         tv_connect_social = findViewById(R.id.tv_connect_social);
         tv_error = findViewById(R.id.tv_error);
-        et_phone_number = findViewById(R.id.et_password);
+        tv_error.setText("");
+        et_phone_number = findViewById(R.id.et_phone_number);
         root = findViewById(R.id.root);
 
         // Events
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                showLoading();
                 send_sms();
+            }
+        });
+
+        (findViewById(R.id.btn_back)).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
             }
         });
 
@@ -256,7 +266,8 @@ public class EnterPhoneNumberActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onVerificationFailed(FirebaseException e) {
+            public void onVerificationFailed(FirebaseException e)
+            {
                 // This callback is invoked in an invalid request for verification is made,
                 // for instance if the the phone number format is not valid.
                 Log.w(TAG, "onVerificationFailed", e);
@@ -276,7 +287,7 @@ public class EnterPhoneNumberActivity extends AppCompatActivity {
                 {
                     tv_error.setText(e.getMessage());
                 }
-                tv_error.setVisibility(View.VISIBLE);
+                hideLoading();
             }
 
             @Override
@@ -295,10 +306,31 @@ public class EnterPhoneNumberActivity extends AppCompatActivity {
         };
     }
 
+    private void showLoading() {
+        dialog = new ProgressDialog(this);
+        dialog.setMessage("Loading...");
+        dialog.setCancelable(false);
+        dialog.setInverseBackgroundForced(false);
+        dialog.show();
+    }
+
+    private void hideLoading() {
+        // hide showLoading dialog
+        if (dialog != null) {
+            if(dialog.isShowing())
+                dialog.hide();
+        }
+    }
+
     public void send_sms()
     {
         //todo: check invalid number
-        String number = "+84" + et_phone_number.getText().toString();
+        String user_number =  et_phone_number.getText().toString();
+        if (user_number.charAt(0) == '0') {
+            user_number = new StringBuilder(user_number).deleteCharAt(0).toString();
+        }
+
+        String number = "+84" + user_number;
         PhoneAuthProvider.getInstance().verifyPhoneNumber(
                 number,
                 60,
