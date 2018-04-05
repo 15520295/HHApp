@@ -5,8 +5,9 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
-    tools:context=".Home"
+    tools:context=".Main.Home"
     tools:showIn="@layout/app_bar_home">
+
 
     <fragment
         android:id="@+id/map"
@@ -14,5 +15,6 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_marginBottom="8dp" />
+
 
 </android.support.constraint.ConstraintLayout>
