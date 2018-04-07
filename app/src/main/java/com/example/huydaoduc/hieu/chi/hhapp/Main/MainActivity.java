@@ -8,27 +8,39 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
+import com.example.huydaoduc.hieu.chi.hhapp.Model.UserApp;
 import com.example.huydaoduc.hieu.chi.hhapp.R;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 public class MainActivity extends AppCompatActivity {
     Button btnLogin;
-    private FirebaseAuth mAuth;
+
+    FirebaseAuth auth;
+    FirebaseDatabase db;
+    DatabaseReference users;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        mAuth = FirebaseAuth.getInstance();
+        initView();
 
-        AutoLogin();
+        //khoi tao firebase
+        initFirebase();
 
-        btnLogin = findViewById(R.id.btnLogin);
+        addEven();
+    }
+
+    private void addEven() {
+        showRegisterDialog();
+
         btnLogin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -38,41 +50,59 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    @Override
-    protected void onStart() {
-        super.onStart();
-        FirebaseUser currentUser = mAuth.getCurrentUser();
-        //updateUI(currentUser);
+    private void initFirebase() {
+        auth = FirebaseAuth.getInstance();
+        db = FirebaseDatabase.getInstance();
+        users = db.getReference("Users");
     }
 
+    private void initView() {
+        btnLogin = findViewById(R.id.btnLogin);
+    }
 
-    public void AutoLogin() {
-        String email = "123@yahoo.com";
-        String password = "123456";
+    private void showRegisterDialog() {
 
-        mAuth.signInWithEmailAndPassword(email, password)
-                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+        final String email = "123@yahoo.com";
+        final String password = "123456";
+        final String name = "Dao Duc Huy";
+        final String phone = "01234094736";
+
+
+        //set button
+
+        //register new user
+        auth.signInWithEmailAndPassword(email, password)
+                .addOnSuccessListener(new OnSuccessListener<AuthResult>() {
                     @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        if (task.isSuccessful()) {
-                            // Sign in success, update UI with the signed-in user's information
-//                            Log.d(TAG, "signInWithEmail:success");
-//                            FirebaseUser user = mAuth.getCurrentUser();
-//                            updateUI(user);
-                            Toast.makeText(getApplicationContext(), "login success", Toast.LENGTH_SHORT).show();
-                        } else {
-                            // If sign in fails, display a message to the user.
-//                            Log.w(TAG, "signInWithEmail:failure", task.getException());
-//                            Toast.makeText(EmailPasswordActivity.this, "Authentication failed.",
-//                                    Toast.LENGTH_SHORT).show();
-//                            updateUI(null);
-                            Toast.makeText(getApplicationContext(), "login fail", Toast.LENGTH_SHORT).show();
-                        }
+                    public void onSuccess(AuthResult authResult) {
+                        //Save users to database
+                        UserApp user = new UserApp();
+                        user.setEmail(email);
+                        user.setName(name);
+                        user.setPassword(password);
+                        user.setPhone(phone);
 
-                        // ...
+                        //user email to key
+                        users.child(FirebaseAuth.getInstance().getCurrentUser().getUid())
+                                .setValue(user)
+                                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                    @Override
+                                    public void onSuccess(Void aVoid) {
+                                        Toast.makeText(getApplicationContext(), "login success", Toast.LENGTH_SHORT).show();
+                                    }
+                                })
+                                .addOnFailureListener(new OnFailureListener() {
+                                    @Override
+                                    public void onFailure(@NonNull Exception e) {
+                                        Toast.makeText(getApplicationContext(), "login fail", Toast.LENGTH_SHORT).show();
+                                    }
+                                });
+
+
                     }
                 });
     }
 
 }
+
 

@@ -104,7 +104,7 @@
             app:icon_release="@drawable/ic_location_off" />
 
         <Button
-            android:id="@+id/btn_find_user"
+            android:id="@+id/btn_find_driver"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="4"

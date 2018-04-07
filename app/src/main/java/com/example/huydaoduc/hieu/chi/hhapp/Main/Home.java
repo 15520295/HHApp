@@ -2,10 +2,14 @@ package com.example.huydaoduc.hieu.chi.hhapp.Main;
 
 import android.Manifest;
 import android.animation.ValueAnimator;
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.location.Location;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
@@ -13,6 +17,7 @@ import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -24,14 +29,20 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.animation.LinearInterpolator;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TabHost;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.huydaoduc.hieu.chi.hhapp.Common.Common;
+import com.example.huydaoduc.hieu.chi.hhapp.CostomInfoWindow.CustomInfoWindow;
+import com.example.huydaoduc.hieu.chi.hhapp.Model.UserApp;
 import com.example.huydaoduc.hieu.chi.hhapp.R;
 import com.example.huydaoduc.hieu.chi.hhapp.Remote.IGoogleAPI;
 import com.firebase.geofire.GeoFire;
 import com.firebase.geofire.GeoLocation;
+import com.firebase.geofire.GeoQuery;
+import com.firebase.geofire.GeoQueryEventListener;
 import com.github.glomadrian.materialanimatedswitch.MaterialAnimatedSwitch;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
@@ -58,15 +69,19 @@ import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.gms.maps.model.SquareCap;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 import retrofit2.Call;
@@ -99,30 +114,35 @@ public class Home extends AppCompatActivity
     DatabaseReference drivers;
     GeoFire geoFire;
 
-    Marker mCurrent;
-
     MaterialAnimatedSwitch locationRider_switch, locationDriver_switch;
     SupportMapFragment mapFragment;
 
+    DatabaseReference onlineRef, currenUserRef;
 
     //Car animation
     private List<LatLng> polyLineList;
-    private Marker carMaker;
+    private Marker carMaker, userMaker;
     private float v;
     private double lat, lng;
     private Handler handler;
     private LatLng startPostion, endPosition, currentPosition;
     private int index, next;
-    private Button btnGo, btnPost;
-    private PlaceAutocompleteFragment place;
+    private Button btnGo, btnPost, btnFindDriver, btnMessage, btnCall;
+    private TextView tvName, tvPhone;
+    private PlaceAutocompleteFragment placeRider, placeDriver;
     private String destination;
     private PolylineOptions polylineOptions, blackPolylineOptions;
     private Polyline blackPolyline, greyPolyline;
 
     private IGoogleAPI mService;
 
-    //
-    TabHost tabHost;
+    TabHost host;
+
+    boolean isDriverFound = false;
+    String driverId = "";
+    int radius = 1; //1km
+    int distance = 1; //3km
+
 
     Runnable drawPathRunnable = new Runnable() {
         @Override
@@ -189,6 +209,22 @@ public class Home extends AppCompatActivity
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
+        //
+        onlineRef = FirebaseDatabase.getInstance().getReference().child(".info/connected");
+        currenUserRef = FirebaseDatabase.getInstance().getReference("Drivers")
+                .child(FirebaseAuth.getInstance().getCurrentUser().getUid());
+        onlineRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                currenUserRef.onDisconnect().removeValue();
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+
 /*
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -202,38 +238,46 @@ public class Home extends AppCompatActivity
             }
         });*/
 
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
+                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        drawer.addDrawerListener(toggle);
+        toggle.syncState();
 
-        // Init TabHost
-        TabHost host = (TabHost) findViewById(R.id.tabHost);
-        host.setup();
+        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        navigationView.setNavigationItemSelectedListener(this);
 
-        TabHost.TabSpec spec = host.newTabSpec("Tab One");
-        spec.setContent(R.id.tabRider);
-        spec.setIndicator("Rider");
-        host.addTab(spec);
+        //
+        Init();
+        addEven();
+        setUpLocation();
 
-        spec = host.newTabSpec("Tab Two");
-        spec.setContent(R.id.tabDriver);
-        spec.setIndicator("Driver");
-        host.addTab(spec);
+        //Geo Fire
+        drivers = FirebaseDatabase.getInstance().getReference("Drivers");
+        geoFire = new GeoFire(drivers);
+        mService = Common.getGoogleAPI();
 
 
-        // Init View
-        locationRider_switch = findViewById(R.id.locationRider_switch);
-        locationDriver_switch = findViewById(R.id.locationDriver_switch);
+    }
+
+    private void addEven() {
 
         locationRider_switch.setOnCheckedChangeListener(new MaterialAnimatedSwitch.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(boolean b) {
+
                 if (b) {
+
                     startLocationUpdates();
                     displayLocation();
                     Snackbar.make(mapFragment.getView(), "You are Online", Snackbar.LENGTH_SHORT).show();
                 } else {
+
                     stopLocationUpdate();
-                    mCurrent.remove();
+                    if (carMaker != null)
+                        carMaker.remove();
                     mMap.clear();
-                    handler.removeCallbacks(drawPathRunnable);
+//                    handler.removeCallbacks(drawPathRunnable);
                     Snackbar.make(mapFragment.getView(), "You are Offline", Snackbar.LENGTH_SHORT).show();
                 }
             }
@@ -242,28 +286,51 @@ public class Home extends AppCompatActivity
         locationDriver_switch.setOnCheckedChangeListener(new MaterialAnimatedSwitch.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(boolean b) {
+
                 if (b) {
+                    FirebaseDatabase.getInstance().goOnline();
+
                     startLocationUpdates();
                     displayLocation();
                     Snackbar.make(mapFragment.getView(), "You are Online", Snackbar.LENGTH_SHORT).show();
                 } else {
+                    FirebaseDatabase.getInstance().goOffline();
+
                     stopLocationUpdate();
-                    mCurrent.remove();
+                    if (userMaker != null)
+                        userMaker.remove();
                     mMap.clear();
-                    handler.removeCallbacks(drawPathRunnable);
+//                    handler.removeCallbacks(drawPathRunnable);
                     Snackbar.make(mapFragment.getView(), "You are Offline", Snackbar.LENGTH_SHORT).show();
                 }
             }
         });
 
-        polyLineList = new ArrayList<>();
-        btnPost = findViewById(R.id.btnPost);
-        place = (PlaceAutocompleteFragment) getFragmentManager().findFragmentById(R.id.place_autocomplete_startLocation);
-
-        place.setOnPlaceSelectedListener(new PlaceSelectionListener() {
+        placeRider.setOnPlaceSelectedListener(new PlaceSelectionListener() {
             @Override
             public void onPlaceSelected(Place place) {
                 if (locationRider_switch.isChecked()) {
+                    destination = place.getAddress().toString();
+                    destination = destination.replace(" ", "+");
+
+                    //getDirection();
+                    showLoacationChose();
+                } else {
+                    Toast.makeText(getApplicationContext(), "You are Offline", Toast.LENGTH_SHORT).show();
+                }
+
+            }
+
+            @Override
+            public void onError(Status status) {
+                Toast.makeText(getApplicationContext(), "" + status.toString(), Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        placeDriver.setOnPlaceSelectedListener(new PlaceSelectionListener() {
+            @Override
+            public void onPlaceSelected(Place place) {
+                if (locationDriver_switch.isChecked()) {
                     destination = place.getAddress().toString();
                     destination = destination.replace(" ", "+");
 
@@ -292,23 +359,180 @@ public class Home extends AppCompatActivity
             }
         });
 
-        //Geo Fire
-        drivers = FirebaseDatabase.getInstance().getReference("Drivers");
-        geoFire = new GeoFire(drivers);
+        btnGo.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                requesRoute(FirebaseAuth.getInstance().getCurrentUser().getUid());
+            }
+        });
 
-        setUpLocation();
+        btnFindDriver.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                findDriver();
+            }
+        });
 
-        mService = Common.getGoogleAPI();
+    }
+
+    private void findDriver() {
+        final DatabaseReference drivers = FirebaseDatabase.getInstance().getReference("RouteRequest");
+        GeoFire geoFireDrivers = new GeoFire(drivers);
+
+        GeoQuery geoQuery = geoFireDrivers.queryAtLocation(new GeoLocation(mLastLocation.getLatitude(), mLastLocation.getLongitude()), radius);
+        geoQuery.removeAllListeners();
+        geoQuery.addGeoQueryEventListener(new GeoQueryEventListener() {
+            @Override
+            public void onKeyEntered(String key, final GeoLocation location) {
+                //if found
+                if (!isDriverFound) {
+                    isDriverFound = true;
+                    driverId = key;
+                    btnFindDriver.setText("Call Driver");
+                    Toast.makeText(getApplicationContext(), "" + key, Toast.LENGTH_LONG).show();
+
+                }
+
+                FirebaseDatabase.getInstance().getReference("Users")
+                        .child(key)
+                        .addListenerForSingleValueEvent(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(DataSnapshot dataSnapshot) {
+                                final UserApp userApp = dataSnapshot.getValue(UserApp.class);
+
+                                //Add driver to map
+                                carMaker = mMap.addMarker(new MarkerOptions()
+                                        .position(new LatLng(location.latitude, location.longitude))
+                                        .flat(true)
+                                        .title(userApp.getName())
+                                        .snippet("Phone: " + userApp.getPhone())
+                                        .icon(BitmapDescriptorFactory.fromResource(R.drawable.car)));
+                                carMaker.showInfoWindow();
+
+                                mMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
+                                    @Override
+                                    public void onInfoWindowClick(Marker marker) {
+                                        //Toast.makeText(getApplicationContext(),"infoss",Toast.LENGTH_LONG).show();
+                                        final Dialog dialog = new Dialog(Home.this);
+                                        dialog.setContentView(R.layout.info_user);
+
+                                        btnMessage = dialog.findViewById(R.id.btnMessage);
+                                        btnCall = dialog.findViewById(R.id.btnCall);
+                                        tvName = dialog.findViewById(R.id.tvName);
+                                        tvPhone = dialog.findViewById(R.id.tvPhone);
+
+                                        tvName.setText(userApp.getName());
+                                        tvPhone.setText("SDT: " + userApp.getPhone());
+
+                                        btnMessage.setOnClickListener(new View.OnClickListener() {
+                                            @Override
+                                            public void onClick(View v) {
+                                                Toast.makeText(getApplicationContext(), "Open Messenger", Toast.LENGTH_LONG).show();
+                                                dialog.dismiss();
+                                            }
+                                        });
+
+                                        btnCall.setOnClickListener(new View.OnClickListener() {
+                                            @Override
+                                            public void onClick(View v) {
+                                                //Toast.makeText(getApplicationContext(),"Open Call",Toast.LENGTH_LONG).show();
+                                                Intent intent = new Intent(Intent.ACTION_CALL);
+                                                intent.setData(Uri.parse("tel:" + "01633219733"));
+                                                startActivity(intent);
+                                                dialog.dismiss();
+                                            }
+                                        });
+
+                                        dialog.show();
+                                    }
+                                });
+
+                            }
+
+                            @Override
+                            public void onCancelled(DatabaseError databaseError) {
+
+                            }
+                        });
+            }
+
+            @Override
+            public void onKeyExited(String key) {
+
+            }
+
+            @Override
+            public void onKeyMoved(String key, GeoLocation location) {
+
+            }
+
+            @Override
+            public void onGeoQueryReady() {
+                //if still not found driver, increase distance
+                if (!isDriverFound) {
+                    radius++;
+                    findDriver();
+                }
+
+            }
+
+            @Override
+            public void onGeoQueryError(DatabaseError error) {
+
+            }
+        });
+
+    }
+
+    private void requesRoute(String uid) {
+        DatabaseReference dbRequest = FirebaseDatabase.getInstance().getReference("RouteRequest");
+        GeoFire mGeoFire = new GeoFire(dbRequest);
+        mGeoFire.setLocation(uid, new GeoLocation(mLastLocation.getLatitude(), mLastLocation.getLongitude()));
 
 
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-        drawer.addDrawerListener(toggle);
-        toggle.syncState();
+        String title = ((EditText) placeDriver.getView().findViewById(R.id.place_autocomplete_search_input)).getText().toString();
 
-        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
-        navigationView.setNavigationItemSelectedListener(this);
+        Calendar c = Calendar.getInstance();
+        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        String formattedDate = df.format(c.getTime());
+
+        carMaker = mMap.addMarker(new MarkerOptions()
+                .title(title)
+                .snippet(formattedDate)
+                .position(new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude())));
+//                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
+        carMaker.showInfoWindow();
+
+    }
+
+    private void Init() {
+        // Init TabHost
+        host = findViewById(R.id.tabHost);
+        host.setup();
+
+        TabHost.TabSpec spec = host.newTabSpec("Tab One");
+        spec.setContent(R.id.tabRider);
+        spec.setIndicator("UserApp");
+        host.addTab(spec);
+
+        spec = host.newTabSpec("Tab Two");
+        spec.setContent(R.id.tabDriver);
+        spec.setIndicator("Driver");
+        host.addTab(spec);
+
+
+        // Init View
+        locationRider_switch = findViewById(R.id.locationRider_switch);
+        locationDriver_switch = findViewById(R.id.locationDriver_switch);
+
+        polyLineList = new ArrayList<>();
+        btnPost = findViewById(R.id.btnPost);
+        btnGo = findViewById(R.id.btnGo);
+        btnFindDriver = findViewById(R.id.btn_find_driver);
+        placeRider = (PlaceAutocompleteFragment) getFragmentManager().findFragmentById(R.id.place_autocomplete_startLocation);
+        placeDriver = (PlaceAutocompleteFragment) getFragmentManager().findFragmentById(R.id.place_autocomplete_startDriverLocation);
+
+
     }
 
     private void showLoacationChose() {
@@ -545,7 +769,7 @@ public class Home extends AppCompatActivity
         }
         mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
         if (mLastLocation != null) {
-            if (locationRider_switch.isChecked() || locationDriver_switch.isChecked()) {
+            if (locationRider_switch.isChecked()) {
                 final double latitude = mLastLocation.getLatitude();
                 final double longitude = mLastLocation.getLongitude();
 
@@ -554,16 +778,45 @@ public class Home extends AppCompatActivity
                 geoFire.setLocation(FirebaseAuth.getInstance().getCurrentUser().getUid(), new GeoLocation(latitude, longitude), new GeoFire.CompletionListener() {
                     @Override
                     public void onComplete(String key, DatabaseError error) {
+
+                        //Move camera to this location
+                        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(latitude, longitude), 15.0f));
                         //Add Marker
-                        if (mCurrent != null)
-                            mCurrent.remove();
-                        mCurrent = mMap.addMarker(new MarkerOptions()
+                        if (carMaker != null) {
+                            carMaker.remove();
+                        }
+                        userMaker = mMap.addMarker(new MarkerOptions()
+                                .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_my_location_24px))
+                                .position(new LatLng(latitude, longitude))
+                                .title("You"));
+
+
+                    }
+                });
+            }
+
+            if (locationDriver_switch.isChecked()) {
+                final double latitude = mLastLocation.getLatitude();
+                final double longitude = mLastLocation.getLongitude();
+
+
+                //Update To Firebase
+                geoFire.setLocation(FirebaseAuth.getInstance().getCurrentUser().getUid(), new GeoLocation(latitude, longitude), new GeoFire.CompletionListener() {
+                    @Override
+                    public void onComplete(String key, DatabaseError error) {
+
+                        //Move camera to this po
+                        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(latitude, longitude), 15.0f));
+
+                        //Add Marker
+                        if (userMaker != null) {
+                            userMaker.remove();
+                        }
+                        carMaker = mMap.addMarker(new MarkerOptions()
                                 .icon(BitmapDescriptorFactory.fromResource(R.drawable.car))
                                 .position(new LatLng(latitude, longitude))
                                 .title("You"));
 
-                        //Move camera to this po
-                        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(latitude, longitude), 15.0f));
 
                     }
                 });
@@ -572,6 +825,65 @@ public class Home extends AppCompatActivity
             Log.d("Error", "Cannot get your location");
         }
 
+    }
+
+    private void loadAllAvailableDriver() {
+        //load all available Driver in distance 3km
+        DatabaseReference driverLocation = FirebaseDatabase.getInstance().getReference("Divers");
+        GeoFire geoFireDrivers = new GeoFire(driverLocation);
+
+        GeoQuery geoQuery = geoFireDrivers.queryAtLocation(new GeoLocation(mLastLocation.getLatitude(), mLastLocation.getLongitude()), distance);
+        geoQuery.removeAllListeners();
+
+        geoQuery.addGeoQueryEventListener(new GeoQueryEventListener() {
+            @Override
+            public void onKeyEntered(String key, final GeoLocation location) {
+                FirebaseDatabase.getInstance().getReference("Users")
+                        .child(key)
+                        .addListenerForSingleValueEvent(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(DataSnapshot dataSnapshot) {
+                                UserApp userApp = dataSnapshot.getValue(UserApp.class);
+
+                                //Add driver to map
+                                mMap.addMarker(new MarkerOptions()
+                                        .position(new LatLng(location.latitude, location.longitude))
+                                        .flat(true)
+                                        .title(userApp.getName())
+                                        .snippet("Phone: " + userApp.getPhone())
+                                        .icon(BitmapDescriptorFactory.fromResource(R.drawable.car)));
+                            }
+
+                            @Override
+                            public void onCancelled(DatabaseError databaseError) {
+
+                            }
+                        });
+            }
+
+            @Override
+            public void onKeyExited(String key) {
+
+            }
+
+            @Override
+            public void onKeyMoved(String key, GeoLocation location) {
+
+            }
+
+            @Override
+            public void onGeoQueryReady() {
+                if (distance <= 3) {
+                    distance++;
+                    loadAllAvailableDriver();
+                }
+            }
+
+            @Override
+            public void onGeoQueryError(DatabaseError error) {
+
+            }
+        });
     }
 
     private void startLocationUpdates() {
@@ -716,9 +1028,11 @@ public class Home extends AppCompatActivity
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
         mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
-        mMap.setTrafficEnabled(false);
-        mMap.setIndoorEnabled(false);
-        mMap.setBuildingsEnabled(false);
+        mMap.setTrafficEnabled(true);
+        mMap.setIndoorEnabled(true);
+        mMap.setBuildingsEnabled(true);
+        mMap.getUiSettings().setZoomGesturesEnabled(true);
         mMap.getUiSettings().setZoomControlsEnabled(true);
+        mMap.setInfoWindowAdapter(new CustomInfoWindow(this));
     }
 }

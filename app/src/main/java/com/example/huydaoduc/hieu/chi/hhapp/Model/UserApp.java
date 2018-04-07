@@ -1,13 +1,13 @@
 package com.example.huydaoduc.hieu.chi.hhapp.Model;
 
-public class Rider {
+public class UserApp {
     private String name, email, phone, password;
 
-    public Rider() {
+    public UserApp() {
 
     }
 
-    public Rider(String name, String email, String phone, String password) {
+    public UserApp(String name, String email, String phone, String password) {
         this.name = name;
         this.email = email;
         this.phone = phone;
@@ -45,4 +45,6 @@ public class Rider {
     public void setPassword(String password) {
         this.password = password;
     }
+
+
 }
