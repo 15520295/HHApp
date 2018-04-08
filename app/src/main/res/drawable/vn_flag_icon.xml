@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android" >
+    <item>
+        <shape android:padding="10dp" android:shape="rectangle"
+            >
+            <size
+                android:width="30dp"
+                android:height="20dp"/>
+            <corners
+                android:bottomLeftRadius="2dp"
+                android:bottomRightRadius="2dp"
+                android:topLeftRadius="2dp"
+                android:topRightRadius="2dp"/>
+            <solid android:color="#d11f2a"/>
+        </shape>
+    </item>
+
+    <item
+        android:width="10dp"
+        android:height="10dp"
+        android:drawable="@drawable/yellow_star"
+        android:gravity="center"
+    />
+</layer-list>
