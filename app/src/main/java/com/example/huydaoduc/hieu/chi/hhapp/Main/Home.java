@@ -437,7 +437,7 @@ public class Home extends AppCompatActivity
                                             public void onClick(View v) {
                                                 //Toast.makeText(getApplicationContext(),"Open Call",Toast.LENGTH_LONG).show();
                                                 Intent intent = new Intent(Intent.ACTION_CALL);
-                                                intent.setData(Uri.parse("tel:" + "01633219733"));
+                                                intent.setData(Uri.parse("tel:" + "01234094736"));
                                                 startActivity(intent);
                                                 dialog.dismiss();
                                             }
