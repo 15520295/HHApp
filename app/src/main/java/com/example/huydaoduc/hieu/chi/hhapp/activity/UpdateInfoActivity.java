@@ -17,9 +17,10 @@ import android.widget.TextView;
 import java.util.Calendar;
 import java.util.Map;
 
-import com.example.huydaoduc.hieu.chi.hhapp.MainActivity;
+import com.example.huydaoduc.hieu.chi.hhapp.Main.Home;
+import com.example.huydaoduc.hieu.chi.hhapp.Main.MainActivity;
 import com.example.huydaoduc.hieu.chi.hhapp.R;
-import com.example.huydaoduc.hieu.chi.hhapp.model.User;
+import com.example.huydaoduc.hieu.chi.hhapp.Model.User;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
@@ -67,7 +68,7 @@ public class UpdateInfoActivity extends AppCompatActivity {
                     showLoading();
                     updateInfo();
 
-                    Intent intent = new Intent(UpdateInfoActivity.this, MainActivity.class);
+                    Intent intent = new Intent(UpdateInfoActivity.this, Home.class);
                     UpdateInfoActivity.this.startActivity(intent);
                 }
             }

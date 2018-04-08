@@ -20,9 +20,6 @@
     <color name="divider_or">#999999</color>
     <color name="account">#999999</color>
     <color name="color_error">#CF1010</color>
-    <color name="colorPrimary">#3F51B5</color>
-    <color name="colorPrimaryDark">#303F9F</color>
-    <color name="colorAccent">#FF4081</color>
     <color name="colorButton">#0277bd</color>
 
     //huy

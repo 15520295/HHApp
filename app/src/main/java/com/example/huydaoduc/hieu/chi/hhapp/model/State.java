@@ -1,4 +1,4 @@
-package com.example.huydaoduc.hieu.chi.hhapp.model;
+package com.example.huydaoduc.hieu.chi.hhapp.Model;
 
 import android.support.annotation.RestrictTo;
 

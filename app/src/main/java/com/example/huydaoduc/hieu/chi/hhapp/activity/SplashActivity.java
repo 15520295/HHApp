@@ -6,7 +6,8 @@ import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 
-import com.example.huydaoduc.hieu.chi.hhapp.MainActivity;
+import com.example.huydaoduc.hieu.chi.hhapp.Main.Home;
+import com.example.huydaoduc.hieu.chi.hhapp.Main.MainActivity;
 import com.example.huydaoduc.hieu.chi.hhapp.R;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -27,7 +28,7 @@ public class SplashActivity extends AppCompatActivity {
             new Handler().postDelayed(new Runnable(){
                 @Override
                 public void run() {
-                    Intent startIntent = new Intent(SplashActivity.this,MainActivity.class);
+                    Intent startIntent = new Intent(SplashActivity.this,Home.class);
                     SplashActivity.this.startActivity(startIntent);
                     SplashActivity.this.finish();
                 }

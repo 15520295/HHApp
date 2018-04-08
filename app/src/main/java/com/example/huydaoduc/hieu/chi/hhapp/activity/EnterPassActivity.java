@@ -12,9 +12,9 @@ import android.widget.EditText;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.example.huydaoduc.hieu.chi.hhapp.MainActivity;
+//import com.example.huydaoduc.hieu.chi.hhapp.MainActivity;
 import com.example.huydaoduc.hieu.chi.hhapp.R;
-import com.example.huydaoduc.hieu.chi.hhapp.model.User;
+import com.example.huydaoduc.hieu.chi.hhapp.Model.User;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -118,8 +118,8 @@ public class EnterPassActivity extends AppCompatActivity {
         } else {
 
             if (et_password.getText().toString().equals(user_password)) {
-                Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-                startActivity(intent);
+//                Intent intent = new Intent(getApplicationContext(), Home.class);
+                //startActivity(intent);
             }
         }
     }

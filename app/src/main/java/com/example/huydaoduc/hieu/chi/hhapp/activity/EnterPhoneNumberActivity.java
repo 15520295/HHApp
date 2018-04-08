@@ -32,7 +32,8 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.TextView;
 
-import com.example.huydaoduc.hieu.chi.hhapp.MainActivity;
+import com.example.huydaoduc.hieu.chi.hhapp.Main.Home;
+import com.example.huydaoduc.hieu.chi.hhapp.Main.MainActivity;
 import com.example.huydaoduc.hieu.chi.hhapp.R;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -247,7 +248,7 @@ public class EnterPhoneNumberActivity extends AppCompatActivity {
                                         @Override
                                         public void onDataChange(DataSnapshot snapshot) {
                                             if (snapshot.hasChild(uid)) {
-                                                Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+                                                Intent intent = new Intent(getApplicationContext(), Home.class);
                                                 EnterPhoneNumberActivity.this.startActivity(intent);
                                             } else {
                                                 Intent intent = new Intent(getApplicationContext(), UpdateInfoActivity.class);

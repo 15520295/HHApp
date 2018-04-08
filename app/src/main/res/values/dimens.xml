@@ -15,7 +15,6 @@
     <dimen name="layout_in_between_margins">16dp</dimen>
     <dimen name="divider_start_and_end_margins">8dp</dimen>
     <dimen name="divider_top_and_bottom_margins">8dp</dimen>
-    <dimen name="fab_margin">16dp</dimen>
     <dimen name="text_size_normal">20sp</dimen>
 
     <!-- DEFAULT MARGIN -->
@@ -26,7 +25,5 @@
     <!-- DEFAULT SIZE -->
     <dimen name="text_size_small">16sp</dimen>
     <!-- Default screen margins, per the Android Design guidelines. -->
-    <dimen name="activity_horizontal_margin">16dp</dimen>
-    <dimen name="activity_vertical_margin">16dp</dimen>
 
 </resources>
