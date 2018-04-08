@@ -32,7 +32,6 @@ public class PhoneAuthActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        //AnimationIn();
     }
 
     private void AnimationOut()

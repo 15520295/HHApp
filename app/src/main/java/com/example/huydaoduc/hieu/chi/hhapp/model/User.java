@@ -29,20 +29,20 @@ public class User implements Parcelable {
         }
     };
     private String mProviderId;
-    private String mPassword;
     private String mPhoneNumber;
     private String mName;
-    private String mDateOfBirth;
+    private String mYearOfBirth;
+    private String mLocation;
     private Uri mPhotoUri;
     public User() {
     }
 
-    private User(String providerId, String password, String phoneNumber, String name, String dateOfBirth, Uri photoUri) {
+    private User(String providerId,  String phoneNumber, String name, String yearOfBirth, String location, Uri photoUri) {
         mProviderId = providerId;
-        mPassword = password;
         mPhoneNumber = phoneNumber;
         mName = name;
-        mDateOfBirth = dateOfBirth;
+        mYearOfBirth = yearOfBirth;
+        mLocation = location;
         mPhotoUri = photoUri;
     }
 
@@ -60,11 +60,6 @@ public class User implements Parcelable {
     }
 
     @NonNull
-    public String getPassword() {
-        return mPassword;
-    }
-
-    @Nullable
     public String getPhoneNumber() {
         return mPhoneNumber;
     }
@@ -74,9 +69,14 @@ public class User implements Parcelable {
         return mName;
     }
 
-    @NonNull
-    public String getDateOfBirth() {
-        return mDateOfBirth;
+    @Nullable
+    public String getYearOfBirth() {
+        return mYearOfBirth;
+    }
+
+    @Nullable
+    public String getLocation() {
+        return mLocation;
     }
 
     @Nullable
@@ -92,20 +92,20 @@ public class User implements Parcelable {
         User user = (User) o;
 
         return mProviderId.equals(user.mProviderId)
-                && (mPassword == null ? user.mPassword == null : mPassword.equals(user.mPassword))
                 && (mPhoneNumber == null ? user.mPhoneNumber == null : mPhoneNumber.equals(user.mPhoneNumber))
                 && (mName == null ? user.mName == null : mName.equals(user.mName))
-                && (mDateOfBirth == null ? user.mDateOfBirth == null : mDateOfBirth.equals(user.mDateOfBirth))
+                && (mYearOfBirth == null ? user.mYearOfBirth == null : mYearOfBirth.equals(user.mYearOfBirth))
+                && (mLocation == null ? user.mLocation == null : mLocation.equals(user.mLocation))
                 && (mPhotoUri == null ? user.mPhotoUri == null : mPhotoUri.equals(user.mPhotoUri));
     }
 
     @Override
     public int hashCode() {
         int result = mProviderId.hashCode();
-        result = 31 * result + (mPassword == null ? 0 : mPassword.hashCode());
         result = 31 * result + (mPhoneNumber == null ? 0 : mPhoneNumber.hashCode());
         result = 31 * result + (mName == null ? 0 : mName.hashCode());
-        result = 31 * result + (mDateOfBirth == null ? 0 : mDateOfBirth.hashCode());
+        result = 31 * result + (mYearOfBirth == null ? 0 : mYearOfBirth.hashCode());
+        result = 31 * result + (mLocation == null ? 0 : mLocation.hashCode());
         result = 31 * result + (mPhotoUri == null ? 0 : mPhotoUri.hashCode());
         return result;
     }
@@ -114,10 +114,10 @@ public class User implements Parcelable {
     public String toString() {
         return "User{" +
                 "mProviderId='" + mProviderId + '\'' +
-                ", mPassword='" + mPassword + '\'' +
                 ", mPhoneNumber='" + mPhoneNumber + '\'' +
                 ", mName='" + mName + '\'' +
-                ", mDateOfBirth='" + mDateOfBirth + '\'' +
+                ", mYearOfBirth='" + mYearOfBirth + '\'' +
+                ", mLocation='" + mLocation + '\'' +
                 ", mPhotoUri=" + mPhotoUri +
                 '}';
     }
@@ -130,26 +130,24 @@ public class User implements Parcelable {
     @Override
     public void writeToParcel(@NonNull Parcel dest, int flags) {
         dest.writeString(mProviderId);
-        dest.writeString(mPassword);
         dest.writeString(mPhoneNumber);
         dest.writeString(mName);
-        dest.writeString(mDateOfBirth);
+        dest.writeString(mYearOfBirth);
+        dest.writeString(mLocation);
         dest.writeParcelable(mPhotoUri, flags);
     }
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static class Builder {
         private String mProviderId;
-        private String mPassword;
         private String mPhoneNumber;
         private String mName;
-        private String mDateOfBirth;
+        private String mYearOfBirth;
+        private String mLocation;
         private Uri mPhotoUri;
 
-        public Builder( @NonNull String providerId,
-                       @NonNull String password) {
+        public Builder( @NonNull String providerId) {
             mProviderId = providerId;
-            mPassword = password;
         }
 
         public Builder setPhoneNumber(String phoneNumber) {
@@ -162,8 +160,13 @@ public class User implements Parcelable {
             return this;
         }
 
-        public Builder setDateOfBirth(String dateOfBirth) {
-            mDateOfBirth = dateOfBirth;
+        public Builder setYearOfBirth(String yearOfBirth) {
+            mYearOfBirth = yearOfBirth;
+            return this;
+        }
+
+        public Builder setLocation(String location) {
+            mLocation = location;
             return this;
         }
 
@@ -175,7 +178,7 @@ public class User implements Parcelable {
         public User build() {
             // put invalid check here
 
-            return new User(mProviderId, mPassword, mPhoneNumber, mName, mDateOfBirth, mPhotoUri);
+            return new User(mProviderId, mPhoneNumber, mName, mYearOfBirth, mLocation, mPhotoUri);
         }
     }
 }

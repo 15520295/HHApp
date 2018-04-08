@@ -7,6 +7,8 @@
     <color name="edit_text_txt">#000000</color>
 
 
+
+    <color name="transparent">#FFFFFFFF</color>
     // Login color
     <color name="text_link">#1976D2</color>
 

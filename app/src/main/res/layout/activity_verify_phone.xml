@@ -13,7 +13,7 @@
         android:layout_height="20dp"
         android:layout_marginStart="@dimen/margin_default_wide"
         android:layout_marginTop="15dp"
-        android:background="@color/fui_transparent"
+        android:background="@color/transparent"
         android:scaleType="fitCenter"
         app:srcCompat="@drawable/ic_back_black"/>
 
@@ -144,8 +144,7 @@
         android:layout_marginTop="6dp"
         android:text="Please input the code"
         android:textColor="@color/color_error"
-        android:textSize="16sp"
-        android:visibility="invisible"/>
+        android:textSize="16sp"/>
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/fab"

@@ -5,7 +5,7 @@
     android:id="@+id/root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.example.huydaoduc.hieu.chi.hhapp.activity.EnterPassActivity">
+    tools:context="com.example.huydaoduc.hieu.chi.hhapp.activity.UpdateInfoActivity">
     <ImageButton
         android:id="@+id/btn_back"
         android:layout_width="20dp"
@@ -17,29 +17,56 @@
         app:srcCompat="@drawable/ic_back_black"/>
 
     <TextView
-        android:id="@+id/tv_request"
+        android:id="@+id/tv_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@+id/btn_back"
         android:layout_marginStart="25dp"
         android:layout_marginTop="25dp"
-        android:text="Please enter your password"
+        android:text="What's your full name?"
         android:textSize="@dimen/text_size_normal" />
 
     <EditText
-        android:id="@+id/et_phone_number"
+        android:id="@+id/et_name"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentEnd="true"
-        android:layout_below="@+id/tv_request"
+        android:layout_below="@+id/tv_name"
         android:layout_marginEnd="@dimen/margin_default_wide"
         android:layout_marginStart="@dimen/margin_default_wide"
-        android:layout_marginTop="@dimen/margin_default_wide"
+        android:layout_marginTop="@dimen/margin_default_small"
         android:layout_toEndOf="@id/tv_country_code"
         android:focusable="true"
         android:focusableInTouchMode="true"
-        android:hint="Enter your pass word"
-        android:inputType="textPassword"
+        android:hint="John Cena"
+        android:textColorHint="@color/edit_text_hint"
+        android:textSize="@dimen/text_size_normal"
+        />
+
+    <TextView
+        android:id="@+id/tv_age"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/et_name"
+        android:layout_marginStart="25dp"
+        android:layout_marginTop="25dp"
+        android:text="What's your year of birth?"
+        android:textSize="@dimen/text_size_normal" />
+
+    <EditText
+        android:id="@+id/et_yob"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_below="@+id/tv_age"
+        android:layout_marginEnd="@dimen/margin_default_wide"
+        android:layout_marginStart="@dimen/margin_default_wide"
+        android:layout_marginTop="@dimen/margin_default_small"
+        android:layout_toEndOf="@id/tv_country_code"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
+        android:hint="1997"
+        android:inputType="numberDecimal"
         android:textColorHint="@color/edit_text_hint"
         android:textSize="@dimen/text_size_normal"
         />
@@ -48,8 +75,8 @@
         android:id="@+id/tv_error"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignStart="@+id/et_password"
-        android:layout_below="@+id/et_password"
+        android:layout_alignStart="@+id/et_yob"
+        android:layout_below="@+id/et_yob"
         android:layout_marginEnd="@dimen/margin_default_wide"
         android:layout_marginStart="4dp"
         android:layout_marginTop="10dp"

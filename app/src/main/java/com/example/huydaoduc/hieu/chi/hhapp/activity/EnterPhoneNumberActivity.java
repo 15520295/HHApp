@@ -1,5 +1,6 @@
 package com.example.huydaoduc.hieu.chi.hhapp.activity;
 
+import android.animation.TimeInterpolator;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
@@ -8,8 +9,10 @@ import android.support.annotation.NonNull;
 import android.support.constraint.ConstraintLayout;
 import android.support.constraint.ConstraintSet;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.view.animation.FastOutLinearInInterpolator;
 import android.support.v4.view.animation.FastOutSlowInInterpolator;
 import android.support.v7.app.AppCompatActivity;
+import android.text.TextUtils;
 import android.transition.ChangeBounds;
 import android.transition.Fade;
 import android.transition.Transition;
@@ -17,9 +20,14 @@ import android.transition.TransitionManager;
 import android.transition.TransitionSet;
 import android.util.Log;
 import android.view.View;
+import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.view.animation.AnticipateOvershootInterpolator;
+import android.view.animation.BounceInterpolator;
+import android.view.animation.CycleInterpolator;
+import android.view.animation.DecelerateInterpolator;
+import android.view.animation.PathInterpolator;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -35,8 +43,11 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
 import com.google.firebase.auth.PhoneAuthCredential;
 import com.google.firebase.auth.PhoneAuthProvider;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.concurrent.TimeUnit;
 
@@ -46,11 +57,9 @@ public class EnterPhoneNumberActivity extends AppCompatActivity {
     FloatingActionButton fab;
     private TextView tv_connect_social, tv_error;
     private EditText et_phone_number;
-    private ConstraintLayout root;
     private ProgressDialog dialog;
 
     private FirebaseAuth firebaseAuth;
-    private DatabaseReference databaseReference;
     private PhoneAuthProvider.OnVerificationStateChangedCallbacks mCallback;
     private String verification_code;
 
@@ -71,20 +80,6 @@ public class EnterPhoneNumberActivity extends AppCompatActivity {
 
 
     private void ConstrainAnimation() {
-//        TransitionManager.beginDelayedTransition(mConstraintLayout);
-//        if (mOld = !mOld) {
-//            mConstraintSet1.applyTo(mConstraintLayout); // set new constraints
-//        }  else {
-//            mConstraintSet2.applyTo(mConstraintLayout); // set new constraints
-//        }
-
-//        TimeInterpolator timeInterpolator = new AnticipateOvershootInterpolator(1.0f);
-//        Transition transition = null;
-//
-//
-//        transition = new ChangeBounds();
-//        transition.setInterpolator(timeInterpolator);
-//        transition.setDuration(1000);
 
         ConstraintLayout root = findViewById(R.id.root);
 
@@ -95,21 +90,14 @@ public class EnterPhoneNumberActivity extends AppCompatActivity {
             {
                 setDuration(500);
                 setOrdering(ORDERING_TOGETHER);
-                addTransition(new TransitionSet() {
+                addTransition(new ChangeBounds() {
                     {
                         addTransition(new Fade(Fade.OUT));
                         addTransition(new ChangeBounds());
                         addTransition(new Fade(Fade.IN));
+                        setInterpolator(new FastOutSlowInInterpolator());   // notice
                     }
                 });
-                addTransition(new TransitionSet(){
-                    {
-                        setInterpolator(new AnticipateOvershootInterpolator());
-                        addTransition(new Fade(Fade.IN));
-                        addTarget(R.id.tv_request);
-                    }
-                });
-                setInterpolator(new FastOutSlowInInterpolator());
 
             }
 
@@ -209,21 +197,18 @@ public class EnterPhoneNumberActivity extends AppCompatActivity {
                 });
         // Init Firebase
         firebaseAuth = FirebaseAuth.getInstance();
-        databaseReference = FirebaseDatabase.getInstance().getReference();
 
         // Init Views
         tv_connect_social = findViewById(R.id.tv_connect_social);
         tv_error = findViewById(R.id.tv_error);
         tv_error.setText("");
         et_phone_number = findViewById(R.id.et_phone_number);
-        root = findViewById(R.id.root);
 
         // Events
         fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                showLoading();
                 send_sms();
             }
         });
@@ -254,11 +239,27 @@ public class EnterPhoneNumberActivity extends AppCompatActivity {
                             public void onComplete(@NonNull Task<AuthResult> task) {
                                 if(task.isSuccessful())
                                 {
-                                    // Get User Firebase id
-                                    String uid = task.getResult().getUser().getUid();
+                                    final String uid = task.getResult().getUser().getUid();
 
-                                    Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-                                    EnterPhoneNumberActivity.this.startActivity(intent);
+                                    DatabaseReference usersRef = FirebaseDatabase.getInstance().getReference().child("users");
+                                    usersRef.addListenerForSingleValueEvent(new ValueEventListener() {
+
+                                        @Override
+                                        public void onDataChange(DataSnapshot snapshot) {
+                                            if (snapshot.hasChild(uid)) {
+                                                Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+                                                EnterPhoneNumberActivity.this.startActivity(intent);
+                                            } else {
+                                                Intent intent = new Intent(getApplicationContext(), UpdateInfoActivity.class);
+                                                EnterPhoneNumberActivity.this.startActivity(intent);
+                                            }
+                                        }
+
+                                        @Override
+                                        public void onCancelled(DatabaseError databaseError) {
+
+                                        }
+                                    });
                                 }
                             }
                         });
@@ -324,7 +325,13 @@ public class EnterPhoneNumberActivity extends AppCompatActivity {
 
     public void send_sms()
     {
-        //todo: check invalid number
+        // check invalid number
+        if (TextUtils.isEmpty(et_phone_number.getText())) {
+            tv_error.setText("Please enter your phone number");
+            return;
+        }
+        showLoading();
+
         String user_number =  et_phone_number.getText().toString();
         if (user_number.charAt(0) == '0') {
             user_number = new StringBuilder(user_number).deleteCharAt(0).toString();
@@ -343,7 +350,8 @@ public class EnterPhoneNumberActivity extends AppCompatActivity {
     private void openVerifyActivity()
     {
         Intent intent = new Intent(getApplicationContext(),VerifyPhoneActivity.class);
-        intent.putExtra("verify_code",verification_code);
+        intent.putExtra("verify_code", verification_code);
+        intent.putExtra("phone_number", et_phone_number.getText());
         this.startActivity(intent);
     }
 

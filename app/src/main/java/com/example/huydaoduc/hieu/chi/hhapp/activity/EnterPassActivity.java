@@ -20,7 +20,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-
+//todo: xoa class
 public class EnterPassActivity extends AppCompatActivity {
 
     EditText et_password;
@@ -33,7 +33,6 @@ public class EnterPassActivity extends AppCompatActivity {
     @Override
     public void finish() {
         super.finish();
-        //todo: logout if not sign in
     }
 
     @Override
@@ -45,7 +44,6 @@ public class EnterPassActivity extends AppCompatActivity {
 
         // // Put the User to the FirebaseDatabase with User's information
         // databaseReference.child("users").child(uid).setValue(user);
-        //todo: check password instantly
         Bundle bundle = getIntent().getExtras();
         if(bundle == null)
         {
@@ -59,7 +57,7 @@ public class EnterPassActivity extends AppCompatActivity {
             public void onDataChange(DataSnapshot dataSnapshot) {
                 User user = dataSnapshot.getValue(User.class);
                 if (user != null) {
-                    user_password = user.getPassword();
+//                    user_password = user.getPassword();
                 }
             }
 
@@ -110,13 +108,12 @@ public class EnterPassActivity extends AppCompatActivity {
     private void checkPassword()
     {
         if (user_password == null) {
-            //todo: them phan nhap thong tin
             // user chua co password
             //Put the User to the FirebaseDatabase with User 's information
 
-            User user =new User.Builder(uid,et_password.getText().toString()).build();
+//            User user =new User.Builder(uid,et_password.getText().toString()).build();
 
-            databaseReference.child("users").child(uid).setValue(user);
+//            databaseReference.child("users").child(uid).setValue(user);
 
         } else {
 

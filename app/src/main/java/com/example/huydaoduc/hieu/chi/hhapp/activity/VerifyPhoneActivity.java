@@ -28,18 +28,25 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
 import com.google.firebase.auth.PhoneAuthCredential;
 import com.google.firebase.auth.PhoneAuthProvider;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.HashMap;
 import java.util.Map;
-
+//todo: resent code
 public class VerifyPhoneActivity extends AppCompatActivity {
     private static final String TAG = "VerifyPhoneAct";
     FloatingActionButton fab;
-    private TextView tv_error;
+    private TextView tv_error, tv_phone_number;
     private Map<Integer,EditText> editTextMap;
     private RelativeLayout rootLayout;
     private FirebaseAuth firebaseAuth;
+
     private String verify_code;
+    private String phone_number;
 
     private ProgressDialog dialog;
 
@@ -47,6 +54,7 @@ public class VerifyPhoneActivity extends AppCompatActivity {
     @Override
     public void finish() {
         super.finish();
+        hideLoading();
         overridePendingTransition(R.anim.anim_activity_none, R.anim.slide_out_right);
     }
 
@@ -72,7 +80,10 @@ public class VerifyPhoneActivity extends AppCompatActivity {
                     }).show();
         } else {
             verify_code = extras.getString("verify_code");
+            phone_number = extras.getString("phone_number");
         }
+
+        tv_phone_number.setText(phone_number);
 
         AnimationIn();
     }
@@ -83,7 +94,12 @@ public class VerifyPhoneActivity extends AppCompatActivity {
         firebaseAuth = FirebaseAuth.getInstance();
 
         // Init views
+        fab = (FloatingActionButton)findViewById (R.id.fab);
+
         tv_error = findViewById(R.id.tv_error);
+        tv_error.setText("");
+
+        tv_phone_number = findViewById(R.id.tv_phone_number);
 
         editTextMap = new HashMap<>();
         editTextMap.put(1,(EditText) findViewById(R.id.et_number1));
@@ -163,7 +179,6 @@ public class VerifyPhoneActivity extends AppCompatActivity {
     private void AnimationIn() {
         Animation fab_button_anim = AnimationUtils.loadAnimation(this, R.anim.slide_in_right);
         fab_button_anim.reset();
-        fab = (FloatingActionButton)findViewById (R.id.fab);
         fab.clearAnimation();
         fab.startAnimation(fab_button_anim);
     }
@@ -185,6 +200,7 @@ public class VerifyPhoneActivity extends AppCompatActivity {
     }
 
     private void signInWithPhone(PhoneAuthCredential credential) {
+
         firebaseAuth.signInWithCredential(credential)
                 .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                     @Override
@@ -193,10 +209,28 @@ public class VerifyPhoneActivity extends AppCompatActivity {
                             // Sign in Success, update UI with the signed-in user's information
                             Log.d(TAG, "signInWithCredential:success");
                             // Get User Firebase id
-                            String uid = task.getResult().getUser().getUid();
+                            final String uid = task.getResult().getUser().getUid();
 
-                            Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-                            VerifyPhoneActivity.this.startActivity(intent);
+                            // Check if user has
+                            DatabaseReference usersRef = FirebaseDatabase.getInstance().getReference().child("users");
+                            usersRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                                @Override
+                                public void onDataChange(DataSnapshot snapshot) {
+                                    if (snapshot.hasChild(uid)) {
+                                        Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+                                        VerifyPhoneActivity.this.startActivity(intent);
+                                    } else {
+                                        Intent intent = new Intent(getApplicationContext(), UpdateInfoActivity.class);
+                                        VerifyPhoneActivity.this.startActivity(intent);
+                                    }
+                                }
+
+                                @Override
+                                public void onCancelled(DatabaseError databaseError) {
+
+                                }
+                            });
+
                         } else {
                             // Failed, display a message and update the UI
                             Log.w(TAG, "signInWithCredential:failure", task.getException());
@@ -204,6 +238,7 @@ public class VerifyPhoneActivity extends AppCompatActivity {
                                 // The verification code entered was invalid
                                 tv_error.setText("The verification code entered was invalid. Please check a gain!");
                             }
+                            hideLoading();
                         }
                     }
                 });
@@ -222,13 +257,20 @@ public class VerifyPhoneActivity extends AppCompatActivity {
         }
         else {
             // check if put all the input code
-            //todo: check not input
+
             StringBuilder input_code = new StringBuilder();
 
             for (final Map.Entry<Integer,EditText> pair : editTextMap.entrySet())
             {
+                //check not input
+                if (TextUtils.isEmpty(pair.getValue().getText().toString())) {
+                    tv_error.setText("Please enter the code");
+                    return;
+                }
                 input_code.append(pair.getValue().getText().toString());
             }
+
+            showLoading();
 
             PhoneAuthCredential credential = PhoneAuthProvider.getCredential(verify_code, input_code.toString());
             signInWithPhone(credential);
