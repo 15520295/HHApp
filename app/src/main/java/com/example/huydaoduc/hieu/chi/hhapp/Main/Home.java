@@ -2,6 +2,7 @@ package com.example.huydaoduc.hieu.chi.hhapp.Main;
 
 import android.Manifest;
 import android.animation.ValueAnimator;
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
@@ -39,6 +40,7 @@ import com.example.huydaoduc.hieu.chi.hhapp.CostomInfoWindow.CustomInfoWindow;
 import com.example.huydaoduc.hieu.chi.hhapp.Model.UserApp;
 import com.example.huydaoduc.hieu.chi.hhapp.R;
 import com.example.huydaoduc.hieu.chi.hhapp.Remote.IGoogleAPI;
+import com.example.huydaoduc.hieu.chi.hhapp.activity.PhoneAuthActivity;
 import com.firebase.geofire.GeoFire;
 import com.firebase.geofire.GeoLocation;
 import com.firebase.geofire.GeoQuery;
@@ -388,7 +390,7 @@ public class Home extends AppCompatActivity
                 if (!isDriverFound) {
                     isDriverFound = true;
                     driverId = key;
-                    btnFindDriver.setText("Call Driver");
+                    //btnFindDriver.setText("Call Driver");
                     Toast.makeText(getApplicationContext(), "" + key, Toast.LENGTH_LONG).show();
 
                 }
@@ -437,7 +439,17 @@ public class Home extends AppCompatActivity
                                             public void onClick(View v) {
                                                 //Toast.makeText(getApplicationContext(),"Open Call",Toast.LENGTH_LONG).show();
                                                 Intent intent = new Intent(Intent.ACTION_CALL);
-                                                intent.setData(Uri.parse("tel:" + "01234094736"));
+                                                intent.setData(Uri.parse("tel:" + userApp.getPhone()));
+                                                if (ActivityCompat.checkSelfPermission(Home.this, Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
+                                                    // TODO: Consider calling
+                                                    //    ActivityCompat#requestPermissions
+                                                    // here to request the missing permissions, and then overriding
+                                                    //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                                                    //                                          int[] grantResults)
+                                                    // to handle the case where the user grants the permission. See the documentation
+                                                    // for ActivityCompat#requestPermissions for more details.
+                                                    return;
+                                                }
                                                 startActivity(intent);
                                                 dialog.dismiss();
                                             }
@@ -512,7 +524,7 @@ public class Home extends AppCompatActivity
 
         TabHost.TabSpec spec = host.newTabSpec("Tab One");
         spec.setContent(R.id.tabRider);
-        spec.setIndicator("UserApp");
+        spec.setIndicator("Rider");
         host.addTab(spec);
 
         spec = host.newTabSpec("Tab Two");
@@ -817,7 +829,6 @@ public class Home extends AppCompatActivity
                                 .position(new LatLng(latitude, longitude))
                                 .title("You"));
 
-
                     }
                 });
             }
@@ -956,6 +967,10 @@ public class Home extends AppCompatActivity
             // Handle the camera action
         } else if (id == R.id.nav_about) {
 
+        } else if (id ==R.id.nav_logout){
+            FirebaseAuth.getInstance().signOut();
+            Intent intent = new Intent(Home.this, PhoneAuthActivity.class);
+            startActivity(intent);
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);

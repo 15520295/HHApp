@@ -39,12 +39,10 @@
         android:layout_alignParentStart="true"
         android:layout_alignTop="@id/tv_country_code"
         android:layout_marginStart="25dp"
-        android:scaleX="1.2"
-        android:scaleY="1.2"
         app:layout_constraintBottom_toBottomOf="@+id/tv_country_code"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/tv_country_code"
-        app:srcCompat="@drawable/vn_flag_icon" />
+        app:srcCompat="@drawable/ic_vietnam_48px" />
 
     <TextView
         android:id="@+id/tv_country_code"
