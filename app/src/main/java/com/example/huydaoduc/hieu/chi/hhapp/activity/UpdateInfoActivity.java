@@ -84,9 +84,10 @@ public class UpdateInfoActivity extends AppCompatActivity {
         User user = new User.Builder(uid)
                 .setName(name)
                 .setYearOfBirth(yob)
+                .setPhoneNumber(firebaseAuth.getCurrentUser().getPhoneNumber())
                 .build();
 
-        DatabaseReference usersRef = FirebaseDatabase.getInstance().getReference().child("users");
+        DatabaseReference usersRef = FirebaseDatabase.getInstance().getReference().child("Users");
 
         usersRef.child(uid).setValue(user);
     }

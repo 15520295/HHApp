@@ -4,6 +4,7 @@ import android.animation.TimeInterpolator;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.constraint.ConstraintLayout;
@@ -67,15 +68,23 @@ public class EnterPhoneNumberActivity extends AppCompatActivity {
     @Override
     public void onWindowFocusChanged(boolean hasFocus) {
         super.onWindowFocusChanged(hasFocus);
-        ConstrainAnimation();
-        showKeyBoard();
+        //todo: fix xong conrtainset nho fix keyboard show
+        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            ConstrainAnimation();
+        } else {
+            showKeyBoard();
+        }
     }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         overridePendingTransition(R.anim.anim_activity_none, R.anim.anim_activity_none);
-        setContentView(R.layout.activity_enter_phone_number_e);
+        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
+            setContentView(R.layout.activity_enter_phone_number_e);
+        } else{
+            setContentView(R.layout.activity_enter_phone_number);
+        }
         Init();
     }
 
@@ -152,6 +161,8 @@ public class EnterPhoneNumberActivity extends AppCompatActivity {
         super.onResume();
 
         hideLoading();
+
+
     }
 
     private void AnimationIn()
@@ -242,7 +253,7 @@ public class EnterPhoneNumberActivity extends AppCompatActivity {
                                 {
                                     final String uid = task.getResult().getUser().getUid();
 
-                                    DatabaseReference usersRef = FirebaseDatabase.getInstance().getReference().child("users");
+                                    DatabaseReference usersRef = FirebaseDatabase.getInstance().getReference().child("Users");
                                     usersRef.addListenerForSingleValueEvent(new ValueEventListener() {
 
                                         @Override
@@ -341,8 +352,8 @@ public class EnterPhoneNumberActivity extends AppCompatActivity {
         String number = "+84" + user_number;
         PhoneAuthProvider.getInstance().verifyPhoneNumber(
                 number,
-                60,
-                TimeUnit.SECONDS,
+                2,
+                TimeUnit.MINUTES,
                 this,
                 mCallback
         );
@@ -352,7 +363,7 @@ public class EnterPhoneNumberActivity extends AppCompatActivity {
     {
         Intent intent = new Intent(getApplicationContext(),VerifyPhoneActivity.class);
         intent.putExtra("verify_code", verification_code);
-        intent.putExtra("phone_number", et_phone_number.getText());
+        intent.putExtra("phone_number", "+84" + et_phone_number.getText().toString());
         this.startActivity(intent);
     }
 

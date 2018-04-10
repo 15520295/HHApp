@@ -24,8 +24,8 @@
         android:layout_below="@+id/btn_back"
         android:layout_marginStart="@dimen/margin_default_wide"
         android:layout_marginTop="@dimen/margin_default_wide"
-        android:text="Enter the 4-digit code sent to you at"
-        android:textSize="@dimen/text_size_normal"/>
+        android:text="Enter the 6-digit code sent to you at"
+        android:textSize="@dimen/text_size_normal" />
 
     <TextView
         android:id="@+id/tv_phone_number"

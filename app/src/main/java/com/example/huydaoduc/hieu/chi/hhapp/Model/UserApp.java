@@ -1,16 +1,16 @@
 package com.example.huydaoduc.hieu.chi.hhapp.Model;
 
 public class UserApp {
-    private String name, email, phone, password;
+    private String name, email, phoneNumber, password;
 
     public UserApp() {
 
     }
 
-    public UserApp(String name, String email, String phone, String password) {
+    public UserApp(String name, String email, String phoneNumber, String password) {
         this.name = name;
         this.email = email;
-        this.phone = phone;
+        this.phoneNumber = phoneNumber;
         this.password = password;
     }
 
@@ -30,12 +30,12 @@ public class UserApp {
         this.email = email;
     }
 
-    public String getPhone() {
-        return phone;
+    public String getPhoneNumber() {
+        return phoneNumber;
     }
 
-    public void setPhone(String phone) {
-        this.phone = phone;
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
     }
 
     public String getPassword() {

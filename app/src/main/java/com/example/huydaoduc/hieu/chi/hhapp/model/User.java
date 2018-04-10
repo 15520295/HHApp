@@ -84,6 +84,30 @@ public class User implements Parcelable {
         return mPhotoUri;
     }
 
+    public void setmProviderId(String mProviderId) {
+        this.mProviderId = mProviderId;
+    }
+
+    public void setmPhoneNumber(String mPhoneNumber) {
+        this.mPhoneNumber = mPhoneNumber;
+    }
+
+    public void setmName(String mName) {
+        this.mName = mName;
+    }
+
+    public void setmYearOfBirth(String mYearOfBirth) {
+        this.mYearOfBirth = mYearOfBirth;
+    }
+
+    public void setmLocation(String mLocation) {
+        this.mLocation = mLocation;
+    }
+
+    public void setmPhotoUri(Uri mPhotoUri) {
+        this.mPhotoUri = mPhotoUri;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

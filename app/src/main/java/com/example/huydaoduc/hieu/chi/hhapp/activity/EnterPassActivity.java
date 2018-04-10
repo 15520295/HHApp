@@ -43,7 +43,7 @@ public class EnterPassActivity extends AppCompatActivity {
         Init();
 
         // // Put the User to the FirebaseDatabase with User's information
-        // databaseReference.child("users").child(uid).setValue(user);
+        // databaseReference.child("Users").child(uid).setValue(user);
         Bundle bundle = getIntent().getExtras();
         if(bundle == null)
         {
@@ -52,7 +52,7 @@ public class EnterPassActivity extends AppCompatActivity {
         {
             uid = bundle.getString("uid");
             // get user password
-            databaseReference.child("users").child(uid).addValueEventListener(new ValueEventListener() {
+            databaseReference.child("Users").child(uid).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 User user = dataSnapshot.getValue(User.class);
@@ -113,7 +113,7 @@ public class EnterPassActivity extends AppCompatActivity {
 
 //            User user =new User.Builder(uid,et_password.getText().toString()).build();
 
-//            databaseReference.child("users").child(uid).setValue(user);
+//            databaseReference.child("Users").child(uid).setValue(user);
 
         } else {
 

@@ -2,10 +2,7 @@ package com.example.huydaoduc.hieu.chi.hhapp.Main;
 
 import android.Manifest;
 import android.animation.ValueAnimator;
-import android.annotation.SuppressLint;
-import android.app.AlertDialog;
 import android.app.Dialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
@@ -18,7 +15,6 @@ import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -37,6 +33,7 @@ import android.widget.Toast;
 
 import com.example.huydaoduc.hieu.chi.hhapp.Common.Common;
 import com.example.huydaoduc.hieu.chi.hhapp.CostomInfoWindow.CustomInfoWindow;
+import com.example.huydaoduc.hieu.chi.hhapp.Model.User;
 import com.example.huydaoduc.hieu.chi.hhapp.Model.UserApp;
 import com.example.huydaoduc.hieu.chi.hhapp.R;
 import com.example.huydaoduc.hieu.chi.hhapp.Remote.IGoogleAPI;
@@ -89,7 +86,7 @@ import java.util.List;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
-
+//todo: check 1 tai khoan dang nhap 2 may
 public class Home extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener,
         OnMapReadyCallback,
@@ -212,7 +209,7 @@ public class Home extends AppCompatActivity
         mapFragment.getMapAsync(this);
 
         //
-        onlineRef = FirebaseDatabase.getInstance().getReference().child(".info/connected");
+        /*onlineRef = FirebaseDatabase.getInstance().getReference().child(".info/connected");
         currenUserRef = FirebaseDatabase.getInstance().getReference("Drivers")
                 .child(FirebaseAuth.getInstance().getCurrentUser().getUid());
         onlineRef.addValueEventListener(new ValueEventListener() {
@@ -225,7 +222,7 @@ public class Home extends AppCompatActivity
             public void onCancelled(DatabaseError databaseError) {
 
             }
-        });
+        });*/
 
 /*
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
@@ -267,9 +264,7 @@ public class Home extends AppCompatActivity
         locationRider_switch.setOnCheckedChangeListener(new MaterialAnimatedSwitch.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(boolean b) {
-
                 if (b) {
-
                     startLocationUpdates();
                     displayLocation();
                     Snackbar.make(mapFragment.getView(), "You are Online", Snackbar.LENGTH_SHORT).show();
@@ -288,7 +283,6 @@ public class Home extends AppCompatActivity
         locationDriver_switch.setOnCheckedChangeListener(new MaterialAnimatedSwitch.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(boolean b) {
-
                 if (b) {
                     FirebaseDatabase.getInstance().goOnline();
 
@@ -394,20 +388,34 @@ public class Home extends AppCompatActivity
                     Toast.makeText(getApplicationContext(), "" + key, Toast.LENGTH_LONG).show();
 
                 }
+                final String[] locationName = new String[1];
+
+                drivers.child(driverId).child("locationName").addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        locationName[0] = dataSnapshot.getValue(String.class);
+
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                });
 
                 FirebaseDatabase.getInstance().getReference("Users")
                         .child(key)
                         .addListenerForSingleValueEvent(new ValueEventListener() {
                             @Override
                             public void onDataChange(DataSnapshot dataSnapshot) {
-                                final UserApp userApp = dataSnapshot.getValue(UserApp.class);
+                                final UserApp user = dataSnapshot.getValue(UserApp.class);
 
                                 //Add driver to map
                                 carMaker = mMap.addMarker(new MarkerOptions()
                                         .position(new LatLng(location.latitude, location.longitude))
                                         .flat(true)
-                                        .title(userApp.getName())
-                                        .snippet("Phone: " + userApp.getPhone())
+                                        .title(locationName[0])
+                                        .snippet("Phone: " + user.getPhoneNumber())
                                         .icon(BitmapDescriptorFactory.fromResource(R.drawable.car)));
                                 carMaker.showInfoWindow();
 
@@ -423,8 +431,8 @@ public class Home extends AppCompatActivity
                                         tvName = dialog.findViewById(R.id.tvName);
                                         tvPhone = dialog.findViewById(R.id.tvPhone);
 
-                                        tvName.setText(userApp.getName());
-                                        tvPhone.setText("SDT: " + userApp.getPhone());
+                                        tvName.setText(user.getName());
+                                        tvPhone.setText("SDT: " + user.getPhoneNumber());
 
                                         btnMessage.setOnClickListener(new View.OnClickListener() {
                                             @Override
@@ -439,7 +447,7 @@ public class Home extends AppCompatActivity
                                             public void onClick(View v) {
                                                 //Toast.makeText(getApplicationContext(),"Open Call",Toast.LENGTH_LONG).show();
                                                 Intent intent = new Intent(Intent.ACTION_CALL);
-                                                intent.setData(Uri.parse("tel:" + userApp.getPhone()));
+                                                intent.setData(Uri.parse("tel:" + user.getPhoneNumber()));
                                                 if (ActivityCompat.checkSelfPermission(Home.this, Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
                                                     // TODO: Consider calling
                                                     //    ActivityCompat#requestPermissions
@@ -497,12 +505,12 @@ public class Home extends AppCompatActivity
     }
 
     private void requesRoute(String uid) {
+        String title = ((EditText) placeDriver.getView().findViewById(R.id.place_autocomplete_search_input)).getText().toString();
+
         DatabaseReference dbRequest = FirebaseDatabase.getInstance().getReference("RouteRequest");
         GeoFire mGeoFire = new GeoFire(dbRequest);
         mGeoFire.setLocation(uid, new GeoLocation(mLastLocation.getLatitude(), mLastLocation.getLongitude()));
-
-
-        String title = ((EditText) placeDriver.getView().findViewById(R.id.place_autocomplete_search_input)).getText().toString();
+        dbRequest.child(uid).child("locationName").setValue(title);
 
         Calendar c = Calendar.getInstance();
         SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -785,7 +793,6 @@ public class Home extends AppCompatActivity
                 final double latitude = mLastLocation.getLatitude();
                 final double longitude = mLastLocation.getLongitude();
 
-
                 //Update To Firebase
                 geoFire.setLocation(FirebaseAuth.getInstance().getCurrentUser().getUid(), new GeoLocation(latitude, longitude), new GeoFire.CompletionListener() {
                     @Override
@@ -801,8 +808,6 @@ public class Home extends AppCompatActivity
                                 .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_my_location_24px))
                                 .position(new LatLng(latitude, longitude))
                                 .title("You"));
-
-
                     }
                 });
             }
@@ -861,7 +866,7 @@ public class Home extends AppCompatActivity
                                         .position(new LatLng(location.latitude, location.longitude))
                                         .flat(true)
                                         .title(userApp.getName())
-                                        .snippet("Phone: " + userApp.getPhone())
+                                        .snippet("Phone: " + userApp.getPhoneNumber())
                                         .icon(BitmapDescriptorFactory.fromResource(R.drawable.car)));
                             }
 

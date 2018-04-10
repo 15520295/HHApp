@@ -34,6 +34,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.gson.internal.LinkedHashTreeMap;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -86,6 +87,7 @@ public class VerifyPhoneActivity extends AppCompatActivity {
 
         tv_phone_number.setText(phone_number);
 
+
         AnimationIn();
     }
 
@@ -102,7 +104,7 @@ public class VerifyPhoneActivity extends AppCompatActivity {
 
         tv_phone_number = findViewById(R.id.tv_phone_number);
 
-        editTextMap = new HashMap<>();
+        editTextMap = new LinkedHashTreeMap<>();
         editTextMap.put(1,(EditText) findViewById(R.id.et_number1));
         editTextMap.put(2,(EditText) findViewById(R.id.et_number2));
         editTextMap.put(3,(EditText) findViewById(R.id.et_number3));
@@ -124,7 +126,6 @@ public class VerifyPhoneActivity extends AppCompatActivity {
             pair.getValue().addTextChangedListener(new TextWatcher() {
                 @Override
                 public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
                 }
 
                 @Override
@@ -213,7 +214,7 @@ public class VerifyPhoneActivity extends AppCompatActivity {
                             final String uid = task.getResult().getUser().getUid();
 
                             // Check if user has
-                            DatabaseReference usersRef = FirebaseDatabase.getInstance().getReference().child("users");
+                            DatabaseReference usersRef = FirebaseDatabase.getInstance().getReference().child("Users");
                             usersRef.addListenerForSingleValueEvent(new ValueEventListener() {
                                 @Override
                                 public void onDataChange(DataSnapshot snapshot) {
