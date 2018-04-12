@@ -2,6 +2,7 @@ package com.example.huydaoduc.hieu.chi.hhapp.Main;
 
 import android.Manifest;
 import android.animation.ValueAnimator;
+import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -106,7 +107,7 @@ public class Home extends AppCompatActivity
     private Location mLastLocation;
 
 
-    private static int UPDATE_INTERVAL = 5000;
+    private static int UPDATE_INTERVAL = 3000;
     private static int FATEST_INTERVAL = 3000;
     private static int DISPLACEMENT = 10;
 
@@ -143,6 +144,7 @@ public class Home extends AppCompatActivity
     int distance = 1; //3km
 
 
+    // ve xe nho nho
     Runnable drawPathRunnable = new Runnable() {
         @Override
         public void run() {
@@ -181,6 +183,7 @@ public class Home extends AppCompatActivity
         }
     };
 
+    // xet quay dau xe
     private float getBearing(LatLng startPostion, LatLng endPosition) {
         double lat = Math.abs(startPostion.latitude - endPosition.latitude);
         double lng = Math.abs(startPostion.longitude - endPosition.longitude);
@@ -225,6 +228,7 @@ public class Home extends AppCompatActivity
         });*/
 
 /*
+        // nut ping vi tri
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -302,6 +306,9 @@ public class Home extends AppCompatActivity
             }
         });
 
+
+
+        // search diem
         placeRider.setOnPlaceSelectedListener(new PlaceSelectionListener() {
             @Override
             public void onPlaceSelected(Place place) {
@@ -907,7 +914,7 @@ public class Home extends AppCompatActivity
                 ActivityCompat.checkSelfPermission(getApplicationContext(), android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             return;
         }
-        LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, (com.google.android.gms.location.LocationListener) this);
+        LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest,this);
 
     }
 
@@ -992,6 +999,7 @@ public class Home extends AppCompatActivity
     }
 
 
+    @SuppressLint("RestrictedApi")
     private void createLocationRequest() {
         mLocationRequest = new LocationRequest();
         mLocationRequest.setInterval(UPDATE_INTERVAL);
