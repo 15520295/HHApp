@@ -5,7 +5,7 @@
     android:id="@+id/root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.example.huydaoduc.hieu.chi.hhapp.activity.PhoneAuthActivity">
+    tools:context="com.example.huydaoduc.hieu.chi.hhapp.ActivitiesAuth.PhoneAuthActivity">
 
     <TextView
         android:id="@+id/tv_connect_social"

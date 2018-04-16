@@ -26,34 +26,34 @@
             android:name="com.google.android.geo.API_KEY"
             android:value="@string/map_api_key" />
 
-        <activity android:name=".activity.SplashActivity">
-
+        <activity android:name=".Main.SplashActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-
         </activity>
         <activity
             android:name=".Main.Home"
             android:label="@string/title_activity_home"
             android:theme="@style/AppTheme.NoActionBar" />
-        <activity android:name=".activity.PhoneAuthActivity" />
-        <activity android:name=".Main.MainActivity" >
-
-        </activity>
         <activity
-            android:name=".activity.EnterPhoneNumberActivity"
+            android:name=".Main.DriverActivity"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity android:name=".ActivitiesAuth.PhoneAuthActivity" />
+        <activity android:name=".Main.MainActivity"></activity>
+        <activity
+            android:name=".ActivitiesAuth.EnterPhoneNumberActivity"
             android:label="@string/title_activity_enter_phone_number"
             android:windowSoftInputMode="adjustResize" />
         <activity
-            android:name=".activity.VerifyPhoneActivity"
+            android:name=".ActivitiesAuth.VerifyPhoneActivity"
             android:label="@string/title_activity_enter_phone_number"
             android:windowSoftInputMode="stateVisible|adjustResize" />
-        <activity android:name=".activity.EnterPassActivity" />
-        <activity android:name=".activity.UpdateInfoActivity"
-            android:windowSoftInputMode="stateVisible|adjustResize"/>
+        <activity android:name=".ActivitiesAuth.EnterPassActivity" />
+        <activity
+            android:name=".ActivitiesAuth.UpdateInfoActivity"
+            android:windowSoftInputMode="stateVisible|adjustResize" />
     </application>
 
 </manifest>

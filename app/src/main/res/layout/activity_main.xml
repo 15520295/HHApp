@@ -8,18 +8,20 @@
 
 
     <Button
-        android:id="@+id/btnLogin"
+        android:id="@+id/btn_rider"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Login"/>
+        android:text="Rider"
+        tools:layout_editor_absoluteX="61dp"
+        tools:layout_editor_absoluteY="89dp" />
 
     <Button
-        android:id="@+id/btnSignUp"
+        android:id="@+id/btn_driver"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:text="Sign Up"
-        app:layout_constraintStart_toEndOf="@+id/btnLogin"
-        tools:layout_editor_absoluteY="0dp" />
+        android:layout_marginStart="44dp"
+        android:text="btn_driver"
+        app:layout_constraintStart_toEndOf="@+id/btn_rider"
+        tools:layout_editor_absoluteY="96dp" />
 
 </android.support.constraint.ConstraintLayout>

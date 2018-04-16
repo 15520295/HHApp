@@ -1,4 +1,4 @@
-package com.example.huydaoduc.hieu.chi.hhapp.activity;
+package com.example.huydaoduc.hieu.chi.hhapp.ActivitiesAuth;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
@@ -15,10 +15,8 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import java.util.Calendar;
-import java.util.Map;
 
 import com.example.huydaoduc.hieu.chi.hhapp.Main.Home;
-import com.example.huydaoduc.hieu.chi.hhapp.Main.MainActivity;
 import com.example.huydaoduc.hieu.chi.hhapp.R;
 import com.example.huydaoduc.hieu.chi.hhapp.Model.User;
 import com.google.firebase.auth.FirebaseAuth;

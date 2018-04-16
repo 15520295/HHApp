@@ -3,12 +3,10 @@ package com.example.huydaoduc.hieu.chi.hhapp.Main;
 import android.Manifest;
 import android.animation.ValueAnimator;
 import android.annotation.SuppressLint;
-import android.app.Dialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.location.Location;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
@@ -27,6 +25,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.animation.LinearInterpolator;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.RelativeLayout;
 import android.widget.TabHost;
 import android.widget.TextView;
@@ -86,7 +85,9 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.UnsupportedEncodingException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 import retrofit2.Call;
@@ -94,7 +95,7 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 //todo: check 1 tai khoan dang nhap 2 may
-public class Home extends AppCompatActivity
+public class DriverActivity extends AppCompatActivity
         implements
         // Direction Finder
         DirectionFinderListener,
@@ -127,7 +128,7 @@ public class Home extends AppCompatActivity
     DatabaseReference drivers;
     GeoFire geoFire;
 
-    MaterialAnimatedSwitch locationRider_switch;
+    MaterialAnimatedSwitch  locationDriver_switch;
     SupportMapFragment mapFragment;
 
     DatabaseReference onlineRef, currenUserRef;
@@ -140,9 +141,9 @@ public class Home extends AppCompatActivity
     private Handler handler;
     private LatLng startPostion, endPosition, currentPosition;
     private int index, next;
-    private Button btnPost, btnFindDriver, btnMessage, btnCall;
+    private Button btnGo;
     private TextView tvName, tvPhone;
-    private PlaceAutocompleteFragment placeAutoCompleteRider;
+    private PlaceAutocompleteFragment placeAutoCompleteDriver;
     private String destination;
     private PolylineOptions polylineOptions, blackPolylineOptions;
     private Polyline blackPolyline, greyPolyline;
@@ -348,13 +349,13 @@ public class Home extends AppCompatActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_home);
+        setContentView(R.layout.activity_driver);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
         mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
-        mapFragment.getMapAsync(this);      // set Callback listener
+        mapFragment.getMapAsync(this);
 
         //
         /*onlineRef = FirebaseDatabase.getInstance().getReference().child(".info/connected");
@@ -395,6 +396,79 @@ public class Home extends AppCompatActivity
         geoFire = new GeoFire(drivers);
         mapService = Common.getGoogleAPI();
 
+
+    }
+
+    private void Init() {
+
+        // Init View
+        locationDriver_switch = findViewById(R.id.locationDriver_switch);
+
+        polyLineList = new ArrayList<>();
+        btnGo = findViewById(R.id.btnGo);
+        placeAutoCompleteDriver = (PlaceAutocompleteFragment) getFragmentManager().findFragmentById(R.id.place_autocomplete_startDriverLocation);
+        // placeAutoComplete ??
+
+    }
+
+    private void addEven() {
+
+
+        //// Driver
+        locationDriver_switch.setOnCheckedChangeListener(new MaterialAnimatedSwitch.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(boolean b) {
+                if (b) {
+                    // check online -- not done
+                    FirebaseDatabase.getInstance().goOnline();
+
+
+                    startLocationUpdates();
+                    displayLocationAndUpdateData();
+                    Snackbar.make(mapFragment.getView(), "You are Online", Snackbar.LENGTH_SHORT).show();
+                } else {
+                    FirebaseDatabase.getInstance().goOffline();
+
+                    stopLocationUpdate();
+                    if (userMaker != null)
+                        userMaker.remove();
+                    mMap.clear();
+//                    handler.removeCallbacks(drawPathRunnable);
+                    Snackbar.make(mapFragment.getView(), "You are Offline", Snackbar.LENGTH_SHORT).show();
+                }
+            }
+        });
+
+        // the same
+        placeAutoCompleteDriver.setOnPlaceSelectedListener(new PlaceSelectionListener() {
+            @Override
+            public void onPlaceSelected(Place place) {
+                if (locationDriver_switch.isChecked()) {
+                    destination = place.getAddress().toString();
+                    destination = destination.replace(" ", "+");
+
+                    //getDirection();
+                    drawDirection();
+                } else {
+                    Toast.makeText(getApplicationContext(), "You are Offline", Toast.LENGTH_SHORT).show();
+                }
+
+            }
+
+            @Override
+            public void onError(Status status) {
+                Toast.makeText(getApplicationContext(), "" + status.toString(), Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        // post request to Firebase
+        btnGo.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+//                requesRoute(FirebaseAuth.getInstance().getCurrentUser().getUid());
+                findPath();
+            }
+        });
 
     }
 
@@ -590,224 +664,25 @@ public class Home extends AppCompatActivity
 
     ///////////
 
+    private void requesRoute(String uid) {
+        String title = ((EditText) placeAutoCompleteDriver.getView().findViewById(R.id.place_autocomplete_search_input)).getText().toString();
 
-    private void findDriver() {
-        final DatabaseReference drivers = FirebaseDatabase.getInstance().getReference("RouteRequest");
-        GeoFire geoFireDrivers = new GeoFire(drivers);
+        DatabaseReference dbRequest = FirebaseDatabase.getInstance().getReference("RouteRequest");
+        GeoFire mGeoFire = new GeoFire(dbRequest);
+        mGeoFire.setLocation(uid, new GeoLocation(mLastLocation.getLatitude(), mLastLocation.getLongitude()));
+        dbRequest.child(uid).child("locationName").setValue(title);
 
-        GeoQuery geoQuery = geoFireDrivers.queryAtLocation(new GeoLocation(mLastLocation.getLatitude(), mLastLocation.getLongitude()), radius);
-        geoQuery.removeAllListeners();
-        geoQuery.addGeoQueryEventListener(new GeoQueryEventListener() {
-            @Override
-            public void onKeyEntered(String key, final GeoLocation location) {
-                //if found
-                if (!isDriverFound) {
-                    isDriverFound = true;
-                    driverId = key;
-                    //btnFindDriver.setText("Call Driver");
-                    Toast.makeText(getApplicationContext(), "" + key, Toast.LENGTH_LONG).show();
+        Calendar c = Calendar.getInstance();
+        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        String formattedDate = df.format(c.getTime());
 
-                }
-                final String[] locationName = new String[1];
-
-                drivers.child(driverId).child("locationName").addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        locationName[0] = dataSnapshot.getValue(String.class);
-
-                    }
-
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
-
-                    }
-                });
-
-                FirebaseDatabase.getInstance().getReference("Users")
-                        .child(key)
-                        .addListenerForSingleValueEvent(new ValueEventListener() {
-                            @Override
-                            public void onDataChange(DataSnapshot dataSnapshot) {
-                                final UserApp user = dataSnapshot.getValue(UserApp.class);
-
-                                //Add driver to map
-                                carMaker = mMap.addMarker(new MarkerOptions()
-                                        .position(new LatLng(location.latitude, location.longitude))
-                                        .flat(true)
-                                        .title(locationName[0])
-                                        .snippet("Phone: " + user.getPhoneNumber())
-                                        .icon(BitmapDescriptorFactory.fromResource(R.drawable.car)));
-                                carMaker.showInfoWindow();
-
-
-                                // get maker just show to add click listener
-                                mMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
-                                    @Override
-                                    public void onInfoWindowClick(Marker marker) {
-                                        //Toast.makeText(getApplicationContext(),"infoss",Toast.LENGTH_LONG).show();
-                                        final Dialog dialog = new Dialog(Home.this);
-                                        dialog.setContentView(R.layout.info_user);
-
-                                        btnMessage = dialog.findViewById(R.id.btnMessage);
-                                        btnCall = dialog.findViewById(R.id.btnCall);
-                                        tvName = dialog.findViewById(R.id.tvName);
-                                        tvPhone = dialog.findViewById(R.id.tvPhone);
-
-                                        tvName.setText(user.getName());
-                                        tvPhone.setText("SDT: " + user.getPhoneNumber());
-
-                                        btnMessage.setOnClickListener(new View.OnClickListener() {
-                                            @Override
-                                            public void onClick(View v) {
-                                                Toast.makeText(getApplicationContext(), "Open Messenger", Toast.LENGTH_LONG).show();
-                                                dialog.dismiss();
-                                            }
-                                        });
-
-                                        btnCall.setOnClickListener(new View.OnClickListener() {
-                                            @Override
-                                            public void onClick(View v) {
-                                                //Toast.makeText(getApplicationContext(),"Open Call",Toast.LENGTH_LONG).show();
-                                                Intent intent = new Intent(Intent.ACTION_CALL);
-                                                intent.setData(Uri.parse("tel:" + user.getPhoneNumber()));
-                                                if (ActivityCompat.checkSelfPermission(Home.this, Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
-                                                    // TODO: Consider calling
-                                                    //    ActivityCompat#requestPermissions
-                                                    // here to request the missing permissions, and then overriding
-                                                    //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-                                                    //                                          int[] grantResults)
-                                                    // to handle the case where the user grants the permission. See the documentation
-                                                    // for ActivityCompat#requestPermissions for more details.
-                                                    return;
-                                                }
-                                                startActivity(intent);
-                                                dialog.dismiss();
-                                            }
-                                        });
-
-                                        dialog.show();
-                                    }
-                                });
-
-                            }
-
-                            @Override
-                            public void onCancelled(DatabaseError databaseError) {
-
-                            }
-                        });
-            }
-
-            @Override
-            public void onKeyExited(String key) {
-
-            }
-
-            @Override
-            public void onKeyMoved(String key, GeoLocation location) {
-
-            }
-
-            @Override
-            public void onGeoQueryReady() {
-                //if still not found driver, increase distance
-                if (!isDriverFound) {
-                    radius++;
-                    findDriver();
-                }
-
-            }
-
-            @Override
-            public void onGeoQueryError(DatabaseError error) {
-
-            }
-        });
-
-    }
-
-
-    private void Init() {
-
-        // Init View
-        locationRider_switch = findViewById(R.id.locationRider_switch);
-
-        polyLineList = new ArrayList<>();
-        btnPost = findViewById(R.id.btnPost);
-        btnFindDriver = findViewById(R.id.btn_find_driver);
-        placeAutoCompleteRider = (PlaceAutocompleteFragment) getFragmentManager().findFragmentById(R.id.place_autocomplete_startLocation);
-        // placeAutoComplete ??
-
-    }
-
-    private void addEven() {
-
-        //// Rider
-        locationRider_switch.setOnCheckedChangeListener(new MaterialAnimatedSwitch.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(boolean b) {
-                if (b) {
-                    startLocationUpdates();
-
-                    // move cam + show maker + update firebase value
-                    displayLocationAndUpdateData();
-                    Snackbar.make(mapFragment.getView(), "You are Online", Snackbar.LENGTH_SHORT).show();
-                } else {
-
-                    stopLocationUpdate();
-
-                    // remove maker
-                    if (carMaker != null)
-                        carMaker.remove();
-                    mMap.clear();
-//                    handler.removeCallbacks(drawPathRunnable);
-                    Snackbar.make(mapFragment.getView(), "You are Offline", Snackbar.LENGTH_SHORT).show();
-                }
-            }
-        });
-
-        // search diem
-        placeAutoCompleteRider.setOnPlaceSelectedListener(new PlaceSelectionListener() {
-            @Override
-            public void onPlaceSelected(Place place) {
-                if (locationRider_switch.isChecked()) {
-                    // get destination string
-                    destination = place.getAddress().toString();
-                    destination = destination.replace(" ", "+");
-
-                    //getDirection();
-                    drawDirection();
-                } else {
-                    Toast.makeText(getApplicationContext(), "You are Offline", Toast.LENGTH_SHORT).show();
-                }
-
-            }
-
-            @Override
-            public void onError(Status status) {
-                Toast.makeText(getApplicationContext(), "" + status.toString(), Toast.LENGTH_SHORT).show();
-            }
-        });
-
-
-        // post Pick up point and destination -- not done
-        btnPost.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                destination = destination.replace(" ", "+"); //Replace space with + for fetch data
-                Toast.makeText(getApplicationContext(), "SS", Toast.LENGTH_SHORT).show();
-                //Log.d("EDMTDEV", destination);
-                getDirection();
-
-            }
-        });
-
-        btnFindDriver.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                findDriver();
-            }
-        });
+        // show info
+        carMaker = mMap.addMarker(new MarkerOptions()
+                .title(title)
+                .snippet(formattedDate)
+                .position(new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude())));
+//                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
+        carMaker.showInfoWindow();
 
     }
 
@@ -846,6 +721,22 @@ public class Home extends AppCompatActivity
     }
 
 
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        switch (requestCode) {
+            case MY_PERMISSION_REQUEST_CODE:
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    if (checkPlayServices()) {
+                        builGoogleApiClinet();
+                        createLocationRequest();
+                        if ( locationDriver_switch.isChecked())
+                            displayLocationAndUpdateData();
+                    }
+                }
+        }
+
+    }
+
     private void displayLocationAndUpdateData() {
         if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
                 ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -855,27 +746,30 @@ public class Home extends AppCompatActivity
         // get cur loca
         mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
         if (mLastLocation != null) {
-            if (locationRider_switch.isChecked()) {
+
+            // do the same for driver
+            if (locationDriver_switch.isChecked()) {
                 final double latitude = mLastLocation.getLatitude();
                 final double longitude = mLastLocation.getLongitude();
+
 
                 //Update To Firebase
                 geoFire.setLocation(FirebaseAuth.getInstance().getCurrentUser().getUid(), new GeoLocation(latitude, longitude), new GeoFire.CompletionListener() {
                     @Override
                     public void onComplete(String key, DatabaseError error) {
 
-                        //Move camera to this location
+                        //Move camera to this po
                         mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(latitude, longitude), 15.0f));
-                        //Add Marker
-                        if (carMaker != null) {
-                            carMaker.remove();
-                        }
 
-                        // create maker
-                        userMaker = mMap.addMarker(new MarkerOptions()
-                                .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_my_location_24px))
+                        //Add Marker
+                        if (userMaker != null) {
+                            userMaker.remove();
+                        }
+                        carMaker = mMap.addMarker(new MarkerOptions()
+                                .icon(BitmapDescriptorFactory.fromResource(R.drawable.car))
                                 .position(new LatLng(latitude, longitude))
                                 .title("You"));
+
                     }
                 });
             }
@@ -969,7 +863,7 @@ public class Home extends AppCompatActivity
             if (checkPlayServices()) {
                 builGoogleApiClinet();
                 createLocationRequest();
-                if (locationRider_switch.isChecked())
+                if (locationDriver_switch.isChecked())
                     displayLocationAndUpdateData();
             }
         }
@@ -1019,7 +913,7 @@ public class Home extends AppCompatActivity
 
         } else if (id == R.id.nav_logout) {
             FirebaseAuth.getInstance().signOut();
-            Intent intent = new Intent(Home.this, PhoneAuthActivity.class);
+            Intent intent = new Intent(DriverActivity.this, PhoneAuthActivity.class);
             startActivity(intent);
         }
 

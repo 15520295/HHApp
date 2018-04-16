@@ -1,6 +1,5 @@
-package com.example.huydaoduc.hieu.chi.hhapp.activity;
+package com.example.huydaoduc.hieu.chi.hhapp.ActivitiesAuth;
 
-import android.animation.TimeInterpolator;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
@@ -10,7 +9,6 @@ import android.support.annotation.NonNull;
 import android.support.constraint.ConstraintLayout;
 import android.support.constraint.ConstraintSet;
 import android.support.design.widget.FloatingActionButton;
-import android.support.v4.view.animation.FastOutLinearInInterpolator;
 import android.support.v4.view.animation.FastOutSlowInInterpolator;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
@@ -21,20 +19,13 @@ import android.transition.TransitionManager;
 import android.transition.TransitionSet;
 import android.util.Log;
 import android.view.View;
-import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
-import android.view.animation.AnticipateOvershootInterpolator;
-import android.view.animation.BounceInterpolator;
-import android.view.animation.CycleInterpolator;
-import android.view.animation.DecelerateInterpolator;
-import android.view.animation.PathInterpolator;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.TextView;
 
 import com.example.huydaoduc.hieu.chi.hhapp.Main.Home;
-import com.example.huydaoduc.hieu.chi.hhapp.Main.MainActivity;
 import com.example.huydaoduc.hieu.chi.hhapp.R;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;

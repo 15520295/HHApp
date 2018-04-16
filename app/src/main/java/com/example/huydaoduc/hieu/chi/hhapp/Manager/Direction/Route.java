@@ -1,14 +1,9 @@
-package com.example.huydaoduc.hieu.chi.hhapp.Manager.Location;
-
-import com.google.android.gms.maps.model.LatLng;
+package com.example.huydaoduc.hieu.chi.hhapp.Manager.Direction;
 
 import java.util.List;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.List;
-
-import android.content.Context;
 
 import com.google.android.gms.maps.model.Polyline;
 

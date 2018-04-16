@@ -1,4 +1,4 @@
-package com.example.huydaoduc.hieu.chi.hhapp.activity;
+package com.example.huydaoduc.hieu.chi.hhapp.ActivitiesAuth;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
@@ -20,7 +20,6 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.example.huydaoduc.hieu.chi.hhapp.Main.Home;
-import com.example.huydaoduc.hieu.chi.hhapp.Main.MainActivity;
 import com.example.huydaoduc.hieu.chi.hhapp.R;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -36,7 +35,6 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.gson.internal.LinkedHashTreeMap;
 
-import java.util.HashMap;
 import java.util.Map;
 //todo: resent code
 public class VerifyPhoneActivity extends AppCompatActivity {

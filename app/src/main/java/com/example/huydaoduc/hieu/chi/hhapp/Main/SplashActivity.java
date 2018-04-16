@@ -1,14 +1,12 @@
-package com.example.huydaoduc.hieu.chi.hhapp.activity;
+package com.example.huydaoduc.hieu.chi.hhapp.Main;
 
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
-import android.view.View;
 
-import com.example.huydaoduc.hieu.chi.hhapp.Main.Home;
-import com.example.huydaoduc.hieu.chi.hhapp.Main.MainActivity;
 import com.example.huydaoduc.hieu.chi.hhapp.R;
+import com.example.huydaoduc.hieu.chi.hhapp.ActivitiesAuth.PhoneAuthActivity;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
@@ -28,7 +26,7 @@ public class SplashActivity extends AppCompatActivity {
             new Handler().postDelayed(new Runnable(){
                 @Override
                 public void run() {
-                    Intent startIntent = new Intent(SplashActivity.this,Home.class);
+                    Intent startIntent = new Intent(SplashActivity.this,MainActivity.class);
                     SplashActivity.this.startActivity(startIntent);
                     SplashActivity.this.finish();
                 }

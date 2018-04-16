@@ -1,10 +1,6 @@
-package com.example.huydaoduc.hieu.chi.hhapp.Manager.Location;
+package com.example.huydaoduc.hieu.chi.hhapp.Manager.Direction;
 
 import java.util.List;
-
-import android.annotation.SuppressLint;
-import android.content.Context;
-import android.graphics.drawable.Drawable;
 
 import com.google.android.gms.maps.model.LatLng;
 

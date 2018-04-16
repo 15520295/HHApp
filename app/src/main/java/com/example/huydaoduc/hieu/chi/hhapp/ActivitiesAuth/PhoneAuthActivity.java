@@ -1,4 +1,4 @@
-package com.example.huydaoduc.hieu.chi.hhapp.activity;
+package com.example.huydaoduc.hieu.chi.hhapp.ActivitiesAuth;
 
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;

@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
-    tools:context=".Main.Home">
+    tools:context=".Main.DriverActivity">
 
 
 
@@ -16,6 +16,6 @@
         android:layout_height="match_parent"
         android:layout_marginBottom="8dp" />
 
-    <include layout="@layout/layout_rider" />
+    <include layout="@layout/layout_driver" />
 
 </android.support.constraint.ConstraintLayout>
