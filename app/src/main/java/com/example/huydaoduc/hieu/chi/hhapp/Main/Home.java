@@ -34,7 +34,10 @@ import android.widget.Toast;
 
 import com.example.huydaoduc.hieu.chi.hhapp.Common.Common;
 import com.example.huydaoduc.hieu.chi.hhapp.CostomInfoWindow.CustomInfoWindow;
-import com.example.huydaoduc.hieu.chi.hhapp.Model.User;
+import com.example.huydaoduc.hieu.chi.hhapp.Manager.Location.DirectionFinder;
+import com.example.huydaoduc.hieu.chi.hhapp.Manager.Location.DirectionFinderListener;
+import com.example.huydaoduc.hieu.chi.hhapp.Manager.Location.Leg;
+import com.example.huydaoduc.hieu.chi.hhapp.Manager.Location.Route;
 import com.example.huydaoduc.hieu.chi.hhapp.Model.UserApp;
 import com.example.huydaoduc.hieu.chi.hhapp.R;
 import com.example.huydaoduc.hieu.chi.hhapp.Remote.IGoogleAPI;
@@ -79,6 +82,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.UnsupportedEncodingException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -89,13 +93,14 @@ import retrofit2.Callback;
 import retrofit2.Response;
 //todo: check 1 tai khoan dang nhap 2 may
 public class Home extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener,
+        implements DirectionFinderListener,
+        NavigationView.OnNavigationItemSelectedListener,
         OnMapReadyCallback,
         GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
         com.google.android.gms.location.LocationListener {
 
-    //
+    // store all info in the map
     private GoogleMap mMap;
 
     //Play Services
@@ -129,12 +134,12 @@ public class Home extends AppCompatActivity
     private int index, next;
     private Button btnGo, btnPost, btnFindDriver, btnMessage, btnCall;
     private TextView tvName, tvPhone;
-    private PlaceAutocompleteFragment placeRider, placeDriver;
+    private PlaceAutocompleteFragment placeAutoCompleteRider, placeAutoCompleteDriver;
     private String destination;
     private PolylineOptions polylineOptions, blackPolylineOptions;
     private Polyline blackPolyline, greyPolyline;
 
-    private IGoogleAPI mService;
+    private IGoogleAPI mapService;
 
     TabHost host;
 
@@ -143,11 +148,97 @@ public class Home extends AppCompatActivity
     int radius = 1; //1km
     int distance = 1; //3km
 
+    //------------------------------------ Chi :
+
+    //// DirectionFinder
+    private List<Marker> originMarkers = new ArrayList<>();
+    private List<Marker> destinationMarkers = new ArrayList<>();
+    private List<Polyline> polylinePaths = new ArrayList<>();
+
+    @Override
+    public void onDirectionFinderStart() {
+
+    }
+
+    @Override
+    public void onDirectionFinderSuccess(List<Route> routes) {
+//        progressDialog.dismiss();
+        polylinePaths = new ArrayList<>();
+        originMarkers = new ArrayList<>();
+        destinationMarkers = new ArrayList<>();
+
+        for (Route route : routes) {
+
+            for (Leg leg : route.getLegs()) {
+                // Move the map to Surround the route
+                final int MAP_BOUND_PADDING = 180;  /* In dp */
+                LatLngBounds.Builder builder = new LatLngBounds.Builder();
+                builder.include(route.getBounds().getNorthEast());
+                builder.include(route.getBounds().getSouthWest());
+                LatLngBounds bounds = builder.build();
+                CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(bounds, MAP_BOUND_PADDING);
+                mMap.animateCamera(cu);
+
+                Toast.makeText(getApplicationContext(),"Duration + Distance: " + leg.getDuration().getValue() + ", " + leg.getDistance().getValue(), Toast.LENGTH_LONG)
+                        .show();
+
+//            originMarkers.add(mMap.addMarker(new MarkerOptions()
+//                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.start_blue))
+//                    .title(route.startAddress)
+//                    .position(route.startLocation)));
+//            destinationMarkers.add(mMap.addMarker(new MarkerOptions()
+//                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.end_green))
+//                    .title(route.endAddress)
+//                    .position(route.endLocation)));
+
+                PolylineOptions polylineOptions = new PolylineOptions().
+                        geodesic(true).
+                        color(Color.BLUE).
+                        width(10);
+
+                int stepsize = leg.getSteps().size();
+                for (int i = 0; i < stepsize; i++) {
+                    int pontsize = leg.getSteps().get(i).getPoints().size();
+                    for (int j = 0; j < pontsize; j++)
+                        polylineOptions.add(leg.getSteps().get(i).getPoints().get(j));
+                }
+
+
+                // Note: points  --- is a pairs not a array
+
+                polylinePaths.add(mMap.addPolyline(polylineOptions));
+            }
+        }
+    }
+
+
+    private void findPath() {
+        String origin = "Dai hoc khoa hoc tu nhien";
+        String destination = "Dai hoc bach khoa hcm";
+        if (origin.isEmpty()) {
+            Toast.makeText(this, "Please enter origin address!", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        if (destination.isEmpty()) {
+            Toast.makeText(this, "Please enter destination address!", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        try {
+            new DirectionFinder(this, origin, destination, getApplicationContext()).execute();
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+    }
+
+    //------------------------------------
 
     // ve xe nho nho
-    Runnable drawPathRunnable = new Runnable() {
+    Runnable drawPathRunnable = new Runnable()
+    {
         @Override
-        public void run() {
+        public void run()
+        {
             if (index < polyLineList.size() - 1) {
                 index++;
                 next = index + 1;
@@ -209,7 +300,7 @@ public class Home extends AppCompatActivity
 
         mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
-        mapFragment.getMapAsync(this);
+        mapFragment.getMapAsync(this);      //
 
         //
         /*onlineRef = FirebaseDatabase.getInstance().getReference().child(".info/connected");
@@ -236,7 +327,7 @@ public class Home extends AppCompatActivity
                 Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
                *//* startLocationUpdates();
-                displayLocation();
+                displayLocationAndUpdateData();
                 Snackbar.make(mapFragment.getView(),"You are Online",Snackbar.LENGTH_SHORT).show();*//*
             }
         });*/
@@ -258,40 +349,219 @@ public class Home extends AppCompatActivity
         //Geo Fire
         drivers = FirebaseDatabase.getInstance().getReference("Drivers");
         geoFire = new GeoFire(drivers);
-        mService = Common.getGoogleAPI();
+        mapService = Common.getGoogleAPI();
 
 
     }
 
+
+    ///// Moved
+    private void drawDirection() {
+        currentPosition = new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude());
+        // use requestApi to determine if the api is working correctly --> if not get the URL in the log to Debug
+        String requestApi = null;
+        try {
+            requestApi = "https://maps.googleapis.com/maps/api/directions/json?" +
+                    "mode=driving&" +
+                    "transit_routing_preference=less_driving&" +
+                    "origin=" + currentPosition.latitude + "," + currentPosition.longitude + "&" +
+                    "destination=" + destination + "&" +
+                    "key=" + getResources().getString(R.string.map_api_key);
+            Log.d("Test", requestApi); // Print URL for debug
+
+
+            ///// Draw direction
+            // setup the request get data ( set up the call )
+            Call<String> call = mapService.getPath(requestApi);
+            // enqueue: execute asynchronously . User a Callback to get respond from the server
+            call.enqueue(new Callback<String>()
+                {
+                    @Override
+                    public void onResponse(Call<String> call, Response<String> response) {
+                        try {
+                            String responseString = response.body();        // get response object
+                                                                            // the response String is the whole JSON file have info of the direction
+
+                            JSONObject jsonObject = new JSONObject(responseString);
+                            JSONArray jsonArray = jsonObject.getJSONArray("routes");
+                            for (int i = 0; i < jsonArray.length(); i++) {
+                                JSONObject route = jsonArray.getJSONObject(i);
+                                JSONObject poly = route.getJSONObject("overview_polyline");
+                                String polyline = poly.getString("points");
+                                polyLineList = decodePoly(polyline); //decodePoly from Internet 3
+
+                            }
+
+                            //Adjusting lounds
+                            LatLngBounds.Builder builder = new LatLngBounds.Builder();
+                            for (LatLng latLng : polyLineList) {
+                                builder.include(latLng);
+                            }
+
+                            LatLngBounds bounds = builder.build();
+                            CameraUpdate mCameraUpdate = CameraUpdateFactory.newLatLngBounds(bounds, 2);
+                            mMap.animateCamera(mCameraUpdate);
+
+                            // polyline Property
+                            polylineOptions = new PolylineOptions();
+                            polylineOptions.color(Color.GRAY);
+                            polylineOptions.width(5);
+                            polylineOptions.startCap(new SquareCap());
+                            polylineOptions.endCap(new SquareCap());
+                            polylineOptions.jointType(JointType.ROUND);
+                            polylineOptions.addAll(polyLineList);
+                            greyPolyline = mMap.addPolyline(polylineOptions);
+
+                            blackPolylineOptions = new PolylineOptions();
+                            blackPolylineOptions.color(Color.BLACK);
+                            blackPolylineOptions.width(5);
+                            blackPolylineOptions.startCap(new SquareCap());
+                            blackPolylineOptions.endCap(new SquareCap());
+                            blackPolylineOptions.jointType(JointType.ROUND);
+                            blackPolyline = mMap.addPolyline(blackPolylineOptions);
+
+                            mMap.addMarker(new MarkerOptions()
+                                    .position(polyLineList.get(polyLineList.size() - 1))
+                                    .title("Pickup Location"));
+
+
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<String> call, Throwable t) {
+
+                    }
+                });
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void getDirection() {
+        currentPosition = new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude());
+
+        String requestApi = null;
+        try {
+            requestApi = "https://maps.googleapis.com/maps/api/directions/json?" +
+                    "mode=driving&" +
+                    "transit_routing_preference=less_driving&" +
+                    "origin=" + currentPosition.latitude + "," + currentPosition.longitude + "&" +
+                    "destination=" + destination + "&" +
+                    "key=" + getResources().getString(R.string.map_api_key);
+            Log.d("Test", requestApi); // Print URL for debug
+            mapService.getPath(requestApi)
+                    .enqueue(new Callback<String>() {
+                        @Override
+                        public void onResponse(Call<String> call, Response<String> response) {
+                            try {
+                                JSONObject jsonObject = new JSONObject(response.body().toString());
+                                JSONArray jsonArray = jsonObject.getJSONArray("routes");
+                                for (int i = 0; i < jsonArray.length(); i++) {
+                                    JSONObject route = jsonArray.getJSONObject(i);
+                                    JSONObject poly = route.getJSONObject("overview_polyline");
+                                    String polyline = poly.getString("points");
+                                    polyLineList = decodePoly(polyline); //decodePoly from Internet (decodepoly encode android)
+
+                                }
+
+                                //Adjusting lounds
+                                LatLngBounds.Builder builder = new LatLngBounds.Builder();
+                                for (LatLng latLng : polyLineList) {
+                                    builder.include(latLng);
+                                }
+
+                                LatLngBounds bounds = builder.build();
+                                CameraUpdate mCameraUpdate = CameraUpdateFactory.newLatLngBounds(bounds, 2);
+                                mMap.animateCamera(mCameraUpdate);
+
+
+                                // polyline Property
+                                polylineOptions = new PolylineOptions();
+                                polylineOptions.color(Color.GRAY);
+                                polylineOptions.width(5);
+                                polylineOptions.startCap(new SquareCap());
+                                polylineOptions.endCap(new SquareCap());
+                                polylineOptions.jointType(JointType.ROUND);
+                                polylineOptions.addAll(polyLineList);
+                                greyPolyline = mMap.addPolyline(polylineOptions);
+
+                                blackPolylineOptions = new PolylineOptions();
+                                blackPolylineOptions.color(Color.rgb(255, 20, 147));
+                                blackPolylineOptions.width(5);
+                                blackPolylineOptions.startCap(new SquareCap());
+                                blackPolylineOptions.endCap(new SquareCap());
+                                blackPolylineOptions.jointType(JointType.ROUND);
+                                blackPolyline = mMap.addPolyline(blackPolylineOptions);
+
+                                mMap.addMarker(new MarkerOptions()
+                                        .position(polyLineList.get(polyLineList.size() - 1))
+                                        .title("Pickup Location"));
+
+                                //Animation
+                                ValueAnimator polyLineAnimator = ValueAnimator.ofInt(0, 100);
+                                polyLineAnimator.setDuration(2000);
+                                polyLineAnimator.setInterpolator(new LinearInterpolator());
+                                polyLineAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+                                    @Override
+                                    public void onAnimationUpdate(ValueAnimator animation) {
+                                        List<LatLng> points = greyPolyline.getPoints();
+                                        int percentValue = (int) animation.getAnimatedValue();
+                                        int size = points.size();
+                                        int newPoints = (int) (size * (percentValue / 100.0f));
+                                        List<LatLng> p = points.subList(0, newPoints);
+                                        blackPolyline.setPoints(p);
+                                    }
+                                });
+                                polyLineAnimator.start();
+
+                                carMaker = mMap.addMarker(new MarkerOptions().position(currentPosition)
+                                        .flat(true)
+                                        .icon(BitmapDescriptorFactory.fromResource(R.drawable.car)));
+
+                                handler = new Handler();
+                                index = -1;
+                                next = 1;
+                                handler.postDelayed(drawPathRunnable, 3000);
+
+
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+
+                        }
+
+                        @Override
+                        public void onFailure(Call<String> call, Throwable t) {
+                            Toast.makeText(getApplicationContext(), "" + t.getMessage(), Toast.LENGTH_SHORT).show();
+                        }
+                    });
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    ///////////
+
     private void addEven() {
 
-        locationRider_switch.setOnCheckedChangeListener(new MaterialAnimatedSwitch.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(boolean b) {
-                if (b) {
-                    startLocationUpdates();
-                    displayLocation();
-                    Snackbar.make(mapFragment.getView(), "You are Online", Snackbar.LENGTH_SHORT).show();
-                } else {
 
-                    stopLocationUpdate();
-                    if (carMaker != null)
-                        carMaker.remove();
-                    mMap.clear();
-//                    handler.removeCallbacks(drawPathRunnable);
-                    Snackbar.make(mapFragment.getView(), "You are Offline", Snackbar.LENGTH_SHORT).show();
-                }
-            }
-        });
-
+        //// Driver
         locationDriver_switch.setOnCheckedChangeListener(new MaterialAnimatedSwitch.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(boolean b) {
                 if (b) {
+                    // check online -- not done
                     FirebaseDatabase.getInstance().goOnline();
 
+
+
                     startLocationUpdates();
-                    displayLocation();
+                    displayLocationAndUpdateData();
                     Snackbar.make(mapFragment.getView(), "You are Online", Snackbar.LENGTH_SHORT).show();
                 } else {
                     FirebaseDatabase.getInstance().goOffline();
@@ -306,31 +576,8 @@ public class Home extends AppCompatActivity
             }
         });
 
-
-
-        // search diem
-        placeRider.setOnPlaceSelectedListener(new PlaceSelectionListener() {
-            @Override
-            public void onPlaceSelected(Place place) {
-                if (locationRider_switch.isChecked()) {
-                    destination = place.getAddress().toString();
-                    destination = destination.replace(" ", "+");
-
-                    //getDirection();
-                    showLoacationChose();
-                } else {
-                    Toast.makeText(getApplicationContext(), "You are Offline", Toast.LENGTH_SHORT).show();
-                }
-
-            }
-
-            @Override
-            public void onError(Status status) {
-                Toast.makeText(getApplicationContext(), "" + status.toString(), Toast.LENGTH_SHORT).show();
-            }
-        });
-
-        placeDriver.setOnPlaceSelectedListener(new PlaceSelectionListener() {
+        // the same
+        placeAutoCompleteDriver.setOnPlaceSelectedListener(new PlaceSelectionListener() {
             @Override
             public void onPlaceSelected(Place place) {
                 if (locationDriver_switch.isChecked()) {
@@ -338,7 +585,7 @@ public class Home extends AppCompatActivity
                     destination = destination.replace(" ", "+");
 
                     //getDirection();
-                    showLoacationChose();
+                    drawDirection();
                 } else {
                     Toast.makeText(getApplicationContext(), "You are Offline", Toast.LENGTH_SHORT).show();
                 }
@@ -351,6 +598,65 @@ public class Home extends AppCompatActivity
             }
         });
 
+        // post request to Firebase
+        btnGo.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+//                requesRoute(FirebaseAuth.getInstance().getCurrentUser().getUid());
+                findPath();
+            }
+        });
+
+
+        //// Rider
+        locationRider_switch.setOnCheckedChangeListener(new MaterialAnimatedSwitch.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(boolean b) {
+                if (b) {
+                    startLocationUpdates();
+
+                    // move cam + show maker + update firebase value
+                    displayLocationAndUpdateData();
+                    Snackbar.make(mapFragment.getView(), "You are Online", Snackbar.LENGTH_SHORT).show();
+                } else {
+
+                    stopLocationUpdate();
+
+                    // remove maker
+                    if (carMaker != null)
+                        carMaker.remove();
+                    mMap.clear();
+//                    handler.removeCallbacks(drawPathRunnable);
+                    Snackbar.make(mapFragment.getView(), "You are Offline", Snackbar.LENGTH_SHORT).show();
+                }
+            }
+        });
+
+        // search diem
+        placeAutoCompleteRider.setOnPlaceSelectedListener(new PlaceSelectionListener() {
+            @Override
+            public void onPlaceSelected(Place place) {
+                if (locationRider_switch.isChecked()) {
+                    // get destination string
+                    destination = place.getAddress().toString();
+                    destination = destination.replace(" ", "+");
+
+                    //getDirection();
+                    drawDirection();
+                } else {
+                    Toast.makeText(getApplicationContext(), "You are Offline", Toast.LENGTH_SHORT).show();
+                }
+
+            }
+
+            @Override
+            public void onError(Status status) {
+                Toast.makeText(getApplicationContext(), "" + status.toString(), Toast.LENGTH_SHORT).show();
+            }
+        });
+
+
+        // post Pick up point and destination -- not done
         btnPost.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -362,13 +668,6 @@ public class Home extends AppCompatActivity
             }
         });
 
-        btnGo.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                requesRoute(FirebaseAuth.getInstance().getCurrentUser().getUid());
-            }
-        });
-
         btnFindDriver.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -377,6 +676,7 @@ public class Home extends AppCompatActivity
         });
 
     }
+
 
     private void findDriver() {
         final DatabaseReference drivers = FirebaseDatabase.getInstance().getReference("RouteRequest");
@@ -426,6 +726,8 @@ public class Home extends AppCompatActivity
                                         .icon(BitmapDescriptorFactory.fromResource(R.drawable.car)));
                                 carMaker.showInfoWindow();
 
+
+                                // get maker just show to add click listener
                                 mMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
                                     @Override
                                     public void onInfoWindowClick(Marker marker) {
@@ -512,7 +814,7 @@ public class Home extends AppCompatActivity
     }
 
     private void requesRoute(String uid) {
-        String title = ((EditText) placeDriver.getView().findViewById(R.id.place_autocomplete_search_input)).getText().toString();
+        String title = ((EditText) placeAutoCompleteDriver.getView().findViewById(R.id.place_autocomplete_search_input)).getText().toString();
 
         DatabaseReference dbRequest = FirebaseDatabase.getInstance().getReference("RouteRequest");
         GeoFire mGeoFire = new GeoFire(dbRequest);
@@ -523,6 +825,7 @@ public class Home extends AppCompatActivity
         SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         String formattedDate = df.format(c.getTime());
 
+        // show info
         carMaker = mMap.addMarker(new MarkerOptions()
                 .title(title)
                 .snippet(formattedDate)
@@ -556,85 +859,12 @@ public class Home extends AppCompatActivity
         btnPost = findViewById(R.id.btnPost);
         btnGo = findViewById(R.id.btnGo);
         btnFindDriver = findViewById(R.id.btn_find_driver);
-        placeRider = (PlaceAutocompleteFragment) getFragmentManager().findFragmentById(R.id.place_autocomplete_startLocation);
-        placeDriver = (PlaceAutocompleteFragment) getFragmentManager().findFragmentById(R.id.place_autocomplete_startDriverLocation);
-
+        placeAutoCompleteRider = (PlaceAutocompleteFragment) getFragmentManager().findFragmentById(R.id.place_autocomplete_startLocation);
+        placeAutoCompleteDriver = (PlaceAutocompleteFragment) getFragmentManager().findFragmentById(R.id.place_autocomplete_startDriverLocation);
+        // placeAutoComplete ??
 
     }
 
-    private void showLoacationChose() {
-        currentPosition = new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude());
-        String requestApi = null;
-        try {
-            requestApi = "https://maps.googleapis.com/maps/api/directions/json?" +
-                    "mode=driving&" +
-                    "transit_routing_preference=less_driving&" +
-                    "origin=" + currentPosition.latitude + "," + currentPosition.longitude + "&" +
-                    "destination=" + destination + "&" +
-                    "key=" + getResources().getString(R.string.map_api_key);
-            Log.d("Test", requestApi); // Print URL for debug
-            mService.getPath(requestApi)
-                    .enqueue(new Callback<String>() {
-                        @Override
-                        public void onResponse(Call<String> call, Response<String> response) {
-                            try {
-                                JSONObject jsonObject = new JSONObject(response.body().toString());
-                                JSONArray jsonArray = jsonObject.getJSONArray("routes");
-                                for (int i = 0; i < jsonArray.length(); i++) {
-                                    JSONObject route = jsonArray.getJSONObject(i);
-                                    JSONObject poly = route.getJSONObject("overview_polyline");
-                                    String polyline = poly.getString("points");
-                                    polyLineList = decodePoly(polyline); //decodePoly from Internet (decodepoly encode android)
-
-                                }
-
-                                //Adjusting lounds
-                                LatLngBounds.Builder builder = new LatLngBounds.Builder();
-                                for (LatLng latLng : polyLineList) {
-                                    builder.include(latLng);
-                                }
-
-                                LatLngBounds bounds = builder.build();
-                                CameraUpdate mCameraUpdate = CameraUpdateFactory.newLatLngBounds(bounds, 2);
-                                mMap.animateCamera(mCameraUpdate);
-
-                                polylineOptions = new PolylineOptions();
-                                polylineOptions.color(Color.GRAY);
-                                polylineOptions.width(5);
-                                polylineOptions.startCap(new SquareCap());
-                                polylineOptions.endCap(new SquareCap());
-                                polylineOptions.jointType(JointType.ROUND);
-                                polylineOptions.addAll(polyLineList);
-                                greyPolyline = mMap.addPolyline(polylineOptions);
-
-                                blackPolylineOptions = new PolylineOptions();
-                                blackPolylineOptions.color(Color.BLACK);
-                                blackPolylineOptions.width(5);
-                                blackPolylineOptions.startCap(new SquareCap());
-                                blackPolylineOptions.endCap(new SquareCap());
-                                blackPolylineOptions.jointType(JointType.ROUND);
-                                blackPolyline = mMap.addPolyline(blackPolylineOptions);
-
-                                mMap.addMarker(new MarkerOptions()
-                                        .position(polyLineList.get(polyLineList.size() - 1))
-                                        .title("Pickup Location"));
-
-
-                            } catch (JSONException e) {
-                                e.printStackTrace();
-                            }
-                        }
-
-                        @Override
-                        public void onFailure(Call<String> call, Throwable t) {
-
-                        }
-                    });
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
 
     private List<LatLng> decodePoly(String encoded) {
 
@@ -670,108 +900,7 @@ public class Home extends AppCompatActivity
         return poly;
     }
 
-    private void getDirection() {
-        currentPosition = new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude());
 
-        String requestApi = null;
-        try {
-            requestApi = "https://maps.googleapis.com/maps/api/directions/json?" +
-                    "mode=driving&" +
-                    "transit_routing_preference=less_driving&" +
-                    "origin=" + currentPosition.latitude + "," + currentPosition.longitude + "&" +
-                    "destination=" + destination + "&" +
-                    "key=" + getResources().getString(R.string.map_api_key);
-            Log.d("Test", requestApi); // Print URL for debug
-            mService.getPath(requestApi)
-                    .enqueue(new Callback<String>() {
-                        @Override
-                        public void onResponse(Call<String> call, Response<String> response) {
-                            try {
-                                JSONObject jsonObject = new JSONObject(response.body().toString());
-                                JSONArray jsonArray = jsonObject.getJSONArray("routes");
-                                for (int i = 0; i < jsonArray.length(); i++) {
-                                    JSONObject route = jsonArray.getJSONObject(i);
-                                    JSONObject poly = route.getJSONObject("overview_polyline");
-                                    String polyline = poly.getString("points");
-                                    polyLineList = decodePoly(polyline); //decodePoly from Internet (decodepoly encode android)
-
-                                }
-
-                                //Adjusting lounds
-                                LatLngBounds.Builder builder = new LatLngBounds.Builder();
-                                for (LatLng latLng : polyLineList) {
-                                    builder.include(latLng);
-                                }
-
-                                LatLngBounds bounds = builder.build();
-                                CameraUpdate mCameraUpdate = CameraUpdateFactory.newLatLngBounds(bounds, 2);
-                                mMap.animateCamera(mCameraUpdate);
-
-
-                                polylineOptions = new PolylineOptions();
-                                polylineOptions.color(Color.GRAY);
-                                polylineOptions.width(5);
-                                polylineOptions.startCap(new SquareCap());
-                                polylineOptions.endCap(new SquareCap());
-                                polylineOptions.jointType(JointType.ROUND);
-                                polylineOptions.addAll(polyLineList);
-                                greyPolyline = mMap.addPolyline(polylineOptions);
-
-                                blackPolylineOptions = new PolylineOptions();
-                                blackPolylineOptions.color(Color.rgb(255, 20, 147));
-                                blackPolylineOptions.width(5);
-                                blackPolylineOptions.startCap(new SquareCap());
-                                blackPolylineOptions.endCap(new SquareCap());
-                                blackPolylineOptions.jointType(JointType.ROUND);
-                                blackPolyline = mMap.addPolyline(blackPolylineOptions);
-
-                                mMap.addMarker(new MarkerOptions()
-                                        .position(polyLineList.get(polyLineList.size() - 1))
-                                        .title("Pickup Location"));
-
-                                //Animation
-                                ValueAnimator polyLineAnimator = ValueAnimator.ofInt(0, 100);
-                                polyLineAnimator.setDuration(2000);
-                                polyLineAnimator.setInterpolator(new LinearInterpolator());
-                                polyLineAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-                                    @Override
-                                    public void onAnimationUpdate(ValueAnimator animation) {
-                                        List<LatLng> points = greyPolyline.getPoints();
-                                        int percentValue = (int) animation.getAnimatedValue();
-                                        int size = points.size();
-                                        int newPoints = (int) (size * (percentValue / 100.0f));
-                                        List<LatLng> p = points.subList(0, newPoints);
-                                        blackPolyline.setPoints(p);
-                                    }
-                                });
-                                polyLineAnimator.start();
-
-                                carMaker = mMap.addMarker(new MarkerOptions().position(currentPosition)
-                                        .flat(true)
-                                        .icon(BitmapDescriptorFactory.fromResource(R.drawable.car)));
-
-                                handler = new Handler();
-                                index = -1;
-                                next = 1;
-                                handler.postDelayed(drawPathRunnable, 3000);
-
-
-                            } catch (JSONException e) {
-                                e.printStackTrace();
-                            }
-
-                        }
-
-                        @Override
-                        public void onFailure(Call<String> call, Throwable t) {
-                            Toast.makeText(getApplicationContext(), "" + t.getMessage(), Toast.LENGTH_SHORT).show();
-                        }
-                    });
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-    }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
@@ -782,18 +911,20 @@ public class Home extends AppCompatActivity
                         builGoogleApiClinet();
                         createLocationRequest();
                         if (locationRider_switch.isChecked() || locationDriver_switch.isChecked())
-                            displayLocation();
+                            displayLocationAndUpdateData();
                     }
                 }
         }
 
     }
 
-    private void displayLocation() {
+    private void displayLocationAndUpdateData() {
         if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
                 ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             return;
         }
+
+        // get cur loca
         mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
         if (mLastLocation != null) {
             if (locationRider_switch.isChecked()) {
@@ -811,6 +942,8 @@ public class Home extends AppCompatActivity
                         if (carMaker != null) {
                             carMaker.remove();
                         }
+
+                        // create maker
                         userMaker = mMap.addMarker(new MarkerOptions()
                                 .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_my_location_24px))
                                 .position(new LatLng(latitude, longitude))
@@ -819,6 +952,9 @@ public class Home extends AppCompatActivity
                 });
             }
 
+
+
+            // do the same for driver
             if (locationDriver_switch.isChecked()) {
                 final double latitude = mLastLocation.getLatitude();
                 final double longitude = mLastLocation.getLongitude();
@@ -910,10 +1046,13 @@ public class Home extends AppCompatActivity
     }
 
     private void startLocationUpdates() {
+        // ask permission
         if (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
                 ActivityCompat.checkSelfPermission(getApplicationContext(), android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             return;
         }
+
+        // get current location
         LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest,this);
 
     }
@@ -932,7 +1071,7 @@ public class Home extends AppCompatActivity
                 builGoogleApiClinet();
                 createLocationRequest();
                 if (locationRider_switch.isChecked() || locationDriver_switch.isChecked())
-                    displayLocation();
+                    displayLocationAndUpdateData();
             }
         }
     }
@@ -995,6 +1134,8 @@ public class Home extends AppCompatActivity
                 ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             return;
         }
+
+        // GoogleApiClient ??
         LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
     }
 
@@ -1032,7 +1173,7 @@ public class Home extends AppCompatActivity
 
     @Override
     public void onConnected(@Nullable Bundle bundle) {
-        displayLocation();
+        displayLocationAndUpdateData();
         startLocationUpdates();
     }
 
@@ -1049,7 +1190,7 @@ public class Home extends AppCompatActivity
     @Override
     public void onLocationChanged(Location location) {
         mLastLocation = location;
-        displayLocation();
+        displayLocationAndUpdateData();
     }
 
     @Override
