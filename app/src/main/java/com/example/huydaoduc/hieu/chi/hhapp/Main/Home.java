@@ -108,6 +108,8 @@ public class Home extends AppCompatActivity
         GoogleApiClient.OnConnectionFailedListener,
         com.google.android.gms.location.LocationListener {
 
+    private static final String TAG = "RiderActivity";
+
     // store all info in the map
     private GoogleMap mMap;
 
@@ -142,7 +144,7 @@ public class Home extends AppCompatActivity
     private int index, next;
     private Button btnPost, btnFindDriver, btnMessage, btnCall;
     private TextView tvName, tvPhone;
-    private PlaceAutocompleteFragment placeAutoCompleteRider;
+    private PlaceAutocompleteFragment startLocationAutoComplete;
     private String destination;
     private PolylineOptions polylineOptions, blackPolylineOptions;
     private Polyline blackPolyline, greyPolyline;
@@ -256,22 +258,19 @@ public class Home extends AppCompatActivity
     int PLACE_AUTOCOMPLETE_REQUEST_CODE = 1;
 
     private void AutoCompleEvent() {
-//        PlaceAutocompleteFragment autocompleteFragment = (PlaceAutocompleteFragment)
-//                getFragmentManager().findFragmentById(R.id.place_autocomplete_fragment);
-//
-//        autocompleteFragment.setOnPlaceSelectedListener(new PlaceSelectionListener() {
-//            @Override
-//            public void onPlaceSelected(Place place) {
-//                // TODO: Get info about the selected place.
-//                Log.i(TAG, "Place: " + place.getName());
-//            }
-//
-//            @Override
-//            public void onError(Status status) {
-//                // TODO: Handle the error.
-//                Log.i(TAG, "An error occurred: " + status);
-//            }
-//        });
+        startLocationAutoComplete.setOnPlaceSelectedListener(new PlaceSelectionListener() {
+            @Override
+            public void onPlaceSelected(Place place) {
+                startLocationAutoComplete.setText(place.getAddress());
+            }
+
+            @Override
+            public void onError(Status status) {
+                Log.i(TAG, "An error occurred: " + status);
+                Toast.makeText(getApplicationContext(), "An error occurred: " + status, Toast.LENGTH_LONG)
+                    .show();
+            }
+        });
     }
 
     private void StartAutoComplete() {
@@ -735,7 +734,7 @@ public class Home extends AppCompatActivity
         polyLineList = new ArrayList<>();
         btnPost = findViewById(R.id.btnPost);
         btnFindDriver = findViewById(R.id.btn_find_driver);
-        placeAutoCompleteRider = (PlaceAutocompleteFragment) getFragmentManager().findFragmentById(R.id.place_autocomplete_startLocation);
+        startLocationAutoComplete = (PlaceAutocompleteFragment) getFragmentManager().findFragmentById(R.id.place_autocomplete_startLocation);
         // placeAutoComplete ??
 
     }
@@ -767,27 +766,7 @@ public class Home extends AppCompatActivity
         });
 
         // search diem
-        placeAutoCompleteRider.setOnPlaceSelectedListener(new PlaceSelectionListener() {
-            @Override
-            public void onPlaceSelected(Place place) {
-                if (locationRider_switch.isChecked()) {
-                    // get destination string
-                    destination = place.getAddress().toString();
-                    destination = destination.replace(" ", "+");
-
-                    //getDirection();
-                    drawDirection();
-                } else {
-                    Toast.makeText(getApplicationContext(), "You are Offline", Toast.LENGTH_SHORT).show();
-                }
-
-            }
-
-            @Override
-            public void onError(Status status) {
-                Toast.makeText(getApplicationContext(), "" + status.toString(), Toast.LENGTH_SHORT).show();
-            }
-        });
+        AutoCompleEvent();
 
 
         // post Pick up point and destination -- not done
