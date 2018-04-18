@@ -3,6 +3,8 @@ package com.example.huydaoduc.hieu.chi.hhapp.Manager.Direction;
 import android.content.Context;
 import android.location.Location;
 import android.os.AsyncTask;
+import android.util.Log;
+import android.widget.Toast;
 
 import com.example.huydaoduc.hieu.chi.hhapp.Common.Common;
 import com.example.huydaoduc.hieu.chi.hhapp.R;
@@ -36,6 +38,7 @@ import retrofit2.Response;
  *                                       multi finding method by splitting Create URL method
  */
 public class DirectionFinder {
+    private static final String TAG = "DirectionFinder";
     private static final String DIRECTION_URL_API = "https://maps.googleapis.com/maps/api/directions/json?";
     private static String GOOGLE_API_KEY;
     private DirectionFinderListener listener;
@@ -56,11 +59,11 @@ public class DirectionFinder {
     /**
      * 1 place - 1 place
      */
-    public String createUrl(String origin, String destination) throws UnsupportedEncodingException {
+    public void createUrl(String origin, String destination) throws UnsupportedEncodingException {
         String urlOrigin = URLEncoder.encode(origin, "utf-8");
         String urlDestination = URLEncoder.encode(destination, "utf-8");
 
-        return DIRECTION_URL_API + "origin=" + urlOrigin + "&destination=" + urlDestination 
+        urlRequest =  DIRECTION_URL_API + "origin=" + urlOrigin + "&destination=" + urlDestination
                 + "&mode=driving"
                 + "&mode=driving"
                 + "&key=" + GOOGLE_API_KEY;
@@ -69,11 +72,25 @@ public class DirectionFinder {
     /**
      * 1 point - 1 place
      */
-    public String createUrl(LatLng latLng , String destination) throws UnsupportedEncodingException {
+    public void createUrl(LatLng latLng , String destination) throws UnsupportedEncodingException {
         String urlOrigin = latLng.latitude + "," + latLng.longitude;
         String urlDestination = URLEncoder.encode(destination, "utf-8");
 
-        return DIRECTION_URL_API + "origin=" + urlOrigin + "&destination=" + urlDestination
+        urlRequest =  DIRECTION_URL_API + "origin=" + urlOrigin + "&destination=" + urlDestination
+                + "&mode=driving"
+                + "&mode=driving"
+                + "&key=" + GOOGLE_API_KEY;
+    }
+
+    /**
+     * 1 point - 1 point
+     */
+    public void createUrl(LatLng start_latLng , LatLng end_latLng) throws UnsupportedEncodingException {
+        String url_start = start_latLng.latitude + "," + start_latLng.longitude;
+        String url_end = end_latLng.latitude + "," + end_latLng.longitude;
+
+
+        urlRequest =  DIRECTION_URL_API + "origin=" + url_start + "&destination=" + url_end
                 + "&mode=driving"
                 + "&mode=driving"
                 + "&key=" + GOOGLE_API_KEY;
@@ -84,14 +101,12 @@ public class DirectionFinder {
     public void execute() throws UnsupportedEncodingException {
         listener.onDirectionFinderStart();
 
-        // OLD
-        //new DownloadRawData().execute(createUrl());
-
-        // NEW
-
         // setup the request get data ( set up the call )
         if(urlRequest == null)
+        {
+            Log.e(TAG,  "Error: urlRequest == null");
             return;
+        }
         Call<String> call = mapService.getPath(urlRequest);
 
         // enqueue: execute asynchronously . User a Callback to get respond from the server
@@ -115,42 +130,6 @@ public class DirectionFinder {
             }
         });
 
-    }
-
-    private class DownloadRawData extends AsyncTask<String, Void, String> {
-
-        @Override
-        protected String doInBackground(String... params) {
-            String link = params[0];
-            try {
-                URL url = new URL(link);
-                InputStream is = url.openConnection().getInputStream();
-                StringBuffer buffer = new StringBuffer();
-                BufferedReader reader = new BufferedReader(new InputStreamReader(is));
-
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    buffer.append(line + "\n");
-                }
-
-                return buffer.toString();
-
-            } catch (MalformedURLException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(String res) {
-            try {
-                parseJSon(res);
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-        }
     }
 
     private void parseJSon(String data) throws JSONException {
@@ -213,9 +192,11 @@ public class DirectionFinder {
                     stepEndLocationLatLng = new LatLng(stepEndLocationJSONObject.getDouble("lat"), stepEndLocationJSONObject.getDouble("lng"));
                     step.setEndLocation(stepEndLocationLatLng);
                     step.setHtmlInstructions(stepJSONObject.getString("html_instructions"));
+
                     legPolyLineJSONObject = stepJSONObject.getJSONObject("polyline");
                     encodedString = legPolyLineJSONObject.getString("points");
                     step.setPoints(decodePolyLine(encodedString));
+
                     stepStartLocationJSONObject = stepJSONObject.getJSONObject("start_location");
                     stepStartLocationLatLng = new LatLng(stepStartLocationJSONObject.getDouble("lat"), stepStartLocationJSONObject.getDouble("lng"));
                     step.setStartLocation(stepStartLocationLatLng);

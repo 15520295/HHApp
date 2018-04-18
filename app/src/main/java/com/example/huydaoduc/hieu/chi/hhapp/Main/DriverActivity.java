@@ -33,12 +33,12 @@ import android.widget.Toast;
 
 import com.example.huydaoduc.hieu.chi.hhapp.Common.Common;
 import com.example.huydaoduc.hieu.chi.hhapp.CostomInfoWindow.CustomInfoWindow;
-import com.example.huydaoduc.hieu.chi.hhapp.Manager.Direction.DirectionFinder;
 import com.example.huydaoduc.hieu.chi.hhapp.Manager.Direction.DirectionFinderListener;
 import com.example.huydaoduc.hieu.chi.hhapp.Manager.Direction.Leg;
 import com.example.huydaoduc.hieu.chi.hhapp.Manager.Direction.Route;
 import com.example.huydaoduc.hieu.chi.hhapp.Manager.DirectionManager;
 import com.example.huydaoduc.hieu.chi.hhapp.Manager.Place.SearchActivity;
+import com.example.huydaoduc.hieu.chi.hhapp.Manager.RouteRequest;
 import com.example.huydaoduc.hieu.chi.hhapp.Model.UserApp;
 import com.example.huydaoduc.hieu.chi.hhapp.R;
 import com.example.huydaoduc.hieu.chi.hhapp.Remote.IGoogleAPI;
@@ -49,17 +49,10 @@ import com.firebase.geofire.GeoQuery;
 import com.firebase.geofire.GeoQueryEventListener;
 import com.github.glomadrian.materialanimatedswitch.MaterialAnimatedSwitch;
 import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
-import com.google.android.gms.common.GooglePlayServicesRepairableException;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.location.places.Place;
-import com.google.android.gms.location.places.ui.PlaceAutocomplete;
-import com.google.android.gms.location.places.ui.PlaceAutocompleteFragment;
-import com.google.android.gms.location.places.ui.PlaceSelectionListener;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -86,7 +79,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.UnsupportedEncodingException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -99,8 +91,6 @@ import retrofit2.Response;
 //todo: check 1 tai khoan dang nhap 2 may
 public class DriverActivity extends AppCompatActivity
         implements
-        // Direction Finder
-        DirectionFinderListener,
         // My Location Button
         GoogleMap.OnMyLocationClickListener,
         GoogleMap.OnMyLocationButtonClickListener,
@@ -160,22 +150,15 @@ public class DriverActivity extends AppCompatActivity
 
     //------------------------------------ Chi :
 
-    //region ------ DirectionFinder --------
+    //region ------ Direction Manager --------
+
     DirectionManager directionManager;
 
+    /**
+     * Call only when map is ready
+     */
     private void DirectionManagerInit() {
-        directionManager = new DirectionManager(getApplicationContext(), mMap, this);
-    }
-
-    @Override
-    public void onDirectionFinderStart() {
-
-    }
-
-    @Override
-    public void onDirectionFinderSuccess(List<Route> routes) {
-//        progressDialog.dismiss();
-        directionManager.drawRoutes(routes);
+        directionManager = new DirectionManager(getApplicationContext(), mMap);
     }
 
     //endregion
@@ -276,6 +259,8 @@ public class DriverActivity extends AppCompatActivity
 
         // My Location Button
         myLocationButtonInit();
+        // Direction Manager
+        DirectionManagerInit();
     }
 
     //------------------------------------
@@ -401,6 +386,8 @@ public class DriverActivity extends AppCompatActivity
         // CHi
         et_endLocation = findViewById(R.id.et_end_location);
 
+
+
     }
 
     private void addEven() {
@@ -433,13 +420,47 @@ public class DriverActivity extends AppCompatActivity
         // Chi
         searViewEvent();
 
-        // post request to Firebase
+        //todo: post request to Firebase
         btnGo.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                directionManager.findPath(mLastLocation, et_endLocation.getText().toString());
+
+                // find routes
+                directionManager.findPath(mLastLocation, et_endLocation.getText().toString(),
+                        new DirectionFinderListener() {
+                            @Override
+                            public void onDirectionFinderStart() {
+
+                            }
+
+                            @Override
+                            public void onDirectionFinderSuccess(List<Route> routes) {
+                                directionManager.removeAllRoutes();
+
+                                directionManager.drawRoutes(routes);
+
+                                //todo: get the selected route
+                                // Put Route Request to DataBase
+                                putRouteRequest(routes.get(0));
+
+                            }
+                        });
+
             }
         });
+
+
+
+    }
+
+    private void putRouteRequest(Route route) {
+        String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+
+        RouteRequest routeRequest = RouteRequest.getRouteRequestFromLeg(route,uid);
+
+        DatabaseReference dbRequest = FirebaseDatabase.getInstance().getReference("RouteRequest");
+
+        dbRequest.child(uid).setValue(routeRequest);
 
     }
 

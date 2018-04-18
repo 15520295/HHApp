@@ -116,6 +116,9 @@ public class PlaceAutocompleteAdapter extends RecyclerView.Adapter<PlaceAutocomp
         return filter;
     }
 
+    /**
+     * Main Algorithm
+     */
     @SuppressLint("RestrictedApi")
     private ArrayList<CusPlaceAutocomplete> getAutocomplete(CharSequence constraint) {
         if (mGoogleApiClient.isConnected()) {

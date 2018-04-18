@@ -49,6 +49,9 @@ import java.util.List;
 //todo: sap xep dua tren khoan cach( xem grab )
 public class SearchActivity extends AppCompatActivity implements PlaceAutocompleteAdapter.PlaceAutoCompleteInterface, GoogleApiClient.OnConnectionFailedListener,
         GoogleApiClient.ConnectionCallbacks,OnClickListener,SavedPlaceListener {
+
+    private static final String TAG = "SearchActivity";
+
     Context mContext;
     GoogleApiClient mGoogleApiClient;
 
@@ -162,7 +165,7 @@ public class SearchActivity extends AppCompatActivity implements PlaceAutocomple
                     mAdapter.getFilter().filter(s.toString());
                 } else if (!mGoogleApiClient.isConnected()) {
 //                    Toast.makeText(getApplicationContext(), Constants.API_NOT_CONNECTED, Toast.LENGTH_SHORT).show();
-                    Log.e("", "NOT CONNECTED");
+                    Log.e(TAG, "NOT CONNECTED");
                 }
             }
 

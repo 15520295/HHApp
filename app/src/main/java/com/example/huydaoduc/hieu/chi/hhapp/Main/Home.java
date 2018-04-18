@@ -3,12 +3,10 @@ package com.example.huydaoduc.hieu.chi.hhapp.Main;
 import android.Manifest;
 import android.animation.ValueAnimator;
 import android.annotation.SuppressLint;
-import android.app.Dialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.location.Location;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
@@ -35,11 +33,12 @@ import android.widget.Toast;
 
 import com.example.huydaoduc.hieu.chi.hhapp.Common.Common;
 import com.example.huydaoduc.hieu.chi.hhapp.CostomInfoWindow.CustomInfoWindow;
-import com.example.huydaoduc.hieu.chi.hhapp.Manager.Direction.DirectionFinder;
 import com.example.huydaoduc.hieu.chi.hhapp.Manager.Direction.DirectionFinderListener;
-import com.example.huydaoduc.hieu.chi.hhapp.Manager.Direction.Leg;
 import com.example.huydaoduc.hieu.chi.hhapp.Manager.Direction.Route;
+import com.example.huydaoduc.hieu.chi.hhapp.Manager.DirectionManager;
+import com.example.huydaoduc.hieu.chi.hhapp.Manager.LocationUtils;
 import com.example.huydaoduc.hieu.chi.hhapp.Manager.Place.SearchActivity;
+import com.example.huydaoduc.hieu.chi.hhapp.Manager.RouteRequest;
 import com.example.huydaoduc.hieu.chi.hhapp.Model.UserApp;
 import com.example.huydaoduc.hieu.chi.hhapp.R;
 import com.example.huydaoduc.hieu.chi.hhapp.Remote.IGoogleAPI;
@@ -52,9 +51,13 @@ import com.github.glomadrian.materialanimatedswitch.MaterialAnimatedSwitch;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.location.places.ui.PlaceAutocompleteFragment;
+import com.google.android.gms.location.places.GeoDataApi;
+import com.google.android.gms.location.places.GeoDataClient;
+import com.google.android.gms.location.places.PlaceBuffer;
+import com.google.android.gms.location.places.Places;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -81,7 +84,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -92,8 +94,6 @@ import retrofit2.Response;
 //todo: check 1 tai khoan dang nhap 2 may
 public class Home extends AppCompatActivity
         implements
-        // Direction Finder
-        DirectionFinderListener,
         // My Location Button
         GoogleMap.OnMyLocationClickListener,
         GoogleMap.OnMyLocationButtonClickListener,
@@ -155,69 +155,102 @@ public class Home extends AppCompatActivity
 
     //------------------------------------ Chi :
 
-    //------ DirectionFinder --------
-    private List<Marker> originMarkers = new ArrayList<>();
-    private List<Marker> destinationMarkers = new ArrayList<>();
-    private List<Polyline> polylinePaths = new ArrayList<>();
+    //------ Direction Manager --------
 
-    @Override
-    public void onDirectionFinderStart() {
+    DirectionManager directionManager;
 
-    }
-
-    @Override
-    public void onDirectionFinderSuccess(List<Route> routes) {
-//        progressDialog.dismiss();
-        polylinePaths = new ArrayList<>();
-        originMarkers = new ArrayList<>();
-        destinationMarkers = new ArrayList<>();
-
-        for (Route route : routes) {
-
-            for (Leg leg : route.getLegs()) {
-                // Move the map to Surround the route
-                final int MAP_BOUND_PADDING = 180;  /* In dp */
-                LatLngBounds.Builder builder = new LatLngBounds.Builder();
-                builder.include(route.getBounds().getNorthEast());
-                builder.include(route.getBounds().getSouthWest());
-                LatLngBounds bounds = builder.build();
-                CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(bounds, MAP_BOUND_PADDING);
-                mMap.animateCamera(cu);
-
-                Toast.makeText(getApplicationContext(), "Duration + Distance: " + leg.getDuration().getValue() + ", " + leg.getDistance().getValue(), Toast.LENGTH_LONG)
-                        .show();
-
-//            originMarkers.add(mMap.addMarker(new MarkerOptions()
-//                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.start_blue))
-//                    .title(route.startAddress)
-//                    .position(route.startLocation)));
-//            destinationMarkers.add(mMap.addMarker(new MarkerOptions()
-//                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.end_green))
-//                    .title(route.endAddress)
-//                    .position(route.endLocation)));
-
-                PolylineOptions polylineOptions = new PolylineOptions().
-                        geodesic(true).
-                        color(Color.BLUE).
-                        width(10);
-
-                int stepsize = leg.getSteps().size();
-                for (int i = 0; i < stepsize; i++) {
-                    int pontsize = leg.getSteps().get(i).getPoints().size();
-                    for (int j = 0; j < pontsize; j++)
-                        polylineOptions.add(leg.getSteps().get(i).getPoints().get(j));
-                }
-
-
-                // Note: points  --- is a pairs not a array
-
-                polylinePaths.add(mMap.addPolyline(polylineOptions));
-            }
-        }
+    /**
+     * Call only when map is ready
+     */
+    private void DirectionManagerInit() {
+        directionManager = new DirectionManager(getApplicationContext(), mMap);
     }
 
     //todo: edit parameter
     private void findPath() {
+
+    }
+
+    private void findDriver() {
+        DatabaseReference dbRequest = FirebaseDatabase.getInstance().getReference("RouteRequest");
+
+        dbRequest.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+
+                for (DataSnapshot postSnapshot: dataSnapshot.getChildren()) {
+
+                    RouteRequest request = postSnapshot.getValue(RouteRequest.class);
+
+                    isMatch(request, str_pickupLocation_placeId, str_endLocation_placeId);
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+    }
+
+    private void isMatch(RouteRequest request, final String pickUpPlaceId, final String endPlaceId) {
+
+        //get Location From Request
+        LatLng latLng_startLocation = LocationUtils.stringToLatLng(request.getStartLocation());
+        LatLng latLng_endLocation = LocationUtils.stringToLatLng(request.getEndLocation());
+
+        // find the Direction depend on Request
+        directionManager.findPath(latLng_startLocation, latLng_endLocation,
+                new DirectionFinderListener() {
+                    @Override
+                    public void onDirectionFinderStart() {
+
+                    }
+
+                    @Override
+                    public void onDirectionFinderSuccess(List<Route> routes) {
+                        // get Request Polyline
+                        final List<LatLng> polyline = LocationUtils.getPointsFromRoute(routes.get(0));
+
+                        // get Rider Pickup/End Location from PlaceId return by PlaceAutoComplete
+                        final LatLng[] location = new LatLng[2];
+                        
+                        Places.GeoDataApi.getPlaceById(mGoogleApiClient, pickUpPlaceId)
+                                .setResultCallback(new ResultCallback<PlaceBuffer>() {
+                                    @Override
+                                    public void onResult(PlaceBuffer places) {
+                                        if (places.getStatus().isSuccess()) {
+                                            location[0] = places.get(0).getLatLng();
+                                        }
+                                        places.release();
+
+                                        Places.GeoDataApi.getPlaceById(mGoogleApiClient, endPlaceId)
+                                                .setResultCallback(new ResultCallback<PlaceBuffer>() {
+                                                    @Override
+                                                    public void onResult(PlaceBuffer places) {
+                                                        if (places.getStatus().isSuccess()) {
+                                                            location[1] = places.get(0).getLatLng();
+                                                        }
+                                                        places.release();
+
+                                                        boolean t = LocationUtils.isNearBy(polyline, location[0], 500);
+                                                        if (t) {
+                                                            Toast.makeText(getApplicationContext(), "True", Toast.LENGTH_LONG).show();
+                                                        }
+                                                    }
+                                                });
+
+
+                                    }
+                                });
+
+
+                    }
+                });
+
+    }
+
+    private void FindResult(boolean matched) {
 
     }
 
@@ -259,6 +292,8 @@ public class Home extends AppCompatActivity
     int PICKUP_PLACE_AUTOCOMPLETE_REQUEST_CODE = 1001;
     int END_PLACE_AUTOCOMPLETE_REQUEST_CODE = 1002;
     EditText et_pickupLocation, et_endLocation;
+    String str_pickupLocation_placeId, str_endLocation_placeId;
+
 
     private void searViewEvent() {
         et_pickupLocation.setOnClickListener(new View.OnClickListener() {
@@ -284,9 +319,12 @@ public class Home extends AppCompatActivity
 
                 if (requestCode == PICKUP_PLACE_AUTOCOMPLETE_REQUEST_CODE) {
                     et_pickupLocation.setText(placePrimaryText);
+                    str_pickupLocation_placeId = placeId;
 
                 } else if (requestCode == END_PLACE_AUTOCOMPLETE_REQUEST_CODE) {
                     et_endLocation.setText(placePrimaryText);
+                    str_endLocation_placeId = placeId;
+
                 }
             }
         }
@@ -320,6 +358,8 @@ public class Home extends AppCompatActivity
 
         // My Location Button
         myLocationButtonInit();
+        // Direction Manager
+        DirectionManagerInit();
     }
 
     @Override
@@ -636,140 +676,140 @@ public class Home extends AppCompatActivity
     ///////////
 
 
-    private void findDriver() {
-        final DatabaseReference drivers = FirebaseDatabase.getInstance().getReference("RouteRequest");
-        GeoFire geoFireDrivers = new GeoFire(drivers);
-
-        GeoQuery geoQuery = geoFireDrivers.queryAtLocation(new GeoLocation(mLastLocation.getLatitude(), mLastLocation.getLongitude()), radius);
-        geoQuery.removeAllListeners();
-        geoQuery.addGeoQueryEventListener(new GeoQueryEventListener() {
-            @Override
-            public void onKeyEntered(String key, final GeoLocation location) {
-                //if found
-                if (!isDriverFound) {
-                    isDriverFound = true;
-                    driverId = key;
-                    //btnFindDriver.setText("Call Driver");
-                    Toast.makeText(getApplicationContext(), "" + key, Toast.LENGTH_LONG).show();
-
-                }
-                final String[] locationName = new String[1];
-
-                drivers.child(driverId).child("locationName").addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        locationName[0] = dataSnapshot.getValue(String.class);
-
-                    }
-
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
-
-                    }
-                });
-
-                FirebaseDatabase.getInstance().getReference("Users")
-                        .child(key)
-                        .addListenerForSingleValueEvent(new ValueEventListener() {
-                            @Override
-                            public void onDataChange(DataSnapshot dataSnapshot) {
-                                final UserApp user = dataSnapshot.getValue(UserApp.class);
-
-                                //Add driver to map
-                                carMaker = mMap.addMarker(new MarkerOptions()
-                                        .position(new LatLng(location.latitude, location.longitude))
-                                        .flat(true)
-                                        .title(locationName[0])
-                                        .snippet("Phone: " + user.getPhoneNumber())
-                                        .icon(BitmapDescriptorFactory.fromResource(R.drawable.car)));
-                                carMaker.showInfoWindow();
-
-
-                                // get maker just show to add click listener
-                                mMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
-                                    @Override
-                                    public void onInfoWindowClick(Marker marker) {
-                                        //Toast.makeText(getApplicationContext(),"infoss",Toast.LENGTH_LONG).show();
-                                        final Dialog dialog = new Dialog(Home.this);
-                                        dialog.setContentView(R.layout.info_user);
-
-                                        btnMessage = dialog.findViewById(R.id.btnMessage);
-                                        btnCall = dialog.findViewById(R.id.btnCall);
-                                        tvName = dialog.findViewById(R.id.tvName);
-                                        tvPhone = dialog.findViewById(R.id.tvPhone);
-
-                                        tvName.setText(user.getName());
-                                        tvPhone.setText("SDT: " + user.getPhoneNumber());
-
-                                        btnMessage.setOnClickListener(new View.OnClickListener() {
-                                            @Override
-                                            public void onClick(View v) {
-                                                Toast.makeText(getApplicationContext(), "Open Messenger", Toast.LENGTH_LONG).show();
-                                                dialog.dismiss();
-                                            }
-                                        });
-
-                                        btnCall.setOnClickListener(new View.OnClickListener() {
-                                            @Override
-                                            public void onClick(View v) {
-                                                //Toast.makeText(getApplicationContext(),"Open Call",Toast.LENGTH_LONG).show();
-                                                Intent intent = new Intent(Intent.ACTION_CALL);
-                                                intent.setData(Uri.parse("tel:" + user.getPhoneNumber()));
-                                                if (ActivityCompat.checkSelfPermission(Home.this, Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
-                                                    // TODO: Consider calling
-                                                    //    ActivityCompat#requestPermissions
-                                                    // here to request the missing permissions, and then overriding
-                                                    //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-                                                    //                                          int[] grantResults)
-                                                    // to handle the case where the user grants the permission. See the documentation
-                                                    // for ActivityCompat#requestPermissions for more details.
-                                                    return;
-                                                }
-                                                startActivity(intent);
-                                                dialog.dismiss();
-                                            }
-                                        });
-
-                                        dialog.show();
-                                    }
-                                });
-
-                            }
-
-                            @Override
-                            public void onCancelled(DatabaseError databaseError) {
-
-                            }
-                        });
-            }
-
-            @Override
-            public void onKeyExited(String key) {
-
-            }
-
-            @Override
-            public void onKeyMoved(String key, GeoLocation location) {
-
-            }
-
-            @Override
-            public void onGeoQueryReady() {
-                //if still not found driver, increase distance
-                if (!isDriverFound) {
-                    radius++;
-                    findDriver();
-                }
-
-            }
-
-            @Override
-            public void onGeoQueryError(DatabaseError error) {
-
-            }
-        });
-
-    }
+//    private void findDriver() {
+//        final DatabaseReference drivers = FirebaseDatabase.getInstance().getReference("RouteRequest");
+//        GeoFire geoFireDrivers = new GeoFire(drivers);
+//
+//        GeoQuery geoQuery = geoFireDrivers.queryAtLocation(new GeoLocation(mLastLocation.getLatitude(), mLastLocation.getLongitude()), radius);
+//        geoQuery.removeAllListeners();
+//        geoQuery.addGeoQueryEventListener(new GeoQueryEventListener() {
+//            @Override
+//            public void onKeyEntered(String key, final GeoLocation location) {
+//                //if found
+//                if (!isDriverFound) {
+//                    isDriverFound = true;
+//                    driverId = key;
+//                    //btnFindDriver.setText("Call Driver");
+//                    Toast.makeText(getApplicationContext(), "" + key, Toast.LENGTH_LONG).show();
+//
+//                }
+//                final String[] locationName = new String[1];
+//
+//                drivers.child(driverId).child("locationName").addListenerForSingleValueEvent(new ValueEventListener() {
+//                    @Override
+//                    public void onDataChange(DataSnapshot dataSnapshot) {
+//                        locationName[0] = dataSnapshot.getValue(String.class);
+//
+//                    }
+//
+//                    @Override
+//                    public void onCancelled(DatabaseError databaseError) {
+//
+//                    }
+//                });
+//
+//                FirebaseDatabase.getInstance().getReference("Users")
+//                        .child(key)
+//                        .addListenerForSingleValueEvent(new ValueEventListener() {
+//                            @Override
+//                            public void onDataChange(DataSnapshot dataSnapshot) {
+//                                final UserApp user = dataSnapshot.getValue(UserApp.class);
+//
+//                                //Add driver to map
+//                                carMaker = mMap.addMarker(new MarkerOptions()
+//                                        .position(new LatLng(location.latitude, location.longitude))
+//                                        .flat(true)
+//                                        .title(locationName[0])
+//                                        .snippet("Phone: " + user.getPhoneNumber())
+//                                        .icon(BitmapDescriptorFactory.fromResource(R.drawable.car)));
+//                                carMaker.showInfoWindow();
+//
+//
+//                                // get maker just show to add click listener
+//                                mMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
+//                                    @Override
+//                                    public void onInfoWindowClick(Marker marker) {
+//                                        //Toast.makeText(getApplicationContext(),"infoss",Toast.LENGTH_LONG).show();
+//                                        final Dialog dialog = new Dialog(Home.this);
+//                                        dialog.setContentView(R.layout.info_user);
+//
+//                                        btnMessage = dialog.findViewById(R.id.btnMessage);
+//                                        btnCall = dialog.findViewById(R.id.btnCall);
+//                                        tvName = dialog.findViewById(R.id.tvName);
+//                                        tvPhone = dialog.findViewById(R.id.tvPhone);
+//
+//                                        tvName.setText(user.getName());
+//                                        tvPhone.setText("SDT: " + user.getPhoneNumber());
+//
+//                                        btnMessage.setOnClickListener(new View.OnClickListener() {
+//                                            @Override
+//                                            public void onClick(View v) {
+//                                                Toast.makeText(getApplicationContext(), "Open Messenger", Toast.LENGTH_LONG).show();
+//                                                dialog.dismiss();
+//                                            }
+//                                        });
+//
+//                                        btnCall.setOnClickListener(new View.OnClickListener() {
+//                                            @Override
+//                                            public void onClick(View v) {
+//                                                //Toast.makeText(getApplicationContext(),"Open Call",Toast.LENGTH_LONG).show();
+//                                                Intent intent = new Intent(Intent.ACTION_CALL);
+//                                                intent.setData(Uri.parse("tel:" + user.getPhoneNumber()));
+//                                                if (ActivityCompat.checkSelfPermission(Home.this, Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
+//                                                    // TODO: Consider calling
+//                                                    //    ActivityCompat#requestPermissions
+//                                                    // here to request the missing permissions, and then overriding
+//                                                    //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+//                                                    //                                          int[] grantResults)
+//                                                    // to handle the case where the user grants the permission. See the documentation
+//                                                    // for ActivityCompat#requestPermissions for more details.
+//                                                    return;
+//                                                }
+//                                                startActivity(intent);
+//                                                dialog.dismiss();
+//                                            }
+//                                        });
+//
+//                                        dialog.show();
+//                                    }
+//                                });
+//
+//                            }
+//
+//                            @Override
+//                            public void onCancelled(DatabaseError databaseError) {
+//
+//                            }
+//                        });
+//            }
+//
+//            @Override
+//            public void onKeyExited(String key) {
+//
+//            }
+//
+//            @Override
+//            public void onKeyMoved(String key, GeoLocation location) {
+//
+//            }
+//
+//            @Override
+//            public void onGeoQueryReady() {
+//                //if still not found driver, increase distance
+//                if (!isDriverFound) {
+//                    radius++;
+//                    findDriver();
+//                }
+//
+//            }
+//
+//            @Override
+//            public void onGeoQueryError(DatabaseError error) {
+//
+//            }
+//        });
+//
+//    }
 
 
     private void Init() {
@@ -1084,6 +1124,7 @@ public class Home extends AppCompatActivity
                 .addConnectionCallbacks(this)
                 .addOnConnectionFailedListener(this)
                 .addApi(LocationServices.API)
+                .addApi(Places.GEO_DATA_API)
                 .build();
         mGoogleApiClient.connect();
     }
