@@ -38,12 +38,17 @@
                     android:layout_weight="1"
                     android:src="@drawable/ic_start_location_black_24dp" />
 
-                <fragment
-                    android:id="@+id/place_autocomplete_startDriverLocation"
-                    android:name="com.google.android.gms.location.places.ui.PlaceAutocompleteFragment"
+                <EditText
+                    android:id="@+id/et_end_location"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_weight="5" />
+                    android:layout_weight="5"
+                    android:textColor="@color/place_autocomplete_search_text"
+                    android:textColorHint="@color/place_autocomplete_search_hint"
+                    android:hint="Where to?"
+                    android:focusable="false"
+
+                    />
 
             </LinearLayout>
 

@@ -1,6 +1,7 @@
 package com.example.huydaoduc.hieu.chi.hhapp.Manager.Direction;
 
 import android.content.Context;
+import android.location.Location;
 import android.os.AsyncTask;
 
 import com.example.huydaoduc.hieu.chi.hhapp.Common.Common;
@@ -30,26 +31,32 @@ import retrofit2.Response;
 /**
  * Created by Mai Thanh Hiep on 4/3/2016.
  * Customize by Phan Huu Chi on 4/2018 : use Retrofit 2 instead
+ *                                       alternative parseJSon method
+ *                                       whole new Object Class from JSon
+ *                                       multi finding method by splitting Create URL method
  */
 public class DirectionFinder {
     private static final String DIRECTION_URL_API = "https://maps.googleapis.com/maps/api/directions/json?";
     private static String GOOGLE_API_KEY;
     private DirectionFinderListener listener;
-    private String origin;
-    private String destination;
 
     private IGoogleAPI mapService;
 
-    public DirectionFinder(DirectionFinderListener listener, String origin, String destination, Context context) {
+    String urlRequest;
+
+    public DirectionFinder(DirectionFinderListener listener, Context context) {
+        urlRequest = null;
+
         this.listener = listener;
-        this.origin = origin;
-        this.destination = destination;
 
         this.GOOGLE_API_KEY = context.getResources().getString(R.string.map_api_key);
         mapService = Common.getGoogleAPI();
     }
 
-    private String createUrl() throws UnsupportedEncodingException {
+    /**
+     * 1 place - 1 place
+     */
+    public String createUrl(String origin, String destination) throws UnsupportedEncodingException {
         String urlOrigin = URLEncoder.encode(origin, "utf-8");
         String urlDestination = URLEncoder.encode(destination, "utf-8");
 
@@ -59,6 +66,21 @@ public class DirectionFinder {
                 + "&key=" + GOOGLE_API_KEY;
     }
 
+    /**
+     * 1 point - 1 place
+     */
+    public String createUrl(LatLng latLng , String destination) throws UnsupportedEncodingException {
+        String urlOrigin = latLng.latitude + "," + latLng.longitude;
+        String urlDestination = URLEncoder.encode(destination, "utf-8");
+
+        return DIRECTION_URL_API + "origin=" + urlOrigin + "&destination=" + urlDestination
+                + "&mode=driving"
+                + "&mode=driving"
+                + "&key=" + GOOGLE_API_KEY;
+    }
+
+
+    // NOTE: must call "createUrl" method before execute
     public void execute() throws UnsupportedEncodingException {
         listener.onDirectionFinderStart();
 
@@ -66,8 +88,12 @@ public class DirectionFinder {
         //new DownloadRawData().execute(createUrl());
 
         // NEW
+
         // setup the request get data ( set up the call )
-        Call<String> call = mapService.getPath(createUrl());
+        if(urlRequest == null)
+            return;
+        Call<String> call = mapService.getPath(urlRequest);
+
         // enqueue: execute asynchronously . User a Callback to get respond from the server
         call.enqueue(new Callback<String>() {
             @Override

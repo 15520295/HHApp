@@ -75,7 +75,7 @@ public class UpdateInfoActivity extends AppCompatActivity {
     }
 
     private void updateInfo() {
-        String uid = firebaseAuth.getUid();
+        String uid = firebaseAuth.getCurrentUser().getUid();
         String name = et_name.getText().toString();
         String yob = et_yob.getText().toString();
 

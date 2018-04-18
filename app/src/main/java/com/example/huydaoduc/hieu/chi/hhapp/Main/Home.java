@@ -27,6 +27,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.animation.LinearInterpolator;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.RelativeLayout;
 import android.widget.TabHost;
 import android.widget.TextView;
@@ -38,6 +39,7 @@ import com.example.huydaoduc.hieu.chi.hhapp.Manager.Direction.DirectionFinder;
 import com.example.huydaoduc.hieu.chi.hhapp.Manager.Direction.DirectionFinderListener;
 import com.example.huydaoduc.hieu.chi.hhapp.Manager.Direction.Leg;
 import com.example.huydaoduc.hieu.chi.hhapp.Manager.Direction.Route;
+import com.example.huydaoduc.hieu.chi.hhapp.Manager.Place.SearchActivity;
 import com.example.huydaoduc.hieu.chi.hhapp.Model.UserApp;
 import com.example.huydaoduc.hieu.chi.hhapp.R;
 import com.example.huydaoduc.hieu.chi.hhapp.Remote.IGoogleAPI;
@@ -48,17 +50,11 @@ import com.firebase.geofire.GeoQuery;
 import com.firebase.geofire.GeoQueryEventListener;
 import com.github.glomadrian.materialanimatedswitch.MaterialAnimatedSwitch;
 import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
-import com.google.android.gms.common.GooglePlayServicesRepairableException;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.location.places.Place;
-import com.google.android.gms.location.places.ui.PlaceAutocomplete;
 import com.google.android.gms.location.places.ui.PlaceAutocompleteFragment;
-import com.google.android.gms.location.places.ui.PlaceSelectionListener;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -144,7 +140,6 @@ public class Home extends AppCompatActivity
     private int index, next;
     private Button btnPost, btnFindDriver, btnMessage, btnCall;
     private TextView tvName, tvPhone;
-    private PlaceAutocompleteFragment startLocationAutoComplete;
     private String destination;
     private PolylineOptions polylineOptions, blackPolylineOptions;
     private Polyline blackPolyline, greyPolyline;
@@ -221,27 +216,32 @@ public class Home extends AppCompatActivity
         }
     }
 
-
+    //todo: edit parameter
     private void findPath() {
-        String origin = "Dai hoc khoa hoc tu nhien";
-        String destination = "Dai hoc bach khoa hcm";
-        if (origin.isEmpty()) {
-            Toast.makeText(this, "Please enter origin address!", Toast.LENGTH_SHORT).show();
-            return;
-        }
-        if (destination.isEmpty()) {
-            Toast.makeText(this, "Please enter destination address!", Toast.LENGTH_SHORT).show();
-            return;
-        }
 
-        try {
-            new DirectionFinder(this, origin, destination, getApplicationContext()).execute();
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }
     }
 
     //------ My Location Button --------
+
+    private void myLocationButtonInit() {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // permission
+            return;
+        }
+        mMap.setMyLocationEnabled(true);
+        mMap.setOnMyLocationButtonClickListener(this);
+        mMap.setOnMyLocationClickListener(this);
+        // Change location to bottom-right ( default: top-right)
+        View locationButton = ((View) mapFragment.getView()
+                .findViewById(Integer.parseInt("1")).getParent())
+                .findViewById(Integer.parseInt("2"));
+        RelativeLayout.LayoutParams rlp = (RelativeLayout.LayoutParams) locationButton.getLayoutParams();
+        // position on right bottom
+        rlp.addRule(RelativeLayout.ALIGN_PARENT_TOP, 0);
+        rlp.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM, RelativeLayout.TRUE);
+        rlp.setMargins(0, 0, 30, 30);
+    }
+
     @Override
     public void onMyLocationClick(@NonNull Location location) {
 
@@ -255,38 +255,84 @@ public class Home extends AppCompatActivity
 
 
     //------ Auto Complete  --------
-    int PLACE_AUTOCOMPLETE_REQUEST_CODE = 1;
 
-    private void AutoCompleEvent() {
-        startLocationAutoComplete.setOnPlaceSelectedListener(new PlaceSelectionListener() {
+    int PICKUP_PLACE_AUTOCOMPLETE_REQUEST_CODE = 1001;
+    int END_PLACE_AUTOCOMPLETE_REQUEST_CODE = 1002;
+    EditText et_pickupLocation, et_endLocation;
+
+    private void searViewEvent() {
+        et_pickupLocation.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onPlaceSelected(Place place) {
-                startLocationAutoComplete.setText(place.getAddress());
+            public void onClick(View v) {
+                StartAutoCompleteIntent(PICKUP_PLACE_AUTOCOMPLETE_REQUEST_CODE);
             }
+        });
 
+        et_endLocation.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onError(Status status) {
-                Log.i(TAG, "An error occurred: " + status);
-                Toast.makeText(getApplicationContext(), "An error occurred: " + status, Toast.LENGTH_LONG)
-                    .show();
+            public void onClick(View v) {
+                StartAutoCompleteIntent(END_PLACE_AUTOCOMPLETE_REQUEST_CODE);
             }
         });
     }
 
-    private void StartAutoComplete() {
-        try {
-            Intent intent =
-                    new PlaceAutocomplete.IntentBuilder(PlaceAutocomplete.MODE_FULLSCREEN)
-                            .build(this);
-            startActivityForResult(intent, PLACE_AUTOCOMPLETE_REQUEST_CODE);
-        } catch (GooglePlayServicesRepairableException e) {
+    private void AutoCompleteIntentResultHandle(int requestCode, int resultCode, Intent data) {
+        if (requestCode == PICKUP_PLACE_AUTOCOMPLETE_REQUEST_CODE || requestCode == END_PLACE_AUTOCOMPLETE_REQUEST_CODE) {
+            if (resultCode == SearchActivity.RESULT_OK) {
+                String placeId = data.getStringExtra("place_id");
+                String placePrimaryText = data.getStringExtra("place_primary_text");
 
-        } catch (GooglePlayServicesNotAvailableException e) {
+                if (requestCode == PICKUP_PLACE_AUTOCOMPLETE_REQUEST_CODE) {
+                    et_pickupLocation.setText(placePrimaryText);
 
+                } else if (requestCode == END_PLACE_AUTOCOMPLETE_REQUEST_CODE) {
+                    et_endLocation.setText(placePrimaryText);
+                }
+            }
         }
     }
 
+    private void StartAutoCompleteIntent(int requestCode) {
+        Intent intent = new Intent(Home.this,SearchActivity.class);
+        intent.putExtra("cur_lat", mLastLocation.getLatitude());
+        intent.putExtra("cur_lng", mLastLocation.getLongitude());
+        intent.putExtra("radius", 1000);        // radius (meters)
+        // note: result with be relative with the bound (more details in Activity Class)
+        startActivityForResult(intent, requestCode);
+
+
+    }
+
+    //------ Others  --------
+
+    @Override
+    public void onMapReady(GoogleMap googleMap) {
+        mMap = googleMap;
+        mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+        mMap.setTrafficEnabled(true);
+        mMap.setIndoorEnabled(true);
+        mMap.setBuildingsEnabled(true);
+        mMap.getUiSettings().setZoomGesturesEnabled(true);
+        mMap.getUiSettings().setZoomControlsEnabled(false);
+        mMap.getUiSettings().setCompassEnabled(false);
+        mMap.setInfoWindowAdapter(new CustomInfoWindow(this));
+
+
+        // My Location Button
+        myLocationButtonInit();
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        AutoCompleteIntentResultHandle(requestCode, resultCode, data);
+
+    }
+
     //------------------------------------
+
+
 
     // ve xe nho nho
     Runnable drawPathRunnable = new Runnable() {
@@ -734,8 +780,11 @@ public class Home extends AppCompatActivity
         polyLineList = new ArrayList<>();
         btnPost = findViewById(R.id.btnPost);
         btnFindDriver = findViewById(R.id.btn_find_driver);
-        startLocationAutoComplete = (PlaceAutocompleteFragment) getFragmentManager().findFragmentById(R.id.place_autocomplete_startLocation);
-        // placeAutoComplete ??
+
+
+        // search view
+        et_pickupLocation = findViewById(R.id.et_pick_up_location);
+        et_endLocation= findViewById(R.id.et_end_location);
 
     }
 
@@ -746,11 +795,13 @@ public class Home extends AppCompatActivity
             @Override
             public void onCheckedChanged(boolean b) {
                 if (b) {
-                    startLocationUpdates();
+//                    startLocationUpdates();
+//
+//                    // move cam + show maker + update firebase value
+//                    displayLocationAndUpdateData();
+//                    Snackbar.make(mapFragment.getView(), "You are Online", Snackbar.LENGTH_SHORT).show();
 
-                    // move cam + show maker + update firebase value
-                    displayLocationAndUpdateData();
-                    Snackbar.make(mapFragment.getView(), "You are Online", Snackbar.LENGTH_SHORT).show();
+
                 } else {
 
                     stopLocationUpdate();
@@ -765,14 +816,12 @@ public class Home extends AppCompatActivity
             }
         });
 
-        // search diem
-        AutoCompleEvent();
-
 
         // post Pick up point and destination -- not done
         btnPost.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                //todo: set Event + add callback value + filter Vietnam
                 destination = destination.replace(" ", "+"); //Replace space with + for fetch data
                 Toast.makeText(getApplicationContext(), "SS", Toast.LENGTH_SHORT).show();
                 //Log.d("EDMTDEV", destination);
@@ -788,7 +837,10 @@ public class Home extends AppCompatActivity
             }
         });
 
+        searViewEvent();
+
     }
+
 
     private List<LatLng> decodePoly(String encoded) {
 
@@ -1071,36 +1123,4 @@ public class Home extends AppCompatActivity
         displayLocationAndUpdateData();
     }
 
-    @Override
-    public void onMapReady(GoogleMap googleMap) {
-        mMap = googleMap;
-        mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
-        mMap.setTrafficEnabled(true);
-        mMap.setIndoorEnabled(true);
-        mMap.setBuildingsEnabled(true);
-        mMap.getUiSettings().setZoomGesturesEnabled(true);
-        mMap.getUiSettings().setZoomControlsEnabled(false);
-        mMap.getUiSettings().setCompassEnabled(false);
-        mMap.setInfoWindowAdapter(new CustomInfoWindow(this));
-
-
-        // My Location Button
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            // permission
-            return;
-        }
-        mMap.setMyLocationEnabled(true);
-        mMap.setOnMyLocationButtonClickListener(this);
-        mMap.setOnMyLocationClickListener(this);
-        // Change location to bottom-right ( default: top-right)
-        View locationButton = ((View) mapFragment.getView()
-                .findViewById(Integer.parseInt("1")).getParent())
-                .findViewById(Integer.parseInt("2"));
-        RelativeLayout.LayoutParams rlp = (RelativeLayout.LayoutParams) locationButton.getLayoutParams();
-        // position on right bottom
-        rlp.addRule(RelativeLayout.ALIGN_PARENT_TOP, 0);
-        rlp.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM, RelativeLayout.TRUE);
-        rlp.setMargins(0, 0, 30, 30);
-
-    }
 }

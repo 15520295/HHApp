@@ -14,11 +14,6 @@ import com.google.firebase.database.FirebaseDatabase;
 
 public class MainActivity extends AppCompatActivity {
     Button btn_rider, btn_driver;
-    EditText edtEmail, edtPassword, edtName, edtPhone;
-
-    FirebaseAuth auth;
-    FirebaseDatabase db;
-    DatabaseReference users;
 
 
     @Override

@@ -48,6 +48,9 @@ dependencies {
     implementation 'com.squareup.retrofit2:converter-gson:2.3.0'
     implementation 'de.hdodenhof:circleimageview:2.2.0'
 
+    //Manager/place
+    implementation 'com.google.maps.android:android-maps-utils:0.4.4'
+
     // login activity
     implementation "com.mikepenz:iconics-core:3.0.2@aar"
     implementation 'com.mikepenz:fontawesome-typeface:5.0.6.0@aar'

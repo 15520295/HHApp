@@ -6,8 +6,6 @@
     <color name="edit_text_hint">#B0BEC5</color>
     <color name="edit_text_txt">#000000</color>
 
-
-
     <color name="transparent">#00ffffff</color>
     // Login color
     <color name="text_link">#1976D2</color>
@@ -28,4 +26,10 @@
     <color name="ballReleaseColor">#9E9E9E</color>
 
     <color name="dividerColor">#1f747474</color>
+
+    // Search Activity and Search AutoComplte TextView
+    <color name="placeAutocomplete_search_hint">#BDBDBD</color>
+    <color name="placeAutocomplete_search_text">#212121</color>
+    <color name="placeAutocomplete_separator">#1F000000</color>
+
 </resources>

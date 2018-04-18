@@ -37,6 +37,8 @@ import com.example.huydaoduc.hieu.chi.hhapp.Manager.Direction.DirectionFinder;
 import com.example.huydaoduc.hieu.chi.hhapp.Manager.Direction.DirectionFinderListener;
 import com.example.huydaoduc.hieu.chi.hhapp.Manager.Direction.Leg;
 import com.example.huydaoduc.hieu.chi.hhapp.Manager.Direction.Route;
+import com.example.huydaoduc.hieu.chi.hhapp.Manager.DirectionManager;
+import com.example.huydaoduc.hieu.chi.hhapp.Manager.Place.SearchActivity;
 import com.example.huydaoduc.hieu.chi.hhapp.Model.UserApp;
 import com.example.huydaoduc.hieu.chi.hhapp.R;
 import com.example.huydaoduc.hieu.chi.hhapp.Remote.IGoogleAPI;
@@ -143,7 +145,6 @@ public class DriverActivity extends AppCompatActivity
     private int index, next;
     private Button btnGo;
     private TextView tvName, tvPhone;
-    private PlaceAutocompleteFragment placeAutoCompleteDriver;
     private String destination;
     private PolylineOptions polylineOptions, blackPolylineOptions;
     private Polyline blackPolyline, greyPolyline;
@@ -159,10 +160,12 @@ public class DriverActivity extends AppCompatActivity
 
     //------------------------------------ Chi :
 
-    //------ DirectionFinder --------
-    private List<Marker> originMarkers = new ArrayList<>();
-    private List<Marker> destinationMarkers = new ArrayList<>();
-    private List<Polyline> polylinePaths = new ArrayList<>();
+    //region ------ DirectionFinder --------
+    DirectionManager directionManager;
+
+    private void DirectionManagerInit() {
+        directionManager = new DirectionManager(getApplicationContext(), mMap, this);
+    }
 
     @Override
     public void onDirectionFinderStart() {
@@ -172,75 +175,32 @@ public class DriverActivity extends AppCompatActivity
     @Override
     public void onDirectionFinderSuccess(List<Route> routes) {
 //        progressDialog.dismiss();
-        polylinePaths = new ArrayList<>();
-        originMarkers = new ArrayList<>();
-        destinationMarkers = new ArrayList<>();
-
-        for (Route route : routes) {
-
-            for (Leg leg : route.getLegs()) {
-                // Move the map to Surround the route
-                final int MAP_BOUND_PADDING = 180;  /* In dp */
-                LatLngBounds.Builder builder = new LatLngBounds.Builder();
-                builder.include(route.getBounds().getNorthEast());
-                builder.include(route.getBounds().getSouthWest());
-                LatLngBounds bounds = builder.build();
-                CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(bounds, MAP_BOUND_PADDING);
-                mMap.animateCamera(cu);
-
-                Toast.makeText(getApplicationContext(), "Duration + Distance: " + leg.getDuration().getValue() + ", " + leg.getDistance().getValue(), Toast.LENGTH_LONG)
-                        .show();
-
-//            originMarkers.add(mMap.addMarker(new MarkerOptions()
-//                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.start_blue))
-//                    .title(route.startAddress)
-//                    .position(route.startLocation)));
-//            destinationMarkers.add(mMap.addMarker(new MarkerOptions()
-//                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.end_green))
-//                    .title(route.endAddress)
-//                    .position(route.endLocation)));
-
-                PolylineOptions polylineOptions = new PolylineOptions().
-                        geodesic(true).
-                        color(Color.BLUE).
-                        width(10);
-
-                int stepsize = leg.getSteps().size();
-                for (int i = 0; i < stepsize; i++) {
-                    int pontsize = leg.getSteps().get(i).getPoints().size();
-                    for (int j = 0; j < pontsize; j++)
-                        polylineOptions.add(leg.getSteps().get(i).getPoints().get(j));
-                }
-
-
-                // Note: points  --- is a pairs not a array
-
-                polylinePaths.add(mMap.addPolyline(polylineOptions));
-            }
-        }
+        directionManager.drawRoutes(routes);
     }
 
+    //endregion
 
-    private void findPath() {
-        String origin = "Dai hoc khoa hoc tu nhien";
-        String destination = "Dai hoc bach khoa hcm";
-        if (origin.isEmpty()) {
-            Toast.makeText(this, "Please enter origin address!", Toast.LENGTH_SHORT).show();
+    //region ------ My Location Button --------
+
+    private void myLocationButtonInit() {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // permission
             return;
         }
-        if (destination.isEmpty()) {
-            Toast.makeText(this, "Please enter destination address!", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        try {
-            new DirectionFinder(this, origin, destination, getApplicationContext()).execute();
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }
+        mMap.setMyLocationEnabled(true);
+        mMap.setOnMyLocationButtonClickListener(this);
+        mMap.setOnMyLocationClickListener(this);
+        // Change location to bottom-right ( default: top-right)
+        View locationButton = ((View) mapFragment.getView()
+                .findViewById(Integer.parseInt("1")).getParent())
+                .findViewById(Integer.parseInt("2"));
+        RelativeLayout.LayoutParams rlp = (RelativeLayout.LayoutParams) locationButton.getLayoutParams();
+        // position on right bottom
+        rlp.addRule(RelativeLayout.ALIGN_PARENT_TOP, 0);
+        rlp.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM, RelativeLayout.TRUE);
+        rlp.setMargins(0, 0, 30, 30);
     }
 
-    //------ My Location Button --------
     @Override
     public void onMyLocationClick(@NonNull Location location) {
 
@@ -252,40 +212,70 @@ public class DriverActivity extends AppCompatActivity
         return false;
     }
 
+    //endregion
 
-    //------ Auto Complete  --------
-    int PLACE_AUTOCOMPLETE_REQUEST_CODE = 1;
+    //region ------ Auto Complete  --------
+    int END_PLACE_AUTOCOMPLETE_REQUEST_CODE = 1002;
+    EditText et_endLocation;
 
-    private void AutoCompleEvent() {
-//        PlaceAutocompleteFragment autocompleteFragment = (PlaceAutocompleteFragment)
-//                getFragmentManager().findFragmentById(R.id.place_autocomplete_fragment);
-//
-//        autocompleteFragment.setOnPlaceSelectedListener(new PlaceSelectionListener() {
-//            @Override
-//            public void onPlaceSelected(Place place) {
-//                // TODO: Get info about the selected place.
-//                Log.i(TAG, "Place: " + place.getName());
-//            }
-//
-//            @Override
-//            public void onError(Status status) {
-//                // TODO: Handle the error.
-//                Log.i(TAG, "An error occurred: " + status);
-//            }
-//        });
+    private void searViewEvent() {
+        et_endLocation.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                StartAutoCompleteIntent(END_PLACE_AUTOCOMPLETE_REQUEST_CODE);
+            }
+        });
+
     }
 
-    private void StartAutoComplete() {
-        try {
-            Intent intent =
-                    new PlaceAutocomplete.IntentBuilder(PlaceAutocomplete.MODE_FULLSCREEN)
-                            .build(this);
-            startActivityForResult(intent, PLACE_AUTOCOMPLETE_REQUEST_CODE);
-        } catch (GooglePlayServicesRepairableException e) {
+    private void AutoCompleteIntentResultHandle(int requestCode, int resultCode, Intent data) {
+        if (requestCode == END_PLACE_AUTOCOMPLETE_REQUEST_CODE) {
+            if (resultCode == SearchActivity.RESULT_OK) {
+                String placeId = data.getStringExtra("place_id");
+                String placePrimaryText = data.getStringExtra("place_primary_text");
 
-        } catch (GooglePlayServicesNotAvailableException e) {
-
+                et_endLocation.setText(placePrimaryText);
+            }
         }
+    }
+
+    private void StartAutoCompleteIntent(int requestCode) {
+        Intent intent = new Intent(DriverActivity.this,SearchActivity.class);
+        intent.putExtra("cur_lat", mLastLocation.getLatitude());
+        intent.putExtra("cur_lng", mLastLocation.getLongitude());
+        intent.putExtra("radius", 1000);        // radius (meters)
+        // note: result with be relative with the bound (more details in Activity Class)
+        startActivityForResult(intent, requestCode);
+
+
+    }
+    //endregion
+
+    //------ Others  --------
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        AutoCompleteIntentResultHandle(requestCode, resultCode, data);
+
+    }
+
+    @Override
+    public void onMapReady(GoogleMap googleMap) {
+        mMap = googleMap;
+        mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+        mMap.setTrafficEnabled(true);
+        mMap.setIndoorEnabled(true);
+        mMap.setBuildingsEnabled(true);
+        mMap.getUiSettings().setZoomGesturesEnabled(true);
+        mMap.getUiSettings().setZoomControlsEnabled(false);
+        mMap.getUiSettings().setCompassEnabled(false);
+        mMap.setInfoWindowAdapter(new CustomInfoWindow(this));
+
+
+        // My Location Button
+        myLocationButtonInit();
     }
 
     //------------------------------------
@@ -406,13 +396,14 @@ public class DriverActivity extends AppCompatActivity
 
         polyLineList = new ArrayList<>();
         btnGo = findViewById(R.id.btnGo);
-        placeAutoCompleteDriver = (PlaceAutocompleteFragment) getFragmentManager().findFragmentById(R.id.place_autocomplete_startDriverLocation);
-        // placeAutoComplete ??
+
+
+        // CHi
+        et_endLocation = findViewById(R.id.et_end_location);
 
     }
 
     private void addEven() {
-
 
         //// Driver
         locationDriver_switch.setOnCheckedChangeListener(new MaterialAnimatedSwitch.OnCheckedChangeListener() {
@@ -439,34 +430,14 @@ public class DriverActivity extends AppCompatActivity
             }
         });
 
-        // the same
-        placeAutoCompleteDriver.setOnPlaceSelectedListener(new PlaceSelectionListener() {
-            @Override
-            public void onPlaceSelected(Place place) {
-                if (locationDriver_switch.isChecked()) {
-                    destination = place.getAddress().toString();
-                    destination = destination.replace(" ", "+");
-
-                    //getDirection();
-                    drawDirection();
-                } else {
-                    Toast.makeText(getApplicationContext(), "You are Offline", Toast.LENGTH_SHORT).show();
-                }
-
-            }
-
-            @Override
-            public void onError(Status status) {
-                Toast.makeText(getApplicationContext(), "" + status.toString(), Toast.LENGTH_SHORT).show();
-            }
-        });
+        // Chi
+        searViewEvent();
 
         // post request to Firebase
         btnGo.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-//                requesRoute(FirebaseAuth.getInstance().getCurrentUser().getUid());
-                findPath();
+                directionManager.findPath(mLastLocation, et_endLocation.getText().toString());
             }
         });
 
@@ -665,7 +636,7 @@ public class DriverActivity extends AppCompatActivity
     ///////////
 
     private void requesRoute(String uid) {
-        String title = ((EditText) placeAutoCompleteDriver.getView().findViewById(R.id.place_autocomplete_search_input)).getText().toString();
+        String title = et_endLocation.getText().toString();
 
         DatabaseReference dbRequest = FirebaseDatabase.getInstance().getReference("RouteRequest");
         GeoFire mGeoFire = new GeoFire(dbRequest);
@@ -984,38 +955,5 @@ public class DriverActivity extends AppCompatActivity
     public void onLocationChanged(Location location) {
         mLastLocation = location;
         displayLocationAndUpdateData();
-    }
-
-    @Override
-    public void onMapReady(GoogleMap googleMap) {
-        mMap = googleMap;
-        mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
-        mMap.setTrafficEnabled(true);
-        mMap.setIndoorEnabled(true);
-        mMap.setBuildingsEnabled(true);
-        mMap.getUiSettings().setZoomGesturesEnabled(true);
-        mMap.getUiSettings().setZoomControlsEnabled(false);
-        mMap.getUiSettings().setCompassEnabled(false);
-        mMap.setInfoWindowAdapter(new CustomInfoWindow(this));
-
-
-        // My Location Button
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            // permission
-            return;
-        }
-        mMap.setMyLocationEnabled(true);
-        mMap.setOnMyLocationButtonClickListener(this);
-        mMap.setOnMyLocationClickListener(this);
-        // Change location to bottom-right ( default: top-right)
-        View locationButton = ((View) mapFragment.getView()
-                .findViewById(Integer.parseInt("1")).getParent())
-                .findViewById(Integer.parseInt("2"));
-        RelativeLayout.LayoutParams rlp = (RelativeLayout.LayoutParams) locationButton.getLayoutParams();
-        // position on right bottom
-        rlp.addRule(RelativeLayout.ALIGN_PARENT_TOP, 0);
-        rlp.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM, RelativeLayout.TRUE);
-        rlp.setMargins(0, 0, 30, 30);
-
     }
 }
