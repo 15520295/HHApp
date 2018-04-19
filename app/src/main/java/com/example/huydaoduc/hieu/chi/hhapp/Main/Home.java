@@ -38,6 +38,7 @@ import com.example.huydaoduc.hieu.chi.hhapp.Manager.Direction.DirectionFinderLis
 import com.example.huydaoduc.hieu.chi.hhapp.Manager.Direction.Route;
 import com.example.huydaoduc.hieu.chi.hhapp.Manager.DirectionManager;
 import com.example.huydaoduc.hieu.chi.hhapp.Manager.LocationUtils;
+import com.example.huydaoduc.hieu.chi.hhapp.Manager.Place.SavedPlace;
 import com.example.huydaoduc.hieu.chi.hhapp.Manager.Place.SearchActivity;
 import com.example.huydaoduc.hieu.chi.hhapp.Manager.RouteRequest;
 import com.example.huydaoduc.hieu.chi.hhapp.Model.UserApp;
@@ -213,10 +214,9 @@ public class Home extends AppCompatActivity
 
                         //todo: check 2 diem
                         boolean isMatch = LocationUtils.isMatching(polyline,pickupPlace.getLatLng(),endPlace.getLatLng(),500);
-
                         if(isMatch)
                         {
-                            
+                            Toast.makeText(getApplicationContext(),"match", Toast.LENGTH_LONG).show();
                         }
 
                     }
@@ -232,15 +232,22 @@ public class Home extends AppCompatActivity
 
     //region ------ Makers --------
 
-    private Marker mkr_pickupPlace, mkr_endPlace;
+    private Marker pickupPlaceMarker, endPlaceMarker;
 
+    // apply singleton pattern
     private void drawMarker(String markerName) {
         if (TextUtils.equals(markerName, "pickupPlace")) {
-            mMap.addMarker(new MarkerOptions().position(pickupPlace.getLatLng())
+            if(pickupPlaceMarker != null)
+                pickupPlaceMarker.remove();
+
+            pickupPlaceMarker = mMap.addMarker(new MarkerOptions().position(pickupPlace.getLatLng())
                     .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_map_pin_40px)));
         }
         if (TextUtils.equals(markerName, "endPlace")) {
-            mMap.addMarker(new MarkerOptions().position(endPlace.getLatLng())
+            if(endPlaceMarker != null)
+                endPlaceMarker.remove();
+
+            endPlaceMarker = mMap.addMarker(new MarkerOptions().position(endPlace.getLatLng())
                     .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_marker_40px)));
         }
     }
@@ -285,7 +292,7 @@ public class Home extends AppCompatActivity
     int PICKUP_PLACE_AUTOCOMPLETE_REQUEST_CODE = 1001;
     int END_PLACE_AUTOCOMPLETE_REQUEST_CODE = 1002;
     EditText et_pickupLocation, et_endLocation;
-    Place pickupPlace, endPlace;
+    SavedPlace pickupPlace, endPlace;
 
 
     private void searViewEvent() {
@@ -316,7 +323,9 @@ public class Home extends AppCompatActivity
                                 @Override
                                 public void onResult(PlaceBuffer places) {
                                     if (places.getStatus().isSuccess()) {
-                                        pickupPlace = places.get(0);
+                                        pickupPlace = new SavedPlace();
+                                        pickupPlace.setLatLng(places.get(0).getLatLng());
+
                                         et_pickupLocation.setText(placePrimaryText);
 
                                         drawMarker("pickupPlace");
@@ -332,7 +341,9 @@ public class Home extends AppCompatActivity
                                 @Override
                                 public void onResult(PlaceBuffer places) {
                                     if (places.getStatus().isSuccess()) {
-                                        endPlace = places.get(0);
+                                        endPlace = new SavedPlace();
+                                        endPlace.setLatLng(places.get(0).getLatLng());
+
                                         et_endLocation.setText(placePrimaryText);
 
                                         drawMarker("endPlace");
@@ -387,6 +398,13 @@ public class Home extends AppCompatActivity
 
     }
 
+
+    private void checkPermisstion() {
+        if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+                ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            return;
+        }
+    }
     //endregion
 
     //------------------------------------
@@ -692,6 +710,39 @@ public class Home extends AppCompatActivity
 
     }
 
+    private List<LatLng> decodePoly(String encoded) {
+
+        List<LatLng> poly = new ArrayList<LatLng>();
+        int index = 0, len = encoded.length();
+        int lat = 0, lng = 0;
+
+        while (index < len) {
+            int b, shift = 0, result = 0;
+            do {
+                b = encoded.charAt(index++) - 63;
+                result |= (b & 0x1f) << shift;
+                shift += 5;
+            } while (b >= 0x20);
+            int dlat = ((result & 1) != 0 ? ~(result >> 1) : (result >> 1));
+            lat += dlat;
+
+            shift = 0;
+            result = 0;
+            do {
+                b = encoded.charAt(index++) - 63;
+                result |= (b & 0x1f) << shift;
+                shift += 5;
+            } while (b >= 0x20);
+            int dlng = ((result & 1) != 0 ? ~(result >> 1) : (result >> 1));
+            lng += dlng;
+
+            LatLng p = new LatLng((((double) lat / 1E5)),
+                    (((double) lng / 1E5)));
+            poly.add(p);
+        }
+
+        return poly;
+    }
     ///////////
 
 
@@ -901,39 +952,6 @@ public class Home extends AppCompatActivity
     }
 
 
-    private List<LatLng> decodePoly(String encoded) {
-
-        List<LatLng> poly = new ArrayList<LatLng>();
-        int index = 0, len = encoded.length();
-        int lat = 0, lng = 0;
-
-        while (index < len) {
-            int b, shift = 0, result = 0;
-            do {
-                b = encoded.charAt(index++) - 63;
-                result |= (b & 0x1f) << shift;
-                shift += 5;
-            } while (b >= 0x20);
-            int dlat = ((result & 1) != 0 ? ~(result >> 1) : (result >> 1));
-            lat += dlat;
-
-            shift = 0;
-            result = 0;
-            do {
-                b = encoded.charAt(index++) - 63;
-                result |= (b & 0x1f) << shift;
-                shift += 5;
-            } while (b >= 0x20);
-            int dlng = ((result & 1) != 0 ? ~(result >> 1) : (result >> 1));
-            lng += dlng;
-
-            LatLng p = new LatLng((((double) lat / 1E5)),
-                    (((double) lng / 1E5)));
-            poly.add(p);
-        }
-
-        return poly;
-    }
 
 
     private void displayLocationAndUpdateData() {

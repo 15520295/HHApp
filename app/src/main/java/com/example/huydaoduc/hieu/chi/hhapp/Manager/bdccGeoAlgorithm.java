@@ -42,8 +42,6 @@ public class bdccGeoAlgorithm {
         int i;
         bdccGeo p = new bdccGeo(location.latitude,location.longitude);
 
-        List<LatLng> result = new LinkedList<>();
-
         for(i=0; i < (poly.size()-1) ; i++)
         {
             LatLng p1 = poly.get(i);
@@ -54,11 +52,9 @@ public class bdccGeoAlgorithm {
 
             double distance = p.function_distanceToLineSegMtrs(l1, l2);
 
-            result.add(p1);
             if(distance < radius)
             {
-                result.add(p2);
-                return new ArrayList<>(result);
+                return poly.subList(i+1, poly.size()-1);
             }
         }
         return null;

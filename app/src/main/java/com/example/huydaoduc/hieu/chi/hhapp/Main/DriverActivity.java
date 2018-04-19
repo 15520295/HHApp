@@ -13,6 +13,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.support.design.widget.NavigationView;
@@ -36,6 +37,7 @@ import com.example.huydaoduc.hieu.chi.hhapp.CostomInfoWindow.CustomInfoWindow;
 import com.example.huydaoduc.hieu.chi.hhapp.Manager.Direction.DirectionFinderListener;
 import com.example.huydaoduc.hieu.chi.hhapp.Manager.Direction.Route;
 import com.example.huydaoduc.hieu.chi.hhapp.Manager.DirectionManager;
+import com.example.huydaoduc.hieu.chi.hhapp.Manager.Place.SavedPlace;
 import com.example.huydaoduc.hieu.chi.hhapp.Manager.Place.SearchActivity;
 import com.example.huydaoduc.hieu.chi.hhapp.Manager.RouteRequest;
 import com.example.huydaoduc.hieu.chi.hhapp.Model.UserApp;
@@ -168,6 +170,22 @@ public class DriverActivity extends AppCompatActivity
 
     //endregion
 
+    //region ------ Makers --------
+
+    private Marker endPlaceMarker;
+
+    // apply singleton pattern
+    private void drawMarker(String markerName) {
+        if (TextUtils.equals(markerName, "endPlace")) {
+            if(endPlaceMarker != null)
+                endPlaceMarker.remove();
+
+            endPlaceMarker = mMap.addMarker(new MarkerOptions().position(endPlace.getLatLng())
+                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_marker_40px)));
+        }
+    }
+    //endregion
+
     //region ------ My Location Button --------
 
     private void myLocationButtonInit() {
@@ -205,7 +223,7 @@ public class DriverActivity extends AppCompatActivity
     //region ------ Auto Complete  --------
     int END_PLACE_AUTOCOMPLETE_REQUEST_CODE = 1002;
     EditText et_endLocation;
-    Place endPlace;
+    SavedPlace endPlace;
 
     private void searViewEvent() {
         et_endLocation.setOnClickListener(new View.OnClickListener() {
@@ -228,7 +246,9 @@ public class DriverActivity extends AppCompatActivity
                             @Override
                             public void onResult(PlaceBuffer places) {
                                 if (places.getStatus().isSuccess()) {
-                                    endPlace = places.get(0);
+                                    endPlace = new SavedPlace();
+                                    endPlace.setLatLng(places.get(0).getLatLng());
+
                                     et_endLocation.setText(placePrimaryText);
                                 }
                                 places.release();
