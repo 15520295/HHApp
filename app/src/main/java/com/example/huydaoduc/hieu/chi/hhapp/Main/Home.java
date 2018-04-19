@@ -13,6 +13,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.support.design.widget.NavigationView;
@@ -56,6 +57,7 @@ import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.places.GeoDataApi;
 import com.google.android.gms.location.places.GeoDataClient;
+import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.PlaceBuffer;
 import com.google.android.gms.location.places.Places;
 import com.google.android.gms.maps.CameraUpdate;
@@ -155,7 +157,7 @@ public class Home extends AppCompatActivity
 
     //------------------------------------ Chi :
 
-    //------ Direction Manager --------
+    //region ------ Direction Manager --------
 
     DirectionManager directionManager;
 
@@ -164,11 +166,6 @@ public class Home extends AppCompatActivity
      */
     private void DirectionManagerInit() {
         directionManager = new DirectionManager(getApplicationContext(), mMap);
-    }
-
-    //todo: edit parameter
-    private void findPath() {
-
     }
 
     private void findDriver() {
@@ -182,7 +179,7 @@ public class Home extends AppCompatActivity
 
                     RouteRequest request = postSnapshot.getValue(RouteRequest.class);
 
-                    isMatch(request, str_pickupLocation_placeId, str_endLocation_placeId);
+                    isMatch(request);
                 }
             }
 
@@ -193,8 +190,7 @@ public class Home extends AppCompatActivity
         });
     }
 
-    private void isMatch(RouteRequest request, final String pickUpPlaceId, final String endPlaceId) {
-
+    private void isMatch(RouteRequest request) {
         //get Location From Request
         LatLng latLng_startLocation = LocationUtils.stringToLatLng(request.getStartLocation());
         LatLng latLng_endLocation = LocationUtils.stringToLatLng(request.getEndLocation());
@@ -214,36 +210,14 @@ public class Home extends AppCompatActivity
 
                         // get Rider Pickup/End Location from PlaceId return by PlaceAutoComplete
                         final LatLng[] location = new LatLng[2];
-                        
-                        Places.GeoDataApi.getPlaceById(mGoogleApiClient, pickUpPlaceId)
-                                .setResultCallback(new ResultCallback<PlaceBuffer>() {
-                                    @Override
-                                    public void onResult(PlaceBuffer places) {
-                                        if (places.getStatus().isSuccess()) {
-                                            location[0] = places.get(0).getLatLng();
-                                        }
-                                        places.release();
 
-                                        Places.GeoDataApi.getPlaceById(mGoogleApiClient, endPlaceId)
-                                                .setResultCallback(new ResultCallback<PlaceBuffer>() {
-                                                    @Override
-                                                    public void onResult(PlaceBuffer places) {
-                                                        if (places.getStatus().isSuccess()) {
-                                                            location[1] = places.get(0).getLatLng();
-                                                        }
-                                                        places.release();
+                        //todo: check 2 diem
+                        boolean isMatch = LocationUtils.isMatching(polyline,pickupPlace.getLatLng(),endPlace.getLatLng(),500);
 
-                                                        boolean t = LocationUtils.isNearBy(polyline, location[0], 500);
-                                                        if (t) {
-                                                            Toast.makeText(getApplicationContext(), "True", Toast.LENGTH_LONG).show();
-                                                        }
-                                                    }
-                                                });
-
-
-                                    }
-                                });
-
+                        if(isMatch)
+                        {
+                            
+                        }
 
                     }
                 });
@@ -254,7 +228,25 @@ public class Home extends AppCompatActivity
 
     }
 
-    //------ My Location Button --------
+    //endregion
+
+    //region ------ Makers --------
+
+    private Marker mkr_pickupPlace, mkr_endPlace;
+
+    private void drawMarker(String markerName) {
+        if (TextUtils.equals(markerName, "pickupPlace")) {
+            mMap.addMarker(new MarkerOptions().position(pickupPlace.getLatLng())
+                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_map_pin_40px)));
+        }
+        if (TextUtils.equals(markerName, "endPlace")) {
+            mMap.addMarker(new MarkerOptions().position(endPlace.getLatLng())
+                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_marker_40px)));
+        }
+    }
+    //endregion
+
+    //region ------ My Location Button --------
 
     private void myLocationButtonInit() {
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -286,13 +278,14 @@ public class Home extends AppCompatActivity
         return false;
     }
 
+    //endregion
 
-    //------ Auto Complete  --------
+    //region ------ Auto Complete  --------
 
     int PICKUP_PLACE_AUTOCOMPLETE_REQUEST_CODE = 1001;
     int END_PLACE_AUTOCOMPLETE_REQUEST_CODE = 1002;
     EditText et_pickupLocation, et_endLocation;
-    String str_pickupLocation_placeId, str_endLocation_placeId;
+    Place pickupPlace, endPlace;
 
 
     private void searViewEvent() {
@@ -315,16 +308,38 @@ public class Home extends AppCompatActivity
         if (requestCode == PICKUP_PLACE_AUTOCOMPLETE_REQUEST_CODE || requestCode == END_PLACE_AUTOCOMPLETE_REQUEST_CODE) {
             if (resultCode == SearchActivity.RESULT_OK) {
                 String placeId = data.getStringExtra("place_id");
-                String placePrimaryText = data.getStringExtra("place_primary_text");
+                final String placePrimaryText = data.getStringExtra("place_primary_text");
 
                 if (requestCode == PICKUP_PLACE_AUTOCOMPLETE_REQUEST_CODE) {
-                    et_pickupLocation.setText(placePrimaryText);
-                    str_pickupLocation_placeId = placeId;
+                    Places.GeoDataApi.getPlaceById(mGoogleApiClient, placeId)
+                            .setResultCallback(new ResultCallback<PlaceBuffer>() {
+                                @Override
+                                public void onResult(PlaceBuffer places) {
+                                    if (places.getStatus().isSuccess()) {
+                                        pickupPlace = places.get(0);
+                                        et_pickupLocation.setText(placePrimaryText);
+
+                                        drawMarker("pickupPlace");
+                                    }
+                                    places.release();
+                                }
+                            });
+
 
                 } else if (requestCode == END_PLACE_AUTOCOMPLETE_REQUEST_CODE) {
-                    et_endLocation.setText(placePrimaryText);
-                    str_endLocation_placeId = placeId;
+                    Places.GeoDataApi.getPlaceById(mGoogleApiClient, placeId)
+                            .setResultCallback(new ResultCallback<PlaceBuffer>() {
+                                @Override
+                                public void onResult(PlaceBuffer places) {
+                                    if (places.getStatus().isSuccess()) {
+                                        endPlace = places.get(0);
+                                        et_endLocation.setText(placePrimaryText);
 
+                                        drawMarker("endPlace");
+                                    }
+                                    places.release();
+                                }
+                            });
                 }
             }
         }
@@ -341,7 +356,9 @@ public class Home extends AppCompatActivity
 
     }
 
-    //------ Others  --------
+    //endregion
+
+    //region ------ Others  --------
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
@@ -369,6 +386,8 @@ public class Home extends AppCompatActivity
         AutoCompleteIntentResultHandle(requestCode, resultCode, data);
 
     }
+
+    //endregion
 
     //------------------------------------
 

@@ -34,7 +34,6 @@ import android.widget.Toast;
 import com.example.huydaoduc.hieu.chi.hhapp.Common.Common;
 import com.example.huydaoduc.hieu.chi.hhapp.CostomInfoWindow.CustomInfoWindow;
 import com.example.huydaoduc.hieu.chi.hhapp.Manager.Direction.DirectionFinderListener;
-import com.example.huydaoduc.hieu.chi.hhapp.Manager.Direction.Leg;
 import com.example.huydaoduc.hieu.chi.hhapp.Manager.Direction.Route;
 import com.example.huydaoduc.hieu.chi.hhapp.Manager.DirectionManager;
 import com.example.huydaoduc.hieu.chi.hhapp.Manager.Place.SearchActivity;
@@ -51,8 +50,12 @@ import com.github.glomadrian.materialanimatedswitch.MaterialAnimatedSwitch;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.places.Place;
+import com.google.android.gms.location.places.PlaceBuffer;
+import com.google.android.gms.location.places.Places;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -150,6 +153,8 @@ public class DriverActivity extends AppCompatActivity
 
     //------------------------------------ Chi :
 
+    // TODO: check realtime cho driver
+
     //region ------ Direction Manager --------
 
     DirectionManager directionManager;
@@ -200,6 +205,7 @@ public class DriverActivity extends AppCompatActivity
     //region ------ Auto Complete  --------
     int END_PLACE_AUTOCOMPLETE_REQUEST_CODE = 1002;
     EditText et_endLocation;
+    Place endPlace;
 
     private void searViewEvent() {
         et_endLocation.setOnClickListener(new View.OnClickListener() {
@@ -215,9 +221,19 @@ public class DriverActivity extends AppCompatActivity
         if (requestCode == END_PLACE_AUTOCOMPLETE_REQUEST_CODE) {
             if (resultCode == SearchActivity.RESULT_OK) {
                 String placeId = data.getStringExtra("place_id");
-                String placePrimaryText = data.getStringExtra("place_primary_text");
+                final String placePrimaryText = data.getStringExtra("place_primary_text");
 
-                et_endLocation.setText(placePrimaryText);
+                Places.GeoDataApi.getPlaceById(mGoogleApiClient, placeId)
+                        .setResultCallback(new ResultCallback<PlaceBuffer>() {
+                            @Override
+                            public void onResult(PlaceBuffer places) {
+                                if (places.getStatus().isSuccess()) {
+                                    endPlace = places.get(0);
+                                    et_endLocation.setText(placePrimaryText);
+                                }
+                                places.release();
+                            }
+                        });
             }
         }
     }
@@ -420,7 +436,6 @@ public class DriverActivity extends AppCompatActivity
         // Chi
         searViewEvent();
 
-        //todo: post request to Firebase
         btnGo.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -939,6 +954,7 @@ public class DriverActivity extends AppCompatActivity
                 .addConnectionCallbacks(this)
                 .addOnConnectionFailedListener(this)
                 .addApi(LocationServices.API)
+                .addApi(Places.GEO_DATA_API)
                 .build();
         mGoogleApiClient.connect();
     }

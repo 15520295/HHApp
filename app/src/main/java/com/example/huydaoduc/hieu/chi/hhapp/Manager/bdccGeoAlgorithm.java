@@ -2,9 +2,14 @@ package com.example.huydaoduc.hieu.chi.hhapp.Manager;
 
 import com.google.android.gms.maps.model.LatLng;
 
+import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
-public class bdccGeoDistanceAlgorithm {
+/**
+ * Create by Phan Huu Chi on 4/2018
+ */
+public class bdccGeoAlgorithm {
 
     // distance in meters from GLatLng point to GPolyline or GPolygon poly
     public static boolean bdccGeoDistanceCheckWithRadius(List<LatLng> poly, LatLng point, int radius)
@@ -20,12 +25,43 @@ public class bdccGeoDistanceAlgorithm {
             LatLng p2 = poly.get(i+1);
             bdccGeo l2 = new bdccGeo(p2.latitude,p2.longitude);
 
-            double dp = p.function_distanceToLineSegMtrs(l1, l2);
+            double distance = p.function_distanceToLineSegMtrs(l1, l2);
 
-            if(dp < radius)
+            if(distance < radius)
                 return true;
         }
         return false;
+    }
+
+    /**
+     * @return a path of a Polyline from the point where match the location to the end of the Polyline
+     *          if the Location doesn't near the Polyline it will return null
+     */
+    public static List<LatLng> bdccGeoGetPathOfPolyLineEnd(List<LatLng> poly, LatLng location, int radius)
+    {
+        int i;
+        bdccGeo p = new bdccGeo(location.latitude,location.longitude);
+
+        List<LatLng> result = new LinkedList<>();
+
+        for(i=0; i < (poly.size()-1) ; i++)
+        {
+            LatLng p1 = poly.get(i);
+            bdccGeo l1 = new bdccGeo(p1.latitude,p1.longitude);
+
+            LatLng p2 = poly.get(i+1);
+            bdccGeo l2 = new bdccGeo(p2.latitude,p2.longitude);
+
+            double distance = p.function_distanceToLineSegMtrs(l1, l2);
+
+            result.add(p1);
+            if(distance < radius)
+            {
+                result.add(p2);
+                return new ArrayList<>(result);
+            }
+        }
+        return null;
     }
 
 
