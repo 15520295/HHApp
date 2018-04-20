@@ -5,6 +5,7 @@ import com.example.huydaoduc.hieu.chi.hhapp.Manager.Direction.Route;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 
 import java.util.List;
@@ -32,5 +33,7 @@ public class MapCameraManager {
         }
     }
 
-    public void moveCam(List<R>)
+    public void moveCam(LatLng point) {
+
+    }
 }
