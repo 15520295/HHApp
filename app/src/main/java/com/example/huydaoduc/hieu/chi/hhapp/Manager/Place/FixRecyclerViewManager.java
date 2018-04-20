@@ -1,4 +1,4 @@
-package com.example.huydaoduc.hieu.chi.hhapp;
+package com.example.huydaoduc.hieu.chi.hhapp.Manager.Place;
 
 import android.content.Context;
 import android.support.v7.widget.GridLayoutManager;
@@ -23,11 +23,13 @@ public class FixRecyclerViewManager extends LinearLayoutManager {
     @Override
     public void onLayoutChildren(RecyclerView.Recycler recycler, RecyclerView.State state) {
         try {
-            //try catch一下
+            //try catch
             super.onLayoutChildren( recycler, state );
         } catch (IndexOutOfBoundsException e) {
             e.printStackTrace();
         }
 
     }
+
+
 }

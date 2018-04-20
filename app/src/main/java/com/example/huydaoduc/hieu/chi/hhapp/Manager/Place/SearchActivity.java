@@ -17,7 +17,6 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 
-import com.example.huydaoduc.hieu.chi.hhapp.FixRecyclerViewManager;
 import com.example.huydaoduc.hieu.chi.hhapp.Manager.LocationUtils;
 import com.example.huydaoduc.hieu.chi.hhapp.R;
 import com.google.android.gms.common.ConnectionResult;
@@ -29,12 +28,8 @@ import com.google.android.gms.location.places.Places;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 
-import org.w3c.dom.Text;
-
 import java.util.ArrayList;
 import java.util.List;
-
-import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
 
 /**
  * Created by anuj.sharma on 4/6/2016.

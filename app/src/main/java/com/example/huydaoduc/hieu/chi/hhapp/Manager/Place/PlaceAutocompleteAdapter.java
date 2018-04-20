@@ -236,7 +236,9 @@ public class PlaceAutocompleteAdapter extends RecyclerView.Adapter<PlaceAutocomp
     @Override
     public void onBindViewHolder(PlaceViewHolder mPredictionHolder, final int i) {
         if(mResultList != null)
-            if (mPredictionHolder.getAdapterPosition() < mResultList.size()) {
+            if (mPredictionHolder.getAdapterPosition() < mResultList.size())
+            {
+
                 final int pos = mPredictionHolder.getAdapterPosition();
                 mPredictionHolder.mPrimaryText.setText(mResultList.get(pos).primaryText);
                 mPredictionHolder.mSecondaryText.setText(mResultList.get(pos).secondaryText.toString());

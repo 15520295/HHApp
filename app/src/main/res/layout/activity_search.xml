@@ -9,10 +9,17 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             >
+
+        <View
+            android:id="@+id/bar1"
+            android:layout_width="fill_parent"
+            android:layout_height="2dp"
+            android:layout_alignParentTop="true"/>
+
         <LinearLayout
             android:id="@+id/group_search"
             android:layout_width="match_parent"
-            android:layout_height="60dp"
+            android:layout_height="56dp"
             android:gravity="center_vertical"
             android:layout_alignParentTop="true"
 
@@ -24,7 +31,7 @@
 >
                 <ImageButton
                     android:id="@+id/btn_back"
-                    android:layout_width="60dp"
+                    android:layout_width="56dp"
                     android:layout_height="match_parent"
                     android:background="@color/transparent"
                     android:src="@drawable/ic_back_v2_20px"
@@ -35,6 +42,7 @@
                     android:layout_height="match_parent"
                     android:hint="Pick a place"
                     android:singleLine="true"
+                    android:textSize="@dimen/edittext_text_size_normal"
                     android:layout_toEndOf="@+id/btn_back"
                     android:layout_toLeftOf="@+id/clear"
                     android:imeOptions="actionSearch"
