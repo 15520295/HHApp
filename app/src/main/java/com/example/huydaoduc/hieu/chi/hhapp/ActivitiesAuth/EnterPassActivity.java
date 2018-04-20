@@ -13,6 +13,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 //import com.example.huydaoduc.hieu.chi.hhapp.MainActivity;
+import com.example.huydaoduc.hieu.chi.hhapp.Define;
 import com.example.huydaoduc.hieu.chi.hhapp.R;
 import com.example.huydaoduc.hieu.chi.hhapp.Model.User;
 import com.google.firebase.database.DataSnapshot;
@@ -43,7 +44,7 @@ public class EnterPassActivity extends AppCompatActivity {
         Init();
 
         // // Put the User to the FirebaseDatabase with User's information
-        // databaseReference.child("Users").child(uid).setValue(user);
+        // databaseReference.child(Define.DB_USERS).child(uid).setValue(user);
         Bundle bundle = getIntent().getExtras();
         if(bundle == null)
         {
@@ -52,7 +53,7 @@ public class EnterPassActivity extends AppCompatActivity {
         {
             uid = bundle.getString("uid");
             // get user password
-            databaseReference.child("Users").child(uid).addValueEventListener(new ValueEventListener() {
+            databaseReference.child(Define.DB_USERS).child(uid).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 User user = dataSnapshot.getValue(User.class);
@@ -113,12 +114,12 @@ public class EnterPassActivity extends AppCompatActivity {
 
 //            User user =new User.Builder(uid,et_password.getText().toString()).build();
 
-//            databaseReference.child("Users").child(uid).setValue(user);
+//            databaseReference.child(Define.DB_USERS).child(uid).setValue(user);
 
         } else {
 
             if (et_password.getText().toString().equals(user_password)) {
-//                Intent intent = new Intent(getApplicationContext(), Home.class);
+//                Intent intent = new Intent(getApplicationContext(), MainActivity.class);
                 //startActivity(intent);
             }
         }

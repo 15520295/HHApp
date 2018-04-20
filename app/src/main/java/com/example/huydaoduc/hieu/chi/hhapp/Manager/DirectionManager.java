@@ -9,12 +9,8 @@ import com.example.huydaoduc.hieu.chi.hhapp.Manager.Direction.DirectionFinder;
 import com.example.huydaoduc.hieu.chi.hhapp.Manager.Direction.DirectionFinderListener;
 import com.example.huydaoduc.hieu.chi.hhapp.Manager.Direction.Leg;
 import com.example.huydaoduc.hieu.chi.hhapp.Manager.Direction.Route;
-import com.google.android.gms.maps.CameraUpdate;
-import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.LatLngBounds;
-import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 
@@ -26,8 +22,6 @@ public class DirectionManager {
     private Context context;
     private GoogleMap mMap;
 
-    private List<Marker> originMarkers = new ArrayList<>();
-    private List<Marker> destinationMarkers = new ArrayList<>();
     private List<Polyline> polylinePaths = new ArrayList<>();
 
     public List<Polyline> getPolylinePaths() {
@@ -64,7 +58,7 @@ public class DirectionManager {
      * Find Direction after done, it will raise the @listener
      */
     public void findPath(Location startLocation, String destination, DirectionFinderListener listener) {
-        LatLng latLng_startLocation = LocationUtils.locationToLatLng(startLocation);
+        LatLng latLng_startLocation = LocationUtils.locaToLatLng(startLocation);
 
         if (destination.isEmpty()) {
             Toast.makeText(context, "Please enter destination address!", Toast.LENGTH_SHORT).show();
@@ -101,32 +95,20 @@ public class DirectionManager {
         }
     }
 
-    public void drawRoutes(List<Route> routes) {
-        polylinePaths = new ArrayList<>();
-        originMarkers = new ArrayList<>();
-        destinationMarkers = new ArrayList<>();
+    public void drawRoutes(List<Route> routes, boolean removeAll) {
 
+        if (removeAll) {
+            removeAllRoutes();
+        }
+
+        polylinePaths = new ArrayList<>();
 
         for (Route route : routes) {
 
             for (Leg leg : route.getLegs()) {
-
-                // Move the map to Surround the route
-                final int MAP_BOUND_PADDING = 180;  /* In dp */
-                LatLngBounds.Builder builder = new LatLngBounds.Builder();
-                builder.include(route.getBounds().getNorthEast());
-                builder.include(route.getBounds().getSouthWest());
-                LatLngBounds bounds = builder.build();
-                CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(bounds, MAP_BOUND_PADDING);
-                mMap.animateCamera(cu);
-
-
                 //todo: show Duration + Distance
                 Toast.makeText(context, "Duration + Distance: " + leg.getDuration().getValue() + ", " + leg.getDistance().getValue(), Toast.LENGTH_LONG)
                         .show();
-
-                //todo: draw markers
-                drawMarkers();
 
                 PolylineOptions polylineOptions = new PolylineOptions().
                         geodesic(true).
@@ -149,22 +131,11 @@ public class DirectionManager {
         }
     }
 
-
-    public void drawMarkers() {
-//            originMarkers.add(mMap.addMarker(new MarkerOptions()
-//                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.start_blue))
-//                    .title(route.startAddress)
-//                    .position(route.startLocation)));
-//            destinationMarkers.add(mMap.addMarker(new MarkerOptions()
-//                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.end_green))
-//                    .title(route.endAddress)
-//                    .position(route.endLocation)));
-    }
-
     public void removeAllRoutes() {
-        for (Polyline polyline :
-                polylinePaths) {
-            polyline.remove();
-        }
+        if (polylinePaths != null)
+            for (Polyline polyline :
+                    polylinePaths) {
+                polyline.remove();
+            }
     }
 }

@@ -35,7 +35,6 @@
         </activity>
         <activity
             android:name=".Main.Home"
-            android:label="@string/title_activity_home"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".Manager.Place.SearchActivity"
@@ -57,6 +56,12 @@
         <activity
             android:name=".ActivitiesAuth.UpdateInfoActivity"
             android:windowSoftInputMode="stateVisible|adjustResize" />
+
+        <service
+            android:name=".Manager.CheckActivityCloseService"
+            android:stopWithTask="false"
+            android:label="Real time location checking service" >
+        </service>
     </application>
 
 </manifest>

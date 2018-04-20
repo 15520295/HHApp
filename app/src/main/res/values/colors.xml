@@ -31,5 +31,6 @@
     <color name="placeAutocomplete_search_hint">#BDBDBD</color>
     <color name="placeAutocomplete_search_text">#212121</color>
     <color name="placeAutocomplete_separator">#1F000000</color>
+    <color name="bar">#d9d9d9</color>
 
 </resources>

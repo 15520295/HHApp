@@ -2,7 +2,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/predictedRow"
     android:layout_width="match_parent"
-    android:layout_height="65dp"
+    android:layout_height="70dp"
     android:layout_marginLeft="10dp"
     android:layout_marginRight="10dp"
     android:layout_centerVertical="true"
@@ -12,9 +12,8 @@
         android:id="@+id/image"
         android:layout_width="22dp"
         android:layout_height="22dp"
-        android:src="@drawable/ic_my_location_24px"
-        android:layout_marginLeft="10dp"
-        android:layout_marginTop="20dp"
+        android:src="@drawable/mkr_place_28px"
+        android:layout_centerVertical="true"
         />
 
     <LinearLayout
@@ -30,9 +29,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textColor="#000"
-            android:textSize="15sp"
+            android:textSize="16sp"
             android:layout_marginLeft="20dp"
-            android:layout_marginRight="20dp"
+            android:layout_marginRight="4dp"
             android:text="primary_address"
             />
 
@@ -41,10 +40,10 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textColor="#797979"
-            android:textSize="15sp"
+            android:textSize="14sp"
             android:layout_below="@id/primary_text"
             android:layout_marginLeft="20dp"
-            android:layout_marginRight="20dp"
+            android:layout_marginRight="4dp"
             android:text="secondary_address"
             />
 
@@ -53,6 +52,6 @@
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:background="#a9a9a9"
+        android:background="#c1c1c1"
         android:layout_alignParentBottom="true"/>
 </RelativeLayout>

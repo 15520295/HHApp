@@ -24,8 +24,8 @@ public class RouteRequest {
     public static RouteRequest getRouteRequestFromLeg(Route route, String uid) {
         Leg leg = route.getLegs().get(0);
 
-        String startLoc = LocationUtils.latLngToString(leg.getStartLocation());
-        String endLoc = LocationUtils.latLngToString(leg.getEndLocation());
+        String startLoc = LocationUtils.latLngToStr(leg.getStartLocation());
+        String endLoc = LocationUtils.latLngToStr(leg.getEndLocation());
         return new RouteRequest(startLoc, endLoc , route.getSummary(), uid);
     }
 

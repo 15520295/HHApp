@@ -9,16 +9,24 @@ import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
+import android.widget.Toast;
 
+import com.example.huydaoduc.hieu.chi.hhapp.Manager.LoadingProcessBar;
+import com.example.huydaoduc.hieu.chi.hhapp.Manager.LocationUtils;
 import com.example.huydaoduc.hieu.chi.hhapp.R;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.location.places.AutocompleteFilter;
+import com.google.android.gms.location.places.Place;
+import com.google.android.gms.location.places.PlaceBuffer;
 import com.google.android.gms.location.places.Places;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
@@ -26,6 +34,8 @@ import com.google.maps.android.SphericalUtil;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
 
 /**
  * Created by anuj.sharma on 4/6/2016.
@@ -47,8 +57,11 @@ import java.util.List;
  */
 //todo: change to dynamic country + add saved place
 //todo: sap xep dua tren khoan cach( xem grab )
-public class SearchActivity extends AppCompatActivity implements PlaceAutocompleteAdapter.PlaceAutoCompleteInterface, GoogleApiClient.OnConnectionFailedListener,
-        GoogleApiClient.ConnectionCallbacks,OnClickListener,SavedPlaceListener {
+public class SearchActivity extends AppCompatActivity implements
+        PlaceAutocompleteAdapter.PlaceAutoCompleteInterface,
+        GoogleApiClient.OnConnectionFailedListener,
+        GoogleApiClient.ConnectionCallbacks,
+        SavedPlaceListener {
 
     private static final String TAG = "SearchActivity";
 
@@ -63,6 +76,7 @@ public class SearchActivity extends AppCompatActivity implements PlaceAutocomple
 //    PlaceSavedAdapter mSavedAdapter;
     LatLngBounds bounds;
 
+    LoadingProcessBar loadingBar;
 
     EditText mSearchEdittext;
     ImageView mClear;
@@ -114,7 +128,7 @@ public class SearchActivity extends AppCompatActivity implements PlaceAutocomple
             bounds = new LatLngBounds(new LatLng(-0, 0), new LatLng(0, 0));
         }
         else
-            bounds = toBounds(new LatLng(cur_lat, cur_lng),radius);
+            bounds = LocationUtils.pointToBounds(new LatLng(cur_lat, cur_lng),radius);
 
         initViews();
     }
@@ -123,6 +137,7 @@ public class SearchActivity extends AppCompatActivity implements PlaceAutocomple
         Initialize Views
     */
     private void initViews(){
+        loadingBar = findViewById(R.id.prb_loading);
         mRecyclerView = (RecyclerView)findViewById(R.id.list_search);
         mRecyclerView.setHasFixedSize(true);
         llm = new LinearLayoutManager(mContext);
@@ -130,7 +145,15 @@ public class SearchActivity extends AppCompatActivity implements PlaceAutocomple
 
         mSearchEdittext = (EditText)findViewById(R.id.search_et);
         mClear = (ImageView)findViewById(R.id.clear);
-        mClear.setOnClickListener(this);
+        mClear.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mSearchEdittext.setText("");
+            }
+        });
+
+        findViewById(R.id.btn_back).setOnClickListener(e ->
+                SearchActivity.this.finish());
 
         // use filter instead of bound
         AutocompleteFilter typeFilter = new AutocompleteFilter.Builder()
@@ -145,18 +168,19 @@ public class SearchActivity extends AppCompatActivity implements PlaceAutocomple
         mSearchEdittext.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
             }
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 if (count > 0) {
+                    runLoadingProcess();
                     mClear.setVisibility(View.VISIBLE);
                     if (mAdapter != null) {
                         mRecyclerView.setAdapter(mAdapter);
                     }
                 } else {
-//                    mClear.setVisibility(View.GONE);
+                    stopLoadingProcess();
+                    mClear.setVisibility(View.GONE);
 //                    if (mSavedAdapter != null && mSavedAddressList.size() > 0) {
 //                        mRecyclerView.setAdapter(mSavedAdapter);
 //                    }
@@ -177,47 +201,69 @@ public class SearchActivity extends AppCompatActivity implements PlaceAutocomple
 
     }
 
-    public LatLngBounds toBounds(LatLng center, double radiusInMeters) {
-        double distanceFromCenterToCorner = radiusInMeters * Math.sqrt(2.0);
-        LatLng southwestCorner =
-                SphericalUtil.computeOffset(center, distanceFromCenterToCorner, 225.0);
-        LatLng northeastCorner =
-                SphericalUtil.computeOffset(center, distanceFromCenterToCorner, 45.0);
-        return new LatLngBounds(southwestCorner, northeastCorner);
-    }
 
-    @Override
-    public void onClick(View v) {
-        SearchActivity.this.finish();
-    }
 
     @Override
     public void onConnected(Bundle bundle) {
-
     }
 
     @Override
     public void onConnectionSuspended(int i) {
-
     }
 
     @Override
     public void onConnectionFailed(ConnectionResult connectionResult) {
-
     }
 
+
+    /**
+     * Occurs when Place result returned
+     */
+    @Override
+    public void OnPlaceResultReturn() {
+        stopLoadingProcess();
+    }
+
+    /**
+     * On Place Click
+     * @param mResultList
+     * @param position
+     */
     @Override
     public void onPlaceClick(ArrayList<PlaceAutocompleteAdapter.CusPlaceAutocomplete> mResultList, int position) {
         if(mResultList!=null){
             try {
                 final PlaceAutocompleteAdapter.CusPlaceAutocomplete place = mResultList.get(position);
+                String placeId = String.valueOf(place.placeId);
+                String placePrimaryText = String.valueOf(place.primaryText);
+                String placeFullText = String.valueOf(place.fullText);
 
-                //Do the things here on Click.....
-                Intent returnIntent  = new Intent();
-                returnIntent.putExtra("place_id",String.valueOf(place.placeId));
-                returnIntent.putExtra("place_primary_text", String.valueOf(place.primaryText));
-                setResult(SearchActivity.RESULT_OK, returnIntent );
-                finish();
+                Places.GeoDataApi.getPlaceById(mGoogleApiClient, String.valueOf(place.placeId))
+                        .setResultCallback(new ResultCallback<PlaceBuffer>() {
+                            @Override
+                            public void onResult(PlaceBuffer places) {
+                                LatLng placeLocation = null;
+                                if (places.getStatus().isSuccess()) {
+                                    placeLocation = places.get(0).getLatLng();
+
+                                    // Return result
+                                    Intent returnIntent  = new Intent();
+                                    returnIntent.putExtra("place_id", placeId);
+                                    returnIntent.putExtra("place_primary_text", placePrimaryText);
+                                    returnIntent.putExtra("place_location", LocationUtils.latLngToStr(placeLocation));
+                                    returnIntent.putExtra("place_address", placeFullText);
+
+                                    setResult(SearchActivity.RESULT_OK, returnIntent );
+
+                                    //todo: loading animation
+                                    SearchActivity.this.finish();
+                                }
+                                places.release();
+                            }
+                        });
+
+
+
             }
             catch (Exception e){
 
@@ -225,6 +271,7 @@ public class SearchActivity extends AppCompatActivity implements PlaceAutocomple
 
         }
     }
+
 
     @Override
     public void onSavedPlaceClick(ArrayList<SavedAddress> mResultList, int position) {
@@ -241,5 +288,16 @@ public class SearchActivity extends AppCompatActivity implements PlaceAutocomple
             }
 
         }
+    }
+
+
+
+    private void runLoadingProcess() {
+        loadingBar.setVisibility(View.VISIBLE);
+    }
+
+    private void stopLoadingProcess() {
+        // todo: not done
+        loadingBar.stopAnimate();
     }
 }

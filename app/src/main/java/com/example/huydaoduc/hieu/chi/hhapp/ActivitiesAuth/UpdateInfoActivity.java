@@ -16,7 +16,8 @@ import android.widget.TextView;
 
 import java.util.Calendar;
 
-import com.example.huydaoduc.hieu.chi.hhapp.Main.Home;
+import com.example.huydaoduc.hieu.chi.hhapp.Main.MainActivity;
+import com.example.huydaoduc.hieu.chi.hhapp.Define;
 import com.example.huydaoduc.hieu.chi.hhapp.R;
 import com.example.huydaoduc.hieu.chi.hhapp.Model.User;
 import com.google.firebase.auth.FirebaseAuth;
@@ -66,7 +67,8 @@ public class UpdateInfoActivity extends AppCompatActivity {
                     showLoading();
                     updateInfo();
 
-                    Intent intent = new Intent(UpdateInfoActivity.this, Home.class);
+                    Intent intent = new Intent(UpdateInfoActivity.this, MainActivity.class);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                     UpdateInfoActivity.this.startActivity(intent);
                 }
             }
@@ -85,7 +87,7 @@ public class UpdateInfoActivity extends AppCompatActivity {
                 .setPhoneNumber(firebaseAuth.getCurrentUser().getPhoneNumber())
                 .build();
 
-        DatabaseReference usersRef = FirebaseDatabase.getInstance().getReference().child("Users");
+        DatabaseReference usersRef = FirebaseDatabase.getInstance().getReference().child(Define.DB_USERS);
 
         usersRef.child(uid).setValue(user);
     }

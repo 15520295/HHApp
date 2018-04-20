@@ -38,7 +38,8 @@ import com.google.android.gms.tasks.Tasks;
 public class PlaceAutocompleteAdapter extends RecyclerView.Adapter<PlaceAutocompleteAdapter.PlaceViewHolder> implements Filterable{
 
     public interface PlaceAutoCompleteInterface{
-        public void onPlaceClick(ArrayList<CusPlaceAutocomplete> mResultList, int position);
+        void onPlaceClick(ArrayList<CusPlaceAutocomplete> mResultList, int position);
+        void OnPlaceResultReturn();
     }
 
     Context mContext;
@@ -182,8 +183,6 @@ public class PlaceAutocompleteAdapter extends RecyclerView.Adapter<PlaceAutocomp
             }
 
             try {
-
-
                 AutocompletePredictionBufferResponse autocompletePredictions = results.getResult();
 
                 ArrayList<AutocompletePrediction> AutocompletePredictionList = DataBufferUtils.freezeAndClose(autocompletePredictions);
@@ -204,7 +203,7 @@ public class PlaceAutocompleteAdapter extends RecyclerView.Adapter<PlaceAutocomp
 
                 // Release the buffer now that all data has been copied.
                 autocompletePredictions.release();
-
+                mListener.OnPlaceResultReturn();
                 return resultList;
 
 
@@ -233,7 +232,7 @@ public class PlaceAutocompleteAdapter extends RecyclerView.Adapter<PlaceAutocomp
     public void onBindViewHolder(PlaceViewHolder mPredictionHolder, final int i) {
         final int pos = mPredictionHolder.getAdapterPosition();
         mPredictionHolder.mPrimaryText.setText(mResultList.get(pos).primaryText);
-        mPredictionHolder.mSecondaryText.setText(mResultList.get(pos).secondaryText);
+        mPredictionHolder.mSecondaryText.setText(mResultList.get(pos).secondaryText.toString());
 
         mPredictionHolder.mParentLayout.setOnClickListener(new View.OnClickListener() {
             @Override

@@ -3,6 +3,7 @@ package com.example.huydaoduc.hieu.chi.hhapp.Main;
 import android.Manifest;
 import android.animation.ValueAnimator;
 import android.annotation.SuppressLint;
+import android.app.Dialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
@@ -11,9 +12,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
-import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.support.design.widget.NavigationView;
@@ -34,13 +33,21 @@ import android.widget.Toast;
 
 import com.example.huydaoduc.hieu.chi.hhapp.Common.Common;
 import com.example.huydaoduc.hieu.chi.hhapp.CostomInfoWindow.CustomInfoWindow;
+import com.example.huydaoduc.hieu.chi.hhapp.Manager.MapCameraManager;
+import com.example.huydaoduc.hieu.chi.hhapp.Manager.CheckActivityCloseService;
+import com.example.huydaoduc.hieu.chi.hhapp.Manager.DBManager;
+import com.example.huydaoduc.hieu.chi.hhapp.Define;
 import com.example.huydaoduc.hieu.chi.hhapp.Manager.Direction.DirectionFinderListener;
 import com.example.huydaoduc.hieu.chi.hhapp.Manager.Direction.Route;
 import com.example.huydaoduc.hieu.chi.hhapp.Manager.DirectionManager;
+import com.example.huydaoduc.hieu.chi.hhapp.Manager.LocationUtils;
+import com.example.huydaoduc.hieu.chi.hhapp.Manager.MarkerManager;
 import com.example.huydaoduc.hieu.chi.hhapp.Manager.Place.SavedPlace;
 import com.example.huydaoduc.hieu.chi.hhapp.Manager.Place.SearchActivity;
 import com.example.huydaoduc.hieu.chi.hhapp.Manager.RouteRequest;
-import com.example.huydaoduc.hieu.chi.hhapp.Model.UserApp;
+import com.example.huydaoduc.hieu.chi.hhapp.Manager.User.RealtimeUser;
+import com.example.huydaoduc.hieu.chi.hhapp.Manager.User.UserApp;
+import com.example.huydaoduc.hieu.chi.hhapp.Manager.User.UserState;
 import com.example.huydaoduc.hieu.chi.hhapp.R;
 import com.example.huydaoduc.hieu.chi.hhapp.Remote.IGoogleAPI;
 import com.example.huydaoduc.hieu.chi.hhapp.ActivitiesAuth.PhoneAuthActivity;
@@ -55,7 +62,6 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.PlaceBuffer;
 import com.google.android.gms.location.places.Places;
 import com.google.android.gms.maps.CameraUpdate;
@@ -155,7 +161,140 @@ public class DriverActivity extends AppCompatActivity
 
     //------------------------------------ Chi :
 
-    // TODO: check realtime cho driver
+    // todo: add time to route request
+
+    // Activity Property
+    Dialog dialogInfo;
+    DatabaseReference dbRefe;
+
+    //region ------ Real time checking --------
+    boolean isGoing;
+
+    DatabaseReference currUserOnlineDBR;
+    private void startRealTimeCheckingAndShowRoute() {
+        // find routes
+        directionManager.findPath(mLastLocation, et_endLocation.getText().toString(),
+                new DirectionFinderListener() {
+                    @Override
+                    public void onDirectionFinderStart() {
+
+                    }
+
+                    @Override
+                    public void onDirectionFinderSuccess(List<Route> routes) {
+                        // Redraw route
+                        directionManager.drawRoutes(routes, true);
+
+                        // move camera
+                        cameraManager.moveCam(routes);
+
+                        // draw markers
+                        markerManager.draw_EndPlaceMarker(routes.get(0).getLegs().get(0).getEndLocation());
+
+                        //todo: get the selected route
+                        // put Route online
+                        putRouteRequest(routes.get(0));
+
+                        // Enable real time checking
+                        isGoing = true;
+                        currUserOnlineDBR = dbRefe.child(Define.DB_ONLINE_USERS).child(getCurUid());
+                        // run this to put value the first time
+                        realTimeCheckingLocationAndRouteRequest();
+
+                    }
+                });
+
+        //todo: not work when phone turn off
+        // delete data when App Kill
+        Intent serviceIntent = new Intent(DriverActivity.this, CheckActivityCloseService.class);
+        serviceIntent.putExtra("uid", getCurUid());
+        DriverActivity.this.startService(serviceIntent);
+    }
+
+    /**
+     * Put Route Request Online
+     */
+    private void putRouteRequest(Route route) {
+        String uid = getCurUid();
+
+        RouteRequest routeRequest = RouteRequest.getRouteRequestFromLeg(route,uid);
+
+        DatabaseReference dbRequest = dbRefe.child(Define.DB_ROUTEREQUESTS);
+
+        dbRequest.child(uid).setValue(routeRequest);
+    }
+
+    @Override
+    public void onLocationChanged(Location location) {
+        mLastLocation = location;
+//        displayLocationAndUpdateData();
+
+        if(isGoing)
+            realTimeCheckingLocationAndRouteRequest();
+    }
+
+    private void realTimeCheckingLocationAndRouteRequest() {
+        // Get old value and Check if location out of radius Then update Route Request
+        DBManager.getRealtimeUserById(getCurUid(), realtimeUser -> {
+            // Check with distance
+            if (Define.REALTIME_USER_RADIUS_UPDATE < LocationUtils.calDistance(LocationUtils.locaToLatLng(mLastLocation), LocationUtils.strToLatLng(realtimeUser.getLocation()))) {
+                updateRouteRequest();
+            }
+            // Check with time out
+            else if (realtimeUser.timeOut(Define.REALTIME_USER_TIMEOUT)) {
+                updateRouteRequest();
+            }
+        });
+
+        // Update new RealTime User value
+        RealtimeUser realtimeUser = new RealtimeUser(currUserOnlineDBR.getKey(), mLastLocation, UserState.GOING);
+        currUserOnlineDBR.setValue(realtimeUser);
+
+    }
+
+    private void updateRouteRequest() {
+        // find routes
+        directionManager.findPath(mLastLocation, et_endLocation.getText().toString(),
+                new DirectionFinderListener() {
+                    @Override
+                    public void onDirectionFinderStart() {
+
+                    }
+
+                    @Override
+                    public void onDirectionFinderSuccess(List<Route> routes) {
+                        // Redraw route
+                        directionManager.drawRoutes(routes, true);
+
+                        //todo: get the selected route
+                        // put Route online
+                        putRouteRequest(routes.get(0));
+                    }
+                });
+    }
+
+    private void endRealTimeChecking() {
+        if (isGoing) {
+            directionManager.removeAllRoutes();
+            markerManager.endPlaceMarker.remove();
+            isGoing = false;
+
+            dbRefe.child(Define.DB_ROUTEREQUESTS).child(getCurUid()).removeValue();
+            currUserOnlineDBR.removeValue();
+        }
+    }
+
+    //endregion
+
+    //region ------ Camera Manager --------
+
+    MapCameraManager cameraManager;
+
+    private void initCameraManager() {
+        cameraManager = new MapCameraManager(mMap);
+    }
+
+    //endregion
 
     //region ------ Direction Manager --------
 
@@ -164,7 +303,7 @@ public class DriverActivity extends AppCompatActivity
     /**
      * Call only when map is ready
      */
-    private void DirectionManagerInit() {
+    private void initDirectionManager() {
         directionManager = new DirectionManager(getApplicationContext(), mMap);
     }
 
@@ -172,23 +311,25 @@ public class DriverActivity extends AppCompatActivity
 
     //region ------ Makers --------
 
-    private Marker endPlaceMarker;
+    MarkerManager markerManager;
+    private void initMarkerManager() {
+        GoogleMap.OnMarkerClickListener listener = new GoogleMap.OnMarkerClickListener() {
+            @Override
+            public boolean onMarkerClick(Marker marker) {
 
-    // apply singleton pattern
-    private void drawMarker(String markerName) {
-        if (TextUtils.equals(markerName, "endPlace")) {
-            if(endPlaceMarker != null)
-                endPlaceMarker.remove();
 
-            endPlaceMarker = mMap.addMarker(new MarkerOptions().position(endPlace.getLatLng())
-                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.ic_marker_40px)));
-        }
+                return false;
+            }
+        };
+
+        markerManager = new MarkerManager(mMap, listener);
     }
+
     //endregion
 
     //region ------ My Location Button --------
 
-    private void myLocationButtonInit() {
+    private void initMyLocationButton() {
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             // permission
             return;
@@ -226,34 +367,27 @@ public class DriverActivity extends AppCompatActivity
     SavedPlace endPlace;
 
     private void searViewEvent() {
-        et_endLocation.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                StartAutoCompleteIntent(END_PLACE_AUTOCOMPLETE_REQUEST_CODE);
-            }
-        });
+        et_endLocation.setOnClickListener(v ->
+                StartAutoCompleteIntent(END_PLACE_AUTOCOMPLETE_REQUEST_CODE));
 
     }
 
     private void AutoCompleteIntentResultHandle(int requestCode, int resultCode, Intent data) {
         if (requestCode == END_PLACE_AUTOCOMPLETE_REQUEST_CODE) {
             if (resultCode == SearchActivity.RESULT_OK) {
+                //todo: handle null
                 String placeId = data.getStringExtra("place_id");
-                final String placePrimaryText = data.getStringExtra("place_primary_text");
+                String placePrimaryText = data.getStringExtra("place_primary_text");
+                String placeLocation = data.getStringExtra("place_location");
+                String placeAddress = data.getStringExtra("place_address");
 
-                Places.GeoDataApi.getPlaceById(mGoogleApiClient, placeId)
-                        .setResultCallback(new ResultCallback<PlaceBuffer>() {
-                            @Override
-                            public void onResult(PlaceBuffer places) {
-                                if (places.getStatus().isSuccess()) {
-                                    endPlace = new SavedPlace();
-                                    endPlace.setLatLng(places.get(0).getLatLng());
+                endPlace = new SavedPlace();
+                endPlace.setId(placeId);
+                endPlace.setName(placePrimaryText);
+                endPlace.setAddress(placeAddress);
+                endPlace.setLatLng(LocationUtils.strToLatLng(placeLocation));
 
-                                    et_endLocation.setText(placePrimaryText);
-                                }
-                                places.release();
-                            }
-                        });
+                et_endLocation.setText(placePrimaryText);
             }
         }
     }
@@ -270,7 +404,7 @@ public class DriverActivity extends AppCompatActivity
     }
     //endregion
 
-    //------ Others  --------
+    //region ------ Others  --------
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -294,12 +428,143 @@ public class DriverActivity extends AppCompatActivity
 
 
         // My Location Button
-        myLocationButtonInit();
+        initMyLocationButton();
         // Direction Manager
-        DirectionManagerInit();
+        initDirectionManager();
+        // Marker manager
+        initMarkerManager();
+        // Camera manager
+        initCameraManager();
     }
 
+    private String getCurUid() {
+        return FirebaseAuth.getInstance().getCurrentUser().getUid();
+    }
+
+
+    //endregion
+
     //------------------------------------
+
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_driver);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+
+        mapFragment = (SupportMapFragment) getSupportFragmentManager()
+                .findFragmentById(R.id.map);
+        mapFragment.getMapAsync(this);
+
+        //
+//        onlineRef = FirebaseDatabase.getInstance().getReference().child(".info/connected");
+//        currenUserRef = FirebaseDatabase.getInstance().getReference(Define.DB_DRIVERS)
+//                .child(FirebaseAuth.getInstance().getCurrentUser().getUid());
+//        onlineRef.addValueEventListener(new ValueEventListener() {
+//            @Override
+//            public void onDataChange(DataSnapshot dataSnapshot) {
+//                currenUserRef.onDisconnect().removeValue();
+//            }
+//
+//            @Override
+//            public void onCancelled(DatabaseError databaseError) {
+//
+//            }
+//        });
+
+
+        // nut ping vi tri
+
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
+                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        drawer.addDrawerListener(toggle);
+        toggle.syncState();
+
+        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        navigationView.setNavigationItemSelectedListener(this);
+
+        //
+        Init();
+        addEven();
+        setUpLocation();
+
+        //Geo Fire
+        drivers = dbRefe.child(Define.DB_DRIVERS);
+        geoFire = new GeoFire(drivers);
+        mapService = Common.getGoogleAPI();
+
+
+    }
+
+    private void Init() {
+
+        // Init View
+        locationDriver_switch = findViewById(R.id.locationDriver_switch);
+
+        polyLineList = new ArrayList<>();
+        btnGo = findViewById(R.id.btnGo);
+
+
+        // CHi
+        et_endLocation = findViewById(R.id.et_end_location);
+
+        // Firebase Init
+        dbRefe = FirebaseDatabase.getInstance().getReference();
+
+    }
+
+    private void addEven() {
+
+        //// Driver
+//        locationDriver_switch.setOnCheckedChangeListener(new MaterialAnimatedSwitch.OnCheckedChangeListener() {
+//            @Override
+//            public void onCheckedChanged(boolean b) {
+//                if (b) {
+//                    // check online -- not done
+//                    FirebaseDatabase.getInstance().goOnline();
+//
+//
+//                    startLocationUpdates();
+//                    displayLocationAndUpdateData();
+//                    Snackbar.make(mapFragment.getView(), "You are Online", Snackbar.LENGTH_SHORT).show();
+//                } else {
+//                    FirebaseDatabase.getInstance().goOffline();
+//
+//                    stopLocationUpdate();
+//                    if (userMaker != null)
+//                        userMaker.remove();
+//                    mMap.clear();
+////                    handler.removeCallbacks(drawPathRunnable);
+//                    Snackbar.make(mapFragment.getView(), "You are Offline", Snackbar.LENGTH_SHORT).show();
+//                }
+//            }
+//        });
+
+        // Chi
+        searViewEvent();
+
+        btnGo.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+            }
+        });
+
+
+        locationDriver_switch.setOnCheckedChangeListener(new MaterialAnimatedSwitch.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(boolean b) {
+                if (b) {
+                    startRealTimeCheckingAndShowRoute();
+                } else {
+                    endRealTimeChecking();
+                }
+            }
+        });
+    }
 
     // ve xe nho nho
     Runnable drawPathRunnable = new Runnable() {
@@ -357,147 +622,7 @@ public class DriverActivity extends AppCompatActivity
         return -1;
     }
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_driver);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
 
-        mapFragment = (SupportMapFragment) getSupportFragmentManager()
-                .findFragmentById(R.id.map);
-        mapFragment.getMapAsync(this);
-
-        //
-        /*onlineRef = FirebaseDatabase.getInstance().getReference().child(".info/connected");
-        currenUserRef = FirebaseDatabase.getInstance().getReference("Drivers")
-                .child(FirebaseAuth.getInstance().getCurrentUser().getUid());
-        onlineRef.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                currenUserRef.onDisconnect().removeValue();
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });*/
-
-
-        // nut ping vi tri
-
-
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-        drawer.addDrawerListener(toggle);
-        toggle.syncState();
-
-        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
-        navigationView.setNavigationItemSelectedListener(this);
-
-        //
-        Init();
-        addEven();
-        setUpLocation();
-
-        //Geo Fire
-        drivers = FirebaseDatabase.getInstance().getReference("Drivers");
-        geoFire = new GeoFire(drivers);
-        mapService = Common.getGoogleAPI();
-
-
-    }
-
-    private void Init() {
-
-        // Init View
-        locationDriver_switch = findViewById(R.id.locationDriver_switch);
-
-        polyLineList = new ArrayList<>();
-        btnGo = findViewById(R.id.btnGo);
-
-
-        // CHi
-        et_endLocation = findViewById(R.id.et_end_location);
-
-
-
-    }
-
-    private void addEven() {
-
-        //// Driver
-        locationDriver_switch.setOnCheckedChangeListener(new MaterialAnimatedSwitch.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(boolean b) {
-                if (b) {
-                    // check online -- not done
-                    FirebaseDatabase.getInstance().goOnline();
-
-
-                    startLocationUpdates();
-                    displayLocationAndUpdateData();
-                    Snackbar.make(mapFragment.getView(), "You are Online", Snackbar.LENGTH_SHORT).show();
-                } else {
-                    FirebaseDatabase.getInstance().goOffline();
-
-                    stopLocationUpdate();
-                    if (userMaker != null)
-                        userMaker.remove();
-                    mMap.clear();
-//                    handler.removeCallbacks(drawPathRunnable);
-                    Snackbar.make(mapFragment.getView(), "You are Offline", Snackbar.LENGTH_SHORT).show();
-                }
-            }
-        });
-
-        // Chi
-        searViewEvent();
-
-        btnGo.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                // find routes
-                directionManager.findPath(mLastLocation, et_endLocation.getText().toString(),
-                        new DirectionFinderListener() {
-                            @Override
-                            public void onDirectionFinderStart() {
-
-                            }
-
-                            @Override
-                            public void onDirectionFinderSuccess(List<Route> routes) {
-                                directionManager.removeAllRoutes();
-
-                                directionManager.drawRoutes(routes);
-
-                                //todo: get the selected route
-                                // Put Route Request to DataBase
-                                putRouteRequest(routes.get(0));
-
-                            }
-                        });
-
-            }
-        });
-
-
-
-    }
-
-    private void putRouteRequest(Route route) {
-        String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
-
-        RouteRequest routeRequest = RouteRequest.getRouteRequestFromLeg(route,uid);
-
-        DatabaseReference dbRequest = FirebaseDatabase.getInstance().getReference("RouteRequest");
-
-        dbRequest.child(uid).setValue(routeRequest);
-
-    }
 
 
     ///// Moved
@@ -694,7 +819,7 @@ public class DriverActivity extends AppCompatActivity
     private void requesRoute(String uid) {
         String title = et_endLocation.getText().toString();
 
-        DatabaseReference dbRequest = FirebaseDatabase.getInstance().getReference("RouteRequest");
+        DatabaseReference dbRequest = dbRefe.child(Define.DB_ROUTEREQUESTS);
         GeoFire mGeoFire = new GeoFire(dbRequest);
         mGeoFire.setLocation(uid, new GeoLocation(mLastLocation.getLatitude(), mLastLocation.getLongitude()));
         dbRequest.child(uid).child("locationName").setValue(title);
@@ -808,7 +933,7 @@ public class DriverActivity extends AppCompatActivity
 
     private void loadAllAvailableDriver() {
         //load all available Driver in distance 3km
-        DatabaseReference driverLocation = FirebaseDatabase.getInstance().getReference("Divers");
+        DatabaseReference driverLocation = dbRefe.child("Divers");
         GeoFire geoFireDrivers = new GeoFire(driverLocation);
 
         GeoQuery geoQuery = geoFireDrivers.queryAtLocation(new GeoLocation(mLastLocation.getLatitude(), mLastLocation.getLongitude()), distance);
@@ -817,7 +942,7 @@ public class DriverActivity extends AppCompatActivity
         geoQuery.addGeoQueryEventListener(new GeoQueryEventListener() {
             @Override
             public void onKeyEntered(String key, final GeoLocation location) {
-                FirebaseDatabase.getInstance().getReference("Users")
+                dbRefe.child(Define.DB_USERS)
                         .child(key)
                         .addListenerForSingleValueEvent(new ValueEventListener() {
                             @Override
@@ -1008,9 +1133,5 @@ public class DriverActivity extends AppCompatActivity
 
     }
 
-    @Override
-    public void onLocationChanged(Location location) {
-        mLastLocation = location;
-        displayLocationAndUpdateData();
-    }
+
 }

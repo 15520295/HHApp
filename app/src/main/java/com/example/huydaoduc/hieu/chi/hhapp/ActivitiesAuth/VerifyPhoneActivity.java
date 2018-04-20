@@ -19,7 +19,8 @@ import android.widget.EditText;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.example.huydaoduc.hieu.chi.hhapp.Main.Home;
+import com.example.huydaoduc.hieu.chi.hhapp.Main.MainActivity;
+import com.example.huydaoduc.hieu.chi.hhapp.Define;
 import com.example.huydaoduc.hieu.chi.hhapp.R;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -212,12 +213,13 @@ public class VerifyPhoneActivity extends AppCompatActivity {
                             final String uid = task.getResult().getUser().getUid();
 
                             // Check if user has
-                            DatabaseReference usersRef = FirebaseDatabase.getInstance().getReference().child("Users");
+                            DatabaseReference usersRef = FirebaseDatabase.getInstance().getReference().child(Define.DB_USERS);
                             usersRef.addListenerForSingleValueEvent(new ValueEventListener() {
                                 @Override
                                 public void onDataChange(DataSnapshot snapshot) {
                                     if (snapshot.hasChild(uid)) {
-                                        Intent intent = new Intent(getApplicationContext(), Home.class);
+                                        Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+                                        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                                         VerifyPhoneActivity.this.startActivity(intent);
                                     } else {
                                         Intent intent = new Intent(getApplicationContext(), UpdateInfoActivity.class);

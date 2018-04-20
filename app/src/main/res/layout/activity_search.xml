@@ -1,40 +1,44 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/parent"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:background="#ffffff">
-
+    android:orientation="vertical">
     <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        >
-        <LinearLayout
-            android:id="@+id/search_layout"
             android:layout_width="match_parent"
-            android:layout_height="50dp"
+            android:layout_height="match_parent"
+            >
+        <LinearLayout
+            android:id="@+id/group_search"
+            android:layout_width="match_parent"
+            android:layout_height="60dp"
             android:gravity="center_vertical"
             android:layout_alignParentTop="true"
-            android:background="@drawable/connect_button"
-            android:layout_marginLeft="10dp"
-            android:layout_marginRight="10dp"
-            android:layout_marginTop="10dp"
+
             android:orientation="vertical">
 
             <RelativeLayout
                 android:layout_width="match_parent"
-                android:layout_height="match_parent">
+                android:layout_height="wrap_content"
+>
+                <ImageButton
+                    android:id="@+id/btn_back"
+                    android:layout_width="60dp"
+                    android:layout_height="match_parent"
+                    android:background="@color/transparent"
+                    android:src="@drawable/ic_back_v2_20px"
+                    android:layout_centerVertical="true"/>
                 <EditText
                     android:id="@+id/search_et"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:hint="Search"
+                    android:hint="Pick a place"
                     android:singleLine="true"
+                    android:layout_toEndOf="@+id/btn_back"
                     android:layout_toLeftOf="@+id/clear"
                     android:imeOptions="actionSearch"
                     android:background="@null"
-                    android:drawableLeft="@drawable/ic_my_location_24px"
                     android:drawablePadding="10dp"
                     android:paddingLeft="10dp"
                     android:paddingRight="10dp"/>
@@ -42,25 +46,54 @@
                     android:id="@+id/clear"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:src="@drawable/ic_my_location_24px"
+                    android:src="@drawable/places_ic_clear"
                     android:layout_alignParentRight="true"
                     android:layout_gravity="right|center_vertical"
                     android:padding="16dp"
+                    android:layout_centerVertical="true"
                     android:visibility="gone"/>
             </RelativeLayout>
 
 
         </LinearLayout>
 
+        <com.example.huydaoduc.hieu.chi.hhapp.Manager.LoadingProcessBar
+            android:id="@+id/prb_loading"
+            style="@style/Widget.MaterialProgressBar.ProgressBar.Horizontal"
+            android:layout_width="fill_parent"
+            android:layout_height="2dp"
+            app:duration="1200"
+            app:progressColour="#000000"
+            app:backgroundColour="#ffffff"
+            android:progress="100"
+            android:visibility="invisible"
+            android:layout_below="@id/group_search"/>
+
+        <!--<com.example.huydaoduc.hieu.chi.hhapp.CusMaterialProgressBar-->
+            <!--android:id="@+id/prb_loading"-->
+            <!--style="@style/Widget.MaterialProgressBar.ProgressBar.Horizontal"-->
+            <!--android:layout_width="fill_parent"-->
+            <!--android:layout_height="2dp"-->
+            <!--android:visibility="visible"-->
+            <!--android:indeterminate="true"-->
+            <!--app:mpb_useIntrinsicPadding="false"-->
+            <!--app:mpb_progressStyle="horizontal"-->
+            <!--android:layout_below="@id/group_search"/>-->
+
+        <View
+            android:id="@+id/bar"
+            android:layout_width="fill_parent"
+            android:layout_height="1dp"
+            android:layout_below="@id/prb_loading"
+            android:background="#d4d4d4"/>
 
         <android.support.v7.widget.RecyclerView
             android:id="@+id/list_search"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_below="@+id/search_layout"
+            android:layout_below="@+id/bar"
             android:layout_above="@+id/powered_by_google"
-            android:background="#ffffff"
-            android:layout_marginTop="10dp"/>
+            android:background="#ffffff"/>
 
         <ImageView
             android:id="@+id/powered_by_google"
@@ -71,5 +104,7 @@
             android:padding="10dp"
             android:layout_marginBottom="10dp"
             android:src="@drawable/powered_by_google_light"/>
+
+
     </RelativeLayout>
 </LinearLayout>
