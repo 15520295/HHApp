@@ -108,6 +108,7 @@ public class PlaceAutocompleteAdapter extends RecyclerView.Adapter<PlaceAutocomp
             @Override
             protected void publishResults(CharSequence constraint, FilterResults results) {
                 if (results != null && results.count > 0) {
+
                     // The API returned at least one result, update the data.
                     notifyDataSetChanged();
                 } else {

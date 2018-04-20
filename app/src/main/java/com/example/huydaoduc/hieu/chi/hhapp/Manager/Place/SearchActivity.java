@@ -17,6 +17,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 
+import com.example.huydaoduc.hieu.chi.hhapp.FixRecyclerViewManager;
 import com.example.huydaoduc.hieu.chi.hhapp.Manager.LocationUtils;
 import com.example.huydaoduc.hieu.chi.hhapp.R;
 import com.google.android.gms.common.ConnectionResult;
@@ -139,8 +140,11 @@ public class SearchActivity extends AppCompatActivity implements
     private void initViews(){
         loadingBar = findViewById(R.id.prb_loading);
         mRecyclerView = (RecyclerView)findViewById(R.id.list_search);
+
+//        mRecyclerView.setItemAnimator(new SlideInLeftAnimator());
+
         mRecyclerView.setHasFixedSize(true);
-        llm = new LinearLayoutManager(mContext);
+        llm = new FixRecyclerViewManager(mContext);
         mRecyclerView.setLayoutManager(llm);
 
 
@@ -192,17 +196,17 @@ public class SearchActivity extends AppCompatActivity implements
                     }
                 }
 
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
                 if (!s.toString().equals("") && mGoogleApiClient.isConnected()) {
                     mAdapter.getFilter().filter(s.toString());
                 } else if (!mGoogleApiClient.isConnected()) {
 //                    Toast.makeText(getApplicationContext(), Constants.API_NOT_CONNECTED, Toast.LENGTH_SHORT).show();
                     Log.e(TAG, "NOT CONNECTED");
                 }
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-
             }
         });
     }

@@ -23,10 +23,10 @@ android {
     }
 }
 
-repositories {
-    jcenter()
-    google()
-}
+//repositories {
+//    jcenter()
+//    google()
+//}
 
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
@@ -83,7 +83,7 @@ dependencies {
     implementation 'me.zhanghai.android.materialprogressbar:library:1.4.2'
 
     // recycler view
-    implementation 'jp.wasabeef:recyclerview-animators:2.3.0'
+//    implementation 'jp.wasabeef:recyclerview-animators:2.3.0'
 }
 // Add to the bottom of the file
 apply plugin: 'com.google.gms.google-services'
