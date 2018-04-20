@@ -420,19 +420,34 @@ public class Home extends AppCompatActivity
 
                 if (requestCode == PICKUP_PLACE_AUTOCOMPLETE_REQUEST_CODE) {
                     pickupPlace = new SavedPlace();
+                    pickupPlace.setId(placeId);
+                    pickupPlace.setName(placePrimaryText);
+                    pickupPlace.setAddress(placeAddress);
                     pickupPlace.setLatLng(LocationUtils.strToLatLng(placeLocation));
 
                     et_pickupLocation.setText(placePrimaryText);
 
                     markerManager.draw_PickupPlaceMarker(pickupPlace);
                 } else if (requestCode == END_PLACE_AUTOCOMPLETE_REQUEST_CODE) {
-
                     endPlace = new SavedPlace();
+                    endPlace.setId(placeId);
+                    endPlace.setName(placePrimaryText);
+                    endPlace.setAddress(placeAddress);
                     endPlace.setLatLng(LocationUtils.strToLatLng(placeLocation));
 
                     et_endLocation.setText(placePrimaryText);
 
                     markerManager.draw_EndPlaceMarker(endPlace);
+                }
+
+                // Move Camera
+                if (pickupPlace != null && endPlace != null) {
+                    cameraManager.moveCam(pickupPlace.getLatLng(), endPlace.getLatLng());
+                }
+                else if (pickupPlace != null) {
+                    cameraManager.moveCam(pickupPlace.getLatLng());
+                } else if (endPlace != null) {
+                    cameraManager.moveCam(endPlace.getLatLng());
                 }
             }
         }

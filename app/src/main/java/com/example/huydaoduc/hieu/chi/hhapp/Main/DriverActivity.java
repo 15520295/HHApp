@@ -186,7 +186,7 @@ public class DriverActivity extends AppCompatActivity
                         directionManager.drawRoutes(routes, true);
 
                         // move camera
-                        cameraManager.moveCam(routes);
+                        cameraManager.moveCamWithRoutes(routes);
 
                         // draw markers
                         markerManager.draw_EndPlaceMarker(routes.get(0).getLegs().get(0).getEndLocation());

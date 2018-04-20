@@ -23,6 +23,11 @@ android {
     }
 }
 
+repositories {
+    jcenter()
+    google()
+}
+
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     //noinspection GradleCompatible
@@ -67,15 +72,18 @@ dependencies {
     implementation 'com.google.android.gms:play-services-auth:12.0.1'
 
     // more...
-    implementation 'com.android.support:design:26.+'       // support design
+    implementation 'com.android.support:design:26.1.0'       // support design
     implementation 'com.rengwuxian.materialedittext:library:2.1.4'     // material edittext
     implementation 'uk.co.chrisjenx:calligraphy:2.3.0'     // custom font for all view
-    implementation 'com.android.support:cardview-v7:26.+'
+    implementation 'com.android.support:cardview-v7:26.1.0'
     implementation 'com.android.support:appcompat-v7:26.1.0'
     implementation 'com.google.firebase:firebase-messaging:12.0.1'
 
     // process bar
     implementation 'me.zhanghai.android.materialprogressbar:library:1.4.2'
+
+    // recycler view
+    implementation 'jp.wasabeef:recyclerview-animators:2.3.0'
 }
 // Add to the bottom of the file
 apply plugin: 'com.google.gms.google-services'

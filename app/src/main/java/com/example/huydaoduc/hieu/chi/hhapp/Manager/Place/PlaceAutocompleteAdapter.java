@@ -56,15 +56,17 @@ public class PlaceAutocompleteAdapter extends RecyclerView.Adapter<PlaceAutocomp
 
     private AutocompleteFilter mPlaceFilter;
 
+    RecyclerView recyclerView ;
 
     public PlaceAutocompleteAdapter(Context context, int resource, GoogleApiClient googleApiClient,
-                                    LatLngBounds bounds, AutocompleteFilter filter){
+                                    LatLngBounds bounds, AutocompleteFilter filter, RecyclerView recyclerView){
         this.mContext = context;
         layout = resource;
         mGoogleApiClient = googleApiClient;
         mBounds = bounds;
         mPlaceFilter = filter;
         this.mListener = (PlaceAutoCompleteInterface)mContext;
+        this.recyclerView = recyclerView;
     }
 
     /*

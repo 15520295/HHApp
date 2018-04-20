@@ -163,9 +163,14 @@ public class SearchActivity extends AppCompatActivity implements
 
 
         mAdapter = new PlaceAutocompleteAdapter(this, R.layout.view_placesearch,
-                mGoogleApiClient, bounds, typeFilter);
+                mGoogleApiClient, bounds, typeFilter, mRecyclerView);
         mRecyclerView.setAdapter(mAdapter);
 
+        findPlacesEvent();
+
+    }
+
+    public void findPlacesEvent() throws IndexOutOfBoundsException {
         mSearchEdittext.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -200,7 +205,6 @@ public class SearchActivity extends AppCompatActivity implements
 
             }
         });
-
     }
 
     @Override
