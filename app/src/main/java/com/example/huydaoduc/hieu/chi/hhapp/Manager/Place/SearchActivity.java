@@ -7,30 +7,28 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
+import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.Log;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
-import android.widget.Toast;
 
-import com.example.huydaoduc.hieu.chi.hhapp.Manager.LoadingProcessBar;
 import com.example.huydaoduc.hieu.chi.hhapp.Manager.LocationUtils;
 import com.example.huydaoduc.hieu.chi.hhapp.R;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.location.places.AutocompleteFilter;
-import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.PlaceBuffer;
 import com.google.android.gms.location.places.Places;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
-import com.google.maps.android.SphericalUtil;
+
+import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -76,7 +74,7 @@ public class SearchActivity extends AppCompatActivity implements
 //    PlaceSavedAdapter mSavedAdapter;
     LatLngBounds bounds;
 
-    LoadingProcessBar loadingBar;
+    ProgressBar loadingBar;
 
     EditText mSearchEdittext;
     ImageView mClear;
@@ -98,6 +96,8 @@ public class SearchActivity extends AppCompatActivity implements
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_search);
+
+
         mContext = SearchActivity.this;
 
         mGoogleApiClient = new GoogleApiClient.Builder(this)
@@ -143,6 +143,7 @@ public class SearchActivity extends AppCompatActivity implements
         llm = new LinearLayoutManager(mContext);
         mRecyclerView.setLayoutManager(llm);
 
+
         mSearchEdittext = (EditText)findViewById(R.id.search_et);
         mClear = (ImageView)findViewById(R.id.clear);
         mClear.setOnClickListener(new OnClickListener() {
@@ -172,19 +173,20 @@ public class SearchActivity extends AppCompatActivity implements
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
+                runLoadingProcess();
+
+                // check null text
+                if (TextUtils.isEmpty(mSearchEdittext.getText().toString())) {
+                    mClear.setVisibility(View.GONE);
+                    stopLoadingProcess();
+                }
                 if (count > 0) {
-                    runLoadingProcess();
                     mClear.setVisibility(View.VISIBLE);
                     if (mAdapter != null) {
                         mRecyclerView.setAdapter(mAdapter);
                     }
-                } else {
-                    stopLoadingProcess();
-                    mClear.setVisibility(View.GONE);
-//                    if (mSavedAdapter != null && mSavedAddressList.size() > 0) {
-//                        mRecyclerView.setAdapter(mSavedAdapter);
-//                    }
                 }
+
                 if (!s.toString().equals("") && mGoogleApiClient.isConnected()) {
                     mAdapter.getFilter().filter(s.toString());
                 } else if (!mGoogleApiClient.isConnected()) {
@@ -201,8 +203,6 @@ public class SearchActivity extends AppCompatActivity implements
 
     }
 
-
-
     @Override
     public void onConnected(Bundle bundle) {
     }
@@ -217,10 +217,12 @@ public class SearchActivity extends AppCompatActivity implements
 
 
     /**
-     * Occurs when Place result returned
+     * Occurs when Place result returned from adapter
+     * Occurs only when result return > 0
      */
     @Override
     public void OnPlaceResultReturn() {
+        // todo: start and end location
         stopLoadingProcess();
     }
 
@@ -256,6 +258,7 @@ public class SearchActivity extends AppCompatActivity implements
                                     setResult(SearchActivity.RESULT_OK, returnIntent );
 
                                     //todo: loading animation
+
                                     SearchActivity.this.finish();
                                 }
                                 places.release();
@@ -271,7 +274,6 @@ public class SearchActivity extends AppCompatActivity implements
 
         }
     }
-
 
     @Override
     public void onSavedPlaceClick(ArrayList<SavedAddress> mResultList, int position) {
@@ -293,11 +295,20 @@ public class SearchActivity extends AppCompatActivity implements
 
 
     private void runLoadingProcess() {
-        loadingBar.setVisibility(View.VISIBLE);
+        if(loadingBar.getVisibility() == View.INVISIBLE)
+            loadingBar.setVisibility(View.VISIBLE);
+
     }
 
     private void stopLoadingProcess() {
         // todo: not done
-        loadingBar.stopAnimate();
+        if(loadingBar.getVisibility() == View.VISIBLE)
+            loadingBar.setVisibility(View.INVISIBLE);
+    }
+
+    @Override
+    public void finish() {
+        super.finish();
+        SearchActivity.this.overridePendingTransition(R.anim.anim_activity_none, android.R.anim.fade_out);
     }
 }

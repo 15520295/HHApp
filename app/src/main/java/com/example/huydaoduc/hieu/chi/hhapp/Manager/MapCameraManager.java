@@ -31,4 +31,6 @@ public class MapCameraManager {
             }
         }
     }
+
+    public void moveCam(List<R>)
 }

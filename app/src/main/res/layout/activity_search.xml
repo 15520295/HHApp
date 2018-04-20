@@ -57,28 +57,32 @@
 
         </LinearLayout>
 
-        <com.example.huydaoduc.hieu.chi.hhapp.Manager.LoadingProcessBar
-            android:id="@+id/prb_loading"
-            style="@style/Widget.MaterialProgressBar.ProgressBar.Horizontal"
-            android:layout_width="fill_parent"
-            android:layout_height="2dp"
-            app:duration="1200"
-            app:progressColour="#000000"
-            app:backgroundColour="#ffffff"
-            android:progress="100"
-            android:visibility="invisible"
-            android:layout_below="@id/group_search"/>
-
-        <!--<com.example.huydaoduc.hieu.chi.hhapp.CusMaterialProgressBar-->
+        <!--<com.example.huydaoduc.hieu.chi.hhapp.CustomView.CustomProgressBar-->
             <!--android:id="@+id/prb_loading"-->
             <!--style="@style/Widget.MaterialProgressBar.ProgressBar.Horizontal"-->
             <!--android:layout_width="fill_parent"-->
             <!--android:layout_height="2dp"-->
+            <!--app:duration="1000"-->
+            <!--app:progressColour="#000000"-->
+            <!--app:backgroundColour="#ffffff"-->
+            <!--android:progress="100"-->
             <!--android:visibility="visible"-->
-            <!--android:indeterminate="true"-->
-            <!--app:mpb_useIntrinsicPadding="false"-->
-            <!--app:mpb_progressStyle="horizontal"-->
             <!--android:layout_below="@id/group_search"/>-->
+
+        <me.zhanghai.android.materialprogressbar.MaterialProgressBar
+            android:id="@+id/prb_loading"
+            style="@style/Widget.MaterialProgressBar.ProgressBar.Horizontal"
+            android:layout_width="fill_parent"
+            android:layout_height="1dp"
+            android:visibility="invisible"
+            android:indeterminate="true"
+            android:indeterminateBehavior="cycle"
+            android:indeterminateOnly="false"
+            app:mpb_showProgressBackground="false"
+            app:mpb_useIntrinsicPadding="false"
+            app:mpb_progressStyle="horizontal"
+            android:theme="@style/GrayProgressBarTheme"
+            android:layout_below="@id/group_search"/>
 
         <View
             android:id="@+id/bar"

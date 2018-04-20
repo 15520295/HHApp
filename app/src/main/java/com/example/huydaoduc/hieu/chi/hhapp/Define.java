@@ -1,6 +1,10 @@
 package com.example.huydaoduc.hieu.chi.hhapp;
 
 public class Define {
+    // Search Activity - AutoComplete
+    public static final int RADIUS_AUTO_COMPLETE = 1000;
+
+
     public static final String DB_USERS = "Users";
     public static final String DB_ONLINE_USERS = " OnlineUsers";
     public static final String DB_DRIVERS = " Drivers";

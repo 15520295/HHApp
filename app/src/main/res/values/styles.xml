@@ -68,10 +68,9 @@
 
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 
-    <declare-styleable name="LoadingProcessBar">
-        <attr name="progressColour" format="color" />
-        <attr name="secondaryProgressColour" format="color" />
-        <attr name="backgroundColour" format="color" />
-        <attr name="duration" format="integer" />
-    </declare-styleable>
+    <!--ProgressBar-->
+    <style name="GrayProgressBarTheme"
+        parent="ThemeOverlay.AppCompat.Light">
+        <item name="colorAccent">#ad818181</item>
+    </style>
 </resources>

@@ -203,7 +203,9 @@ public class PlaceAutocompleteAdapter extends RecyclerView.Adapter<PlaceAutocomp
 
                 // Release the buffer now that all data has been copied.
                 autocompletePredictions.release();
-                mListener.OnPlaceResultReturn();
+                if(resultList != null)
+                    if ( resultList.size() > 0)
+                        mListener.OnPlaceResultReturn();
                 return resultList;
 
 
@@ -230,16 +232,19 @@ public class PlaceAutocompleteAdapter extends RecyclerView.Adapter<PlaceAutocomp
 
     @Override
     public void onBindViewHolder(PlaceViewHolder mPredictionHolder, final int i) {
-        final int pos = mPredictionHolder.getAdapterPosition();
-        mPredictionHolder.mPrimaryText.setText(mResultList.get(pos).primaryText);
-        mPredictionHolder.mSecondaryText.setText(mResultList.get(pos).secondaryText.toString());
+        if(mResultList != null)
+            if (mPredictionHolder.getAdapterPosition() < mResultList.size()) {
+                final int pos = mPredictionHolder.getAdapterPosition();
+                mPredictionHolder.mPrimaryText.setText(mResultList.get(pos).primaryText);
+                mPredictionHolder.mSecondaryText.setText(mResultList.get(pos).secondaryText.toString());
 
-        mPredictionHolder.mParentLayout.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mListener.onPlaceClick(mResultList,pos);
+                mPredictionHolder.mParentLayout.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        mListener.onPlaceClick(mResultList,pos);
+                    }
+                });
             }
-        });
 
     }
 

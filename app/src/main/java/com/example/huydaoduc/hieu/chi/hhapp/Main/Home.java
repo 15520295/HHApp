@@ -439,12 +439,18 @@ public class Home extends AppCompatActivity
     }
 
     private void StartAutoCompleteIntent(int requestCode) {
-        Intent intent = new Intent(Home. this,SearchActivity.class);
-        intent.putExtra("cur_lat", mLastLocation.getLatitude());
-        intent.putExtra("cur_lng", mLastLocation.getLongitude());
-        intent.putExtra("radius", 1000);        // radius (meters)
-        // note: result with be relative with the bound (more details in Activity Class)
-        startActivityForResult(intent, requestCode);
+        if (mLastLocation != null) {
+            Intent intent = new Intent(Home. this,SearchActivity.class);
+            intent.putExtra("cur_lat", mLastLocation.getLatitude());
+            intent.putExtra("cur_lng", mLastLocation.getLongitude());
+            intent.putExtra("radius", Define.RADIUS_AUTO_COMPLETE);        // radius (meters)
+            // note: result with be relative with the bound (more details in Activity Class)
+            startActivityForResult(intent, requestCode);
+        }
+        else {
+            //todo : handle null mLastLocation
+
+        }
     }
 
     //endregion
