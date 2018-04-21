@@ -240,7 +240,7 @@ public class DriverActivity extends AppCompatActivity
     private void realTimeCheckingLocationAndRouteRequest() {
         // todo: handle if getAccuracy > 100 --> will not update data
 
-        // Get old value and Check if location out of radius Then update Route Request
+        // Get old value and Check if location out of radius or Out of time Then update Route Request
         DBManager.getRealtimeUserById(getCurUid(), realtimeUser -> {
             // Check with distance
             if (Define.REALTIME_USER_RADIUS_UPDATE < LocationUtils.calDistance(LocationUtils.locaToLatLng(mLastLocation), LocationUtils.strToLatLng(realtimeUser.getLocation()))) {
@@ -415,29 +415,6 @@ public class DriverActivity extends AppCompatActivity
 
     //region ------ Others  --------
 
-    @Override
-    public void onMapReady(GoogleMap googleMap) {
-        mMap = googleMap;
-        mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
-        mMap.setTrafficEnabled(true);
-        mMap.setIndoorEnabled(true);
-        mMap.setBuildingsEnabled(true);
-        mMap.getUiSettings().setZoomGesturesEnabled(true);
-        mMap.getUiSettings().setZoomControlsEnabled(false);
-        mMap.getUiSettings().setCompassEnabled(false);
-        mMap.setInfoWindowAdapter(new CustomInfoWindow(this));
-
-        setUpLocation();
-
-        // My Location Button
-        initMyLocationButton();
-        // Direction Manager
-        initDirectionManager();
-        // Marker manager
-        initMarkerManager();
-        // Camera manager
-        initCameraManager();
-    }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -465,51 +442,35 @@ public class DriverActivity extends AppCompatActivity
     LocationCallback mLocationCallback;
     LocationRequest mLocationRequest;
 
-    private void setUpLocation() {
-        if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
-                ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-
-            //Request runtime permission
-            ActivityCompat.requestPermissions(this, new String[]{
-                    android.Manifest.permission.ACCESS_COARSE_LOCATION,
-                    android.Manifest.permission.ACCESS_FINE_LOCATION
-            }, MY_PERMISSION_REQUEST_CODE);
-        } else {
-            permissionGranted();
-        }
-    }
-
     @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        switch (requestCode) {
-            case MY_PERMISSION_REQUEST_CODE:
-                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    permissionGranted();
-                }
-        }
+    public void onMapReady(GoogleMap googleMap) {
+        mMap = googleMap;
+        mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+        mMap.setTrafficEnabled(true);
+        mMap.setIndoorEnabled(true);
+        mMap.setBuildingsEnabled(true);
+        mMap.getUiSettings().setZoomGesturesEnabled(true);
+        mMap.getUiSettings().setZoomControlsEnabled(false);
+        mMap.getUiSettings().setCompassEnabled(false);
+        mMap.setInfoWindowAdapter(new CustomInfoWindow(this));
+
+        setUpLocation();
+
+        // My Location Button
+        initMyLocationButton();
+        // Direction Manager
+        initDirectionManager();
+        // Marker manager
+        initMarkerManager();
+        // Camera manager
+        initCameraManager();
 
     }
 
-    private boolean checkPlayServices() {
-        int resultCode = GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(DriverActivity.this);
-        if (resultCode != ConnectionResult.SUCCESS) {
-            if (GoogleApiAvailability.getInstance().isUserResolvableError(resultCode))
-                GoogleApiAvailability.getInstance().getErrorDialog(DriverActivity.this, resultCode, PLAY_SERVICE_RES_REQUEST).show();
-            else {
-                // todo : handle this
-                Toast.makeText(getApplicationContext(), "This device is not supported", Toast.LENGTH_SHORT).show();
-            }
-            return false;
-        }
-        return true;
-    }
+    private void setUpLocation() {
+        buildGoogleApiClient();
 
-    private void permissionGranted() {
-        if (checkPlayServices()) {
-            buildGoogleApiClient();
-
-            buildFusedLocationProviderClient();
-        }
+        buildFusedLocationProviderClient();
     }
 
     private synchronized void buildGoogleApiClient() {
@@ -567,8 +528,10 @@ public class DriverActivity extends AppCompatActivity
                     mLastLocation = location;       // get current location
                 }
                 if (mLastLocation != null) {
-                    realTimeChecking();
                     Log.d(TAG,"onLocationResult: "+ mLastLocation.getBearing()+ "," + mLastLocation.getAccuracy());
+                    realTimeChecking();
+
+                    firstGetLocationCheck();
                 }
             }
 
@@ -607,6 +570,17 @@ public class DriverActivity extends AppCompatActivity
         }
     }
 
+    boolean isFirstGetLocation;
+    private void firstGetLocationCheck() {
+        // first get location handle
+        if(!isFirstGetLocation)
+        {
+            isFirstGetLocation = true;
+            CameraUpdate update = CameraUpdateFactory.newLatLngZoom(LocationUtils.locaToLatLng(mLastLocation),
+                    Define.MAP_BOUND_POINT_ZOOM);
+            mMap.moveCamera(update);
+        }
+    }
     //endregion
 
 

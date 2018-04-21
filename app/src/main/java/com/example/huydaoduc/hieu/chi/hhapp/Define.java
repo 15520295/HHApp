@@ -8,6 +8,10 @@ public class Define {
     // Search Activity - AutoComplete
     public static final int RADIUS_AUTO_COMPLETE = 1000;
 
+    // Camera Manager
+    public static final int MAP_BOUND_ROUTE_PADDING = 110;  /* In dp */
+    public static final int MAP_BOUND_POINT_ZOOM = 15;
+
     // DataBase
     public static final String DB_USERS = "Users";
     public static final String DB_ONLINE_USERS = " OnlineUsers";
