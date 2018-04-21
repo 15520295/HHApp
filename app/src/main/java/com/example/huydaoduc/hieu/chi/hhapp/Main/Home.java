@@ -231,7 +231,6 @@ public class Home extends AppCompatActivity
         });
     }
 
-
     //todo : run synchronously for every check
     //todo : push info off rider to driver ( driver will check and answer if he will pickup)
     //todo : check if user swich off

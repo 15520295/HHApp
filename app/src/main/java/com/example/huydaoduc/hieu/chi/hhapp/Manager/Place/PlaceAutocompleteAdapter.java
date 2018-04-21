@@ -14,7 +14,6 @@ import android.widget.Filter;
 import android.widget.Filterable;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.example.huydaoduc.hieu.chi.hhapp.R;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -214,8 +213,6 @@ public class PlaceAutocompleteAdapter extends RecyclerView.Adapter<PlaceAutocomp
 
             } catch (RuntimeExecutionException e) {
                 // If the query did not complete successfully return null
-                Toast.makeText(mContext, "Error contacting API: " + e.toString(),
-                        Toast.LENGTH_SHORT).show();
                 Log.e(TAG, "Error getting autocomplete prediction API call", e);
                 return null;
             }

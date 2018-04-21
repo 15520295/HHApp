@@ -31,6 +31,7 @@ public class RealtimeUser {
     public RealtimeUser(String uid, Location location, UserState state) {
         this.uid = uid;
         this.location = LocationUtils.locaToStr(location);
+        this.bearing = location.getBearing();
         this.state = state;
         lastTimeCheck = TimeManager.getCurrentTimeAsString();
     }
