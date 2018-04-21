@@ -12,6 +12,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
@@ -30,7 +31,6 @@ import android.view.animation.LinearInterpolator;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.RelativeLayout;
-import android.widget.TabHost;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -46,7 +46,6 @@ import com.example.huydaoduc.hieu.chi.hhapp.Manager.MarkerManager;
 import com.example.huydaoduc.hieu.chi.hhapp.Manager.Place.SavedPlace;
 import com.example.huydaoduc.hieu.chi.hhapp.Manager.Place.SearchActivity;
 import com.example.huydaoduc.hieu.chi.hhapp.Manager.RouteRequest;
-import com.example.huydaoduc.hieu.chi.hhapp.Manager.User.RealtimeUser;
 import com.example.huydaoduc.hieu.chi.hhapp.Manager.User.UserApp;
 import com.example.huydaoduc.hieu.chi.hhapp.Manager.User.UserState;
 import com.example.huydaoduc.hieu.chi.hhapp.Manager.DBManager;
@@ -59,12 +58,14 @@ import com.firebase.geofire.GeoQuery;
 import com.firebase.geofire.GeoQueryEventListener;
 import com.github.glomadrian.materialanimatedswitch.MaterialAnimatedSwitch;
 import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.GooglePlayServicesUtil;
+import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.common.api.ResultCallback;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationAvailability;
+import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.location.places.PlaceBuffer;
 import com.google.android.gms.location.places.Places;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -99,6 +100,8 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+import static com.google.android.gms.location.LocationServices.getFusedLocationProviderClient;
+
 //todo: check 1 tai khoan dang nhap 2 may
 public class Home extends AppCompatActivity
         implements
@@ -106,10 +109,8 @@ public class Home extends AppCompatActivity
         GoogleMap.OnMyLocationClickListener,
         GoogleMap.OnMyLocationButtonClickListener,
         NavigationView.OnNavigationItemSelectedListener,
-        OnMapReadyCallback,
-        GoogleApiClient.ConnectionCallbacks,
-        GoogleApiClient.OnConnectionFailedListener,
-        com.google.android.gms.location.LocationListener {
+        OnMapReadyCallback
+{
 
     private static final String TAG = "RiderActivity";
 
@@ -120,9 +121,6 @@ public class Home extends AppCompatActivity
     private static final int MY_PERMISSION_REQUEST_CODE = 7000;
     private static final int PLAY_SERVICE_RES_REQUEST = 7001;
 
-    private LocationRequest mLocationRequest;
-    private GoogleApiClient mGoogleApiClient;
-    private Location mLastLocation;
 
 
     private static int UPDATE_INTERVAL = 3000;
@@ -162,6 +160,10 @@ public class Home extends AppCompatActivity
     //------------------------------------ Chi :
 
     // Activity Property
+
+    private GoogleApiClient mGoogleApiClient;
+    private Location mLastLocation;
+
     Dialog dialogInfo;
     DatabaseReference dbRefe;
 
@@ -196,10 +198,7 @@ public class Home extends AppCompatActivity
 
     //region ------ Real time checking --------
 
-    @Override
-    public void onLocationChanged(Location location) {
-        mLastLocation = location;
-        displayLocationAndUpdateData();
+    private void realTimeChecking() {
     }
 
     //endregion
@@ -281,7 +280,7 @@ public class Home extends AppCompatActivity
         {
             //todo: check lai dieu kien cho dung
             // check if user is GOING && Time out
-            if (realtimeUser.getState() == UserState.GOING && !realtimeUser.timeOut(Define.REALTIME_USER_TIMEOUT))
+            if (realtimeUser.getState() == UserState.GOING && !realtimeUser.func_isTimeOut(Define.REALTIME_USER_TIMEOUT))
             {
                 // get Driver Info
                 DBManager.getUserById(realtimeUser.getUid(), (userApp) ->
@@ -518,62 +517,163 @@ public class Home extends AppCompatActivity
 
     //------------------------------------
 
+    //region ------ Setup Activity (Fixed)  --------
 
+    // Setup -----------------
+    //todo: handle GPS off --> equals no connection
+    FusedLocationProviderClient mFusedLocationClient;
+    LocationCallback mLocationCallback;
+    LocationRequest mLocationRequest;
 
-    // ve xe nho nho
-    Runnable drawPathRunnable = new Runnable() {
-        @Override
-        public void run() {
-            if (index < polyLineList.size() - 1) {
-                index++;
-                next = index + 1;
-            }
-            if (index < polyLineList.size() - 1) {
-                startPostion = polyLineList.get(index);
-                endPosition = polyLineList.get(next);
-            }
+    private void setUpLocation() {
+        if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+                ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
 
-            ValueAnimator valueAnimator = ValueAnimator.ofFloat(0, 1);
-            valueAnimator.setDuration(3000);
-            valueAnimator.setInterpolator(new LinearInterpolator());
-            valueAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-                @Override
-                public void onAnimationUpdate(ValueAnimator animation) {
-                    v = animation.getAnimatedFraction();
-                    lng = v * endPosition.longitude + (1 - v) * startPostion.longitude;
-                    lat = v * endPosition.latitude + (1 - v) * startPostion.latitude;
-                    LatLng newPos = new LatLng(lat, lng);
-                    carMaker.setPosition(newPos);
-                    carMaker.setAnchor(0.5f, 0.5f);
-                    carMaker.setRotation(getBearing(startPostion, newPos));
-                    mMap.moveCamera(CameraUpdateFactory.newCameraPosition(
-                            new CameraPosition.Builder()
-                                    .target(newPos)
-                                    .zoom(15.5f)
-                                    .build())
-                    );
+            //Request runtime permission
+            ActivityCompat.requestPermissions(this, new String[]{
+                    android.Manifest.permission.ACCESS_COARSE_LOCATION,
+                    android.Manifest.permission.ACCESS_FINE_LOCATION
+            }, MY_PERMISSION_REQUEST_CODE);
+        } else {
+            permissionGranted();
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        switch (requestCode) {
+            case MY_PERMISSION_REQUEST_CODE:
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    permissionGranted();
                 }
-            });
-            valueAnimator.start();
-            handler.postDelayed(this, 3000);
         }
-    };
 
-    // xet quay dau xe
-    private float getBearing(LatLng startPostion, LatLng endPosition) {
-        double lat = Math.abs(startPostion.latitude - endPosition.latitude);
-        double lng = Math.abs(startPostion.longitude - endPosition.longitude);
+    }
 
-        if (startPostion.latitude < endPosition.latitude && startPostion.longitude < endPosition.longitude) {
-            return (float) (Math.toDegrees(Math.atan(lng / lat)));
-        } else if (startPostion.latitude >= endPosition.latitude && startPostion.longitude < endPosition.longitude) {
-            return (float) ((90 - Math.toDegrees(Math.atan(lng / lat))) + 90);
-        } else if (startPostion.latitude >= endPosition.latitude && startPostion.longitude >= endPosition.longitude) {
-            return (float) (Math.toDegrees(Math.atan(lng / lat)) + 180);
-        } else if (startPostion.latitude < endPosition.latitude && startPostion.longitude >= endPosition.longitude) {
-            return (float) ((90 - Math.toDegrees(Math.atan(lng / lat))) + 270);
+    private boolean checkPlayServices() {
+        int resultCode = GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(Home.this);
+        if (resultCode != ConnectionResult.SUCCESS) {
+            if (GoogleApiAvailability.getInstance().isUserResolvableError(resultCode))
+                GoogleApiAvailability.getInstance().getErrorDialog(Home.this, resultCode, PLAY_SERVICE_RES_REQUEST).show();
+            else {
+                // todo : handle this
+                Toast.makeText(getApplicationContext(), "This device is not supported", Toast.LENGTH_SHORT).show();
+            }
+            return false;
         }
-        return -1;
+        return true;
+    }
+
+    private void permissionGranted() {
+        if (checkPlayServices()) {
+            buildGoogleApiClient();
+
+            buildFusedLocationProviderClient();
+        }
+    }
+
+    private synchronized void buildGoogleApiClient() {
+        // Handle Event Callback
+        GoogleApiClient.ConnectionCallbacks callbacks = new GoogleApiClient.ConnectionCallbacks() {
+            @Override
+            public void onConnected(@Nullable Bundle bundle) {
+                buildFusedLocationProviderClient();
+            }
+
+            @Override
+            public void onConnectionSuspended(int i) {
+                mGoogleApiClient.connect();
+                // todo: handle waiting progress circle
+            }
+        };
+
+        GoogleApiClient.OnConnectionFailedListener failedListener = connectionResult -> {
+            //todo: handle connection fail
+            Toast.makeText(getApplicationContext(),"GoogleApiClient.OnConnectionFailed", Toast.LENGTH_SHORT).show();
+        };
+
+        // Init
+        mGoogleApiClient = new GoogleApiClient.Builder(getApplicationContext())
+                .addConnectionCallbacks(callbacks)
+                .addOnConnectionFailedListener(failedListener)
+                .addApi(LocationServices.API)
+                .addApi(Places.GEO_DATA_API)
+                .build();
+        mGoogleApiClient.connect();
+    }
+
+    /**
+     * This will start Location Update after a "period of time"
+     *
+     * .setInterval(Define.POLLING_FREQ_MILLI_SECONDS) --> location will update in freq
+     * onLocationResult  -->  trigger every time location update
+     */
+    @SuppressLint("MissingPermission")
+    private void buildFusedLocationProviderClient() {
+
+        mLocationRequest = LocationRequest.create()
+                .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
+                .setInterval(Define.POLLING_FREQ_MILLI_SECONDS)
+                .setFastestInterval(Define.FASTEST_UPDATE_FREQ_MILLI_SECONDS);
+
+//                .setSmallestDisplacement(DISPLACEMENT)      //todo: ??? wtf
+
+        mLocationCallback = new LocationCallback() {
+            @Override
+            public void onLocationResult(LocationResult locationResult) {
+                super.onLocationResult(locationResult);
+                //todo: handle when get first location move cam the that
+                for (Location location : locationResult.getLocations()) {
+                    mLastLocation = location;       // get current location
+                }
+                if (mLastLocation != null) {
+                    realTimeChecking();
+                    Log.d(TAG,"onLocationResult: "+ mLastLocation.getBearing()+ "," + mLastLocation.getAccuracy());
+                }
+            }
+
+            @Override
+            public void onLocationAvailability(LocationAvailability locationAvailability) {
+                super.onLocationAvailability(locationAvailability);
+                // if isLocationAvailable return false you can assume that location will not be returned in onLocationResult
+                if (locationAvailability.isLocationAvailable() == false) {
+                    mFusedLocationClient.flushLocations();
+                }
+                Log.d(TAG,"onLocationAvailability: "+ locationAvailability.isLocationAvailable());
+            }
+        };
+
+        mFusedLocationClient.requestLocationUpdates(mLocationRequest, mLocationCallback, Looper.myLooper());
+    }
+
+    /**
+     * Use when need stop checking
+     */
+    private void stopLocationUpdate() {
+        if (mFusedLocationClient != null) {
+            mFusedLocationClient.removeLocationUpdates(mLocationCallback);
+        }
+    }
+
+    /**
+     * Use this for resume
+     */
+    @SuppressLint("MissingPermission")
+    private void resumeLocationUpdate() {
+        if (mGoogleApiClient != null && mFusedLocationClient != null) {
+            mFusedLocationClient.requestLocationUpdates(mLocationRequest, mLocationCallback, Looper.myLooper());
+        } else {
+            buildGoogleApiClient();
+        }
+    }
+
+    //endregion
+
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        stopLocationUpdate();
     }
 
     @Override
@@ -583,6 +683,7 @@ public class Home extends AppCompatActivity
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(Home.this);
         mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);      // set Callback listener
@@ -664,8 +765,6 @@ public class Home extends AppCompatActivity
 
 
                 } else {
-
-                    stopLocationUpdate();
 
                     // remove maker
                     if (carMaker != null)
@@ -1066,6 +1165,61 @@ public class Home extends AppCompatActivity
 //    }
 
 
+    // ve xe nho nho
+    Runnable drawPathRunnable = new Runnable() {
+        @Override
+        public void run() {
+            if (index < polyLineList.size() - 1) {
+                index++;
+                next = index + 1;
+            }
+            if (index < polyLineList.size() - 1) {
+                startPostion = polyLineList.get(index);
+                endPosition = polyLineList.get(next);
+            }
+
+            ValueAnimator valueAnimator = ValueAnimator.ofFloat(0, 1);
+            valueAnimator.setDuration(3000);
+            valueAnimator.setInterpolator(new LinearInterpolator());
+            valueAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+                @Override
+                public void onAnimationUpdate(ValueAnimator animation) {
+                    v = animation.getAnimatedFraction();
+                    lng = v * endPosition.longitude + (1 - v) * startPostion.longitude;
+                    lat = v * endPosition.latitude + (1 - v) * startPostion.latitude;
+                    LatLng newPos = new LatLng(lat, lng);
+                    carMaker.setPosition(newPos);
+                    carMaker.setAnchor(0.5f, 0.5f);
+                    carMaker.setRotation(getBearing(startPostion, newPos));
+                    mMap.moveCamera(CameraUpdateFactory.newCameraPosition(
+                            new CameraPosition.Builder()
+                                    .target(newPos)
+                                    .zoom(15.5f)
+                                    .build())
+                    );
+                }
+            });
+            valueAnimator.start();
+            handler.postDelayed(this, 3000);
+        }
+    };
+
+    // xet quay dau xe
+    private float getBearing(LatLng startPostion, LatLng endPosition) {
+        double lat = Math.abs(startPostion.latitude - endPosition.latitude);
+        double lng = Math.abs(startPostion.longitude - endPosition.longitude);
+
+        if (startPostion.latitude < endPosition.latitude && startPostion.longitude < endPosition.longitude) {
+            return (float) (Math.toDegrees(Math.atan(lng / lat)));
+        } else if (startPostion.latitude >= endPosition.latitude && startPostion.longitude < endPosition.longitude) {
+            return (float) ((90 - Math.toDegrees(Math.atan(lng / lat))) + 90);
+        } else if (startPostion.latitude >= endPosition.latitude && startPostion.longitude >= endPosition.longitude) {
+            return (float) (Math.toDegrees(Math.atan(lng / lat)) + 180);
+        } else if (startPostion.latitude < endPosition.latitude && startPostion.longitude >= endPosition.longitude) {
+            return (float) ((90 - Math.toDegrees(Math.atan(lng / lat))) + 270);
+        }
+        return -1;
+    }
 
     private void displayLocationAndUpdateData() {
         if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
@@ -1165,37 +1319,6 @@ public class Home extends AppCompatActivity
         });
     }
 
-    private void startLocationUpdates() {
-        // ask permission
-        if (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
-                ActivityCompat.checkSelfPermission(getApplicationContext(), android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            return;
-        }
-
-        // get current location
-        LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
-
-    }
-
-    private void setUpLocation() {
-        if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
-                ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-
-            //Request runtime permission
-            ActivityCompat.requestPermissions(this, new String[]{
-                    android.Manifest.permission.ACCESS_COARSE_LOCATION,
-                    android.Manifest.permission.ACCESS_FINE_LOCATION
-            }, MY_PERMISSION_REQUEST_CODE);
-        } else {
-            if (checkPlayServices()) {
-                builGoogleApiClinet();
-                createLocationRequest();
-                if (locationRider_switch.isChecked())
-                    displayLocationAndUpdateData();
-            }
-        }
-    }
-
     @Override
     public void onBackPressed() {
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -1248,65 +1371,5 @@ public class Home extends AppCompatActivity
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
-
-    private void stopLocationUpdate() {
-        if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
-                ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            return;
-        }
-
-        // GoogleApiClient ??
-        LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
-    }
-
-
-    @SuppressLint("RestrictedApi")
-    private void createLocationRequest() {
-        mLocationRequest = new LocationRequest();
-        mLocationRequest.setInterval(UPDATE_INTERVAL);
-        mLocationRequest.setFastestInterval(FATEST_INTERVAL);
-        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-        mLocationRequest.setSmallestDisplacement(DISPLACEMENT);
-    }
-
-    private void builGoogleApiClinet() {
-        mGoogleApiClient = new GoogleApiClient.Builder(getApplicationContext())
-                .addConnectionCallbacks(this)
-                .addOnConnectionFailedListener(this)
-                .addApi(LocationServices.API)
-                .addApi(Places.GEO_DATA_API)
-                .build();
-        mGoogleApiClient.connect();
-    }
-
-    private boolean checkPlayServices() {
-        int resultCode = GooglePlayServicesUtil.isGooglePlayServicesAvailable(getApplicationContext());
-        if (resultCode != ConnectionResult.SUCCESS) {
-            if (GooglePlayServicesUtil.isUserRecoverableError(resultCode))
-                GooglePlayServicesUtil.getErrorDialog(resultCode, this, PLAY_SERVICE_RES_REQUEST).show();
-            else {
-                Toast.makeText(getApplicationContext(), "This device is not supported", Toast.LENGTH_SHORT).show();
-            }
-            return false;
-        }
-        return true;
-    }
-
-    @Override
-    public void onConnected(@Nullable Bundle bundle) {
-        displayLocationAndUpdateData();
-        startLocationUpdates();
-    }
-
-    @Override
-    public void onConnectionSuspended(int i) {
-        mGoogleApiClient.connect();
-    }
-
-    @Override
-    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
-
-    }
-
 
 }

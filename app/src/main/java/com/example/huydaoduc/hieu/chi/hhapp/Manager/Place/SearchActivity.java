@@ -120,6 +120,8 @@ public class SearchActivity extends AppCompatActivity implements
             cur_lng = (Double) savedInstanceState.getSerializable("cur_lng");
             radius = (Double) savedInstanceState.getSerializable("radius");
         }
+
+        // Handle null
         if (cur_lat == 0.0 && cur_lng == 0.0) {
             bounds = new LatLngBounds(new LatLng(-0, 0), new LatLng(0, 0));
         }

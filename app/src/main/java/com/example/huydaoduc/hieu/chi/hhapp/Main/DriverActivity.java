@@ -4,12 +4,14 @@ import android.Manifest;
 import android.animation.ValueAnimator;
 import android.annotation.SuppressLint;
 import android.app.Dialog;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.location.Location;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
@@ -57,12 +59,14 @@ import com.firebase.geofire.GeoQuery;
 import com.firebase.geofire.GeoQueryEventListener;
 import com.github.glomadrian.materialanimatedswitch.MaterialAnimatedSwitch;
 import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.GooglePlayServicesUtil;
+import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.common.api.ResultCallback;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationAvailability;
+import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.location.places.PlaceBuffer;
 import com.google.android.gms.location.places.Places;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -79,6 +83,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.gms.maps.model.SquareCap;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -99,6 +104,8 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+import static com.google.android.gms.location.LocationServices.getFusedLocationProviderClient;
+
 //todo: check 1 tai khoan dang nhap 2 may
 public class DriverActivity extends AppCompatActivity
         implements
@@ -107,11 +114,9 @@ public class DriverActivity extends AppCompatActivity
         GoogleMap.OnMyLocationButtonClickListener,
 
         NavigationView.OnNavigationItemSelectedListener,
-        OnMapReadyCallback,
-        GoogleApiClient.ConnectionCallbacks,
-        GoogleApiClient.OnConnectionFailedListener,
-        com.google.android.gms.location.LocationListener {
+        OnMapReadyCallback {
 
+    private static final String TAG = "DriverActivity";
     // store all info in the map
     private GoogleMap mMap;
 
@@ -119,9 +124,6 @@ public class DriverActivity extends AppCompatActivity
     private static final int MY_PERMISSION_REQUEST_CODE = 7000;
     private static final int PLAY_SERVICE_RES_REQUEST = 7001;
 
-    private LocationRequest mLocationRequest;
-    private GoogleApiClient mGoogleApiClient;
-    private Location mLastLocation;
 
 
     private static int UPDATE_INTERVAL = 3000;
@@ -131,7 +133,7 @@ public class DriverActivity extends AppCompatActivity
     DatabaseReference drivers;
     GeoFire geoFire;
 
-    MaterialAnimatedSwitch  locationDriver_switch;
+    MaterialAnimatedSwitch locationDriver_switch;
     SupportMapFragment mapFragment;
 
     DatabaseReference onlineRef, currenUserRef;
@@ -161,16 +163,26 @@ public class DriverActivity extends AppCompatActivity
 
     //------------------------------------ Chi :
 
-    // todo: add time to route request
-
     // Activity Property
     Dialog dialogInfo;
     DatabaseReference dbRefe;
 
+    private GoogleApiClient mGoogleApiClient;
+    private Location mLastLocation;
+
+    // User Property
+    UserState userState;
+
     //region ------ Real time checking --------
-    boolean isGoing;
+    // todo: add time to route request
 
     DatabaseReference currUserOnlineDBR;
+
+    public void realTimeChecking() {
+        if(userState == UserState.GOING)
+            realTimeCheckingLocationAndRouteRequest();
+    }
+
     private void startRealTimeCheckingAndShowRoute() {
         // find routes
         directionManager.findPath(mLastLocation, et_endLocation.getText().toString(),
@@ -196,7 +208,7 @@ public class DriverActivity extends AppCompatActivity
                         putRouteRequest(routes.get(0));
 
                         // Enable real time checking
-                        isGoing = true;
+                        userState = UserState.GOING;
                         currUserOnlineDBR = dbRefe.child(Define.DB_ONLINE_USERS).child(getCurUid());
                         // run this to put value the first time
                         realTimeCheckingLocationAndRouteRequest();
@@ -217,23 +229,17 @@ public class DriverActivity extends AppCompatActivity
     private void putRouteRequest(Route route) {
         String uid = getCurUid();
 
-        RouteRequest routeRequest = RouteRequest.getRouteRequestFromLeg(route,uid);
+        RouteRequest routeRequest = RouteRequest.getRouteRequestFromLeg(route, uid);
 
         DatabaseReference dbRequest = dbRefe.child(Define.DB_ROUTEREQUESTS);
 
         dbRequest.child(uid).setValue(routeRequest);
     }
 
-    @Override
-    public void onLocationChanged(Location location) {
-        mLastLocation = location;
-//        displayLocationAndUpdateData();
-
-        if(isGoing)
-            realTimeCheckingLocationAndRouteRequest();
-    }
 
     private void realTimeCheckingLocationAndRouteRequest() {
+        // todo: handle if getAccuracy > 100 --> will not update data
+
         // Get old value and Check if location out of radius Then update Route Request
         DBManager.getRealtimeUserById(getCurUid(), realtimeUser -> {
             // Check with distance
@@ -241,7 +247,7 @@ public class DriverActivity extends AppCompatActivity
                 updateRouteRequest();
             }
             // Check with time out
-            else if (realtimeUser.timeOut(Define.REALTIME_USER_TIMEOUT)) {
+            else if (realtimeUser.func_isTimeOut(Define.REALTIME_USER_TIMEOUT)) {
                 updateRouteRequest();
             }
         });
@@ -274,10 +280,10 @@ public class DriverActivity extends AppCompatActivity
     }
 
     private void endRealTimeChecking() {
-        if (isGoing) {
+        if (userState == UserState.GOING) {
             directionManager.removeAllRoutes();
             markerManager.endPlaceMarker.remove();
-            isGoing = false;
+            userState = UserState.NONE;
 
             dbRefe.child(Define.DB_ROUTEREQUESTS).child(getCurUid()).removeValue();
             currUserOnlineDBR.removeValue();
@@ -312,6 +318,7 @@ public class DriverActivity extends AppCompatActivity
     //region ------ Makers --------
 
     MarkerManager markerManager;
+
     private void initMarkerManager() {
         GoogleMap.OnMarkerClickListener listener = new GoogleMap.OnMarkerClickListener() {
             @Override
@@ -393,10 +400,12 @@ public class DriverActivity extends AppCompatActivity
     }
 
     private void StartAutoCompleteIntent(int requestCode) {
-        Intent intent = new Intent(DriverActivity.this,SearchActivity.class);
-        intent.putExtra("cur_lat", mLastLocation.getLatitude());
-        intent.putExtra("cur_lng", mLastLocation.getLongitude());
-        intent.putExtra("radius", 1000);        // radius (meters)
+        Intent intent = new Intent(DriverActivity.this, SearchActivity.class);
+        if (mLastLocation != null) {
+            intent.putExtra("cur_lat", mLastLocation.getLatitude());
+            intent.putExtra("cur_lng", mLastLocation.getLongitude());
+            intent.putExtra("radius", 1000);        // radius (meters)
+        }
         // note: result with be relative with the bound (more details in Activity Class)
         startActivityForResult(intent, requestCode);
 
@@ -405,14 +414,6 @@ public class DriverActivity extends AppCompatActivity
     //endregion
 
     //region ------ Others  --------
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-
-        AutoCompleteIntentResultHandle(requestCode, resultCode, data);
-
-    }
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
@@ -426,6 +427,7 @@ public class DriverActivity extends AppCompatActivity
         mMap.getUiSettings().setCompassEnabled(false);
         mMap.setInfoWindowAdapter(new CustomInfoWindow(this));
 
+        setUpLocation();
 
         // My Location Button
         initMyLocationButton();
@@ -435,6 +437,14 @@ public class DriverActivity extends AppCompatActivity
         initMarkerManager();
         // Camera manager
         initCameraManager();
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        AutoCompleteIntentResultHandle(requestCode, resultCode, data);
+
     }
 
     private String getCurUid() {
@@ -447,6 +457,169 @@ public class DriverActivity extends AppCompatActivity
     //------------------------------------
 
 
+    //region ------ Setup Activity (Fixed)  --------
+
+    // Setup -----------------
+    //todo: handle GPS off --> equals no connection
+    FusedLocationProviderClient mFusedLocationClient;
+    LocationCallback mLocationCallback;
+    LocationRequest mLocationRequest;
+
+    private void setUpLocation() {
+        if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+                ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+
+            //Request runtime permission
+            ActivityCompat.requestPermissions(this, new String[]{
+                    android.Manifest.permission.ACCESS_COARSE_LOCATION,
+                    android.Manifest.permission.ACCESS_FINE_LOCATION
+            }, MY_PERMISSION_REQUEST_CODE);
+        } else {
+            permissionGranted();
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        switch (requestCode) {
+            case MY_PERMISSION_REQUEST_CODE:
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    permissionGranted();
+                }
+        }
+
+    }
+
+    private boolean checkPlayServices() {
+        int resultCode = GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(DriverActivity.this);
+        if (resultCode != ConnectionResult.SUCCESS) {
+            if (GoogleApiAvailability.getInstance().isUserResolvableError(resultCode))
+                GoogleApiAvailability.getInstance().getErrorDialog(DriverActivity.this, resultCode, PLAY_SERVICE_RES_REQUEST).show();
+            else {
+                // todo : handle this
+                Toast.makeText(getApplicationContext(), "This device is not supported", Toast.LENGTH_SHORT).show();
+            }
+            return false;
+        }
+        return true;
+    }
+
+    private void permissionGranted() {
+        if (checkPlayServices()) {
+            buildGoogleApiClient();
+
+            buildFusedLocationProviderClient();
+        }
+    }
+
+    private synchronized void buildGoogleApiClient() {
+        // Handle Event Callback
+        GoogleApiClient.ConnectionCallbacks callbacks = new GoogleApiClient.ConnectionCallbacks() {
+            @Override
+            public void onConnected(@Nullable Bundle bundle) {
+                buildFusedLocationProviderClient();
+            }
+
+            @Override
+            public void onConnectionSuspended(int i) {
+                mGoogleApiClient.connect();
+                // todo: handle waiting progress circle
+            }
+        };
+
+        GoogleApiClient.OnConnectionFailedListener failedListener = connectionResult -> {
+            //todo: handle connection fail
+            Toast.makeText(getApplicationContext(),"GoogleApiClient.OnConnectionFailed", Toast.LENGTH_SHORT).show();
+        };
+
+        // Init
+        mGoogleApiClient = new GoogleApiClient.Builder(getApplicationContext())
+                .addConnectionCallbacks(callbacks)
+                .addOnConnectionFailedListener(failedListener)
+                .addApi(LocationServices.API)
+                .addApi(Places.GEO_DATA_API)
+                .build();
+        mGoogleApiClient.connect();
+    }
+
+    /**
+     * This will start Location Update after a "period of time"
+     *
+     * .setInterval(Define.POLLING_FREQ_MILLI_SECONDS) --> location will update in freq
+     * onLocationResult  -->  trigger every time location update
+     */
+    @SuppressLint("MissingPermission")
+    private void buildFusedLocationProviderClient() {
+
+        mLocationRequest = LocationRequest.create()
+                .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
+                .setInterval(Define.POLLING_FREQ_MILLI_SECONDS)
+                .setFastestInterval(Define.FASTEST_UPDATE_FREQ_MILLI_SECONDS);
+
+//                .setSmallestDisplacement(DISPLACEMENT)      //todo: ??? wtf
+
+        mLocationCallback = new LocationCallback() {
+            @Override
+            public void onLocationResult(LocationResult locationResult) {
+                super.onLocationResult(locationResult);
+                //todo: handle when get first location move cam the that
+                for (Location location : locationResult.getLocations()) {
+                    mLastLocation = location;       // get current location
+                }
+                if (mLastLocation != null) {
+                    realTimeChecking();
+                    Log.d(TAG,"onLocationResult: "+ mLastLocation.getBearing()+ "," + mLastLocation.getAccuracy());
+                }
+            }
+
+            @Override
+            public void onLocationAvailability(LocationAvailability locationAvailability) {
+                super.onLocationAvailability(locationAvailability);
+                // if isLocationAvailable return false you can assume that location will not be returned in onLocationResult
+                if (locationAvailability.isLocationAvailable() == false) {
+                    mFusedLocationClient.flushLocations();
+                }
+                Log.d(TAG,"onLocationAvailability: "+ locationAvailability.isLocationAvailable());
+            }
+        };
+
+        mFusedLocationClient.requestLocationUpdates(mLocationRequest, mLocationCallback, Looper.myLooper());
+    }
+
+    /**
+     * Use when need stop checking
+     */
+    private void stopLocationUpdate() {
+        if (mFusedLocationClient != null) {
+            mFusedLocationClient.removeLocationUpdates(mLocationCallback);
+        }
+    }
+
+    /**
+     * Use this for resume
+     */
+    @SuppressLint("MissingPermission")
+    private void resumeLocationUpdate() {
+        if (mGoogleApiClient != null && mFusedLocationClient != null) {
+            mFusedLocationClient.requestLocationUpdates(mLocationRequest, mLocationCallback, Looper.myLooper());
+        } else {
+            buildGoogleApiClient();
+        }
+    }
+
+    //endregion
+
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -454,9 +627,10 @@ public class DriverActivity extends AppCompatActivity
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(DriverActivity.this);
         mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
-        mapFragment.getMapAsync(this);
+        mapFragment.getMapAsync(this);      // onMapReadyCallback
 
         //
 //        onlineRef = FirebaseDatabase.getInstance().getReference().child(".info/connected");
@@ -489,13 +663,11 @@ public class DriverActivity extends AppCompatActivity
         //
         Init();
         addEven();
-        setUpLocation();
 
         //Geo Fire
         drivers = dbRefe.child(Define.DB_DRIVERS);
         geoFire = new GeoFire(drivers);
         mapService = Common.getGoogleAPI();
-
 
     }
 
@@ -527,7 +699,7 @@ public class DriverActivity extends AppCompatActivity
 //                    FirebaseDatabase.getInstance().goOnline();
 //
 //
-//                    startLocationUpdates();
+//                    startCurrentLocationUpdates();
 //                    displayLocationAndUpdateData();
 //                    Snackbar.make(mapFragment.getView(), "You are Online", Snackbar.LENGTH_SHORT).show();
 //                } else {
@@ -546,25 +718,20 @@ public class DriverActivity extends AppCompatActivity
         // Chi
         searViewEvent();
 
-        btnGo.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+        btnGo.setOnClickListener(v -> {
 
-            }
         });
 
-
-        locationDriver_switch.setOnCheckedChangeListener(new MaterialAnimatedSwitch.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(boolean b) {
-                if (b) {
-                    startRealTimeCheckingAndShowRoute();
-                } else {
-                    endRealTimeChecking();
-                }
+        locationDriver_switch.setOnCheckedChangeListener(b -> {
+            if (b) {
+                startRealTimeCheckingAndShowRoute();
+            } else {
+                endRealTimeChecking();
             }
         });
     }
+
+
 
     // ve xe nho nho
     Runnable drawPathRunnable = new Runnable() {
@@ -873,63 +1040,9 @@ public class DriverActivity extends AppCompatActivity
     }
 
 
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        switch (requestCode) {
-            case MY_PERMISSION_REQUEST_CODE:
-                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    if (checkPlayServices()) {
-                        builGoogleApiClinet();
-                        createLocationRequest();
-                        if ( locationDriver_switch.isChecked())
-                            displayLocationAndUpdateData();
-                    }
-                }
-        }
-
-    }
-
-    private void displayLocationAndUpdateData() {
-        if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
-                ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            return;
-        }
-
-        // get cur loca
-        mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
-        if (mLastLocation != null) {
-
-            // do the same for driver
-            if (locationDriver_switch.isChecked()) {
-                final double latitude = mLastLocation.getLatitude();
-                final double longitude = mLastLocation.getLongitude();
 
 
-                //Update To Firebase
-                geoFire.setLocation(FirebaseAuth.getInstance().getCurrentUser().getUid(), new GeoLocation(latitude, longitude), new GeoFire.CompletionListener() {
-                    @Override
-                    public void onComplete(String key, DatabaseError error) {
 
-                        //Move camera to this po
-                        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(latitude, longitude), 15.0f));
-
-                        //Add Marker
-                        if (userMaker != null) {
-                            userMaker.remove();
-                        }
-                        carMaker = mMap.addMarker(new MarkerOptions()
-                                .icon(BitmapDescriptorFactory.fromResource(R.drawable.car))
-                                .position(new LatLng(latitude, longitude))
-                                .title("You"));
-
-                    }
-                });
-            }
-        } else {
-            Log.d("Error", "Cannot get your location");
-        }
-
-    }
 
     private void loadAllAvailableDriver() {
         //load all available Driver in distance 3km
@@ -990,36 +1103,8 @@ public class DriverActivity extends AppCompatActivity
         });
     }
 
-    private void startLocationUpdates() {
-        // ask permission
-        if (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
-                ActivityCompat.checkSelfPermission(getApplicationContext(), android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            return;
-        }
 
-        // get current location
-        LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
 
-    }
-
-    private void setUpLocation() {
-        if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
-                ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-
-            //Request runtime permission
-            ActivityCompat.requestPermissions(this, new String[]{
-                    android.Manifest.permission.ACCESS_COARSE_LOCATION,
-                    android.Manifest.permission.ACCESS_FINE_LOCATION
-            }, MY_PERMISSION_REQUEST_CODE);
-        } else {
-            if (checkPlayServices()) {
-                builGoogleApiClinet();
-                createLocationRequest();
-                if (locationDriver_switch.isChecked())
-                    displayLocationAndUpdateData();
-            }
-        }
-    }
 
     @Override
     public void onBackPressed() {
@@ -1074,64 +1159,8 @@ public class DriverActivity extends AppCompatActivity
         return true;
     }
 
-    private void stopLocationUpdate() {
-        if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
-                ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            return;
-        }
-
-        // GoogleApiClient ??
-        LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
-    }
 
 
-    @SuppressLint("RestrictedApi")
-    private void createLocationRequest() {
-        mLocationRequest = new LocationRequest();
-        mLocationRequest.setInterval(UPDATE_INTERVAL);
-        mLocationRequest.setFastestInterval(FATEST_INTERVAL);
-        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-        mLocationRequest.setSmallestDisplacement(DISPLACEMENT);
-    }
-
-    private void builGoogleApiClinet() {
-        mGoogleApiClient = new GoogleApiClient.Builder(getApplicationContext())
-                .addConnectionCallbacks(this)
-                .addOnConnectionFailedListener(this)
-                .addApi(LocationServices.API)
-                .addApi(Places.GEO_DATA_API)
-                .build();
-        mGoogleApiClient.connect();
-    }
-
-    private boolean checkPlayServices() {
-        int resultCode = GooglePlayServicesUtil.isGooglePlayServicesAvailable(getApplicationContext());
-        if (resultCode != ConnectionResult.SUCCESS) {
-            if (GooglePlayServicesUtil.isUserRecoverableError(resultCode))
-                GooglePlayServicesUtil.getErrorDialog(resultCode, this, PLAY_SERVICE_RES_REQUEST).show();
-            else {
-                Toast.makeText(getApplicationContext(), "This device is not supported", Toast.LENGTH_SHORT).show();
-            }
-            return false;
-        }
-        return true;
-    }
-
-    @Override
-    public void onConnected(@Nullable Bundle bundle) {
-        displayLocationAndUpdateData();
-        startLocationUpdates();
-    }
-
-    @Override
-    public void onConnectionSuspended(int i) {
-        mGoogleApiClient.connect();
-    }
-
-    @Override
-    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
-
-    }
 
 
 }

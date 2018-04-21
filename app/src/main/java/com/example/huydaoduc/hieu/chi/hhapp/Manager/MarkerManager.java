@@ -28,9 +28,11 @@ public class MarkerManager {
         if(driverMarker != null)
             driverMarker.remove();
 
+        //todo: Huy doi` hien them thong tin duong di
         driverMarker = mMap.addMarker(new MarkerOptions().position(LocationUtils.strToLatLng(driverRealTime.getLocation()))
-                .title(driverInfo.getName())
+                .title("Driver:" + driverInfo.getName())
                 .anchor(0.5f,0.5f)
+                .rotation(driverRealTime.getBearing())
                 .flat(true)
                 .icon(BitmapDescriptorFactory.fromResource(R.drawable.mkr_car)));
     }

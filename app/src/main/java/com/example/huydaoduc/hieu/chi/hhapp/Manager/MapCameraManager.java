@@ -60,8 +60,6 @@ public class MapCameraManager {
     }
 
     public void moveCam(LatLng point) {
-        // Move the map to Surround the route
-
         CameraPosition cameraPosition = new CameraPosition.Builder()
                 .target(point)      // Sets the center of the map to Mountain View
                 .zoom(MAP_BOUND_POINT_ZOOM)                   // Sets the zoom
