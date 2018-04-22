@@ -4,10 +4,13 @@ import android.Manifest;
 import android.animation.ValueAnimator;
 import android.annotation.SuppressLint;
 import android.app.Dialog;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.location.Location;
+import android.location.LocationManager;
+import com.google.android.gms.location.LocationListener;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -37,6 +40,7 @@ import android.widget.Toast;
 import com.example.huydaoduc.hieu.chi.hhapp.Common.Common;
 import com.example.huydaoduc.hieu.chi.hhapp.CostomInfoWindow.CustomInfoWindow;
 import com.example.huydaoduc.hieu.chi.hhapp.Define;
+import com.example.huydaoduc.hieu.chi.hhapp.Manager.CheckActivityCloseService;
 import com.example.huydaoduc.hieu.chi.hhapp.Manager.Direction.DirectionFinderListener;
 import com.example.huydaoduc.hieu.chi.hhapp.Manager.Direction.Route;
 import com.example.huydaoduc.hieu.chi.hhapp.Manager.DirectionManager;
@@ -46,6 +50,7 @@ import com.example.huydaoduc.hieu.chi.hhapp.Manager.MarkerManager;
 import com.example.huydaoduc.hieu.chi.hhapp.Manager.Place.SavedPlace;
 import com.example.huydaoduc.hieu.chi.hhapp.Manager.Place.SearchActivity;
 import com.example.huydaoduc.hieu.chi.hhapp.Manager.RouteRequest;
+import com.example.huydaoduc.hieu.chi.hhapp.Manager.User.RealtimeUser;
 import com.example.huydaoduc.hieu.chi.hhapp.Manager.User.UserApp;
 import com.example.huydaoduc.hieu.chi.hhapp.Manager.User.UserState;
 import com.example.huydaoduc.hieu.chi.hhapp.Manager.DBManager;
@@ -82,6 +87,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.gms.maps.model.SquareCap;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -164,6 +170,8 @@ public class Home extends AppCompatActivity
     private GoogleApiClient mGoogleApiClient;
     private Location mLastLocation;
 
+    private UserState userState;
+
     Dialog dialogInfo;
     DatabaseReference dbRefe;
 
@@ -198,8 +206,7 @@ public class Home extends AppCompatActivity
 
     //region ------ Real time checking --------
 
-    private void realTimeChecking() {
-    }
+
 
     //endregion
 
@@ -332,6 +339,94 @@ public class Home extends AppCompatActivity
         });
     }
 
+
+    // post request
+    DatabaseReference currUserOnlineDBR;
+
+    public void realTimeChecking() {
+        if(userState == UserState.GOING)
+            ;
+//            realTimeCheckingLocationAndRouteRequest();
+    }
+//
+//    private void startRealTimeCheckingAndShowRoute() {
+//
+//
+//        //todo: not work when phone turn off
+//        // delete data when App Kill
+//        Intent serviceIntent = new Intent(DriverActivity.this, CheckActivityCloseService.class);
+//        serviceIntent.putExtra("uid", getCurUid());
+//        DriverActivity.this.startService(serviceIntent);
+//    }
+//
+//    /**
+//     * Put Route Request Online
+//     */
+//    private void putRouteRequest(Route route) {
+//        String uid = getCurUid();
+//
+//        RouteRequest routeRequest = RouteRequest.getRouteRequestFromLeg(route, uid);
+//
+//        DatabaseReference dbRequest = dbRefe.child(Define.DB_ROUTEREQUESTS);
+//
+//        dbRequest.child(uid).setValue(routeRequest);
+//    }
+//
+//
+//    private void realTimeCheckingLocationAndRouteRequest() {
+//        // todo: handle if getAccuracy > 100 --> will not update data
+//
+//        // Get old value and Check if location out of radius or Out of time Then update Route Request
+//        DBManager.getRealtimeUserById(getCurUid(), realtimeUser -> {
+//            // Check with distance
+//            if (Define.REALTIME_USER_RADIUS_UPDATE < LocationUtils.calDistance(LocationUtils.locaToLatLng(mLastLocation), LocationUtils.strToLatLng(realtimeUser.getLocation()))) {
+//                updateRouteRequest();
+//            }
+//            // Check with time out
+//            else if (realtimeUser.func_isTimeOut(Define.REALTIME_USER_TIMEOUT)) {
+//                updateRouteRequest();
+//            }
+//        });
+//
+//        // Update new RealTime User value
+//        RealtimeUser realtimeUser = new RealtimeUser(currUserOnlineDBR.getKey(), mLastLocation, UserState.GOING);
+//        currUserOnlineDBR.setValue(realtimeUser);
+//
+//    }
+//
+//    private void updateRouteRequest() {
+//        // find routes
+//        directionManager.findPath(mLastLocation, et_endLocation.getText().toString(),
+//                new DirectionFinderListener() {
+//                    @Override
+//                    public void onDirectionFinderStart() {
+//
+//                    }
+//
+//                    @Override
+//                    public void onDirectionFinderSuccess(List<Route> routes) {
+//                        // Redraw route
+//                        directionManager.drawRoutes(routes, true);
+//
+//                        //todo: get the selected route
+//                        // put Route online
+//                        putRouteRequest(routes.get(0));
+//                    }
+//                });
+//    }
+//
+//    private void endRealTimeChecking() {
+//        if (userState == UserState.GOING) {
+//            directionManager.removeAllRoutes();
+//            markerManager.endPlaceMarker.remove();
+//            userState = UserState.NONE;
+//
+//            dbRefe.child(Define.DB_ROUTEREQUESTS).child(getCurUid()).removeValue();
+//            currUserOnlineDBR.removeValue();
+//        }
+//    }
+
+
     //endregion
 
     //region ------ Direction Manager --------
@@ -452,18 +547,14 @@ public class Home extends AppCompatActivity
     }
 
     private void StartAutoCompleteIntent(int requestCode) {
+        Intent intent = new Intent(Home. this,SearchActivity.class);
         if (mLastLocation != null) {
-            Intent intent = new Intent(Home. this,SearchActivity.class);
             intent.putExtra("cur_lat", mLastLocation.getLatitude());
             intent.putExtra("cur_lng", mLastLocation.getLongitude());
             intent.putExtra("radius", Define.RADIUS_AUTO_COMPLETE);        // radius (meters)
             // note: result with be relative with the bound (more details in Activity Class)
-            startActivityForResult(intent, requestCode);
         }
-        else {
-            //todo : handle null mLastLocation
-
-        }
+        startActivityForResult(intent, requestCode);
     }
 
     //endregion
@@ -505,6 +596,10 @@ public class Home extends AppCompatActivity
         mMap.getUiSettings().setCompassEnabled(false);
         mMap.setInfoWindowAdapter(new CustomInfoWindow(this));
 
+        // Move map to viet nam
+        CameraUpdate update = CameraUpdateFactory.newLatLngZoom(new LatLng(14.058324,108.277199), 5.6f);
+        mMap.moveCamera(update);
+
         setUpLocation();
 
         // My Location Button
@@ -518,10 +613,11 @@ public class Home extends AppCompatActivity
 
     }
 
+    @SuppressLint("MissingPermission")
     private void setUpLocation() {
-        buildGoogleApiClient();
+        firstGetLocationCheck();
 
-        buildFusedLocationProviderClient();
+        buildGoogleApiClient();
     }
 
     private synchronized void buildGoogleApiClient() {
@@ -536,12 +632,14 @@ public class Home extends AppCompatActivity
             public void onConnectionSuspended(int i) {
                 mGoogleApiClient.connect();
                 // todo: handle waiting progress circle
+                Log.e(TAG,"onConnectionSuspended");
             }
         };
 
         GoogleApiClient.OnConnectionFailedListener failedListener = connectionResult -> {
             //todo: handle connection fail
             Toast.makeText(getApplicationContext(),"GoogleApiClient.OnConnectionFailed", Toast.LENGTH_SHORT).show();
+            Log.e(TAG,"OnConnectionFailedListener");
         };
 
         // Init
@@ -554,6 +652,7 @@ public class Home extends AppCompatActivity
         mGoogleApiClient.connect();
     }
 
+    //todo: check GPS "status"
     /**
      * This will start Location Update after a "period of time"
      *
@@ -562,6 +661,7 @@ public class Home extends AppCompatActivity
      */
     @SuppressLint("MissingPermission")
     private void buildFusedLocationProviderClient() {
+        Log.d(TAG,"buildFusedLocationProviderClient");
 
         mLocationRequest = LocationRequest.create()
                 .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
@@ -579,11 +679,11 @@ public class Home extends AppCompatActivity
                 for (Location location : locationResult.getLocations()) {
                     mLastLocation = location;       // get current location
                 }
+
                 if (mLastLocation != null) {
                     Log.d(TAG,"onLocationResult: "+ mLastLocation.getBearing()+ "," + mLastLocation.getAccuracy());
 
                     realTimeChecking();
-
                     firstGetLocationCheck();
                 }
             }
@@ -591,6 +691,7 @@ public class Home extends AppCompatActivity
             @Override
             public void onLocationAvailability(LocationAvailability locationAvailability) {
                 super.onLocationAvailability(locationAvailability);
+
                 // if isLocationAvailable return false you can assume that location will not be returned in onLocationResult
                 if (locationAvailability.isLocationAvailable() == false) {
                     mFusedLocationClient.flushLocations();
@@ -600,6 +701,14 @@ public class Home extends AppCompatActivity
         };
 
         mFusedLocationClient.requestLocationUpdates(mLocationRequest, mLocationCallback, Looper.myLooper());
+        mMap.setMyLocationEnabled(true);
+    }
+
+    /**
+     * Handle GPS status "Device Only"
+     */
+    private void GetLocationInDeviceOnlyMode() {
+
     }
 
     /**
@@ -623,15 +732,29 @@ public class Home extends AppCompatActivity
         }
     }
 
+
     boolean isFirstGetLocation;
+    @SuppressLint("MissingPermission")
+    /**
+     * Use this to get Location first time and get it very quick
+     * !! Only work when there is a "last location" information on cache whether there is your app or others
+     */
     private void firstGetLocationCheck() {
         // first get location handle
         if(!isFirstGetLocation)
         {
+            mFusedLocationClient.getLastLocation()
+                    .addOnSuccessListener(Home.this, location -> {
+                        Log.i(TAG,"firstGetLocationCheck : onSuccess");
+                        if (location != null) {
+                            mLastLocation = location;
+
+                            CameraUpdate update = CameraUpdateFactory.newLatLngZoom(LocationUtils.locaToLatLng(mLastLocation),
+                                    Define.MAP_BOUND_POINT_ZOOM);
+                            mMap.moveCamera(update);
+                        }
+                    });
             isFirstGetLocation = true;
-            CameraUpdate update = CameraUpdateFactory.newLatLngZoom(LocationUtils.locaToLatLng(mLastLocation),
-                    Define.MAP_BOUND_POINT_ZOOM);
-            mMap.moveCamera(update);
         }
     }
 

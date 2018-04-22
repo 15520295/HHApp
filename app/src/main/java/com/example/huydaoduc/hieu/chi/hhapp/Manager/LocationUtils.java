@@ -1,6 +1,7 @@
 package com.example.huydaoduc.hieu.chi.hhapp.Manager;
 
 import android.location.Location;
+import android.util.Log;
 
 import com.example.huydaoduc.hieu.chi.hhapp.Manager.Direction.Leg;
 import com.example.huydaoduc.hieu.chi.hhapp.Manager.Direction.Route;
@@ -17,6 +18,7 @@ import java.util.List;
  * Create by Phan Huu Chi on 4/2018
  */
 public class LocationUtils {
+    private static String TAG = "LocationUtils";
 
     // ------- Converter --------------
     /**
@@ -28,14 +30,29 @@ public class LocationUtils {
     }
 
     public static String latLngToStr(LatLng latLng) {
+        if(latLng == null)
+        {
+            Log.e(TAG, "Location is null");
+            return "0,0";
+        }
         return latLng.latitude + "," + latLng.longitude;
     }
 
     public static LatLng locaToLatLng(Location location) {
+        if(location == null)
+        {
+            Log.e(TAG, "Location is null");
+            return new LatLng(0, 0 );
+        }
         return new LatLng(location.getLatitude(), location.getLongitude() );
     }
 
     public static String locaToStr(Location location) {
+        if(location == null)
+        {
+            Log.e(TAG, "Location is null");
+            return "0,0";
+        }
         return location.getLatitude() + "," + location.getLongitude();
     }
 

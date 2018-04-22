@@ -395,6 +395,10 @@ public class DriverActivity extends AppCompatActivity
                 endPlace.setLatLng(LocationUtils.strToLatLng(placeLocation));
 
                 et_endLocation.setText(placePrimaryText);
+
+                markerManager.draw_EndPlaceMarker(endPlace);
+
+                cameraManager.moveCam(LocationUtils.locaToLatLng(mLastLocation), endPlace.getLatLng());
             }
         }
     }
@@ -454,6 +458,10 @@ public class DriverActivity extends AppCompatActivity
         mMap.getUiSettings().setCompassEnabled(false);
         mMap.setInfoWindowAdapter(new CustomInfoWindow(this));
 
+        // Move map to viet nam
+        CameraUpdate update = CameraUpdateFactory.newLatLngZoom(new LatLng(14.058324,108.277199), 5.6f);
+        mMap.moveCamera(update);
+
         setUpLocation();
 
         // My Location Button
@@ -467,10 +475,11 @@ public class DriverActivity extends AppCompatActivity
 
     }
 
+    @SuppressLint("MissingPermission")
     private void setUpLocation() {
-        buildGoogleApiClient();
+        firstGetLocationCheck();
 
-        buildFusedLocationProviderClient();
+        buildGoogleApiClient();
     }
 
     private synchronized void buildGoogleApiClient() {
@@ -485,12 +494,14 @@ public class DriverActivity extends AppCompatActivity
             public void onConnectionSuspended(int i) {
                 mGoogleApiClient.connect();
                 // todo: handle waiting progress circle
+                Log.e(TAG,"onConnectionSuspended");
             }
         };
 
         GoogleApiClient.OnConnectionFailedListener failedListener = connectionResult -> {
             //todo: handle connection fail
             Toast.makeText(getApplicationContext(),"GoogleApiClient.OnConnectionFailed", Toast.LENGTH_SHORT).show();
+            Log.e(TAG,"OnConnectionFailedListener");
         };
 
         // Init
@@ -503,6 +514,7 @@ public class DriverActivity extends AppCompatActivity
         mGoogleApiClient.connect();
     }
 
+    //todo: check GPS "status"
     /**
      * This will start Location Update after a "period of time"
      *
@@ -511,6 +523,7 @@ public class DriverActivity extends AppCompatActivity
      */
     @SuppressLint("MissingPermission")
     private void buildFusedLocationProviderClient() {
+        Log.d(TAG,"buildFusedLocationProviderClient");
 
         mLocationRequest = LocationRequest.create()
                 .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
@@ -523,14 +536,16 @@ public class DriverActivity extends AppCompatActivity
             @Override
             public void onLocationResult(LocationResult locationResult) {
                 super.onLocationResult(locationResult);
+
                 //todo: handle when get first location move cam the that
                 for (Location location : locationResult.getLocations()) {
                     mLastLocation = location;       // get current location
                 }
+
                 if (mLastLocation != null) {
                     Log.d(TAG,"onLocationResult: "+ mLastLocation.getBearing()+ "," + mLastLocation.getAccuracy());
-                    realTimeChecking();
 
+                    realTimeChecking();
                     firstGetLocationCheck();
                 }
             }
@@ -538,6 +553,7 @@ public class DriverActivity extends AppCompatActivity
             @Override
             public void onLocationAvailability(LocationAvailability locationAvailability) {
                 super.onLocationAvailability(locationAvailability);
+
                 // if isLocationAvailable return false you can assume that location will not be returned in onLocationResult
                 if (locationAvailability.isLocationAvailable() == false) {
                     mFusedLocationClient.flushLocations();
@@ -547,6 +563,14 @@ public class DriverActivity extends AppCompatActivity
         };
 
         mFusedLocationClient.requestLocationUpdates(mLocationRequest, mLocationCallback, Looper.myLooper());
+        mMap.setMyLocationEnabled(true);
+    }
+
+    /**
+     * Handle GPS status "Device Only"
+     */
+    private void GetLocationInDeviceOnlyMode() {
+
     }
 
     /**
@@ -570,29 +594,34 @@ public class DriverActivity extends AppCompatActivity
         }
     }
 
+
     boolean isFirstGetLocation;
+    @SuppressLint("MissingPermission")
+    /**
+     * Use this to get Location first time and get it very quick
+     * !! Only work when there is a "last location" information on cache whether there is your app or others
+     */
     private void firstGetLocationCheck() {
         // first get location handle
         if(!isFirstGetLocation)
         {
+            mFusedLocationClient.getLastLocation()
+                    .addOnSuccessListener(DriverActivity.this, location -> {
+                        Log.i(TAG,"firstGetLocationCheck : onSuccess");
+                        if (location != null) {
+                            mLastLocation = location;
+
+                            CameraUpdate update = CameraUpdateFactory.newLatLngZoom(LocationUtils.locaToLatLng(mLastLocation),
+                                    Define.MAP_BOUND_POINT_ZOOM);
+                            mMap.moveCamera(update);
+                        }
+                    });
             isFirstGetLocation = true;
-            CameraUpdate update = CameraUpdateFactory.newLatLngZoom(LocationUtils.locaToLatLng(mLastLocation),
-                    Define.MAP_BOUND_POINT_ZOOM);
-            mMap.moveCamera(update);
         }
     }
+
     //endregion
 
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

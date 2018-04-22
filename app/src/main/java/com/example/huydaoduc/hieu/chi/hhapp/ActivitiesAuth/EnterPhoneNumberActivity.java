@@ -157,37 +157,6 @@ public class EnterPhoneNumberActivity extends AppCompatActivity {
 
     }
 
-    private void AnimationIn()
-    {
-        Animation animation = AnimationUtils.loadAnimation(this,R.anim.anim_fade_out);
-        animation.reset();
-        tv_connect_social.clearAnimation();
-        tv_connect_social.startAnimation(animation);
-    }
-
-    private void AnimationOut() {
-        Animation fab_out_anim = AnimationUtils.loadAnimation(this, R.anim.slide_out_left);
-        fab_out_anim.setAnimationListener(new Animation.AnimationListener() {
-            @Override
-            public void onAnimationStart(Animation animation) {
-
-            }
-
-            @Override
-            public void onAnimationEnd(Animation animation) {
-                openVerifyActivity();
-            }
-
-            @Override
-            public void onAnimationRepeat(Animation animation) {
-
-            }
-        });
-        fab_out_anim.reset();
-        fab.clearAnimation();
-        fab.startAnimation(fab_out_anim);
-    }
-
 
 
     private void Init() {
@@ -262,7 +231,7 @@ public class EnterPhoneNumberActivity extends AppCompatActivity {
 
                                         @Override
                                         public void onCancelled(DatabaseError databaseError) {
-
+                                            Log.e(TAG, databaseError.getMessage());
                                         }
                                     });
                                 }
@@ -276,7 +245,8 @@ public class EnterPhoneNumberActivity extends AppCompatActivity {
             {
                 // This callback is invoked in an invalid request for verification is made,
                 // for instance if the the phone number format is not valid.
-                Log.w(TAG, "onVerificationFailed", e);
+                Log.w(TAG, e.getMessage());
+
 
                 if (e.getMessage().toLowerCase().contains("network")) {
                     tv_error.setText("Can't connect to the network. Please check your connection");
@@ -356,7 +326,7 @@ public class EnterPhoneNumberActivity extends AppCompatActivity {
     {
         Intent intent = new Intent(getApplicationContext(),VerifyPhoneActivity.class);
         intent.putExtra("verify_code", verification_code);
-        intent.putExtra("phone_number", "+84" + et_phone_number.getText().toString());
+        intent.putExtra("phone_number", et_phone_number.getText().toString());
         this.startActivity(intent);
     }
 
@@ -364,6 +334,39 @@ public class EnterPhoneNumberActivity extends AppCompatActivity {
         et_phone_number.requestFocus();
         InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
         imm.showSoftInput(et_phone_number, InputMethodManager.SHOW_IMPLICIT);
+    }
+
+
+
+    private void AnimationIn()
+    {
+        Animation animation = AnimationUtils.loadAnimation(this,R.anim.anim_fade_out);
+        animation.reset();
+        tv_connect_social.clearAnimation();
+        tv_connect_social.startAnimation(animation);
+    }
+
+    private void AnimationOut() {
+        Animation fab_out_anim = AnimationUtils.loadAnimation(this, R.anim.slide_out_left);
+        fab_out_anim.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+                openVerifyActivity();
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {
+
+            }
+        });
+        fab_out_anim.reset();
+        fab.clearAnimation();
+        fab.startAnimation(fab_out_anim);
     }
 
 }

@@ -10,7 +10,7 @@ public class Define {
 
     // Camera Manager
     public static final int MAP_BOUND_ROUTE_PADDING = 110;  /* In dp */
-    public static final int MAP_BOUND_POINT_ZOOM = 15;
+    public static final float MAP_BOUND_POINT_ZOOM = 15.5f;
 
     // DataBase
     public static final String DB_USERS = "Users";
@@ -19,6 +19,6 @@ public class Define {
     public static final String DB_ROUTEREQUESTS = " RouteRequests";
 
     // Realtime User
-    public static final long REALTIME_USER_TIMEOUT = 3*30;      // second
+    public static final long REALTIME_USER_TIMEOUT = 10*60;      // second
     public static final double REALTIME_USER_RADIUS_UPDATE = 200;   // meter
 }
