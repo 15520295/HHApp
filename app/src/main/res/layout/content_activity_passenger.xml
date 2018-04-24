@@ -16,6 +16,6 @@
         android:layout_height="match_parent"
         android:layout_marginBottom="8dp" />
 
-    <include layout="@layout/layout_rider" />
+    <include layout="@layout/layout_passenger" />
 
 </android.support.constraint.ConstraintLayout>

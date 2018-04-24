@@ -1,14 +1,12 @@
-package com.example.huydaoduc.hieu.chi.hhapp.Manager.User;
+package com.example.huydaoduc.hieu.chi.hhapp.Model.User;
 
 import android.location.Location;
 
 import com.example.huydaoduc.hieu.chi.hhapp.Manager.LocationUtils;
-import com.example.huydaoduc.hieu.chi.hhapp.Manager.TimeManager;
+import com.example.huydaoduc.hieu.chi.hhapp.Manager.TimeUtils;
 import com.google.android.gms.maps.model.LatLng;
 
-import java.util.concurrent.TimeUnit;
-
-public class RealtimeUser {
+public class OnlineUser {
 
     private String uid;
     private String location;              // current location
@@ -16,36 +14,40 @@ public class RealtimeUser {
     private UserState state;
     private Float bearing;
 
-    public RealtimeUser() {
+    public OnlineUser() {
 
     }
 
-    public RealtimeUser(String uid, String location, String lastTimeCheck, UserState state, Float bearing) {
+
+    public LatLng func_getLocation() {
+        return LocationUtils.strToLatLng(location);
+    }
+
+    public boolean func_isTimeOut(long checkAmountSec) {
+        long secondsPass = TimeUtils.getPassTime(lastTimeCheck);
+
+        if( secondsPass > checkAmountSec)
+            return true;
+        return false;
+    }
+
+
+    public OnlineUser(String uid, String location, String lastTimeCheck, UserState state, Float bearing) {
         this.uid = uid;
         this.location = location;
         this.lastTimeCheck = lastTimeCheck;
         this.state = state;
         this.bearing = bearing;
+
+
     }
 
-    public RealtimeUser(String uid, Location location, UserState state) {
+    public OnlineUser(String uid, Location location, UserState state) {
         this.uid = uid;
         this.location = LocationUtils.locaToStr(location);
         this.bearing = location.getBearing();
         this.state = state;
-        lastTimeCheck = TimeManager.getCurrentTimeAsString();
-    }
-
-    public LatLng func_getLatLngLocation() {
-        return LocationUtils.strToLatLng(location);
-    }
-
-    public boolean func_isTimeOut(long timeOutSec) {
-        long difference = TimeManager.getCurrentTimeAsDate().getTime() - TimeManager.strToDate(lastTimeCheck).getTime();
-        long secondsPass = TimeUnit.MILLISECONDS.toSeconds(difference);
-        if( secondsPass > timeOutSec)
-            return true;
-        return false;
+        lastTimeCheck = TimeUtils.getCurrentTimeAsString();
     }
 
     // Getter Setter

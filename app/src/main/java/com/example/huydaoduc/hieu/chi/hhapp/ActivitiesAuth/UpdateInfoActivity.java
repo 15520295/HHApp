@@ -16,10 +16,10 @@ import android.widget.TextView;
 
 import java.util.Calendar;
 
-import com.example.huydaoduc.hieu.chi.hhapp.Main.MainActivity;
 import com.example.huydaoduc.hieu.chi.hhapp.Define;
+import com.example.huydaoduc.hieu.chi.hhapp.Main.MainActivity;
+import com.example.huydaoduc.hieu.chi.hhapp.Model.User.UserInfo;
 import com.example.huydaoduc.hieu.chi.hhapp.R;
-import com.example.huydaoduc.hieu.chi.hhapp.Model.User;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
@@ -81,13 +81,13 @@ public class UpdateInfoActivity extends AppCompatActivity {
         String name = et_name.getText().toString();
         String yob = et_yob.getText().toString();
 
-        User user = new User.Builder(uid)
+        UserInfo user = UserInfo.Builder.anUserInfo(uid)
                 .setName(name)
                 .setYearOfBirth(yob)
                 .setPhoneNumber(firebaseAuth.getCurrentUser().getPhoneNumber())
                 .build();
 
-        DatabaseReference usersRef = FirebaseDatabase.getInstance().getReference().child(Define.DB_USERS);
+        DatabaseReference usersRef = FirebaseDatabase.getInstance().getReference().child(Define.DB_USERS_INFO);
 
         usersRef.child(uid).setValue(user);
     }

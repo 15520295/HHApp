@@ -1,4 +1,4 @@
-package com.example.huydaoduc.hieu.chi.hhapp.Manager.User;
+package com.example.huydaoduc.hieu.chi.hhapp.Model.User;
 
 public class UserApp {
     private String name, email, phoneNumber, password;

@@ -3,7 +3,7 @@ package com.example.huydaoduc.hieu.chi.hhapp;
 public class Define {
     // Map setup
     public static final int POLLING_FREQ_MILLI_SECONDS = 5000;
-    public static final int FASTEST_UPDATE_FREQ_MILLI_SECONDS = 5000;
+    public static final int FASTEST_UPDATE_FREQ_MILLI_SECONDS = 3000;
 
     // Search Activity - AutoComplete
     public static final int RADIUS_AUTO_COMPLETE = 1000;
@@ -13,12 +13,20 @@ public class Define {
     public static final float MAP_BOUND_POINT_ZOOM = 15.5f;
 
     // DataBase
-    public static final String DB_USERS = "Users";
+    // together
+    public static final String DB_USERS_INFO = "UsersInfo";
     public static final String DB_ONLINE_USERS = " OnlineUsers";
-    public static final String DB_DRIVERS = " Drivers";
-    public static final String DB_ROUTEREQUESTS = " RouteRequests";
+    public static final String DB_PAIRS = "Pairs";
+    //driver
+    public static final String DB_DRIVER_REQUESTS = " DriverRequests";
+    //passenger
+    public static final String DB_PASSENGER_REQUESTS = "PassengerRequests";
 
-    // Realtime User
-    public static final long REALTIME_USER_TIMEOUT = 10*60;      // second
-    public static final double REALTIME_USER_RADIUS_UPDATE = 200;   // meter
+
+
+    public static final String DB_DRIVERS = " Drivers";
+
+    // Online User
+    public static final long ONLINE_USER_TIMEOUT = 10*60;      // second
+    public static final double ONLINE_USER_RADIUS_UPDATE = 200;   // meter
 }

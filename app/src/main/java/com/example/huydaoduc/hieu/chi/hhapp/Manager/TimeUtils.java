@@ -6,8 +6,9 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.concurrent.TimeUnit;
 
-public class TimeManager {
+public class TimeUtils {
     @SuppressLint("SimpleDateFormat")
     public static final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
@@ -20,6 +21,8 @@ public class TimeManager {
         Calendar c = Calendar.getInstance();
         return  c.getTime();
     }
+
+    // Convert
 
     public static Date strToDate(String string) {
         Calendar cal = Calendar.getInstance();
@@ -34,5 +37,18 @@ public class TimeManager {
 
     public static String dateToStr(Date date) {
         return simpleDateFormat.format(date);
+    }
+
+
+    // Func
+
+
+    /**
+     * Calculate time have pass from checkT
+     * @return second = now - lastTime
+     */
+    public static long getPassTime(String lastTime) {
+        long difference = getCurrentTimeAsDate().getTime() - strToDate(lastTime).getTime();
+        return TimeUnit.MILLISECONDS.toSeconds(difference);
     }
 }

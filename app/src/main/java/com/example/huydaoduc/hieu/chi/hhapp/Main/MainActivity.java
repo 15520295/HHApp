@@ -12,6 +12,9 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.example.huydaoduc.hieu.chi.hhapp.Main.Driver.DriverActivity;
+import com.example.huydaoduc.hieu.chi.hhapp.Main.Passenger.PassengerActivity;
+import com.example.huydaoduc.hieu.chi.hhapp.Model.PassengerRequest;
 import com.example.huydaoduc.hieu.chi.hhapp.R;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
@@ -51,7 +54,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
-                Intent intent = new Intent(MainActivity.this, Home.class);
+                Intent intent = new Intent(MainActivity.this, PassengerActivity.class);
                 startActivity(intent);
             }
         });

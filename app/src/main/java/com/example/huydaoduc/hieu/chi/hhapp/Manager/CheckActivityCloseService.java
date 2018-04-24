@@ -27,7 +27,7 @@ public class CheckActivityCloseService extends Service {
     }
     @Override
     public void onTaskRemoved(Intent rootIntent) {
-        FirebaseDatabase.getInstance().getReference().child(Define.DB_ROUTEREQUESTS).child(uid).removeValue();
+        FirebaseDatabase.getInstance().getReference().child(Define.DB_DRIVER_REQUESTS).child(uid).removeValue();
         FirebaseDatabase.getInstance().getReference().child(Define.DB_ONLINE_USERS).child(uid).removeValue();
 
         super.onDestroy();

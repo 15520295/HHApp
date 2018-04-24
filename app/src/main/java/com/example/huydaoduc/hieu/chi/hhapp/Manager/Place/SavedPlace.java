@@ -1,19 +1,28 @@
 package com.example.huydaoduc.hieu.chi.hhapp.Manager.Place;
 
+import com.example.huydaoduc.hieu.chi.hhapp.Manager.LocationUtils;
 import com.google.android.gms.maps.model.LatLng;
 
 public class SavedPlace {
-    private String name;
+    private String primaryText;
     private String address;
     private String id;
-    private LatLng latLng;
+    private String location;
 
-    public String getName() {
-        return name;
+    public SavedPlace() { }
+
+    public LatLng func_getLatLngLocation() {
+        return LocationUtils.strToLatLng(location);
     }
 
-    public void setName(String name) {
-        this.name = name;
+    // getter & setter
+
+    public String getPrimaryText() {
+        return primaryText;
+    }
+
+    public void setPrimaryText(String primaryText) {
+        this.primaryText = primaryText;
     }
 
     public String getAddress() {
@@ -32,11 +41,11 @@ public class SavedPlace {
         this.id = id;
     }
 
-    public LatLng getLatLng() {
-        return latLng;
+    public String getLocation() {
+        return location;
     }
 
-    public void setLatLng(LatLng latLng) {
-        this.latLng = latLng;
+    public void setLocation(String location) {
+        this.location = location;
     }
 }

@@ -14,8 +14,8 @@ import android.widget.TextView;
 
 //import com.example.huydaoduc.hieu.chi.hhapp.MainActivity;
 import com.example.huydaoduc.hieu.chi.hhapp.Define;
+import com.example.huydaoduc.hieu.chi.hhapp.Model.User.UserInfo;
 import com.example.huydaoduc.hieu.chi.hhapp.R;
-import com.example.huydaoduc.hieu.chi.hhapp.Model.User;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -53,10 +53,10 @@ public class EnterPassActivity extends AppCompatActivity {
         {
             uid = bundle.getString("uid");
             // get user password
-            databaseReference.child(Define.DB_USERS).child(uid).addValueEventListener(new ValueEventListener() {
+            databaseReference.child(Define.DB_USERS_INFO).child(uid).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                User user = dataSnapshot.getValue(User.class);
+                UserInfo user = dataSnapshot.getValue(UserInfo.class);
                 if (user != null) {
 //                    user_password = user.getPassword();
                 }

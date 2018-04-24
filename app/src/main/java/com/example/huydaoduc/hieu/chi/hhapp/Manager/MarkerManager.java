@@ -1,10 +1,8 @@
 package com.example.huydaoduc.hieu.chi.hhapp.Manager;
 
-import android.text.TextUtils;
-
 import com.example.huydaoduc.hieu.chi.hhapp.Manager.Place.SavedPlace;
-import com.example.huydaoduc.hieu.chi.hhapp.Manager.User.RealtimeUser;
-import com.example.huydaoduc.hieu.chi.hhapp.Manager.User.UserApp;
+import com.example.huydaoduc.hieu.chi.hhapp.Model.User.OnlineUser;
+import com.example.huydaoduc.hieu.chi.hhapp.Model.User.UserInfo;
 import com.example.huydaoduc.hieu.chi.hhapp.R;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
@@ -15,7 +13,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 public class MarkerManager {
     private GoogleMap mMap;
 
-    public Marker pickupPlaceMarker, endPlaceMarker, driverMarker;
+    public Marker pickupPlaceMarker, dropPlaceMarker, driverMarker;
 
     public MarkerManager(GoogleMap mMap, GoogleMap.OnMarkerClickListener listener) {
         this.mMap = mMap;
@@ -24,15 +22,15 @@ public class MarkerManager {
 
 
     // apply singleton pattern
-    public void draw_DriverMarker(UserApp driverInfo, RealtimeUser driverRealTime) {
+    public void draw_DriverMarker(UserInfo driverInfo, OnlineUser onlineDriver) {
         if(driverMarker != null)
             driverMarker.remove();
 
         //todo: Huy doi` hien them thong tin duong di
-        driverMarker = mMap.addMarker(new MarkerOptions().position(LocationUtils.strToLatLng(driverRealTime.getLocation()))
+        driverMarker = mMap.addMarker(new MarkerOptions().position(LocationUtils.strToLatLng(onlineDriver.getLocation()))
                 .title("Driver:" + driverInfo.getName())
                 .anchor(0.5f,0.5f)
-                .rotation(driverRealTime.getBearing())
+                .rotation(onlineDriver.getBearing())
                 .flat(true)
                 .icon(BitmapDescriptorFactory.fromResource(R.drawable.mkr_car)));
     }
@@ -41,23 +39,23 @@ public class MarkerManager {
         if(pickupPlaceMarker != null)
             pickupPlaceMarker.remove();
 
-        pickupPlaceMarker = mMap.addMarker(new MarkerOptions().position(pickupPlace.getLatLng())
+        pickupPlaceMarker = mMap.addMarker(new MarkerOptions().position(pickupPlace.func_getLatLngLocation())
                 .icon(BitmapDescriptorFactory.fromResource(R.drawable.mkr_map_pin_40px)));
     }
 
-    public void draw_EndPlaceMarker(SavedPlace endPlace) {
-        if(endPlaceMarker != null)
-            endPlaceMarker.remove();
+    public void draw_DropPlaceMarker(SavedPlace endPlace) {
+        if(dropPlaceMarker != null)
+            dropPlaceMarker.remove();
 
-        endPlaceMarker = mMap.addMarker(new MarkerOptions().position(endPlace.getLatLng())
+        dropPlaceMarker = mMap.addMarker(new MarkerOptions().position(endPlace.func_getLatLngLocation())
                 .icon(BitmapDescriptorFactory.fromResource(R.drawable.mkr_marker_40px)));
     }
 
-    public void draw_EndPlaceMarker(LatLng endLoation) {
-        if(endPlaceMarker != null)
-            endPlaceMarker.remove();
+    public void draw_DropPlaceMarker(LatLng endLoation) {
+        if(dropPlaceMarker != null)
+            dropPlaceMarker.remove();
 
-        endPlaceMarker = mMap.addMarker(new MarkerOptions().position(endLoation)
+        dropPlaceMarker = mMap.addMarker(new MarkerOptions().position(endLoation)
                 .icon(BitmapDescriptorFactory.fromResource(R.drawable.mkr_marker_40px)));
     }
 
