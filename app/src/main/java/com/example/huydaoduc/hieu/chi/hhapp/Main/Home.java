@@ -117,7 +117,7 @@ public class Home extends AppCompatActivity
         NavigationView.OnNavigationItemSelectedListener,
         OnMapReadyCallback
 {
-
+  
     private static final String TAG = "RiderActivity";
 
     // store all info in the map
