@@ -16,7 +16,11 @@ public class Define {
     // together
     public static final String DB_USERS_INFO = "UsersInfo";
     public static final String DB_ONLINE_USERS = " OnlineUsers";
-    public static final String DB_PAIRS = "Pairs";
+
+    public static final String DB_TRIPS = "Trips";
+    public static final String DB_TRIP_UID = "tripUId";
+
+
     //driver
     public static final String DB_DRIVER_REQUESTS = " DriverRequests";
     //passenger
@@ -27,6 +31,11 @@ public class Define {
     public static final String DB_DRIVERS = " Drivers";
 
     // Online User
-    public static final long ONLINE_USER_TIMEOUT = 10*60;      // second
     public static final double ONLINE_USER_RADIUS_UPDATE = 200;   // meter
+    public static Float VND_PER_M = 5000f;
+
+    // Time out
+    public static final long ONLINE_USER_TIMEOUT = 10*60;      // second
+    public static final long DRIVER_REQUESTS_TIMEOUT = 10*60;
+
 }

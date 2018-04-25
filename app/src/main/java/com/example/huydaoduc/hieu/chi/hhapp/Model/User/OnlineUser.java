@@ -13,6 +13,7 @@ public class OnlineUser {
     private String lastTimeCheck;       // last time update Location
     private UserState state;
     private Float bearing;
+    private String tripUId;
 
     public OnlineUser() {
 
@@ -32,16 +33,6 @@ public class OnlineUser {
     }
 
 
-    public OnlineUser(String uid, String location, String lastTimeCheck, UserState state, Float bearing) {
-        this.uid = uid;
-        this.location = location;
-        this.lastTimeCheck = lastTimeCheck;
-        this.state = state;
-        this.bearing = bearing;
-
-
-    }
-
     public OnlineUser(String uid, Location location, UserState state) {
         this.uid = uid;
         this.location = LocationUtils.locaToStr(location);
@@ -50,16 +41,17 @@ public class OnlineUser {
         lastTimeCheck = TimeUtils.getCurrentTimeAsString();
     }
 
+    public OnlineUser(String uid, String location, String lastTimeCheck, UserState state, Float bearing, String tripUId) {
+        this.uid = uid;
+        this.location = location;
+        this.lastTimeCheck = lastTimeCheck;
+        this.state = state;
+        this.bearing = bearing;
+        this.tripUId = tripUId;
+    }
+
     // Getter Setter
 
-
-    public Float getBearing() {
-        return bearing;
-    }
-
-    public void setBearing(Float bearing) {
-        this.bearing = bearing;
-    }
 
     public String getUid() {
         return uid;
@@ -91,5 +83,21 @@ public class OnlineUser {
 
     public void setState(UserState state) {
         this.state = state;
+    }
+
+    public Float getBearing() {
+        return bearing;
+    }
+
+    public void setBearing(Float bearing) {
+        this.bearing = bearing;
+    }
+
+    public String getTripUId() {
+        return tripUId;
+    }
+
+    public void setTripUId(String tripUId) {
+        this.tripUId = tripUId;
     }
 }

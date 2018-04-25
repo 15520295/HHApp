@@ -2,6 +2,10 @@ package com.example.huydaoduc.hieu.chi.hhapp.Model.User;
 
 import android.net.Uri;
 
+import com.example.huydaoduc.hieu.chi.hhapp.Model.CarInfo;
+
+import java.util.List;
+
 public class UserInfo {
 
     private String uid;
@@ -9,23 +13,23 @@ public class UserInfo {
     private String name;
     private String yearOfBirth;
     private Uri photoUri;
-    private String carName;
-    private String carId;
-    private CarType carType;
+
+    private CarInfo carInfo;
+
+    private List<String> trips;
 
     public UserInfo() {
 
     }
 
-    public UserInfo(String uid, String phoneNumber, String name, String yearOfBirth, Uri photoUri, String carName, String carId, CarType carType) {
+    public UserInfo(String uid, String phoneNumber, String name, String yearOfBirth, Uri photoUri, CarInfo carInfo, List<String> trips) {
         this.uid = uid;
         this.phoneNumber = phoneNumber;
         this.name = name;
         this.yearOfBirth = yearOfBirth;
         this.photoUri = photoUri;
-        this.carName = carName;
-        this.carId = carId;
-        this.carType = carType;
+        this.carInfo = carInfo;
+        this.trips = trips;
     }
 
     public String getUid() {
@@ -68,29 +72,22 @@ public class UserInfo {
         this.photoUri = photoUri;
     }
 
-    public String getCarName() {
-        return carName;
+    public CarInfo getCarInfo() {
+        return carInfo;
     }
 
-    public void setCarName(String carName) {
-        this.carName = carName;
+    public void setCarInfo(CarInfo carInfo) {
+        this.carInfo = carInfo;
     }
 
-    public String getCarId() {
-        return carId;
+    public List<String> getTrips() {
+        return trips;
     }
 
-    public void setCarId(String carId) {
-        this.carId = carId;
+    public void setTrips(List<String> trips) {
+        this.trips = trips;
     }
 
-    public CarType getCarType() {
-        return carType;
-    }
-
-    public void setCarType(CarType carType) {
-        this.carType = carType;
-    }
 
     public static final class Builder {
         private String uid;
@@ -98,8 +95,8 @@ public class UserInfo {
         private String name;
         private String yearOfBirth;
         private Uri photoUri;
-        private String carName;
-        private String carId;
+        private CarInfo carInfo;
+        private List<String> trips;
 
         private Builder() {
         }
@@ -133,13 +130,13 @@ public class UserInfo {
             return this;
         }
 
-        public Builder setCarName(String carName) {
-            this.carName = carName;
+        public Builder setCarInfo(CarInfo carInfo) {
+            this.carInfo = carInfo;
             return this;
         }
 
-        public Builder setCarId(String carId) {
-            this.carId = carId;
+        public Builder setTrips(List<String> trips) {
+            this.trips = trips;
             return this;
         }
 
@@ -150,8 +147,8 @@ public class UserInfo {
             userInfo.setName(name);
             userInfo.setYearOfBirth(yearOfBirth);
             userInfo.setPhotoUri(photoUri);
-            userInfo.setCarName(carName);
-            userInfo.setCarId(carId);
+            userInfo.setCarInfo(carInfo);
+            userInfo.setTrips(trips);
             return userInfo;
         }
     }

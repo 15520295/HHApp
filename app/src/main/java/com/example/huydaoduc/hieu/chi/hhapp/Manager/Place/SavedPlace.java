@@ -1,5 +1,7 @@
 package com.example.huydaoduc.hieu.chi.hhapp.Manager.Place;
 
+import android.util.Log;
+
 import com.example.huydaoduc.hieu.chi.hhapp.Manager.LocationUtils;
 import com.google.android.gms.maps.model.LatLng;
 
@@ -12,6 +14,10 @@ public class SavedPlace {
     public SavedPlace() { }
 
     public LatLng func_getLatLngLocation() {
+        if (location == null) {
+            Log.e("SavePlace", "location null");
+            return new LatLng(0f, 0f);
+        }
         return LocationUtils.strToLatLng(location);
     }
 

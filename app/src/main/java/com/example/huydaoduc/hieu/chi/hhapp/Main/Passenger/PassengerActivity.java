@@ -49,6 +49,8 @@ import com.example.huydaoduc.hieu.chi.hhapp.Manager.Place.SearchActivity;
 import com.example.huydaoduc.hieu.chi.hhapp.Model.PassengerRequest;
 import com.example.huydaoduc.hieu.chi.hhapp.Model.DriverRequest;
 import com.example.huydaoduc.hieu.chi.hhapp.Manager.TimeUtils;
+import com.example.huydaoduc.hieu.chi.hhapp.Model.Trip.Trip;
+import com.example.huydaoduc.hieu.chi.hhapp.Model.Trip.TripState;
 import com.example.huydaoduc.hieu.chi.hhapp.Model.User.CarType;
 import com.example.huydaoduc.hieu.chi.hhapp.Model.User.OnlineUser;
 import com.example.huydaoduc.hieu.chi.hhapp.Model.User.UserInfo;
@@ -96,6 +98,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import retrofit2.Call;
@@ -218,23 +221,66 @@ public class PassengerActivity extends AppCompatActivity
 
     //region ------ Start Booking --------
 
-    boolean isDriverFound;      // --> use for synchronous purpose
+    Boolean isDriverFound;      // --> use for synchronous purpose
     boolean notFoundHH;      // --> use for synchronous purpose
     boolean hhMode;
+
+    Float estimateFare;
 
     private void startBooking() {
         //todo: put hhMode to screen
         hhMode = true;
         notFoundHH = false;
 
+        estimateFare = 0f;
+        long limitHHRadius = 500;
+
+
+        // create a trip
+        String tripUId = dbRefe.child(Define.DB_TRIPS).push().getKey();
+
+        Trip trip = Trip.Builder.aTrip(tripUId)
+                .setPassengerUId(getCurUid())
+                .setTripState(TripState.WAITING_ACCEPT)
+                .setEstimateFare(estimateFare)
+                .build();
+
         if (hhMode) {
-            findMatchingHH();
+            findMatchingHH(trip, limitHHRadius, new FindHHListener() {
+                        @Override
+                        public void OnLoopThoughAllRequestHH() {
+                            synchronized (isDriverFound)
+                            {
+                                // if loop through all the objects but still not find matching HH request then use normal request
+                                if( ! isDriverFound)
+                                    findNearestDriver(trip);
+                            }
+                        }
+
+                        @Override
+                        public void OnFoundDriverRequest(DriverRequest request) {
+                            isDriverFound = true;
+                            String driverUId = request.getDriverUId();
+
+                            // waitForDriverAccept
+                            
+
+                            // notify driver thought database
+                            dbRefe.child(Define.DB_ONLINE_USERS)
+                                    .child(driverUId).child(Define.DB_TRIP_UID).setValue(driverUId);
+
+                            Log.i(TAG, "Found HH request" + request.getDriverUId());
+                        }
+                    }
+            );
         } else {
-            findNearestDriver();
+            findNearestDriver(trip);
         }
     }
 
-    private void findNearestDriver() {
+
+
+    private void findNearestDriver(Trip trip) {
         DatabaseReference dbRequest = dbRefe.child(Define.DB_PASSENGER_REQUESTS);
 
         startFindActiveDriver();
@@ -242,27 +288,43 @@ public class PassengerActivity extends AppCompatActivity
 
 
     // ------------ Find matching HH request
-    // todo: show payment info + driver info in a fragment
 
-    private void findMatchingHH() {
+    // for synchronous purpose use interface and synchronized keyword
+    // interface for raise loop thought all list event
+    // synchronized keyword for locking the Boolean variable
+    interface FindHHListener{
+        void OnLoopThoughAllRequestHH();
+        void OnFoundDriverRequest(DriverRequest request);
+    }
+
+    private void findMatchingHH(Trip trip, long limitHHRadius, FindHHListener listener) {
         DatabaseReference dbRequest = dbRefe.child(Define.DB_DRIVER_REQUESTS);
 
-            dbRequest.addListenerForSingleValueEvent(new ValueEventListener() {
+        dbRequest.addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
+                    // Note: We need to find the matching and the nearest also
+                    // Because the latency when get the polyline form google server, so
+                    // we need to sort all HH driver request in nearest other then we can check from that
 
-                    for (DataSnapshot postSnapshot: dataSnapshot.getChildren()) {
-                        if (isDriverFound)
-                        {
-                            break;      // if found the driver done checking
+                    // get List from DataSnapshot after filtered and ordered
+                    List<DriverRequest> driverRequests = filterAndOrderingRequestList(dataSnapshot, mLastLocation, limitHHRadius);
+
+                    // loop the the list and find matching request if not found raise the loop thought listener
+                    // if found run foundDriver method
+                    for (int i = 0; i < driverRequests.size(); i++) {
+                        // if driver found break the check loop
+                        synchronized (isDriverFound) {
+                            if(isDriverFound)
+                                break;
                         }
-                        DriverRequest request = postSnapshot.getValue(DriverRequest.class);
-                        checkIfDriverRequestMatch(request);
+                        checkIfDriverRequestMatch(driverRequests.size(), i, driverRequests.get(i), listener);
                     }
 
-                    // if not find any HH request move tho normal request
-                    if( ! isDriverFound)
-                        findNearestDriver();
+                    // if list null raise event
+                    if (driverRequests.size() == 0) {
+                        listener.OnLoopThoughAllRequestHH();
+                    }
                 }
 
                 @Override
@@ -271,6 +333,40 @@ public class PassengerActivity extends AppCompatActivity
                     Log.e(TAG, databaseError.getMessage());
                 }
             });
+    }
+
+    private List<DriverRequest> filterAndOrderingRequestList(DataSnapshot listDriverRequestDS,
+                                                             Location curLocation, long limitHHRadius) {
+        List<DriverRequest> requestList = new ArrayList();
+
+        // get list from database
+        for (DataSnapshot postSnapshot: listDriverRequestDS.getChildren()) {
+            DriverRequest request = postSnapshot.getValue(DriverRequest.class);
+
+            LatLng latLng_startLocation = LocationUtils.strToLatLng(request.getStartLocation());
+
+            // check validate HH request before add to list
+            if ((LocationUtils.calcDistance(latLng_startLocation, mLastLocation) < limitHHRadius)
+                && ! request.func_isTimeOut(Define.DRIVER_REQUESTS_TIMEOUT))
+            {
+                requestList.add(request);
+            }
+        }
+
+        // sort list
+        Collections.sort(requestList, (dq1, dq2) ->{
+            double distance1 = LocationUtils.calcDistance(dq1.getStartLocation(), curLocation);
+            double distance2 = LocationUtils.calcDistance(dq2.getStartLocation(), curLocation);
+
+            if(distance1 < distance2)
+                return -1;
+            else if (distance1 == distance2)
+                return 0;
+            else
+                return 1;
+        } );
+
+        return requestList;
     }
 
     //todo : run synchronously for every check
@@ -282,11 +378,15 @@ public class PassengerActivity extends AppCompatActivity
      * check if Pickup Place and End Place match to the Request Polyline
      * isDriverFound --> use for synchronous purpose
      */
-    private void checkIfDriverRequestMatch(final DriverRequest request) {
+    private void checkIfDriverRequestMatch(final int listSize, final int itemIndex,
+                                           final DriverRequest request, FindHHListener listener) {
         //get Location From Request
         LatLng latLng_startLocation = LocationUtils.strToLatLng(request.getStartLocation());
         LatLng latLng_endLocation = LocationUtils.strToLatLng(request.getEndLocation());
 
+        Log.d(TAG, "trigger Event");
+
+        // check limit radius --> if out off range will not check
         // find the Direction depend on Request
         directionManager.findPath(latLng_startLocation, latLng_endLocation,
                 new DirectionFinderListener() {
@@ -298,22 +398,38 @@ public class PassengerActivity extends AppCompatActivity
                     @Override
                     public void onDirectionFinderSuccess(List<Route> routes) {
                         // isDriverFound --> for synchronous purpose
-
+                        Log.d(TAG, "done Event");
                         if (!isDriverFound && routes.size() > 0) {
-                            // get Driver Request Polyline
-                            final List<LatLng> polyline = LocationUtils.getPointsFromRoute(routes.get(0));
-
-                            // check if Pickup Place and End Place match to the Polyline
-                            boolean isMatch = LocationUtils.isMatching(polyline,pickupPlace.func_getLatLngLocation(), dropPlace.func_getLatLngLocation(),500);
-                            if(isMatch && !isDriverFound)
                             {
-                                isDriverFound = true;
-                                setUpFoundDriver(request.getUid());
+                                // get Driver Request Polyline
+                                final List<LatLng> polyline = LocationUtils.getPointsFromRoute(routes.get(0));
+
+                                // check if Pickup Place and End Place match to the Polyline
+                                boolean isMatch = LocationUtils.isMatching(polyline,
+                                        getPickupPlace().func_getLatLngLocation(),
+                                        getDropPlace().func_getLatLngLocation(),
+                                        500);
+
+                                synchronized (isDriverFound) {
+                                    if(isMatch && !isDriverFound)
+                                    {
+                                        listener.OnFoundDriverRequest(request);
+                                    }
+                                }
                             }
+                        }
+
+                        // raise event loop thought all request if last element
+                        if (listSize == itemIndex + 1) {
+                            listener.OnLoopThoughAllRequestHH();
+                            Log.i(TAG, "Loop thought all HH request");
                         }
                     }
                 });
+        Log.d(TAG, "out Event");
     }
+
+
 
 
     //region -------------- Show Driver Info
@@ -389,30 +505,13 @@ public class PassengerActivity extends AppCompatActivity
 
 //        notifyPassengerRequestForDriver();
 
-        waitForDriverAccept();
+//        waitForDriverAccept();
 
         //todo: not work when phone turn off
         // delete data when App Kill
 //        Intent serviceIntent = new Intent(PassengerActivity.this, CheckActivityCloseService.class);
 //        serviceIntent.putExtra("uid", getCurUid());
 //        PassengerActivity.this.startService(serviceIntent);
-    }
-
-    private void waitForDriverAccept() {
-        String uid = getCurUid();
-        DatabaseReference dbRequest = dbRefe.child(Define.DB_PAIRS);
-
-        dbRequest.child(uid).addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
     }
 
     /**
@@ -444,7 +543,7 @@ public class PassengerActivity extends AppCompatActivity
         // Get old value and Check if location out of radius or Out of time Then update Route Request
         DBManager.getOnlineUserById(getCurUid(), onlineUser -> {
             // Check with distance
-            if (Define.ONLINE_USER_RADIUS_UPDATE < LocationUtils.calDistance(LocationUtils.locaToLatLng(mLastLocation), LocationUtils.strToLatLng(onlineUser.getLocation()))) {
+            if (Define.ONLINE_USER_RADIUS_UPDATE < LocationUtils.calcDistance(LocationUtils.locaToLatLng(mLastLocation), LocationUtils.strToLatLng(onlineUser.getLocation()))) {
                 updateUserRequest();
             }
             // Check with time out
@@ -559,6 +658,23 @@ public class PassengerActivity extends AppCompatActivity
     EditText et_pickupLocation, et_dropLocation;
 
     SavedPlace dropPlace, pickupPlace;
+
+    //todo handle null
+    private SavedPlace getPickupPlace() {
+        if (pickupPlace == null) {
+            Log.e(TAG, "pickupPlace null");
+            return new SavedPlace();
+        }
+        return pickupPlace;
+    }
+
+    private SavedPlace getDropPlace() {
+        if (dropPlace == null) {
+            Log.e(TAG, "dropPlace null");
+            return new SavedPlace();
+        }
+        return dropPlace;
+    }
 
     private void searViewEvent() {
         et_pickupLocation.setOnClickListener(v ->
@@ -747,7 +863,7 @@ public class PassengerActivity extends AppCompatActivity
                 }
 
                 if (mLastLocation != null) {
-                    Log.d(TAG,"onLocationResult: "+ mLastLocation.getBearing()+ "," + mLastLocation.getAccuracy());
+                    Log.i(TAG,"onLocationResult: "+ mLastLocation.getBearing()+ "," + mLastLocation.getAccuracy());
 
                     realTimeChecking();
                     firstGetLocationCheck();
@@ -864,10 +980,9 @@ public class PassengerActivity extends AppCompatActivity
             }
         });*/
 
+        isDriverFound = false;
 
         // nut ping vi tri
-
-
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
@@ -946,7 +1061,6 @@ public class PassengerActivity extends AppCompatActivity
 //                //Log.d("EDMTDEV", destination);
 //                getDirection();
 
-                isDriverFound = false;
 
             }
         });

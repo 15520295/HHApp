@@ -20,21 +20,22 @@ public class PassengerRequest {
     private CarType carType;
     @Nullable
     private String note;        // note for Driver
+    private float percentOff;
 
 
     public PassengerRequest() {
     }
 
-    public PassengerRequest(String passengerUId, SavedPlace pickUpSavePlace, SavedPlace dropOffSavePlace, String postTime, CarType carType, String note) {
+    public PassengerRequest(String passengerUId, SavedPlace pickUpSavePlace, SavedPlace dropOffSavePlace, String postTime, CarType carType, String note, float percentOff) {
         this.passengerUId = passengerUId;
         this.pickUpSavePlace = pickUpSavePlace;
         this.dropOffSavePlace = dropOffSavePlace;
         this.postTime = postTime;
         this.carType = carType;
         this.note = note;
+        this.percentOff = percentOff;
     }
 
-    // Getter & Setter
     public String getPassengerUId() {
         return passengerUId;
     }
@@ -84,24 +85,33 @@ public class PassengerRequest {
         this.note = note;
     }
 
+    public float getPercentOff() {
+        return percentOff;
+    }
+
+    public void setPercentOff(float percentOff) {
+        this.percentOff = percentOff;
+    }
+
 
     public static final class Builder {
-        private String uid;
+        private String passengerUId;
         private SavedPlace pickUpSavePlace;
         private SavedPlace dropOffSavePlace;
         private String postTime;
         private CarType carType;
         private String note;        // note for Driver
+        private float percentOff;
 
         private Builder() {
         }
 
-        public static Builder aPassengerRequest(@NonNull String uid) {
-            return new Builder().setUid(uid);
+        public static Builder aPassengerRequest(String passengerUId) {
+            return new Builder().setPassengerUId(passengerUId);
         }
 
-        private Builder setUid(String uid) {
-            this.uid = uid;
+        private Builder setPassengerUId(String passengerUId) {
+            this.passengerUId = passengerUId;
             return this;
         }
 
@@ -130,13 +140,20 @@ public class PassengerRequest {
             return this;
         }
 
+        public Builder setPercentOff(float percentOff) {
+            this.percentOff = percentOff;
+            return this;
+        }
+
         public PassengerRequest build() {
             PassengerRequest passengerRequest = new PassengerRequest();
+            passengerRequest.setPassengerUId(passengerUId);
             passengerRequest.setPickUpSavePlace(pickUpSavePlace);
             passengerRequest.setDropOffSavePlace(dropOffSavePlace);
             passengerRequest.setPostTime(postTime);
             passengerRequest.setCarType(carType);
             passengerRequest.setNote(note);
+            passengerRequest.setPercentOff(percentOff);
             return passengerRequest;
         }
     }

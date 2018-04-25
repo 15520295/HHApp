@@ -1,5 +1,6 @@
 package com.example.huydaoduc.hieu.chi.hhapp.Model;
 
+import com.example.huydaoduc.hieu.chi.hhapp.Define;
 import com.example.huydaoduc.hieu.chi.hhapp.Manager.Direction.Leg;
 import com.example.huydaoduc.hieu.chi.hhapp.Manager.Direction.Route;
 import com.example.huydaoduc.hieu.chi.hhapp.Manager.LocationUtils;
@@ -7,15 +8,19 @@ import com.example.huydaoduc.hieu.chi.hhapp.Manager.TimeUtils;
 
 public class DriverRequest {
 
-    private String uid;
-    private String startLocation;
+    private String driverUId;
+    private String startLocation;       // LatLng
     private String endLocation;
     private String summary;
     private String postTime;
-    private Float pricePerKm;
+    private Float percentDiscount;
 
     public DriverRequest() {
 
+    }
+
+    public float func_calcEstimateFare(float length) {
+        return percentDiscount * length * Define.VND_PER_M;
     }
 
     public boolean func_isTimeOut(long checkAmountSec) {
@@ -26,7 +31,7 @@ public class DriverRequest {
         return false;
     }
 
-    public static DriverRequest func_createDriverRequestFromRoute(Route route, String uid, Float pricePerKm) {
+    public static DriverRequest func_createDriverRequestFromRoute(Route route, String uid, Float percentDiscount) {
         Leg leg = route.getLegs().get(0);
 
         String startLoc = LocationUtils.latLngToStr(leg.getStartLocation());
@@ -34,24 +39,25 @@ public class DriverRequest {
 
         String postTime = TimeUtils.getCurrentTimeAsString();
 
-        return new DriverRequest(uid, startLoc, endLoc , route.getSummary(), postTime, pricePerKm);
+        return new DriverRequest(uid, startLoc, endLoc , route.getSummary(), postTime, percentDiscount);
     }
 
-    public DriverRequest(String uid, String startLocation, String endLocation, String summary, String postTime, Float pricePerKm) {
-        this.uid = uid;
+
+    public DriverRequest(String driverUId, String startLocation, String endLocation, String summary, String postTime, Float percentDiscount) {
+        this.driverUId = driverUId;
         this.startLocation = startLocation;
         this.endLocation = endLocation;
         this.summary = summary;
         this.postTime = postTime;
-        this.pricePerKm = pricePerKm;
+        this.percentDiscount = percentDiscount;
     }
 
-    public String getUid() {
-        return uid;
+    public String getDriverUId() {
+        return driverUId;
     }
 
-    public void setUid(String uid) {
-        this.uid = uid;
+    public void setDriverUId(String driverUId) {
+        this.driverUId = driverUId;
     }
 
     public String getStartLocation() {
@@ -86,11 +92,13 @@ public class DriverRequest {
         this.postTime = postTime;
     }
 
-    public Float getPricePerKm() {
-        return pricePerKm;
+    public Float getPercentDiscount() {
+        return percentDiscount;
     }
 
-    public void setPricePerKm(Float pricePerKm) {
-        this.pricePerKm = pricePerKm;
+    public void setPercentDiscount(Float percentDiscount) {
+        this.percentDiscount = percentDiscount;
     }
+
+
 }

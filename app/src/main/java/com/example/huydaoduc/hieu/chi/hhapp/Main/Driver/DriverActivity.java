@@ -247,7 +247,7 @@ public class DriverActivity extends AppCompatActivity
         // Get old value and Check if location out of radius or Out of time Then update Route Request
         DBManager.getOnlineUserById(getCurUid(), onlineUser -> {
             // Check with distance
-            if (Define.ONLINE_USER_RADIUS_UPDATE < LocationUtils.calDistance(LocationUtils.locaToLatLng(mLastLocation), LocationUtils.strToLatLng(onlineUser.getLocation()))) {
+            if (Define.ONLINE_USER_RADIUS_UPDATE < LocationUtils.calcDistance(LocationUtils.locaToLatLng(mLastLocation), LocationUtils.strToLatLng(onlineUser.getLocation()))) {
                 updateRouteRequest();
             }
             // Check with time out

@@ -40,7 +40,10 @@
             android:name=".Manager.Place.SearchActivity"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name=".Main.DriverActivity"
+            android:name=".Main.Driver.DriverActivity"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".Main.Passenger.PassengerActivity"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity android:name=".ActivitiesAuth.PhoneAuthActivity" />
         <activity android:name=".Main.MainActivity"></activity>
