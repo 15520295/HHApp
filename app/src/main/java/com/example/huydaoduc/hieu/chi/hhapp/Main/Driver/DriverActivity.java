@@ -169,14 +169,13 @@ public class DriverActivity extends AppCompatActivity
     // User Property
     UserState userState;
 
-    //region ------ Real time checking --------
-    // todo: add time to route request
 
     public void realTimeChecking() {
         if(userState == UserState.D_RECEIVING_BOOKING_HH)
             realTimeChecking_DriverRequest();
     }
 
+    //region ------ HH Request   --------
     private void startRealTimeCheckingAndShowRoute() {
         // find/ show/ put_online  route + start real time checking
         directionManager.findPath(mLastLocation, et_endLocation.getText().toString(),
@@ -203,7 +202,6 @@ public class DriverActivity extends AppCompatActivity
 
                         // run this to put value the first time
                         realTimeChecking_DriverRequest();
-
                     }
                 });
 
@@ -297,6 +295,40 @@ public class DriverActivity extends AppCompatActivity
     private void updateOnlineUserInfo() {
         OnlineUser onlineUser = new OnlineUser(getCurUid(), mLastLocation, userState);
         dbRefe.child(Define.DB_ONLINE_USERS).child(getCurUid()).setValue(onlineUser);
+
+        //Listen to Trip UId
+        dbRefe.child(Define.DB_ONLINE_USERS)
+                .child(getCurUid()).child(Define.DB_ONLINE_USERS_TRIP_UID)
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        String tripUId = dataSnapshot.getValue(String.class);
+
+                        // Change Driver State
+                        userState = UserState.D_WAITING_FOR_ACCEPT;
+                        dbRefe.child(Define.DB_ONLINE_USERS)
+                                .child(getCurUid())
+                                .child(Define.DB_ONLINE_USERS_STATE).setValue(userState);
+
+                        showTripInfoAndWaitAccepting(tripUId);
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                });
+    }
+
+    private void showTripInfoAndWaitAccepting(String tripUId) {
+
+    }
+
+    private void driverAccepted(String tripUId) {
+        // update driver uid to trip info
+        dbRefe.child(Define.DB_TRIPS)
+                .child(tripUId)
+                .child(Define.DB_TRIPS_DRIVER_UID).setValue(getCurUid());
     }
 
 

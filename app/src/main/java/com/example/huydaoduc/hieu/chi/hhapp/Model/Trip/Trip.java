@@ -13,8 +13,8 @@ public class Trip {
     private TripStyle tripStyle;
     private TripState tripState;
 
-    private String startTime;
-    private String endTime;
+    private String startTime;           // when pick up
+    private String endTime;             // when drop off
 
     private Float tripDistance;
     private Float tripDuration;

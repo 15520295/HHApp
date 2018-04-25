@@ -12,13 +12,19 @@ public class Define {
     public static final int MAP_BOUND_ROUTE_PADDING = 110;  /* In dp */
     public static final float MAP_BOUND_POINT_ZOOM = 15.5f;
 
-    // DataBase
-    // together
-    public static final String DB_USERS_INFO = "UsersInfo";
-    public static final String DB_ONLINE_USERS = " OnlineUsers";
-
+    // --------- DataBase
+    // Trips
     public static final String DB_TRIPS = "Trips";
-    public static final String DB_TRIP_UID = "tripUId";
+    public static final String DB_TRIPS_TRIP_STATE = "TripState";
+    public static final String DB_TRIPS_DRIVER_UID = "DriverUId";
+
+    //
+    public static final String DB_USERS_INFO = "UsersInfo";
+
+    // Online User
+    public static final String DB_ONLINE_USERS = " OnlineUsers";
+    public static final String DB_ONLINE_USERS_TRIP_UID = "tripUId";
+    public static final String DB_ONLINE_USERS_STATE = "UserState";
 
 
     //driver

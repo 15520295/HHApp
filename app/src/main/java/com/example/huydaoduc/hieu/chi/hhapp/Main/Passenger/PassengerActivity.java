@@ -51,6 +51,7 @@ import com.example.huydaoduc.hieu.chi.hhapp.Model.DriverRequest;
 import com.example.huydaoduc.hieu.chi.hhapp.Manager.TimeUtils;
 import com.example.huydaoduc.hieu.chi.hhapp.Model.Trip.Trip;
 import com.example.huydaoduc.hieu.chi.hhapp.Model.Trip.TripState;
+import com.example.huydaoduc.hieu.chi.hhapp.Model.Trip.TripStyle;
 import com.example.huydaoduc.hieu.chi.hhapp.Model.User.CarType;
 import com.example.huydaoduc.hieu.chi.hhapp.Model.User.OnlineUser;
 import com.example.huydaoduc.hieu.chi.hhapp.Model.User.UserInfo;
@@ -234,6 +235,8 @@ public class PassengerActivity extends AppCompatActivity
 
         estimateFare = 0f;
         long limitHHRadius = 500;
+        float distance = 0;
+        float duration = 0;
 
 
         // create a trip
@@ -241,8 +244,10 @@ public class PassengerActivity extends AppCompatActivity
 
         Trip trip = Trip.Builder.aTrip(tripUId)
                 .setPassengerUId(getCurUid())
-                .setTripState(TripState.WAITING_ACCEPT)
                 .setEstimateFare(estimateFare)
+                .setTripState(TripState.CREATED)
+                .setTripDistance(distance)
+                .setTripDuration(duration)
                 .build();
 
         if (hhMode) {
@@ -262,12 +267,33 @@ public class PassengerActivity extends AppCompatActivity
                             isDriverFound = true;
                             String driverUId = request.getDriverUId();
 
-                            // waitForDriverAccept
-                            
+                            // Set up Trip
+                            trip.setTripState(TripState.WAITING_ACCEPT);
+                            trip.setTripStyle(TripStyle.HH);
+                            String tripUId = dbRefe.child(Define.DB_TRIPS).push().getKey();
+                            dbRefe.child(Define.DB_TRIPS)
+                                    .child(tripUId).setValue(trip);
 
                             // notify driver thought database
                             dbRefe.child(Define.DB_ONLINE_USERS)
-                                    .child(driverUId).child(Define.DB_TRIP_UID).setValue(driverUId);
+                                    .child(driverUId).child(Define.DB_ONLINE_USERS_TRIP_UID).setValue(tripUId);
+
+
+                            // waitForDriverAccept
+                            dbRefe.child(Define.DB_TRIPS)
+                                    .child(tripUId).child(Define.DB_TRIPS_TRIP_STATE)
+                                    .addListenerForSingleValueEvent(new ValueEventListener() {
+                                        @Override
+                                        public void onDataChange(DataSnapshot dataSnapshot) {
+                                            driverAccepted();
+                                        }
+
+                                        @Override
+                                        public void onCancelled(DatabaseError databaseError) {
+
+                                        }
+                                    });
+
 
                             Log.i(TAG, "Found HH request" + request.getDriverUId());
                         }
@@ -278,6 +304,16 @@ public class PassengerActivity extends AppCompatActivity
         }
     }
 
+    private void driverAccepted() {
+
+    }
+
+    // ------------ Find matching Active Driver
+
+    interface FindActiveDriverListener {
+        void OnLoopThoughAllRequestHH();
+        void OnFoundDriverRequest(DriverRequest request);
+    }
 
 
     private void findNearestDriver(Trip trip) {
@@ -369,10 +405,8 @@ public class PassengerActivity extends AppCompatActivity
         return requestList;
     }
 
-    //todo : run synchronously for every check
-    //todo : push info off rider to driver ( driver will check and answer if he will pickup)
     //todo : check if user swich off
-    //todo : check if not find any driver
+    //todo : Check driver state
 
     /**
      * check if Pickup Place and End Place match to the Request Polyline
