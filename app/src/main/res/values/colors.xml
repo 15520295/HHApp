@@ -7,6 +7,8 @@
     <color name="edit_text_txt">#000000</color>
 
     <color name="transparent">#00ffffff</color>
+
+
     // Login color
     <color name="text_link">#1976D2</color>
 
@@ -32,5 +34,10 @@
     <color name="placeAutocomplete_search_text">#212121</color>
     <color name="placeAutocomplete_separator">#1F000000</color>
     <color name="bar">#d9d9d9</color>
+
+    // Accepting Dialog
+    <color name="dialog_gray_line">#e3e3e3</color>
+    <color name="dialog_white_line">#ffffff</color>
+
 
 </resources>

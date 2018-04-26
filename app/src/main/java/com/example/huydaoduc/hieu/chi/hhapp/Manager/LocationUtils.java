@@ -75,18 +75,18 @@ public class LocationUtils {
     /**
      * @return meter
      */
-    public static double calcDistance(LatLng startLatLng, LatLng endLatLng) {
+    public static float calcDistance(LatLng startLatLng, LatLng endLatLng) {
         float[] result = new float[1] ;
         Location.distanceBetween(startLatLng.latitude, startLatLng.longitude, endLatLng.latitude, endLatLng.longitude, result);
         return result[0];
     }
-    public static double calcDistance(LatLng startLatLng, Location endLoca) {
+    public static float calcDistance(LatLng startLatLng, Location endLoca) {
         return calcDistance(startLatLng,locaToLatLng(endLoca));
     }
-    public static double calcDistance(String startLocaStr, String endLocaStr) {
+    public static float calcDistance(String startLocaStr, String endLocaStr) {
         return calcDistance(strToLatLng(startLocaStr),strToLatLng(endLocaStr));
     }
-    public static double calcDistance(String startLocaStr, Location endLoca) {
+    public static float calcDistance(String startLocaStr, Location endLoca) {
         return calcDistance(strToLatLng(startLocaStr),locaToLatLng(endLoca));
     }
 

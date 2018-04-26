@@ -197,11 +197,9 @@ public class SearchActivity extends AppCompatActivity implements
 
             @Override
             public void afterTextChanged(Editable s) {
-
                 if (!s.toString().equals("") && mGoogleApiClient.isConnected()) {
                     mAdapter.getFilter().filter(s.toString());
                 } else if (!mGoogleApiClient.isConnected()) {
-//                    Toast.makeText(getApplicationContext(), Constants.API_NOT_CONNECTED, Toast.LENGTH_SHORT).show();
                     Log.e(TAG, "NOT CONNECTED");
                 }
             }

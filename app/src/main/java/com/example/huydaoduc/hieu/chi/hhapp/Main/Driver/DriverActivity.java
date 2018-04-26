@@ -3,7 +3,6 @@ package com.example.huydaoduc.hieu.chi.hhapp.Main.Driver;
 import android.Manifest;
 import android.animation.ValueAnimator;
 import android.annotation.SuppressLint;
-import android.app.Dialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
@@ -14,6 +13,7 @@ import android.os.Looper;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.support.design.widget.NavigationView;
@@ -45,7 +45,10 @@ import com.example.huydaoduc.hieu.chi.hhapp.Manager.LocationUtils;
 import com.example.huydaoduc.hieu.chi.hhapp.Manager.MarkerManager;
 import com.example.huydaoduc.hieu.chi.hhapp.Manager.Place.SavedPlace;
 import com.example.huydaoduc.hieu.chi.hhapp.Manager.Place.SearchActivity;
+import com.example.huydaoduc.hieu.chi.hhapp.Manager.TimeUtils;
 import com.example.huydaoduc.hieu.chi.hhapp.Model.DriverRequest;
+import com.example.huydaoduc.hieu.chi.hhapp.Model.PassengerRequest;
+import com.example.huydaoduc.hieu.chi.hhapp.Model.Trip.Trip;
 import com.example.huydaoduc.hieu.chi.hhapp.Model.User.OnlineUser;
 import com.example.huydaoduc.hieu.chi.hhapp.Model.User.UserInfo;
 import com.example.huydaoduc.hieu.chi.hhapp.Model.User.UserState;
@@ -108,9 +111,10 @@ public class DriverActivity extends AppCompatActivity
         // My Location Button
         GoogleMap.OnMyLocationClickListener,
         GoogleMap.OnMyLocationButtonClickListener,
-
         NavigationView.OnNavigationItemSelectedListener,
-        OnMapReadyCallback {
+        OnMapReadyCallback,
+        AcceptingTripFragment.OnAcceptingFragmentListener
+{
 
     private static final String TAG = "DriverActivity";
     // store all info in the map
@@ -160,7 +164,6 @@ public class DriverActivity extends AppCompatActivity
     //------------------------------------ Chi :
 
     // Activity Property
-    Dialog dialogInfo;
     DatabaseReference dbRefe;
 
     private GoogleApiClient mGoogleApiClient;
@@ -200,8 +203,29 @@ public class DriverActivity extends AppCompatActivity
                         // put Route online
                         putRouteRequest(routes.get(0));
 
+                        //Listen to Trip UId
+                        if(userState != UserState.D_RECEIVING_BOOKING_HH)
+                            dbRefe.child(Define.DB_ONLINE_USERS)
+                                    .child(getCurUid()).child(Define.DB_ONLINE_USERS_TRIP_UID)
+                                    .addValueEventListener(new ValueEventListener() {
+                                        @Override
+                                        public void onDataChange(DataSnapshot dataSnapshot) {
+                                            String tripUId = dataSnapshot.getValue(String.class);
+
+                                            if(! TextUtils.isEmpty(tripUId))
+                                                showPassengerRequestAndChangeState(tripUId);
+                                        }
+
+                                        @Override
+                                        public void onCancelled(DatabaseError databaseError) {
+
+                                        }
+                                    });
+
                         // run this to put value the first time
                         realTimeChecking_DriverRequest();
+
+
                     }
                 });
 
@@ -223,9 +247,7 @@ public class DriverActivity extends AppCompatActivity
         // get Driver Request from route
         DriverRequest driverRequest = DriverRequest.func_createDriverRequestFromRoute(route, uid, pricePerKm);
 
-        DatabaseReference dbRequest = dbRefe.child(Define.DB_DRIVER_REQUESTS);
-
-        dbRequest.child(uid).setValue(driverRequest);
+        dbRefe.child(Define.DB_DRIVER_REQUESTS).child(uid).setValue(driverRequest);
     }
 
     /**
@@ -293,34 +315,85 @@ public class DriverActivity extends AppCompatActivity
     }
 
     private void updateOnlineUserInfo() {
-        OnlineUser onlineUser = new OnlineUser(getCurUid(), mLastLocation, userState);
-        dbRefe.child(Define.DB_ONLINE_USERS).child(getCurUid()).setValue(onlineUser);
+        dbRefe.child(Define.DB_ONLINE_USERS).child(getCurUid()).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                OnlineUser onlineUser = dataSnapshot.getValue(OnlineUser.class);
 
-        //Listen to Trip UId
-        dbRefe.child(Define.DB_ONLINE_USERS)
-                .child(getCurUid()).child(Define.DB_ONLINE_USERS_TRIP_UID)
-                .addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        String tripUId = dataSnapshot.getValue(String.class);
+                onlineUser.setLocation(LocationUtils.locaToStr(mLastLocation));
+                onlineUser.setState(userState);
+                onlineUser.setLastTimeCheck(TimeUtils.getCurrentTimeAsString());
+                dbRefe.child(Define.DB_ONLINE_USERS).child(getCurUid()).setValue(onlineUser);
 
-                        // Change Driver State
-                        userState = UserState.D_WAITING_FOR_ACCEPT;
-                        dbRefe.child(Define.DB_ONLINE_USERS)
-                                .child(getCurUid())
-                                .child(Define.DB_ONLINE_USERS_STATE).setValue(userState);
+            }
 
-                        showTripInfoAndWaitAccepting(tripUId);
-                    }
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
 
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
-
-                    }
-                });
+            }
+        });
     }
 
-    private void showTripInfoAndWaitAccepting(String tripUId) {
+    private void showPassengerRequestAndChangeState(String tripUId) {
+        // Change Driver State
+        userState = UserState.D_WAITING_FOR_ACCEPT;
+        dbRefe.child(Define.DB_ONLINE_USERS)
+                .child(getCurUid())
+                .child(Define.DB_ONLINE_USERS_STATE).setValue(userState);
+
+        // show passenger request
+        dbRefe.child(Define.DB_TRIPS)
+                .child(tripUId)
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                Trip trip = dataSnapshot.getValue(Trip.class);
+
+                showAcceptingFragment(trip);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+
+    }
+
+    private void showAcceptingFragment(Trip trip) {
+        PassengerRequest request = trip.getPassengerRequest();
+
+        //todo: distance between pickup and cur OR between pickup and drop off
+        float distance = LocationUtils.calcDistance(request.getPickUpSavePlace().getLocation(),request.getDropOffSavePlace().getLocation());
+        float fare;
+
+        if (userState == UserState.D_RECEIVING_BOOKING_HH) {
+            fare = trip.getTripDistance() * Define.FARE_VND_PER_M * 0.25f;
+        }
+        else
+            fare = trip.getTripDistance() * Define.FARE_VND_PER_M;
+
+        // create dialog
+        AcceptingTripFragment acceptingTripFragment = AcceptingTripFragment
+                .newInstance(distance, request.getPickUpSavePlace().getAddress(),
+                        request.getDropOffSavePlace().getAddress(),
+                        request.getNote(),
+                        fare);
+
+        // set event
+        acceptingTripFragment.show(getSupportFragmentManager(), "dialog");
+
+
+    }
+
+
+    @Override
+    public void OnTripAcceptTimeOut() {
+
+    }
+
+    @Override
+    public void OnTripAccepted() {
 
     }
 
@@ -778,7 +851,7 @@ public class DriverActivity extends AppCompatActivity
             if (b) {
                 startRealTimeCheckingAndShowRoute();
             } else {
-                endRealTimeChecking();
+                //endRealTimeChecking();
             }
         });
     }
@@ -1210,9 +1283,6 @@ public class DriverActivity extends AppCompatActivity
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
-
-
-
 
 
 }

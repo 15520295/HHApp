@@ -235,8 +235,8 @@ public class PassengerActivity extends AppCompatActivity
 
         estimateFare = 0f;
         long limitHHRadius = 500;
-        float distance = 0;
-        float duration = 0;
+        float distance = 1000;
+        float duration = 1000;
 
 
         // create a trip
@@ -268,11 +268,24 @@ public class PassengerActivity extends AppCompatActivity
                             String driverUId = request.getDriverUId();
 
                             // Set up Trip
+                            // todo: handle car type, notes
+                            // create Passenger Request
+                            PassengerRequest passengerRequest = PassengerRequest.Builder.aPassengerRequest(getCurUid())
+                                    .setPickUpSavePlace(pickupPlace)
+                                    .setDropOffSavePlace(dropPlace)
+                                    .setPostTime(TimeUtils.getCurrentTimeAsString())
+                                    .setCarType(CarType.BIKE)
+                                    .setNote("Notes..")
+                                    .build();
+
                             trip.setTripState(TripState.WAITING_ACCEPT);
                             trip.setTripStyle(TripStyle.HH);
+                            trip.setPassengerRequest(passengerRequest);
+
                             String tripUId = dbRefe.child(Define.DB_TRIPS).push().getKey();
                             dbRefe.child(Define.DB_TRIPS)
                                     .child(tripUId).setValue(trip);
+
 
                             // notify driver thought database
                             dbRefe.child(Define.DB_ONLINE_USERS)
@@ -304,11 +317,19 @@ public class PassengerActivity extends AppCompatActivity
         }
     }
 
+
+    //region --------- Post request
+
+
+    //endregion
+
     private void driverAccepted() {
 
     }
 
-    // ------------ Find matching Active Driver
+
+
+    //region ------------ Find matching Active Driver
 
     interface FindActiveDriverListener {
         void OnLoopThoughAllRequestHH();
@@ -317,13 +338,12 @@ public class PassengerActivity extends AppCompatActivity
 
 
     private void findNearestDriver(Trip trip) {
-        DatabaseReference dbRequest = dbRefe.child(Define.DB_PASSENGER_REQUESTS);
 
-        startFindActiveDriver();
+//        startFindActiveDriver();
     }
+    //endregion
 
-
-    // ------------ Find matching HH request
+    //region ------------ Find matching HH request
 
     // for synchronous purpose use interface and synchronized keyword
     // interface for raise loop thought all list event
@@ -463,7 +483,7 @@ public class PassengerActivity extends AppCompatActivity
         Log.d(TAG, "out Event");
     }
 
-
+    //endrigon
 
 
     //region -------------- Show Driver Info
@@ -532,43 +552,6 @@ public class PassengerActivity extends AppCompatActivity
 
     //endregion
 
-    // --------- Post request
-    DatabaseReference currUserOnlineDBR;
-
-    private void startFindActiveDriver() {
-
-//        notifyPassengerRequestForDriver();
-
-//        waitForDriverAccept();
-
-        //todo: not work when phone turn off
-        // delete data when App Kill
-//        Intent serviceIntent = new Intent(PassengerActivity.this, CheckActivityCloseService.class);
-//        serviceIntent.putExtra("uid", getCurUid());
-//        PassengerActivity.this.startService(serviceIntent);
-    }
-
-    /**
-     * Put Route Request Online
-     */
-    private void notifyPassengerRequestForDriver(String driverId) {
-        String uid = getCurUid();
-
-        // todo: handle car type, notes
-        // get Rider Request
-        PassengerRequest passengerRequest = PassengerRequest.Builder.aPassengerRequest(uid)
-                .setPickUpSavePlace(pickupPlace)
-                .setDropOffSavePlace(dropPlace)
-                .setPostTime(TimeUtils.getCurrentTimeAsString())
-                .setCarType(CarType.BIKE)
-                .setNote("Notes..")
-                .build();
-
-
-        DatabaseReference dbRequest = dbRefe.child(Define.DB_PASSENGER_REQUESTS);
-
-        dbRequest.child(driverId).setValue(passengerRequest);
-    }
 
 
     private void realTimeChecking_PassengerRequest() {
@@ -587,8 +570,8 @@ public class PassengerActivity extends AppCompatActivity
         });
 
         // Update new Online User value
-        OnlineUser onlineUser = new OnlineUser(currUserOnlineDBR.getKey(), mLastLocation, UserState.D_RECEIVING_BOOKING_HH);
-        currUserOnlineDBR.setValue(onlineUser);
+        OnlineUser onlineUser = new OnlineUser(getCurUid(), mLastLocation, UserState.D_RECEIVING_BOOKING_HH);
+        dbRefe.child(Define.DB_ONLINE_USERS).child(getCurUid()).setValue(onlineUser);
 
     }
 
@@ -620,7 +603,7 @@ public class PassengerActivity extends AppCompatActivity
             userState = UserState.OFFLINE;
 
             dbRefe.child(Define.DB_DRIVER_REQUESTS).child(getCurUid()).removeValue();
-            currUserOnlineDBR.removeValue();
+            // change online user state
         }
     }
 
