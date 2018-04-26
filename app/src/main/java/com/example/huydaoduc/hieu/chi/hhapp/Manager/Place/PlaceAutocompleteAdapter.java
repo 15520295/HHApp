@@ -38,7 +38,6 @@ public class PlaceAutocompleteAdapter extends RecyclerView.Adapter<PlaceAutocomp
 
     public interface PlaceAutoCompleteInterface{
         void onPlaceClick(ArrayList<CusPlaceAutocomplete> mResultList, int position);
-        void OnPlaceResultReturn();
     }
 
     Context mContext;
@@ -229,7 +228,7 @@ public class PlaceAutocompleteAdapter extends RecyclerView.Adapter<PlaceAutocomp
 
     @Override
     public void onBindViewHolder(PlaceViewHolder mPredictionHolder, final int i) {
-        if(mResultList != null)
+        if(mResultList != null && mResultList.size() != 0)
         {
             if (mPredictionHolder.getAdapterPosition() < mResultList.size())
             {
@@ -244,9 +243,6 @@ public class PlaceAutocompleteAdapter extends RecyclerView.Adapter<PlaceAutocomp
                     }
                 });
             }
-//            if (mResultList.size() == i - 1) {
-//                mListener.OnPlaceResultReturn();
-//            }
         }
 
 

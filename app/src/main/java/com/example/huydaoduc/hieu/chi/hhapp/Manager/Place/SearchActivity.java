@@ -3,6 +3,9 @@ package com.example.huydaoduc.hieu.chi.hhapp.Manager.Place;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -12,6 +15,7 @@ import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.ViewTreeObserver;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -30,6 +34,8 @@ import com.google.android.gms.maps.model.LatLngBounds;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 /**
  * Created by anuj.sharma on 4/6/2016.
@@ -138,8 +144,6 @@ public class SearchActivity extends AppCompatActivity implements
         loadingBar = findViewById(R.id.prb_loading);
         mRecyclerView = (RecyclerView)findViewById(R.id.list_search);
 
-//        mRecyclerView.setItemAnimator(new SlideInLeftAnimator());
-
         mRecyclerView.setHasFixedSize(true);
         llm = new FixRecyclerViewManager(mContext);
         mRecyclerView.setLayoutManager(llm);
@@ -167,6 +171,12 @@ public class SearchActivity extends AppCompatActivity implements
                 mGoogleApiClient, bounds, typeFilter, mRecyclerView);
         mRecyclerView.setAdapter(mAdapter);
 
+        /**
+         * Occurs when Place result returned from adapter
+         * Occurs only when result return > 0
+         */
+        mRecyclerView.getViewTreeObserver().addOnGlobalLayoutListener(() -> stopLoadingProcess());
+
         findPlacesEvent();
 
     }
@@ -188,20 +198,40 @@ public class SearchActivity extends AppCompatActivity implements
                 }
                 if (count > 0) {
                     mClear.setVisibility(View.VISIBLE);
-                    if (mAdapter != null) {
-                        mRecyclerView.setAdapter(mAdapter);
-                    }
                 }
-
             }
+
+            private Timer timer=new Timer();
+            private final long DELAY = 500; // milliseconds -- waiting 1s after text change to filter list
 
             @Override
             public void afterTextChanged(Editable s) {
-                if (!s.toString().equals("") && mGoogleApiClient.isConnected()) {
-                    mAdapter.getFilter().filter(s.toString());
-                } else if (!mGoogleApiClient.isConnected()) {
-                    Log.e(TAG, "NOT CONNECTED");
-                }
+                Handler mHandler = new Handler(Looper.getMainLooper()) {
+                    @Override
+                    public void handleMessage(Message message) {
+                        // do what you need here afterTextChanged
+                        if (!s.toString().equals("") && mGoogleApiClient.isConnected()) {
+                            mAdapter.getFilter().filter(s.toString());
+                        } else if (!mGoogleApiClient.isConnected()) {
+                            Log.e(TAG, "mGoogleApiClient NOT CONNECTED");
+                        }
+                    }
+                };
+
+                // this for wait 0.5 second
+                timer.cancel();
+                timer = new Timer();
+                timer.schedule(new TimerTask() {
+                            @Override
+                            public void run() {
+                                Message message = mHandler.obtainMessage();
+                                message.sendToTarget();
+                            }
+                        },
+                        DELAY
+                );
+
+
             }
         });
     }
@@ -218,16 +248,6 @@ public class SearchActivity extends AppCompatActivity implements
     public void onConnectionFailed(ConnectionResult connectionResult) {
     }
 
-
-    /**
-     * Occurs when Place result returned from adapter
-     * Occurs only when result return > 0
-     */
-    @Override
-    public void OnPlaceResultReturn() {
-        // todo: start and end location
-        stopLoadingProcess();
-    }
 
     /**
      * On Place Click
@@ -289,9 +309,8 @@ public class SearchActivity extends AppCompatActivity implements
                 finish();
             }
             catch (Exception e){
-
+                Log.e(TAG,e.getMessage());
             }
-
         }
     }
 
