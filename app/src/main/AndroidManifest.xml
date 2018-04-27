@@ -41,9 +41,11 @@
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".Main.Driver.DriverActivity"
+            android:launchMode="singleTask"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".Main.Passenger.PassengerActivity"
+            android:launchMode="singleTask"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity android:name=".ActivitiesAuth.PhoneAuthActivity" />
         <activity android:name=".Main.MainActivity" />
@@ -59,6 +61,7 @@
         <activity
             android:name=".ActivitiesAuth.UpdateInfoActivity"
             android:windowSoftInputMode="stateVisible|adjustResize" />
+        <activity android:name=".Manager.Place.PlacePickerActivity"></activity>
     </application>
 
 </manifest>

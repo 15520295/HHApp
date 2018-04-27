@@ -16,19 +16,25 @@ import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewTreeObserver;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+import android.widget.Toast;
 
 import com.example.huydaoduc.hieu.chi.hhapp.Manager.LocationUtils;
 import com.example.huydaoduc.hieu.chi.hhapp.R;
 import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
+import com.google.android.gms.common.GooglePlayServicesRepairableException;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.location.places.AutocompleteFilter;
+import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.PlaceBuffer;
 import com.google.android.gms.location.places.Places;
+import com.google.android.gms.location.places.ui.PlacePicker;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 
@@ -81,6 +87,11 @@ public class SearchActivity extends AppCompatActivity implements
     EditText mSearchEdittext;
     ImageView mClear;
 
+    Button btn_place_picker;
+
+    int PLACE_PICKER_REQUEST = 123;
+
+
     @Override
     public void onStart() {
         mGoogleApiClient.connect();
@@ -105,6 +116,7 @@ public class SearchActivity extends AppCompatActivity implements
         mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .enableAutoManage(this, 0 /* clientId */, this)
                 .addApi(Places.GEO_DATA_API)
+                .addApi(Places.PLACE_DETECTION_API)
                 .build();
 
         Double cur_lat;
@@ -151,6 +163,9 @@ public class SearchActivity extends AppCompatActivity implements
 
         mSearchEdittext = (EditText)findViewById(R.id.search_et);
         mClear = (ImageView)findViewById(R.id.clear);
+
+        btn_place_picker = findViewById(R.id.btn_place_picker);
+
         mClear.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -177,8 +192,41 @@ public class SearchActivity extends AppCompatActivity implements
          */
         mRecyclerView.getViewTreeObserver().addOnGlobalLayoutListener(() -> stopLoadingProcess());
 
+        PlacePicker.IntentBuilder builder = new PlacePicker.IntentBuilder();
+
+        btn_place_picker.setOnClickListener(e -> {
+            try {
+                Intent intent = builder.build(SearchActivity.this);
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                SearchActivity.this.startActivityForResult(intent, PLACE_PICKER_REQUEST);
+            } catch (GooglePlayServicesRepairableException | GooglePlayServicesNotAvailableException e1) {
+                e1.printStackTrace();
+            }
+//            Intent intent = new Intent(SearchActivity.this,PlacePickerActivity.class);
+//            SearchActivity.this.startActivity(intent);
+        });
+
+
         findPlacesEvent();
 
+    }
+
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == PLACE_PICKER_REQUEST) {
+            if (resultCode == RESULT_OK) {
+                Place place = PlacePicker.getPlace(getApplicationContext(),data);
+                // Return result
+                Intent returnIntent  = new Intent();
+                returnIntent.putExtra("place_id", place.getId());
+                returnIntent.putExtra("place_primary_text", place.getAddress());
+                returnIntent.putExtra("place_location", LocationUtils.latLngToStr(place.getLatLng()));
+                returnIntent.putExtra("place_address", place.getAddress());
+
+                setResult(SearchActivity.RESULT_OK, returnIntent );
+
+                SearchActivity.this.finish();
+            }
+        }
     }
 
     public void findPlacesEvent() throws IndexOutOfBoundsException {
@@ -279,8 +327,6 @@ public class SearchActivity extends AppCompatActivity implements
                                     returnIntent.putExtra("place_address", placeFullText);
 
                                     setResult(SearchActivity.RESULT_OK, returnIntent );
-
-                                    //todo: loading animation
 
                                     SearchActivity.this.finish();
                                 }

@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".Manager.Place.PlacePickerActivity">
+
+    <RelativeLayout android:layout_height="match_parent"
+        android:layout_width="match_parent">
+
+        <fragment
+            android:id="@+id/map"
+            android:name="com.google.android.gms.maps.SupportMapFragment"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
+
+        <LinearLayout
+            android:id="@+id/group_search"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:gravity="center_vertical"
+            android:layout_alignParentTop="true"
+
+            android:orientation="vertical">
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                >
+                <ImageButton
+                    android:id="@+id/btn_back"
+                    android:layout_width="56dp"
+                    android:layout_height="match_parent"
+                    android:background="@color/transparent"
+                    android:src="@drawable/ic_back_v2_20px"
+                    android:layout_centerVertical="true"/>
+                <EditText
+                    android:id="@+id/search_et"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:hint="Pick a place"
+                    android:singleLine="true"
+                    android:textSize="@dimen/edittext_text_size_normal"
+                    android:layout_toEndOf="@+id/btn_back"
+                    android:layout_toLeftOf="@+id/clear"
+                    android:imeOptions="actionSearch"
+                    android:background="@null"
+                    android:drawablePadding="10dp"
+                    android:paddingLeft="10dp"
+                    android:paddingRight="10dp"
+                    android:focusable="false"/>
+                <ImageView
+                    android:id="@+id/clear"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/places_ic_clear"
+                    android:layout_alignParentRight="true"
+                    android:layout_gravity="right|center_vertical"
+                    android:padding="16dp"
+                    android:layout_centerVertical="true"
+                    android:visibility="gone"/>
+            </RelativeLayout>
+
+
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/btn_set_garage_location"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="set location"
+            android:layout_alignParentBottom="true"
+            android:layout_margin="20dp"
+            android:layout_centerHorizontal="true"/>
+
+
+        <ImageView
+            android:id="@+id/imageView2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:src="@drawable/mkr_map_pin_40px" />
+
+
+    </RelativeLayout>
+</LinearLayout>

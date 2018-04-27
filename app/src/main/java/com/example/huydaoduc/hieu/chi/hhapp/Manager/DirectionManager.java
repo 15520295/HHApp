@@ -33,26 +33,6 @@ public class DirectionManager {
         this.mMap = mMap;
     }
 
-    //todo: edit parameter
-//    public void findPath(String destination, String destination) {
-//        String origin = "Dai hoc khoa hoc tu nhien";
-//        String destination = "Dai hoc bach khoa hcm";
-//        if (origin.isEmpty()) {
-//            Toast.makeText(this, "Please enter origin address!", Toast.LENGTH_SHORT).show();
-//            return;
-//        }
-//        if (destination.isEmpty()) {
-//            Toast.makeText(this, "Please enter destination address!", Toast.LENGTH_SHORT).show();
-//            return;
-//        }
-//
-//        try {
-//            new DirectionFinder(this, origin, destination, getApplicationContext()).execute();
-//        } catch (UnsupportedEncodingException e) {
-//            e.printStackTrace();
-//        }
-//    }
-
     /**
      * 1 Location - 1 Place
      * Find Direction after done, it will raise the @listener
@@ -94,6 +74,7 @@ public class DirectionManager {
             e.printStackTrace();
         }
     }
+
 
     public void drawRoutes(List<Route> routes, boolean removeAll) {
 

@@ -39,5 +39,10 @@
     <color name="dialog_gray_line">#e3e3e3</color>
     <color name="dialog_white_line">#ffffff</color>
 
+    // Flat button
+    <color name="flat_pressed">#66999999</color>
+    <color name="flat_disabled_text">#40000000</color>
+    <color name="flat_normal_text">#000000</color>
+
 
 </resources>

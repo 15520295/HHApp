@@ -65,18 +65,6 @@
 
         </LinearLayout>
 
-        <!--<com.example.huydaoduc.hieu.chi.hhapp.CustomView.CustomProgressBar-->
-            <!--android:id="@+id/prb_loading"-->
-            <!--style="@style/Widget.MaterialProgressBar.ProgressBar.Horizontal"-->
-            <!--android:layout_width="fill_parent"-->
-            <!--android:layout_height="2dp"-->
-            <!--app:duration="1000"-->
-            <!--app:progressColour="#000000"-->
-            <!--app:backgroundColour="#ffffff"-->
-            <!--android:progress="100"-->
-            <!--android:visibility="visible"-->
-            <!--android:layout_below="@id/group_search"/>-->
-
         <me.zhanghai.android.materialprogressbar.MaterialProgressBar
             android:id="@+id/prb_loading"
             style="@style/Widget.MaterialProgressBar.ProgressBar.Horizontal"
@@ -92,6 +80,20 @@
             android:theme="@style/GrayProgressBarTheme"
             android:layout_below="@id/group_search"/>
 
+        <Button
+            android:id="@+id/btn_place_picker"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/prb_loading"
+            android:background="@drawable/res_drawable_btn_flat_pressed"
+            android:text="Select location from map"
+            android:textStyle="normal"
+            android:textAllCaps="false"
+            android:drawablePadding="15dp"
+            android:paddingLeft="10dp"
+            android:drawableLeft="@drawable/mkr_map_pin_24px"
+            android:gravity="left|center_vertical"/>
+
         <View
             android:id="@+id/bar"
             android:layout_width="fill_parent"
@@ -103,7 +105,7 @@
             android:id="@+id/list_search"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_below="@+id/bar"
+            android:layout_below="@+id/btn_place_picker"
             android:layout_above="@+id/powered_by_google"
             android:background="#ffffff"/>
 

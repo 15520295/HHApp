@@ -118,7 +118,6 @@ public class DriverActivity extends AppCompatActivity
 
     private static final String TAG = "DriverActivity";
     // store all info in the map
-    private GoogleMap mMap;
 
     //Play Services
     private static final int MY_PERMISSION_REQUEST_CODE = 7000;
@@ -134,7 +133,6 @@ public class DriverActivity extends AppCompatActivity
     GeoFire geoFire;
 
     MaterialAnimatedSwitch locationDriver_switch;
-    SupportMapFragment mapFragment;
 
     DatabaseReference onlineRef, currenUserRef;
 
@@ -166,8 +164,7 @@ public class DriverActivity extends AppCompatActivity
     // Activity Property
     DatabaseReference dbRefe;
 
-    private GoogleApiClient mGoogleApiClient;
-    private Location mLastLocation;
+
 
     // User Property
     UserState userState;
@@ -181,7 +178,7 @@ public class DriverActivity extends AppCompatActivity
     //region ------ HH Request   --------
     private void startRealTimeCheckingAndShowRoute() {
         // find/ show/ put_online  route + start real time checking
-        directionManager.findPath(mLastLocation, et_endLocation.getText().toString(),
+        directionManager.findPath(LocationUtils.locaToLatLng(mLastLocation), getEndPlace().func_getLatLngLocation(),
                 new DirectionFinderListener() {
                     @Override
                     public void onDirectionFinderStart() {
@@ -489,6 +486,15 @@ public class DriverActivity extends AppCompatActivity
     EditText et_endLocation;
     SavedPlace endPlace;
 
+
+    private SavedPlace getEndPlace() {
+        if (endPlace == null) {
+            Log.e(TAG, "dropPlace null");
+            return new SavedPlace();
+        }
+        return endPlace;
+    }
+
     private void searViewEvent() {
         et_endLocation.setOnClickListener(v ->
                 StartAutoCompleteIntent(END_PLACE_AUTOCOMPLETE_REQUEST_CODE));
@@ -561,6 +567,13 @@ public class DriverActivity extends AppCompatActivity
     FusedLocationProviderClient mFusedLocationClient;
     LocationCallback mLocationCallback;
     LocationRequest mLocationRequest;
+
+    private GoogleApiClient mGoogleApiClient;
+    private Location mLastLocation;
+    private GoogleMap mMap;
+
+    SupportMapFragment mapFragment;
+
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
