@@ -26,7 +26,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.animation.LinearInterpolator;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.RelativeLayout;
 import android.widget.TabHost;
 import android.widget.TextView;
@@ -200,11 +199,18 @@ public class DriverActivity extends AppCompatActivity
                         // put Route online
                         putRouteRequest(routes.get(0));
 
+                        // run this to put value the first time
+                        updateRouteRequest();
+                        updateOnlineUserInfo();
+                        // This will Enable real time checking
+                        if (userState != UserState.D_RECEIVING_BOOKING_HH) {
+                            userState = UserState.D_RECEIVING_BOOKING_HH;
+                        }
+
                         //Listen to Trip UId
-                        if(userState != UserState.D_RECEIVING_BOOKING_HH)
-                            dbRefe.child(Define.DB_ONLINE_USERS)
-                                    .child(getCurUid()).child(Define.DB_ONLINE_USERS_TRIP_UID)
-                                    .addValueEventListener(new ValueEventListener() {
+                        dbRefe.child(Define.DB_ONLINE_USERS)
+                                .child(getCurUid()).child(Define.DB_ONLINE_USERS_TRIP_UID)
+                                .addValueEventListener(new ValueEventListener() {
                                         @Override
                                         public void onDataChange(DataSnapshot dataSnapshot) {
                                             String tripUId = dataSnapshot.getValue(String.class);
@@ -218,11 +224,6 @@ public class DriverActivity extends AppCompatActivity
 
                                         }
                                     });
-
-                        // run this to put value the first time
-                        realTimeChecking_DriverRequest();
-
-
                     }
                 });
 
@@ -254,11 +255,6 @@ public class DriverActivity extends AppCompatActivity
      * + Update real time Route request after a period of ONLINE_USER_TIMEOUT or radius out of ONLINE_USER_RADIUS_UPDATE
      */
     private void realTimeChecking_DriverRequest() {
-        // This will Enable real time checking
-        if (userState != UserState.D_RECEIVING_BOOKING_HH) {
-            userState = UserState.D_RECEIVING_BOOKING_HH;
-        }
-
         // todo: handle if getAccuracy > 100 --> will not update data
 
         // Get old value and Check if location out of radius or Out of time Then update Route Request
@@ -279,7 +275,7 @@ public class DriverActivity extends AppCompatActivity
 
     private void updateRouteRequest() {
         // find routes
-        directionManager.findPath(mLastLocation, et_endLocation.getText().toString(),
+        directionManager.findPath(mLastLocation, btn_endLocation.getText().toString(),
                 new DirectionFinderListener() {
                     @Override
                     public void onDirectionFinderStart() {
@@ -483,7 +479,7 @@ public class DriverActivity extends AppCompatActivity
 
     //region ------ Auto Complete  --------
     int END_PLACE_AUTOCOMPLETE_REQUEST_CODE = 1002;
-    EditText et_endLocation;
+    Button btn_endLocation;
     SavedPlace endPlace;
 
 
@@ -496,7 +492,7 @@ public class DriverActivity extends AppCompatActivity
     }
 
     private void searViewEvent() {
-        et_endLocation.setOnClickListener(v ->
+        btn_endLocation.setOnClickListener(v ->
                 StartAutoCompleteIntent(END_PLACE_AUTOCOMPLETE_REQUEST_CODE));
 
     }
@@ -516,7 +512,7 @@ public class DriverActivity extends AppCompatActivity
                 endPlace.setAddress(placeAddress);
                 endPlace.setLocation(placeLocation);
 
-                et_endLocation.setText(placePrimaryText);
+                btn_endLocation.setText(placePrimaryText);
 
                 markerManager.draw_DropPlaceMarker(endPlace);
 
@@ -819,7 +815,7 @@ public class DriverActivity extends AppCompatActivity
 
 
         // CHi
-        et_endLocation = findViewById(R.id.et_end_location);
+        btn_endLocation = findViewById(R.id.btn_end_location);
 
         // Firebase Init
         dbRefe = FirebaseDatabase.getInstance().getReference();
@@ -1122,7 +1118,7 @@ public class DriverActivity extends AppCompatActivity
     ///////////
 
     private void requesRoute(String uid) {
-        String title = et_endLocation.getText().toString();
+        String title = btn_endLocation.getText().toString();
 
         DatabaseReference dbRequest = dbRefe.child(Define.DB_DRIVER_REQUESTS);
         GeoFire mGeoFire = new GeoFire(dbRequest);

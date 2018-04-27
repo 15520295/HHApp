@@ -24,66 +24,34 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <LinearLayout
-                android:id="@+id/linearLayout1"
+            <Button
+                android:id="@+id/btn_pick_up_location"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:weightSum="6">
+                android:layout_below="@+id/prb_loading"
+                style="@style/CusFlatButtonStyle"
+                android:text="Enter pick-up point "
+                android:textStyle="normal"
+                android:textAllCaps="false"
+                android:drawablePadding="15dp"
+                android:paddingLeft="10dp"
+                android:drawableLeft="@drawable/ic_location_on"
+                android:gravity="left|center_vertical"/>
 
-                <ImageView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_vertical"
-                    android:layout_weight="1"
-                    android:src="@drawable/ic_start_location_black_24dp" />
-
-                <EditText
-                    android:id="@+id/et_pick_up_location"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="5"
-                    android:textColor="@color/place_autocomplete_search_text"
-                    android:textColorHint="@color/place_autocomplete_search_hint"
-                    android:hint="Pick up point"
-                    android:focusable="false"
-                    />
-
-            </LinearLayout>
-
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:layout_marginLeft="16dp"
-                android:layout_marginRight="16dp"
-                android:background="@color/dividerColor" />
-
-            <LinearLayout
-                android:id="@+id/linearLayout2"
+            <Button
+                android:id="@+id/btn_end_location"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:weightSum="6">
+                android:layout_below="@+id/prb_loading"
+                style="@style/CusFlatButtonStyle"
+                android:text="Where are you going ?"
+                android:textStyle="normal"
+                android:textAllCaps="false"
+                android:drawablePadding="15dp"
+                android:paddingLeft="10dp"
+                android:drawableLeft="@drawable/ic_location_on"
+                android:gravity="left|center_vertical"/>
 
-                <ImageView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_vertical"
-                    android:layout_weight="1"
-                    android:src="@drawable/ic_map_black_24dp" />
-
-                <EditText
-                    android:id="@+id/et_end_location"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:textColor="@color/place_autocomplete_search_text"
-                    android:textColorHint="@color/place_autocomplete_search_hint"
-                    android:layout_weight="5"
-                    android:focusable="false"
-                    android:hint="Where to?"
-                    />
-
-            </LinearLayout>
 
         </LinearLayout>
 

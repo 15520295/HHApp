@@ -29,7 +29,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.animation.LinearInterpolator;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -326,8 +325,7 @@ public class PassengerActivity extends AppCompatActivity
     private void driverAccepted() {
 
     }
-
-
+    
 
     //region ------------ Find matching Active Driver
 
@@ -577,7 +575,7 @@ public class PassengerActivity extends AppCompatActivity
 
     private void updateUserRequest() {
 //        // find routes
-//        directionManager.findPath(mLastLocation, et_dropLocation.getText().toString(),
+//        directionManager.findPath(mLastLocation, btn_dropLocation.getText().toString(),
 //                new DirectionFinderListener() {
 //                    @Override
 //                    public void onDirectionFinderStart() {
@@ -672,7 +670,7 @@ public class PassengerActivity extends AppCompatActivity
 
     int PICKUP_PLACE_AUTOCOMPLETE_REQUEST_CODE = 2001;
     int END_PLACE_AUTOCOMPLETE_REQUEST_CODE = 2002;
-    EditText et_pickupLocation, et_dropLocation;
+    Button btn_pickupLocation, btn_dropLocation;
 
     SavedPlace dropPlace, pickupPlace;
 
@@ -694,10 +692,10 @@ public class PassengerActivity extends AppCompatActivity
     }
 
     private void searViewEvent() {
-        et_pickupLocation.setOnClickListener(v ->
+        btn_pickupLocation.setOnClickListener(v ->
                 StartAutoCompleteIntent(PICKUP_PLACE_AUTOCOMPLETE_REQUEST_CODE));
 
-        et_dropLocation.setOnClickListener(v ->
+        btn_dropLocation.setOnClickListener(v ->
                 StartAutoCompleteIntent(END_PLACE_AUTOCOMPLETE_REQUEST_CODE));
     }
 
@@ -717,7 +715,7 @@ public class PassengerActivity extends AppCompatActivity
                     pickupPlace.setAddress(placeAddress);
                     pickupPlace.setLocation(placeLocation);
 
-                    et_pickupLocation.setText(placePrimaryText);
+                    btn_pickupLocation.setText(placePrimaryText);
 
                     markerManager.draw_PickupPlaceMarker(pickupPlace);
                 } else if (requestCode == END_PLACE_AUTOCOMPLETE_REQUEST_CODE) {
@@ -727,7 +725,7 @@ public class PassengerActivity extends AppCompatActivity
                     dropPlace.setAddress(placeAddress);
                     dropPlace.setLocation(placeLocation);
 
-                    et_dropLocation.setText(placePrimaryText);
+                    btn_dropLocation.setText(placePrimaryText);
 
                     markerManager.draw_DropPlaceMarker(dropPlace);
                 }
@@ -1036,8 +1034,8 @@ public class PassengerActivity extends AppCompatActivity
 
 
         // search view
-        et_pickupLocation = findViewById(R.id.et_pick_up_location);
-        et_dropLocation = findViewById(R.id.et_end_location);
+        btn_pickupLocation = findViewById(R.id.btn_pick_up_location);
+        btn_dropLocation = findViewById(R.id.btn_end_location);
 
     }
 

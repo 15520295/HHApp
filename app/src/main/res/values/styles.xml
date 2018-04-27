@@ -1,5 +1,4 @@
 <resources>
-
     <!-- Base theme -->
     <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
         <!-- Customize  -->
@@ -72,5 +71,10 @@
     <style name="GrayProgressBarTheme"
         parent="ThemeOverlay.AppCompat.Light">
         <item name="colorAccent">#ad818181</item>
+    </style>
+
+    <style name="CusFlatButtonStyle" parent="Base.Widget.AppCompat.Button">
+        <item name="android:background">@drawable/flat_btn_selector</item>
+        <item name="android:textColor">@android:color/black</item>
     </style>
 </resources>

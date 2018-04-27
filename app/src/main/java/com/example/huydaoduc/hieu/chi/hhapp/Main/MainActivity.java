@@ -45,7 +45,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(MainActivity.this, DriverActivity.class);
-                startActivity(intent);
+                MainActivity.this.startActivity(intent);
             }
         });
 
@@ -53,9 +53,8 @@ public class MainActivity extends AppCompatActivity {
         btn_rider.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
                 Intent intent = new Intent(MainActivity.this, PassengerActivity.class);
-                startActivity(intent);
+                MainActivity.this.startActivity(intent);
             }
         });
     }

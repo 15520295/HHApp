@@ -85,7 +85,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@+id/prb_loading"
-            android:background="@drawable/res_drawable_btn_flat_pressed"
+            style="@style/CusFlatButtonStyle"
             android:text="Select location from map"
             android:textStyle="normal"
             android:textAllCaps="false"
@@ -107,7 +107,7 @@
             android:layout_height="match_parent"
             android:layout_below="@+id/btn_place_picker"
             android:layout_above="@+id/powered_by_google"
-            android:background="#ffffff"/>
+            android:background="#f4f4f4"/>
 
         <ImageView
             android:id="@+id/powered_by_google"
