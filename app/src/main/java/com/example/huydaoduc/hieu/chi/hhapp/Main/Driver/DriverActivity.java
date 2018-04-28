@@ -44,6 +44,7 @@ import com.example.huydaoduc.hieu.chi.hhapp.Manager.LocationUtils;
 import com.example.huydaoduc.hieu.chi.hhapp.Manager.MarkerManager;
 import com.example.huydaoduc.hieu.chi.hhapp.Manager.Place.SavedPlace;
 import com.example.huydaoduc.hieu.chi.hhapp.Manager.Place.SearchActivity;
+import com.example.huydaoduc.hieu.chi.hhapp.Manager.SimpleMapActivity;
 import com.example.huydaoduc.hieu.chi.hhapp.Manager.TimeUtils;
 import com.example.huydaoduc.hieu.chi.hhapp.Model.DriverRequest;
 import com.example.huydaoduc.hieu.chi.hhapp.Model.PassengerRequest;
@@ -105,58 +106,20 @@ import retrofit2.Response;
 import static com.google.android.gms.location.LocationServices.getFusedLocationProviderClient;
 
 //todo: check 1 tai khoan dang nhap 2 may
-public class DriverActivity extends AppCompatActivity
+public class DriverActivity extends SimpleMapActivity
         implements
-        // My Location Button
-        GoogleMap.OnMyLocationClickListener,
-        GoogleMap.OnMyLocationButtonClickListener,
+        SimpleMapActivity.SimpleMapListener,
         NavigationView.OnNavigationItemSelectedListener,
-        OnMapReadyCallback,
-        AcceptingTripFragment.OnAcceptingFragmentListener
-{
+        AcceptingTripFragment.OnAcceptingFragmentListener {
 
     private static final String TAG = "DriverActivity";
-    // store all info in the map
-
-    //Play Services
-    private static final int MY_PERMISSION_REQUEST_CODE = 7000;
-    private static final int PLAY_SERVICE_RES_REQUEST = 7001;
-
-
-
-    private static int UPDATE_INTERVAL = 3000;
-    private static int FATEST_INTERVAL = 3000;
-    private static int DISPLACEMENT = 10;
 
     DatabaseReference drivers;
     GeoFire geoFire;
 
     MaterialAnimatedSwitch locationDriver_switch;
 
-    DatabaseReference onlineRef, currenUserRef;
-
-    //Car animation
-    private List<LatLng> polyLineList;
-    private Marker carMaker, userMaker;
-    private float v;
-    private double lat, lng;
-    private Handler handler;
-    private LatLng startPostion, endPosition, currentPosition;
-    private int index, next;
     private Button btnGo;
-    private TextView tvName, tvPhone;
-    private String destination;
-    private PolylineOptions polylineOptions, blackPolylineOptions;
-    private Polyline blackPolyline, greyPolyline;
-
-    private IGoogleAPI mapService;
-
-    TabHost host;
-
-    boolean isDriverFound = false;
-    String driverId = "";
-    int radius = 1; //1km
-    int distance = 1; //3km
 
     //------------------------------------ Chi :
 
@@ -164,12 +127,11 @@ public class DriverActivity extends AppCompatActivity
     DatabaseReference dbRefe;
 
 
-
     // User Property
     UserState userState;
 
-
-    public void realTimeChecking() {
+    @Override
+    public void OnRealTimeLocationUpdate() {
         if(userState == UserState.D_RECEIVING_BOOKING_HH)
             realTimeChecking_DriverRequest();
     }
@@ -412,83 +374,6 @@ public class DriverActivity extends AppCompatActivity
 
     //endregion
 
-    //region ------ Camera Manager --------
-
-    MapCameraManager cameraManager;
-
-    private void initCameraManager() {
-        cameraManager = new MapCameraManager(mMap);
-    }
-
-    //endregion
-
-    //region ------ Direction Manager --------
-
-    DirectionManager directionManager;
-
-    /**
-     * Call only when map is ready
-     */
-    private void initDirectionManager() {
-        directionManager = new DirectionManager(getApplicationContext(), mMap);
-    }
-
-    //endregion
-
-    //region ------ Makers --------
-
-    MarkerManager markerManager;
-
-    private void initMarkerManager() {
-        GoogleMap.OnMarkerClickListener listener = new GoogleMap.OnMarkerClickListener() {
-            @Override
-            public boolean onMarkerClick(Marker marker) {
-
-
-                return false;
-            }
-        };
-
-        markerManager = new MarkerManager(mMap, listener);
-    }
-
-    //endregion
-
-    //region ------ My Location Button --------
-
-    @SuppressLint("MissingPermission")
-    private void initMyLocationButton() {
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            // permission
-            return;
-        }
-        mMap.setMyLocationEnabled(true);
-        mMap.setOnMyLocationButtonClickListener(this);
-        mMap.setOnMyLocationClickListener(this);
-        // Change location to bottom-right ( default: top-right)
-        View locationButton = ((View) mapFragment.getView()
-                .findViewById(Integer.parseInt("1")).getParent())
-                .findViewById(Integer.parseInt("2"));
-        RelativeLayout.LayoutParams rlp = (RelativeLayout.LayoutParams) locationButton.getLayoutParams();
-        // position on right bottom
-        rlp.addRule(RelativeLayout.ALIGN_PARENT_TOP, 0);
-        rlp.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM, RelativeLayout.TRUE);
-        rlp.setMargins(0, 0, 30, 30);
-    }
-
-    @Override
-    public void onMyLocationClick(@NonNull Location location) {
-
-    }
-
-    @Override
-    public boolean onMyLocationButtonClick() {
-
-        return false;
-    }
-
-    //endregion
-
     //region ------ Auto Complete  --------
     int END_PLACE_AUTOCOMPLETE_REQUEST_CODE = 1002;
     Button btn_endLocation;
@@ -567,199 +452,6 @@ public class DriverActivity extends AppCompatActivity
 
     //------------------------------------
 
-
-    //region ------ Setup Activity (Fixed)  --------
-
-    // Setup -----------------
-    //todo: handle GPS off --> equals no connection
-    FusedLocationProviderClient mFusedLocationClient;
-    LocationCallback mLocationCallback;
-    LocationRequest mLocationRequest;
-
-    private GoogleApiClient mGoogleApiClient;
-    private Location mLastLocation;
-    private GoogleMap mMap;
-
-    SupportMapFragment mapFragment;
-
-
-    @Override
-    public void onMapReady(GoogleMap googleMap) {
-        mMap = googleMap;
-        mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
-        mMap.setTrafficEnabled(true);
-        mMap.setIndoorEnabled(true);
-        mMap.setBuildingsEnabled(true);
-        mMap.getUiSettings().setZoomGesturesEnabled(true);
-        mMap.getUiSettings().setZoomControlsEnabled(false);
-        mMap.getUiSettings().setCompassEnabled(false);
-        mMap.setInfoWindowAdapter(new CustomInfoWindow(this));
-
-        // Move map to viet nam
-        CameraUpdate update = CameraUpdateFactory.newLatLngZoom(new LatLng(14.058324,108.277199), 5.6f);
-        mMap.moveCamera(update);
-
-        setUpLocation();
-
-        // My Location Button
-        initMyLocationButton();
-        // Direction Manager
-        initDirectionManager();
-        // Marker manager
-        initMarkerManager();
-        // Camera manager
-        initCameraManager();
-
-    }
-
-    @SuppressLint("MissingPermission")
-    private void setUpLocation() {
-        firstGetLocationCheck();
-
-        buildGoogleApiClient();
-    }
-
-    private synchronized void buildGoogleApiClient() {
-        // Handle Event Callback
-        GoogleApiClient.ConnectionCallbacks callbacks = new GoogleApiClient.ConnectionCallbacks() {
-            @Override
-            public void onConnected(@Nullable Bundle bundle) {
-                buildFusedLocationProviderClient();
-            }
-
-            @Override
-            public void onConnectionSuspended(int i) {
-                mGoogleApiClient.connect();
-                // todo: handle waiting progress circle
-                Log.e(TAG,"onConnectionSuspended");
-            }
-        };
-
-        GoogleApiClient.OnConnectionFailedListener failedListener = connectionResult -> {
-            //todo: handle connection fail
-            Toast.makeText(getApplicationContext(),"GoogleApiClient.OnConnectionFailed", Toast.LENGTH_SHORT).show();
-            Log.e(TAG,"OnConnectionFailedListener");
-        };
-
-        // Init
-        mGoogleApiClient = new GoogleApiClient.Builder(getApplicationContext())
-                .addConnectionCallbacks(callbacks)
-                .addOnConnectionFailedListener(failedListener)
-                .addApi(LocationServices.API)
-                .addApi(Places.GEO_DATA_API)
-                .build();
-        mGoogleApiClient.connect();
-    }
-
-    //todo: check GPS "status"
-    /**
-     * This will start Location Update after a "period of time"
-     *
-     * .setInterval(Define.POLLING_FREQ_MILLI_SECONDS) --> location will update in freq
-     * onLocationResult  -->  trigger every time location update
-     */
-    @SuppressLint("MissingPermission")
-    private void buildFusedLocationProviderClient() {
-        Log.d(TAG,"buildFusedLocationProviderClient");
-
-        mLocationRequest = LocationRequest.create()
-                .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
-                .setInterval(Define.POLLING_FREQ_MILLI_SECONDS)
-                .setFastestInterval(Define.FASTEST_UPDATE_FREQ_MILLI_SECONDS);
-
-//                .setSmallestDisplacement(DISPLACEMENT)      //todo: ??? wtf
-
-        mLocationCallback = new LocationCallback() {
-            @Override
-            public void onLocationResult(LocationResult locationResult) {
-                super.onLocationResult(locationResult);
-
-                //todo: handle when get first location move cam the that
-                for (Location location : locationResult.getLocations()) {
-                    mLastLocation = location;       // get current location
-                }
-
-                if (mLastLocation != null) {
-                    Log.d(TAG,"onLocationResult: "+ mLastLocation.getBearing()+ "," + mLastLocation.getAccuracy());
-
-                    realTimeChecking();
-                    firstGetLocationCheck();
-                }
-            }
-
-            @Override
-            public void onLocationAvailability(LocationAvailability locationAvailability) {
-                super.onLocationAvailability(locationAvailability);
-
-                // if isLocationAvailable return false you can assume that location will not be returned in onLocationResult
-                if (locationAvailability.isLocationAvailable() == false) {
-                    mFusedLocationClient.flushLocations();
-                }
-                Log.d(TAG,"onLocationAvailability: "+ locationAvailability.isLocationAvailable());
-            }
-        };
-
-        mFusedLocationClient.requestLocationUpdates(mLocationRequest, mLocationCallback, Looper.myLooper());
-        mMap.setMyLocationEnabled(true);
-    }
-
-    /**
-     * Handle GPS status "Device Only"
-     */
-    private void GetLocationInDeviceOnlyMode() {
-
-    }
-
-    /**
-     * Use when need stop checking
-     */
-    private void stopLocationUpdate() {
-        if (mFusedLocationClient != null) {
-            mFusedLocationClient.removeLocationUpdates(mLocationCallback);
-        }
-    }
-
-    /**
-     * Use this for resume
-     */
-    @SuppressLint("MissingPermission")
-    private void resumeLocationUpdate() {
-        if (mGoogleApiClient != null && mFusedLocationClient != null) {
-            mFusedLocationClient.requestLocationUpdates(mLocationRequest, mLocationCallback, Looper.myLooper());
-        } else {
-            buildGoogleApiClient();
-        }
-    }
-
-
-    boolean isFirstGetLocation;
-    @SuppressLint("MissingPermission")
-    /**
-     * Use this to get Location first time and get it very quick
-     * !! Only work when there is a "last location" information on cache whether there is your app or others
-     */
-    private void firstGetLocationCheck() {
-        // first get location handle
-        if(!isFirstGetLocation)
-        {
-            mFusedLocationClient.getLastLocation()
-                    .addOnSuccessListener(DriverActivity.this, location -> {
-                        Log.i(TAG,"firstGetLocationCheck : onSuccess");
-                        if (location != null) {
-                            mLastLocation = location;
-
-                            CameraUpdate update = CameraUpdateFactory.newLatLngZoom(LocationUtils.locaToLatLng(mLastLocation),
-                                    Define.MAP_BOUND_POINT_ZOOM);
-                            mMap.moveCamera(update);
-
-                            isFirstGetLocation = true;
-                        }
-                    });
-        }
-    }
-
-    //endregion
-
     @Override
     protected void onDestroy() {
         super.onDestroy();
@@ -769,9 +461,11 @@ public class DriverActivity extends AppCompatActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_driver);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
 
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(DriverActivity.this);
         mapFragment = (SupportMapFragment) getSupportFragmentManager()
@@ -809,22 +503,13 @@ public class DriverActivity extends AppCompatActivity
         //
         Init();
         addEven();
-
-        //Geo Fire
-        drivers = dbRefe.child(Define.DB_DRIVERS);
-        geoFire = new GeoFire(drivers);
-        mapService = Common.getGoogleAPI();
-
     }
 
     private void Init() {
-
         // Init View
         locationDriver_switch = findViewById(R.id.locationDriver_switch);
 
-        polyLineList = new ArrayList<>();
         btnGo = findViewById(R.id.btnGo);
-
 
         // CHi
         btn_endLocation = findViewById(R.id.btn_end_location);
@@ -865,7 +550,7 @@ public class DriverActivity extends AppCompatActivity
         searViewEvent();
 
         btnGo.setOnClickListener(v -> {
-            Intent intent = new Intent(getApplicationContext(), HitchActivity.class);
+            Intent intent = new Intent(getApplicationContext(), HitchSimple.class);
             DriverActivity.this.startActivity(intent);
         });
 
@@ -877,379 +562,6 @@ public class DriverActivity extends AppCompatActivity
             }
         });
     }
-
-
-
-    // ve xe nho nho
-    Runnable drawPathRunnable = new Runnable() {
-        @Override
-        public void run() {
-            if (index < polyLineList.size() - 1) {
-                index++;
-                next = index + 1;
-            }
-            if (index < polyLineList.size() - 1) {
-                startPostion = polyLineList.get(index);
-                endPosition = polyLineList.get(next);
-            }
-
-            ValueAnimator valueAnimator = ValueAnimator.ofFloat(0, 1);
-            valueAnimator.setDuration(3000);
-            valueAnimator.setInterpolator(new LinearInterpolator());
-            valueAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-                @Override
-                public void onAnimationUpdate(ValueAnimator animation) {
-                    v = animation.getAnimatedFraction();
-                    lng = v * endPosition.longitude + (1 - v) * startPostion.longitude;
-                    lat = v * endPosition.latitude + (1 - v) * startPostion.latitude;
-                    LatLng newPos = new LatLng(lat, lng);
-                    carMaker.setPosition(newPos);
-                    carMaker.setAnchor(0.5f, 0.5f);
-                    carMaker.setRotation(getBearing(startPostion, newPos));
-                    mMap.moveCamera(CameraUpdateFactory.newCameraPosition(
-                            new CameraPosition.Builder()
-                                    .target(newPos)
-                                    .zoom(15.5f)
-                                    .build())
-                    );
-                }
-            });
-            valueAnimator.start();
-            handler.postDelayed(this, 3000);
-        }
-    };
-
-    // xet quay dau xe
-    private float getBearing(LatLng startPostion, LatLng endPosition) {
-        double lat = Math.abs(startPostion.latitude - endPosition.latitude);
-        double lng = Math.abs(startPostion.longitude - endPosition.longitude);
-
-        if (startPostion.latitude < endPosition.latitude && startPostion.longitude < endPosition.longitude) {
-            return (float) (Math.toDegrees(Math.atan(lng / lat)));
-        } else if (startPostion.latitude >= endPosition.latitude && startPostion.longitude < endPosition.longitude) {
-            return (float) ((90 - Math.toDegrees(Math.atan(lng / lat))) + 90);
-        } else if (startPostion.latitude >= endPosition.latitude && startPostion.longitude >= endPosition.longitude) {
-            return (float) (Math.toDegrees(Math.atan(lng / lat)) + 180);
-        } else if (startPostion.latitude < endPosition.latitude && startPostion.longitude >= endPosition.longitude) {
-            return (float) ((90 - Math.toDegrees(Math.atan(lng / lat))) + 270);
-        }
-        return -1;
-    }
-
-
-
-
-    ///// Moved
-    private void drawDirection() {
-        currentPosition = new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude());
-        // use requestApi to determine if the api is working correctly --> if not get the URL in the log to Debug
-        String requestApi = null;
-        try {
-            requestApi = "https://maps.googleapis.com/maps/api/directions/json?" +
-                    "mode=driving&" +
-                    "transit_routing_preference=less_driving&" +
-                    "origin=" + currentPosition.latitude + "," + currentPosition.longitude + "&" +
-                    "destination=" + destination + "&" +
-                    "key=" + getResources().getString(R.string.map_api_key);
-            Log.d("Test", requestApi); // Print URL for debug
-
-
-            ///// Draw direction
-            // setup the request get data ( set up the call )
-            Call<String> call = mapService.getPath(requestApi);
-            // enqueue: execute asynchronously . User a Callback to get respond from the server
-            call.enqueue(new Callback<String>() {
-                @Override
-                public void onResponse(Call<String> call, Response<String> response) {
-                    try {
-                        String responseString = response.body();        // get response object
-                        // the response String is the whole JSON file have info of the direction
-
-                        JSONObject jsonObject = new JSONObject(responseString);
-                        JSONArray jsonArray = jsonObject.getJSONArray("routes");
-                        for (int i = 0; i < jsonArray.length(); i++) {
-                            JSONObject route = jsonArray.getJSONObject(i);
-                            JSONObject poly = route.getJSONObject("overview_polyline");
-                            String polyline = poly.getString("points");
-                            polyLineList = decodePoly(polyline); //decodePoly from Internet 3
-
-                        }
-
-                        //Adjusting lounds
-                        LatLngBounds.Builder builder = new LatLngBounds.Builder();
-                        for (LatLng latLng : polyLineList) {
-                            builder.include(latLng);
-                        }
-
-                        LatLngBounds bounds = builder.build();
-                        CameraUpdate mCameraUpdate = CameraUpdateFactory.newLatLngBounds(bounds, 2);
-                        mMap.animateCamera(mCameraUpdate);
-
-                        // polyline Property
-                        polylineOptions = new PolylineOptions();
-                        polylineOptions.color(Color.GRAY);
-                        polylineOptions.width(5);
-                        polylineOptions.startCap(new SquareCap());
-                        polylineOptions.endCap(new SquareCap());
-                        polylineOptions.jointType(JointType.ROUND);
-                        polylineOptions.addAll(polyLineList);
-                        greyPolyline = mMap.addPolyline(polylineOptions);
-
-                        blackPolylineOptions = new PolylineOptions();
-                        blackPolylineOptions.color(Color.BLACK);
-                        blackPolylineOptions.width(5);
-                        blackPolylineOptions.startCap(new SquareCap());
-                        blackPolylineOptions.endCap(new SquareCap());
-                        blackPolylineOptions.jointType(JointType.ROUND);
-                        blackPolyline = mMap.addPolyline(blackPolylineOptions);
-
-                        mMap.addMarker(new MarkerOptions()
-                                .position(polyLineList.get(polyLineList.size() - 1))
-                                .title("Pickup Location"));
-
-
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-                }
-
-                @Override
-                public void onFailure(Call<String> call, Throwable t) {
-
-                }
-            });
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    private void getDirection() {
-        currentPosition = new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude());
-
-        String requestApi = null;
-        try {
-            requestApi = "https://maps.googleapis.com/maps/api/directions/json?" +
-                    "mode=driving&" +
-                    "transit_routing_preference=less_driving&" +
-                    "origin=" + currentPosition.latitude + "," + currentPosition.longitude + "&" +
-                    "destination=" + destination + "&" +
-                    "key=" + getResources().getString(R.string.map_api_key);
-            Log.d("Test", requestApi); // Print URL for debug
-            mapService.getPath(requestApi)
-                    .enqueue(new Callback<String>() {
-                        @Override
-                        public void onResponse(Call<String> call, Response<String> response) {
-                            try {
-                                JSONObject jsonObject = new JSONObject(response.body().toString());
-                                JSONArray jsonArray = jsonObject.getJSONArray("routes");
-                                for (int i = 0; i < jsonArray.length(); i++) {
-                                    JSONObject route = jsonArray.getJSONObject(i);
-                                    JSONObject poly = route.getJSONObject("overview_polyline");
-                                    String polyline = poly.getString("points");
-                                    polyLineList = decodePoly(polyline); //decodePoly from Internet (decodepoly encode android)
-
-                                }
-
-                                //Adjusting lounds
-                                LatLngBounds.Builder builder = new LatLngBounds.Builder();
-                                for (LatLng latLng : polyLineList) {
-                                    builder.include(latLng);
-                                }
-
-                                LatLngBounds bounds = builder.build();
-                                CameraUpdate mCameraUpdate = CameraUpdateFactory.newLatLngBounds(bounds, 2);
-                                mMap.animateCamera(mCameraUpdate);
-
-
-                                // polyline Property
-                                polylineOptions = new PolylineOptions();
-                                polylineOptions.color(Color.GRAY);
-                                polylineOptions.width(5);
-                                polylineOptions.startCap(new SquareCap());
-                                polylineOptions.endCap(new SquareCap());
-                                polylineOptions.jointType(JointType.ROUND);
-                                polylineOptions.addAll(polyLineList);
-                                greyPolyline = mMap.addPolyline(polylineOptions);
-
-                                blackPolylineOptions = new PolylineOptions();
-                                blackPolylineOptions.color(Color.rgb(255, 20, 147));
-                                blackPolylineOptions.width(5);
-                                blackPolylineOptions.startCap(new SquareCap());
-                                blackPolylineOptions.endCap(new SquareCap());
-                                blackPolylineOptions.jointType(JointType.ROUND);
-                                blackPolyline = mMap.addPolyline(blackPolylineOptions);
-
-                                mMap.addMarker(new MarkerOptions()
-                                        .position(polyLineList.get(polyLineList.size() - 1))
-                                        .title("Pickup Location"));
-
-                                //Animation
-                                ValueAnimator polyLineAnimator = ValueAnimator.ofInt(0, 100);
-                                polyLineAnimator.setDuration(2000);
-                                polyLineAnimator.setInterpolator(new LinearInterpolator());
-                                polyLineAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-                                    @Override
-                                    public void onAnimationUpdate(ValueAnimator animation) {
-                                        List<LatLng> points = greyPolyline.getPoints();
-                                        int percentValue = (int) animation.getAnimatedValue();
-                                        int size = points.size();
-                                        int newPoints = (int) (size * (percentValue / 100.0f));
-                                        List<LatLng> p = points.subList(0, newPoints);
-                                        blackPolyline.setPoints(p);
-                                    }
-                                });
-                                polyLineAnimator.start();
-
-                                carMaker = mMap.addMarker(new MarkerOptions().position(currentPosition)
-                                        .flat(true)
-                                        .icon(BitmapDescriptorFactory.fromResource(R.drawable.car)));
-
-                                handler = new Handler();
-                                index = -1;
-                                next = 1;
-                                handler.postDelayed(drawPathRunnable, 3000);
-
-
-                            } catch (JSONException e) {
-                                e.printStackTrace();
-                            }
-
-                        }
-
-                        @Override
-                        public void onFailure(Call<String> call, Throwable t) {
-                            Toast.makeText(getApplicationContext(), "" + t.getMessage(), Toast.LENGTH_SHORT).show();
-                        }
-                    });
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-    }
-
-    ///////////
-
-    private void requesRoute(String uid) {
-        String title = btn_endLocation.getText().toString();
-
-        DatabaseReference dbRequest = dbRefe.child(Define.DB_DRIVER_REQUESTS);
-        GeoFire mGeoFire = new GeoFire(dbRequest);
-        mGeoFire.setLocation(uid, new GeoLocation(mLastLocation.getLatitude(), mLastLocation.getLongitude()));
-        dbRequest.child(uid).child("locationName").setValue(title);
-
-        Calendar c = Calendar.getInstance();
-        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        String formattedDate = df.format(c.getTime());
-
-        // show info
-        carMaker = mMap.addMarker(new MarkerOptions()
-                .title(title)
-                .snippet(formattedDate)
-                .position(new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude())));
-//                    .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
-        carMaker.showInfoWindow();
-
-    }
-
-    private List<LatLng> decodePoly(String encoded) {
-
-        List<LatLng> poly = new ArrayList<LatLng>();
-        int index = 0, len = encoded.length();
-        int lat = 0, lng = 0;
-
-        while (index < len) {
-            int b, shift = 0, result = 0;
-            do {
-                b = encoded.charAt(index++) - 63;
-                result |= (b & 0x1f) << shift;
-                shift += 5;
-            } while (b >= 0x20);
-            int dlat = ((result & 1) != 0 ? ~(result >> 1) : (result >> 1));
-            lat += dlat;
-
-            shift = 0;
-            result = 0;
-            do {
-                b = encoded.charAt(index++) - 63;
-                result |= (b & 0x1f) << shift;
-                shift += 5;
-            } while (b >= 0x20);
-            int dlng = ((result & 1) != 0 ? ~(result >> 1) : (result >> 1));
-            lng += dlng;
-
-            LatLng p = new LatLng((((double) lat / 1E5)),
-                    (((double) lng / 1E5)));
-            poly.add(p);
-        }
-
-        return poly;
-    }
-
-
-
-
-
-
-    private void loadAllAvailableDriver() {
-        //load all available Driver in distance 3km
-        DatabaseReference driverLocation = dbRefe.child("Divers");
-        GeoFire geoFireDrivers = new GeoFire(driverLocation);
-
-        GeoQuery geoQuery = geoFireDrivers.queryAtLocation(new GeoLocation(mLastLocation.getLatitude(), mLastLocation.getLongitude()), distance);
-        geoQuery.removeAllListeners();
-
-        geoQuery.addGeoQueryEventListener(new GeoQueryEventListener() {
-            @Override
-            public void onKeyEntered(String key, final GeoLocation location) {
-                dbRefe.child(Define.DB_USERS_INFO)
-                        .child(key)
-                        .addListenerForSingleValueEvent(new ValueEventListener() {
-                            @Override
-                            public void onDataChange(DataSnapshot dataSnapshot) {
-                                UserInfo userInfo = dataSnapshot.getValue(UserInfo.class);
-
-                                //Add driver to map
-                                mMap.addMarker(new MarkerOptions()
-                                        .position(new LatLng(location.latitude, location.longitude))
-                                        .flat(true)
-                                        .title(userInfo.getName())
-                                        .snippet("Phone: " + userInfo.getPhoneNumber())
-                                        .icon(BitmapDescriptorFactory.fromResource(R.drawable.car)));
-                            }
-
-                            @Override
-                            public void onCancelled(DatabaseError databaseError) {
-
-                            }
-                        });
-            }
-
-            @Override
-            public void onKeyExited(String key) {
-
-            }
-
-            @Override
-            public void onKeyMoved(String key, GeoLocation location) {
-
-            }
-
-            @Override
-            public void onGeoQueryReady() {
-                if (distance <= 3) {
-                    distance++;
-                    loadAllAvailableDriver();
-                }
-            }
-
-            @Override
-            public void onGeoQueryError(DatabaseError error) {
-
-            }
-        });
-    }
-
 
 
 
@@ -1305,6 +617,7 @@ public class DriverActivity extends AppCompatActivity
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
+
 
 
 }

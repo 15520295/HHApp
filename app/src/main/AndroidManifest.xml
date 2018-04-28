@@ -62,7 +62,7 @@
             android:name=".ActivitiesAuth.UpdateInfoActivity"
             android:windowSoftInputMode="stateVisible|adjustResize" />
         <activity android:name=".Manager.Place.PlacePickerActivity" />
-        <activity android:name=".Main.Driver.HitchActivity"></activity>
+        <activity android:name=".Main.Driver.HitchSimple"></activity>
     </application>
 
 </manifest>
