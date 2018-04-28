@@ -1,47 +1,24 @@
 package com.example.huydaoduc.hieu.chi.hhapp.Main.Driver;
 
-import android.Manifest;
-import android.animation.ValueAnimator;
-import android.annotation.SuppressLint;
 import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.graphics.Color;
-import android.location.Location;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.v4.app.ActivityCompat;
 import android.text.TextUtils;
 import android.util.Log;
-import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.animation.LinearInterpolator;
 import android.widget.Button;
-import android.widget.RelativeLayout;
-import android.widget.TabHost;
-import android.widget.TextView;
-import android.widget.Toast;
 
-import com.example.huydaoduc.hieu.chi.hhapp.Common.Common;
-import com.example.huydaoduc.hieu.chi.hhapp.CostomInfoWindow.CustomInfoWindow;
 import com.example.huydaoduc.hieu.chi.hhapp.Define;
 import com.example.huydaoduc.hieu.chi.hhapp.Manager.CheckActivityCloseService;
 import com.example.huydaoduc.hieu.chi.hhapp.Manager.DBManager;
-import com.example.huydaoduc.hieu.chi.hhapp.Manager.MapCameraManager;
 import com.example.huydaoduc.hieu.chi.hhapp.Manager.Direction.DirectionFinderListener;
 import com.example.huydaoduc.hieu.chi.hhapp.Manager.Direction.Route;
-import com.example.huydaoduc.hieu.chi.hhapp.Manager.DirectionManager;
 import com.example.huydaoduc.hieu.chi.hhapp.Manager.LocationUtils;
-import com.example.huydaoduc.hieu.chi.hhapp.Manager.MarkerManager;
 import com.example.huydaoduc.hieu.chi.hhapp.Manager.Place.SavedPlace;
 import com.example.huydaoduc.hieu.chi.hhapp.Manager.Place.SearchActivity;
 import com.example.huydaoduc.hieu.chi.hhapp.Manager.SimpleMapActivity;
@@ -50,39 +27,13 @@ import com.example.huydaoduc.hieu.chi.hhapp.Model.DriverRequest;
 import com.example.huydaoduc.hieu.chi.hhapp.Model.PassengerRequest;
 import com.example.huydaoduc.hieu.chi.hhapp.Model.Trip.Trip;
 import com.example.huydaoduc.hieu.chi.hhapp.Model.User.OnlineUser;
-import com.example.huydaoduc.hieu.chi.hhapp.Model.User.UserInfo;
 import com.example.huydaoduc.hieu.chi.hhapp.Model.User.UserState;
 import com.example.huydaoduc.hieu.chi.hhapp.R;
-import com.example.huydaoduc.hieu.chi.hhapp.Remote.IGoogleAPI;
 import com.example.huydaoduc.hieu.chi.hhapp.ActivitiesAuth.PhoneAuthActivity;
 import com.firebase.geofire.GeoFire;
-import com.firebase.geofire.GeoLocation;
-import com.firebase.geofire.GeoQuery;
-import com.firebase.geofire.GeoQueryEventListener;
 import com.github.glomadrian.materialanimatedswitch.MaterialAnimatedSwitch;
-import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.location.FusedLocationProviderClient;
-import com.google.android.gms.location.LocationAvailability;
-import com.google.android.gms.location.LocationCallback;
-import com.google.android.gms.location.LocationRequest;
-import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.location.places.Places;
-import com.google.android.gms.maps.CameraUpdate;
-import com.google.android.gms.maps.CameraUpdateFactory;
-import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
-import com.google.android.gms.maps.model.CameraPosition;
-import com.google.android.gms.maps.model.JointType;
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.LatLngBounds;
-import com.google.android.gms.maps.model.Marker;
-import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.gms.maps.model.Polyline;
-import com.google.android.gms.maps.model.PolylineOptions;
-import com.google.android.gms.maps.model.SquareCap;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -90,18 +41,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.List;
-
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 
 import static com.google.android.gms.location.LocationServices.getFusedLocationProviderClient;
 
@@ -113,9 +53,6 @@ public class DriverActivity extends SimpleMapActivity
         AcceptingTripFragment.OnAcceptingFragmentListener {
 
     private static final String TAG = "DriverActivity";
-
-    DatabaseReference drivers;
-    GeoFire geoFire;
 
     MaterialAnimatedSwitch locationDriver_switch;
 
@@ -148,8 +85,13 @@ public class DriverActivity extends SimpleMapActivity
 
                     @Override
                     public void onDirectionFinderSuccess(List<Route> routes) {
-                        // Redraw route
+                        // run this to put value the first time
+                        // Draw route
                         directionManager.drawRoutes(routes, true);
+
+                        //todo: get the selected route
+                        // put Route online
+                        putRouteRequest(routes.get(0));
 
                         // move camera
                         cameraManager.moveCamWithRoutes(routes);
@@ -157,12 +99,6 @@ public class DriverActivity extends SimpleMapActivity
                         // draw markers
                         markerManager.draw_DropPlaceMarker(routes.get(0).getLegs().get(0).getEndLocation());
 
-                        //todo: get the selected route
-                        // put Route online
-                        putRouteRequest(routes.get(0));
-
-                        // run this to put value the first time
-                        updateRouteRequest();
                         updateOnlineUserInfo();
                         // This will Enable real time checking
                         if (userState != UserState.D_RECEIVING_BOOKING_HH) {
@@ -226,11 +162,11 @@ public class DriverActivity extends SimpleMapActivity
         DBManager.getOnlineUserById(getCurUid(), onlineUser -> {
             // Check with distance
             if (Define.ONLINE_USER_RADIUS_UPDATE < LocationUtils.calcDistance(LocationUtils.locaToLatLng(mLastLocation), LocationUtils.strToLatLng(onlineUser.getLocation()))) {
-                updateRouteRequest();
+                updateAndDrawRouteRequest();
             }
             // Check with time out
             else if (onlineUser.func_isTimeOut(Define.ONLINE_USER_TIMEOUT)) {
-                updateRouteRequest();
+                updateAndDrawRouteRequest();
             }
         });
 
@@ -238,7 +174,7 @@ public class DriverActivity extends SimpleMapActivity
         updateOnlineUserInfo();
     }
 
-    private void updateRouteRequest() {
+    private void updateAndDrawRouteRequest() {
         // find routes
         directionManager.findPath(mLastLocation, btn_endLocation.getText().toString(),
                 new DirectionFinderListener() {
@@ -466,36 +402,11 @@ public class DriverActivity extends SimpleMapActivity
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-
+        simpleMapListener = this;
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(DriverActivity.this);
         mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);      // onMapReadyCallback
-
-        //
-//        onlineRef = FirebaseDatabase.getInstance().getReference().child(".info/connected");
-//        currenUserRef = FirebaseDatabase.getInstance().getReference(Define.DB_DRIVERS)
-//                .child(FirebaseAuth.getInstance().getCurrentUser().getPassengerUId());
-//        onlineRef.addValueEventListener(new ValueEventListener() {
-//            @Override
-//            public void onDataChange(DataSnapshot dataSnapshot) {
-//                currenUserRef.onDisconnect().removeValue();
-//            }
-//
-//            @Override
-//            public void onCancelled(DatabaseError databaseError) {
-//
-//            }
-//        });
-
-
-        // nut ping vi tri
-
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-        drawer.addDrawerListener(toggle);
-        toggle.syncState();
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);

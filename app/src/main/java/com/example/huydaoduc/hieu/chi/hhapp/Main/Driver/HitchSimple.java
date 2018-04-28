@@ -9,6 +9,8 @@ import com.google.android.gms.maps.SupportMapFragment;
 
 public class HitchSimple extends SimpleMapActivity implements SimpleMapActivity.SimpleMapListener {
 
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
