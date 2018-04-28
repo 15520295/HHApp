@@ -50,6 +50,7 @@ public class SimpleMapActivity extends AppCompatActivity implements
     protected SupportMapFragment mapFragment;
 
     public SimpleMapListener simpleMapListener;
+    protected boolean setupCheckRealtime;
 
     public interface SimpleMapListener {
         void OnRealTimeLocationUpdate();
@@ -97,7 +98,8 @@ public class SimpleMapActivity extends AppCompatActivity implements
         GoogleApiClient.ConnectionCallbacks callbacks = new GoogleApiClient.ConnectionCallbacks() {
             @Override
             public void onConnected(@Nullable Bundle bundle) {
-                buildFusedLocationProviderClient();
+                if(setupCheckRealtime)
+                    buildFusedLocationProviderClient();
             }
 
             @Override

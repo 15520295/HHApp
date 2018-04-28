@@ -9,8 +9,8 @@ public class Define {
     public static final int RADIUS_AUTO_COMPLETE = 1000;
 
     // Camera Manager
-    public static final int MAP_BOUND_ROUTE_PADDING = 110;  /* In dp */
-    public static final float MAP_BOUND_POINT_ZOOM = 15.5f;
+    public static final int MAP_BOUND_ROUTE_PADDING = 160;  /* In dp */
+    public static final float MAP_BOUND_POINT_ZOOM = 14.5f;
 
     // --------- DataBase
     // Trips

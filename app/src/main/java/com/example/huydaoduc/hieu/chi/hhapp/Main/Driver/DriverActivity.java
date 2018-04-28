@@ -7,7 +7,6 @@ import android.util.Log;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -30,7 +29,6 @@ import com.example.huydaoduc.hieu.chi.hhapp.Model.User.OnlineUser;
 import com.example.huydaoduc.hieu.chi.hhapp.Model.User.UserState;
 import com.example.huydaoduc.hieu.chi.hhapp.R;
 import com.example.huydaoduc.hieu.chi.hhapp.ActivitiesAuth.PhoneAuthActivity;
-import com.firebase.geofire.GeoFire;
 import com.github.glomadrian.materialanimatedswitch.MaterialAnimatedSwitch;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.SupportMapFragment;
@@ -402,6 +400,7 @@ public class DriverActivity extends SimpleMapActivity
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        setupCheckRealtime = true;
         simpleMapListener = this;
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(DriverActivity.this);
         mapFragment = (SupportMapFragment) getSupportFragmentManager()
@@ -432,36 +431,11 @@ public class DriverActivity extends SimpleMapActivity
 
     private void addEven() {
 
-        //// Driver
-//        locationDriver_switch.setOnCheckedChangeListener(new MaterialAnimatedSwitch.OnCheckedChangeListener() {
-//            @Override
-//            public void onCheckedChanged(boolean b) {
-//                if (b) {
-//                    // check online -- not done
-//                    FirebaseDatabase.getInstance().goOnline();
-//
-//
-//                    startCurrentLocationUpdates();
-//                    displayLocationAndUpdateData();
-//                    Snackbar.make(mapFragment.getView(), "You are Online", Snackbar.LENGTH_SHORT).show();
-//                } else {
-//                    FirebaseDatabase.getInstance().goOffline();
-//
-//                    stopLocationUpdate();
-//                    if (userMaker != null)
-//                        userMaker.remove();
-//                    mMap.clear();
-////                    handler.removeCallbacks(drawPathRunnable);
-//                    Snackbar.make(mapFragment.getView(), "You are Offline", Snackbar.LENGTH_SHORT).show();
-//                }
-//            }
-//        });
-
         // Chi
         searViewEvent();
 
         btnGo.setOnClickListener(v -> {
-            Intent intent = new Intent(getApplicationContext(), HitchSimple.class);
+            Intent intent = new Intent(getApplicationContext(), CreateRouteActivity.class);
             DriverActivity.this.startActivity(intent);
         });
 
