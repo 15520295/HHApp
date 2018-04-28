@@ -136,6 +136,11 @@ public class PassengerActivity extends SimpleMapActivity
 
     }
 
+    @Override
+    public void OnMapSetupDone() {
+
+    }
+
     //region ------ Real time checking --------
 
 
@@ -548,21 +553,22 @@ public class PassengerActivity extends SimpleMapActivity
 
     SavedPlace dropPlace, pickupPlace;
 
-    //todo handle null
-    private SavedPlace getPickupPlace() {
-        if (pickupPlace == null) {
-            Log.e(TAG, "pickupPlace null");
-            return new SavedPlace();
-        }
-        return pickupPlace;
-    }
-
     private SavedPlace getDropPlace() {
         if (dropPlace == null) {
-            Log.e(TAG, "dropPlace null");
-            return new SavedPlace();
+            Log.e(TAG, "startPlace null");
+            dropPlace = new SavedPlace();
+            return dropPlace;
         }
         return dropPlace;
+    }
+
+    private SavedPlace getPickupPlace() {
+        if (pickupPlace == null) {
+            Log.e(TAG, "endPlace null");
+            pickupPlace = new SavedPlace();
+            return pickupPlace;
+        }
+        return pickupPlace;
     }
 
     private void searViewEvent() {

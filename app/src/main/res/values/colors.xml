@@ -52,4 +52,8 @@
     <color name="btn_unpressed">#39be47</color>
     <color name="btn_pressed">#309d3b</color>
 
+    // Date Time picker
+    <color name="date_picker_bar">#309d3b</color>
+
+
 </resources>

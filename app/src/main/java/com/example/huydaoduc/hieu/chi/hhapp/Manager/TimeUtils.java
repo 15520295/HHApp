@@ -10,11 +10,14 @@ import java.util.concurrent.TimeUnit;
 
 public class TimeUtils {
     @SuppressLint("SimpleDateFormat")
-    public static final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    public static final SimpleDateFormat fullDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    public static final SimpleDateFormat userDateFormat = new SimpleDateFormat("EEEE dd MMMM yyyy");
+
+    public static final SimpleDateFormat userTimeFormat = new SimpleDateFormat("HH:mm");
 
     public static String getCurrentTimeAsString() {
         Calendar c = Calendar.getInstance();
-        return  simpleDateFormat.format(c.getTime());
+        return  userDateFormat.format(c.getTime());
     }
 
     public static Date getCurrentTimeAsDate() {
@@ -27,7 +30,7 @@ public class TimeUtils {
     public static Date strToDate(String string) {
         Calendar cal = Calendar.getInstance();
         try {
-            cal.setTime(simpleDateFormat.parse(string));
+            cal.setTime(userDateFormat.parse(string));
         } catch (ParseException e) {
             e.printStackTrace();
             return null;
@@ -36,10 +39,29 @@ public class TimeUtils {
     }
 
     public static String dateToStr(Date date) {
-        return simpleDateFormat.format(date);
+        return userDateFormat.format(date);
     }
 
+    /**
+     * User string mean a String of date that User can easily read
+     */
+    public static String dateToUserStr(int day, int month, int year) {
+        Calendar cal = Calendar.getInstance();
+        cal.set(year,month,day);
+        return userDateFormat.format(cal.getTime());
+    }
+    public static String curDateToUserStr() {
+        Calendar cal = Calendar.getInstance();
+        return userDateFormat.format(cal.getTime());
+    }
 
+    public static String timeToUserString(int hourOfDay, int minute) {
+        return String.format("%02d:%02d",hourOfDay,minute);
+    }
+    public static String curTimeToUserString() {
+        Calendar cal = Calendar.getInstance();
+        return userTimeFormat.format(cal.getTime());
+    }
     // Func
 
 

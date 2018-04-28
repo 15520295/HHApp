@@ -1,7 +1,10 @@
 package com.example.huydaoduc.hieu.chi.hhapp.Manager;
 
+import android.location.Address;
+import android.location.Geocoder;
 import android.location.Location;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.example.huydaoduc.hieu.chi.hhapp.Manager.Direction.Leg;
 import com.example.huydaoduc.hieu.chi.hhapp.Manager.Direction.Route;
@@ -11,6 +14,7 @@ import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.maps.android.PolyUtil;
 import com.google.maps.android.SphericalUtil;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,7 +24,7 @@ import java.util.List;
 public class LocationUtils {
     private static String TAG = "LocationUtils";
 
-    // ------- Converter --------------
+    //region ------- Converter --------------
     /**
      * @param string ex:"-34.8799074,174.7565664"
      */
@@ -70,7 +74,23 @@ public class LocationUtils {
         return new LatLngBounds(southwestCorner, northeastCorner);
     }
 
-    // --------------------------------
+    //endregion
+
+    public static String getLocationAddress(Geocoder geocoder, Location location) {
+
+        StringBuilder result = new StringBuilder();
+        try {
+            List<Address> addresses = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(), 1);
+            if (addresses != null && addresses.size() > 0) {
+                Address address = addresses.get(0);
+                result.append(address.getAddressLine(0));
+            }
+        } catch (IOException e) {
+            Log.e("LocationUtils", e.getMessage());
+        }
+
+        return result.toString();
+    }
 
     /**
      * @return meter

@@ -71,6 +71,11 @@ public class DriverActivity extends SimpleMapActivity
             realTimeChecking_DriverRequest();
     }
 
+    @Override
+    public void OnMapSetupDone() {
+
+    }
+
     //region ------ HH Request   --------
     private void startRealTimeCheckingAndShowRoute() {
         // find/ show/ put_online  route + start real time checking
@@ -313,11 +318,11 @@ public class DriverActivity extends SimpleMapActivity
     Button btn_endLocation;
     SavedPlace endPlace;
 
-
     private SavedPlace getEndPlace() {
         if (endPlace == null) {
-            Log.e(TAG, "dropPlace null");
-            return new SavedPlace();
+            Log.e(TAG, "endPlace null");
+            endPlace = new SavedPlace();
+            return endPlace;
         }
         return endPlace;
     }

@@ -143,7 +143,6 @@
         fancy:mfb_borderWidth="1dp"
         fancy:mfb_defaultColor="@color/btn_unpressed"
         fancy:mfb_focusColor="@color/btn_pressed"
-        fancy:mfb_iconFont="fontawesome.ttf"
         fancy:mfb_iconPosition="left"
         fancy:mfb_radius="5dp"
         fancy:mfb_text="Create Route"

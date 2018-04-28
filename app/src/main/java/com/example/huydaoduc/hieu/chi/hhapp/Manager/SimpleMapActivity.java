@@ -54,6 +54,7 @@ public class SimpleMapActivity extends AppCompatActivity implements
 
     public interface SimpleMapListener {
         void OnRealTimeLocationUpdate();
+        void OnMapSetupDone();
     }
 
 
@@ -100,6 +101,8 @@ public class SimpleMapActivity extends AppCompatActivity implements
             public void onConnected(@Nullable Bundle bundle) {
                 if(setupCheckRealtime)
                     buildFusedLocationProviderClient();
+                else
+                    simpleMapListener.OnMapSetupDone();
             }
 
             @Override
@@ -175,6 +178,8 @@ public class SimpleMapActivity extends AppCompatActivity implements
 
         mFusedLocationClient.requestLocationUpdates(mLocationRequest, mLocationCallback, Looper.myLooper());
         mMap.setMyLocationEnabled(true);
+
+        simpleMapListener.OnMapSetupDone();
     }
 
     /**

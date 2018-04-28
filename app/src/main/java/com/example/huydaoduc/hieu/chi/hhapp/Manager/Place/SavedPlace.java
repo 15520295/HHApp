@@ -9,7 +9,7 @@ public class SavedPlace {
     private String primaryText;
     private String address;
     private String id;
-    private String location;
+    private String location;        // LatLng
 
     public SavedPlace() { }
 
