@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".Main.Driver.HitchActivity"
+    xmlns:fancy="http://schemas.android.com/apk/res-auto">
+
+    <cn.bingoogolapple.titlebar.BGATitleBar
+        android:id="@+id/titlebar"
+        style="@style/CusTitleBar"
+        app:bgatitlebar_leftDrawablePadding="15dp"
+        app:bgatitlebar_leftDrawable="@drawable/ic_back_v2_white_26px"
+        app:bgatitlebar_leftText="Create your route"
+        app:bgatitlebar_leftMaxWidth="500dp"
+        app:bgatitlebar_leftAndRightTextSize="19sp"
+        />
+
+    <LinearLayout
+        android:id="@+id/group_setup_route"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/titlebar"
+        android:orientation="vertical">
+
+        <Button
+            android:id="@+id/btn_start_place_picker"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            style="@style/CusFlatButtonStyle"
+            android:text="Select start point"
+            android:drawablePadding="10dp"
+            android:paddingEnd="20dp"
+            android:paddingStart="@dimen/margin_default_25"
+            android:textStyle="bold"
+            android:textSize="18sp"
+            android:drawableLeft="@drawable/mkr_pair_start"
+            android:gravity="left|center_vertical"
+            android:singleLine="true"/>
+
+        <View
+            android:layout_width="fill_parent"
+            android:layout_height="1dp"
+            android:layout_below="@id/prb_loading"
+            android:background="@color/bar"
+            android:layout_marginStart="50dp"
+            android:layout_marginEnd="@dimen/margin_default_25"/>
+
+        <Button
+            android:id="@+id/btn_end_place_picker"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            style="@style/CusFlatButtonStyle"
+            android:textSize="18sp"
+            android:text="Select end point"
+            android:drawablePadding="10dp"
+            android:paddingEnd="20dp"
+            android:paddingStart="@dimen/margin_default_25"
+            android:textStyle="bold"
+            android:drawableLeft="@drawable/mkr_pair_end"
+            android:gravity="left|center_vertical"
+            android:singleLine="true"/>
+
+        <View
+            android:layout_width="fill_parent"
+            android:layout_height="1dp"
+            android:layout_below="@id/prb_loading"
+            android:background="@color/bar"
+            android:layout_marginStart="@dimen/margin_default_25"
+            android:layout_marginEnd="@dimen/margin_default_25"/>
+
+        <Button
+            android:id="@+id/btn_date_picker"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            style="@style/CusFlatButtonStyle"
+            android:text="Select date"
+            android:drawablePadding="15dp"
+            android:paddingTop="12dp"
+            android:paddingBottom="12dp"
+            android:paddingEnd="20dp"
+            android:paddingStart="@dimen/margin_default_30"
+            android:drawableLeft="@drawable/mkr_calendar_16px"
+            android:gravity="left|center_vertical"
+            android:singleLine="true"/>
+
+        <View
+            android:layout_width="fill_parent"
+            android:layout_height="1dp"
+            android:layout_below="@id/prb_loading"
+            android:background="@color/bar"
+            android:layout_marginStart="@dimen/margin_default_25"
+            android:layout_marginEnd="@dimen/margin_default_25"/>
+
+
+        <Button
+            android:id="@+id/btn_time_picker"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            style="@style/CusFlatButtonStyle"
+            android:text="Select time"
+            android:drawablePadding="15dp"
+            android:paddingTop="12dp"
+            android:paddingBottom="12dp"
+            android:paddingEnd="20dp"
+            android:paddingStart="@dimen/margin_default_30"
+            android:drawableLeft="@drawable/mkr_clock_16px"
+            android:gravity="left|center_vertical"
+            android:singleLine="true"/>
+
+        <View
+            android:layout_width="fill_parent"
+            android:layout_height="1dp"
+            android:layout_below="@id/prb_loading"
+            android:background="@color/bar"
+            android:layout_marginStart="@dimen/margin_default_20"
+            android:layout_marginEnd="@dimen/margin_default_20"/>
+
+
+
+    </LinearLayout>
+
+    <fragment
+        android:id="@+id/map"
+        android:name="com.google.android.gms.maps.SupportMapFragment"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/group_setup_route" />
+
+    <com.rilixtech.materialfancybutton.MaterialFancyButton
+        android:id="@+id/btn_spotify"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:paddingBottom="10dp"
+        android:paddingLeft="20dp"
+        android:paddingRight="20dp"
+        android:paddingTop="10dp"
+        android:layout_marginBottom="@dimen/margin_default_20"
+        fancy:mfb_borderColor="#FFFFFF"
+        fancy:mfb_borderWidth="1dp"
+        fancy:mfb_defaultColor="@color/btn_unpressed"
+        fancy:mfb_focusColor="@color/btn_pressed"
+        fancy:mfb_iconFont="fontawesome.ttf"
+        fancy:mfb_iconPosition="left"
+        fancy:mfb_radius="5dp"
+        fancy:mfb_text="Create Route"
+        fancy:mfb_textColor="#FFFFFF"
+        fancy:mfb_textSize="18sp"/>
+
+
+
+
+
+</RelativeLayout>

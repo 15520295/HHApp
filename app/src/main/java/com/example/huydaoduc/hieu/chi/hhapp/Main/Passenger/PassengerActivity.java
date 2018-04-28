@@ -208,8 +208,8 @@ public class PassengerActivity extends AppCompatActivity
 
 
     public void realTimeChecking() {
-        if(userState == UserState.P_FINDING_DRIVER)
-            realTimeChecking_PassengerRequest();
+//        if(userState == UserState.P_FINDING_DRIVER)
+//            realTimeChecking_PassengerRequest();
     }
 
     private void updateOnlineUserInfo() {
@@ -232,7 +232,7 @@ public class PassengerActivity extends AppCompatActivity
         hhMode = true;
         notFoundHH = false;
 
-        estimateFare = 0f;
+        estimateFare = 10000f;
         long limitHHRadius = 500;
         float distance = 1000;
         float duration = 1000;
@@ -244,11 +244,30 @@ public class PassengerActivity extends AppCompatActivity
         Trip trip = Trip.Builder.aTrip(tripUId)
                 .setPassengerUId(getCurUid())
                 .setEstimateFare(estimateFare)
-                .setTripState(TripState.CREATED)
                 .setTripDistance(distance)
                 .setTripDuration(duration)
                 .build();
 
+        // Set up Trip
+        // todo: handle car type, notes
+        // create Passenger Request
+        PassengerRequest passengerRequest = PassengerRequest.Builder.aPassengerRequest(getCurUid())
+                .setPickUpSavePlace(pickupPlace)
+                .setDropOffSavePlace(dropPlace)
+                .setPostTime(TimeUtils.getCurrentTimeAsString())
+                .setCarType(CarType.BIKE)
+                .setNote("Notes..")
+                .build();
+
+        trip.setTripState(TripState.WAITING_ACCEPT);
+        trip.setTripStyle(TripStyle.HH);
+        trip.setPassengerRequest(passengerRequest);
+
+        dbRefe.child(Define.DB_TRIPS)
+                .child(tripUId).setValue(trip);
+
+
+        // Find Driver todo: add car type
         if (hhMode) {
             findMatchingHH(trip, limitHHRadius, new FindHHListener() {
                         @Override
@@ -265,26 +284,6 @@ public class PassengerActivity extends AppCompatActivity
                         public void OnFoundDriverRequest(DriverRequest request) {
                             isDriverFound = true;
                             String driverUId = request.getDriverUId();
-
-                            // Set up Trip
-                            // todo: handle car type, notes
-                            // create Passenger Request
-                            PassengerRequest passengerRequest = PassengerRequest.Builder.aPassengerRequest(getCurUid())
-                                    .setPickUpSavePlace(pickupPlace)
-                                    .setDropOffSavePlace(dropPlace)
-                                    .setPostTime(TimeUtils.getCurrentTimeAsString())
-                                    .setCarType(CarType.BIKE)
-                                    .setNote("Notes..")
-                                    .build();
-
-                            trip.setTripState(TripState.WAITING_ACCEPT);
-                            trip.setTripStyle(TripStyle.HH);
-                            trip.setPassengerRequest(passengerRequest);
-
-                            String tripUId = dbRefe.child(Define.DB_TRIPS).push().getKey();
-                            dbRefe.child(Define.DB_TRIPS)
-                                    .child(tripUId).setValue(trip);
-
 
                             // notify driver thought database
                             dbRefe.child(Define.DB_ONLINE_USERS)
@@ -306,7 +305,6 @@ public class PassengerActivity extends AppCompatActivity
                                         }
                                     });
 
-
                             Log.i(TAG, "Found HH request" + request.getDriverUId());
                         }
                     }
@@ -325,7 +323,7 @@ public class PassengerActivity extends AppCompatActivity
     private void driverAccepted() {
 
     }
-    
+
 
     //region ------------ Find matching Active Driver
 
@@ -607,6 +605,9 @@ public class PassengerActivity extends AppCompatActivity
 
 
     //endregion
+
+    //endregion
+
 
     //region ------ Direction Manager --------
 

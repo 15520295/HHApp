@@ -34,7 +34,7 @@
                     android:layout_width="56dp"
                     android:layout_height="match_parent"
                     android:background="@color/transparent"
-                    android:src="@drawable/ic_back_v2_20px"
+                    android:src="@drawable/ic_back_v2_black_20px"
                     android:layout_centerVertical="true"/>
                 <EditText
                     android:id="@+id/search_et"
@@ -99,7 +99,7 @@
             android:layout_width="fill_parent"
             android:layout_height="1dp"
             android:layout_below="@id/prb_loading"
-            android:background="#d4d4d4"/>
+            android:background="@color/bar"/>
 
         <android.support.v7.widget.RecyclerView
             android:id="@+id/list_search"

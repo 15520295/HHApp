@@ -24,6 +24,9 @@ allprojects {
         }
         maven{
             url 'https://dl.bintray.com/glomadrian/maven'
+            }
+        maven {
+            url "http://dl.bintray.com/rilixtech/maven"
         }
     }
 }

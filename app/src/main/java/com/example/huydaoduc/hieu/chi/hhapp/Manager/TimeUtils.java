@@ -51,4 +51,13 @@ public class TimeUtils {
         long difference = getCurrentTimeAsDate().getTime() - strToDate(lastTime).getTime();
         return TimeUnit.MILLISECONDS.toSeconds(difference);
     }
+
+
+    public static boolean checkTimeOut(long checkAmountSec, String lastTimeCheck) {
+        long secondsPass = TimeUtils.getPassTime(lastTimeCheck);
+
+        if( secondsPass > checkAmountSec)
+            return true;
+        return false;
+    }
 }

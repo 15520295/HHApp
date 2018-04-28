@@ -4,6 +4,7 @@ import android.location.Location;
 
 import com.example.huydaoduc.hieu.chi.hhapp.Manager.LocationUtils;
 import com.example.huydaoduc.hieu.chi.hhapp.Manager.TimeUtils;
+import com.example.huydaoduc.hieu.chi.hhapp.Model.NotifyTrip;
 import com.google.android.gms.maps.model.LatLng;
 
 public class OnlineUser {
@@ -13,7 +14,7 @@ public class OnlineUser {
     private String lastTimeCheck;       // last time update Location
     private UserState state;
     private Float bearing;
-    private String tripUId;
+    private NotifyTrip notifyTrip;
 
     public OnlineUser() {
 
@@ -41,13 +42,13 @@ public class OnlineUser {
         lastTimeCheck = TimeUtils.getCurrentTimeAsString();
     }
 
-    public OnlineUser(String uid, String location, String lastTimeCheck, UserState state, Float bearing, String tripUId) {
+    public OnlineUser(String uid, String location, String lastTimeCheck, UserState state, Float bearing, NotifyTrip notifyTrip) {
         this.uid = uid;
         this.location = location;
         this.lastTimeCheck = lastTimeCheck;
         this.state = state;
         this.bearing = bearing;
-        this.tripUId = tripUId;
+        this.notifyTrip = notifyTrip;
     }
 
     // Getter Setter
@@ -93,11 +94,11 @@ public class OnlineUser {
         this.bearing = bearing;
     }
 
-    public String getTripUId() {
-        return tripUId;
+    public NotifyTrip getNotifyTrip() {
+        return notifyTrip;
     }
 
-    public void setTripUId(String tripUId) {
-        this.tripUId = tripUId;
+    public void setNotifyTrip(NotifyTrip notifyTrip) {
+        this.notifyTrip = notifyTrip;
     }
 }

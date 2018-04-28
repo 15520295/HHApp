@@ -11,7 +11,7 @@
         android:id="@+id/btn_back"
         android:layout_width="20dp"
         android:layout_height="20dp"
-        android:layout_marginStart="@dimen/margin_default_wide"
+        android:layout_marginStart="@dimen/margin_default_25"
         android:layout_marginTop="15dp"
         android:background="@color/transparent"
         android:scaleType="fitCenter"
@@ -22,8 +22,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@+id/btn_back"
-        android:layout_marginStart="@dimen/margin_default_wide"
-        android:layout_marginTop="@dimen/margin_default_wide"
+        android:layout_marginStart="@dimen/margin_default_25"
+        android:layout_marginTop="@dimen/margin_default_25"
         android:text="Enter the 6-digit code sent to you at"
         android:textSize="@dimen/text_size_normal" />
 
@@ -32,8 +32,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@+id/tv_guid_line"
-        android:layout_marginStart="@dimen/margin_default_wide"
-        android:layout_marginTop="@dimen/margin_default_wide"
+        android:layout_marginStart="@dimen/margin_default_25"
+        android:layout_marginTop="@dimen/margin_default_25"
         android:text="+84 34 92 888"
         android:textSize="@dimen/text_size_normal"
         android:textStyle="bold"/>
@@ -45,7 +45,7 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/tv_phone_number"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="@dimen/margin_default_wide"
+        android:layout_marginTop="@dimen/margin_default_25"
         >
 
         <EditText

@@ -209,14 +209,17 @@ public class DriverActivity extends AppCompatActivity
 
                         //Listen to Trip UId
                         dbRefe.child(Define.DB_ONLINE_USERS)
-                                .child(getCurUid()).child(Define.DB_ONLINE_USERS_TRIP_UID)
+                                .child(getCurUid())
+                                .child(Define.DB_ONLINE_USERS_TRIP_UID)
                                 .addValueEventListener(new ValueEventListener() {
                                         @Override
                                         public void onDataChange(DataSnapshot dataSnapshot) {
                                             String tripUId = dataSnapshot.getValue(String.class);
 
                                             if(! TextUtils.isEmpty(tripUId))
+                                            {
                                                 showPassengerRequestAndChangeState(tripUId);
+                                            }
                                         }
 
                                         @Override
@@ -313,11 +316,20 @@ public class DriverActivity extends AppCompatActivity
             public void onDataChange(DataSnapshot dataSnapshot) {
                 OnlineUser onlineUser = dataSnapshot.getValue(OnlineUser.class);
 
-                onlineUser.setLocation(LocationUtils.locaToStr(mLastLocation));
-                onlineUser.setState(userState);
-                onlineUser.setLastTimeCheck(TimeUtils.getCurrentTimeAsString());
-                dbRefe.child(Define.DB_ONLINE_USERS).child(getCurUid()).setValue(onlineUser);
-
+                if (onlineUser != null) {
+                    onlineUser.setLocation(LocationUtils.locaToStr(mLastLocation));
+                    onlineUser.setState(userState);
+                    onlineUser.setLastTimeCheck(TimeUtils.getCurrentTimeAsString());
+                    dbRefe.child(Define.DB_ONLINE_USERS).child(getCurUid()).setValue(onlineUser);
+                }
+                else{
+                    // first time put
+                    OnlineUser newOnlineUser = new OnlineUser();
+                    newOnlineUser.setLocation(LocationUtils.locaToStr(mLastLocation));
+                    newOnlineUser.setState(userState);
+                    newOnlineUser.setLastTimeCheck(TimeUtils.getCurrentTimeAsString());
+                    dbRefe.child(Define.DB_ONLINE_USERS).child(getCurUid()).setValue(newOnlineUser);
+                }
             }
 
             @Override
@@ -853,7 +865,8 @@ public class DriverActivity extends AppCompatActivity
         searViewEvent();
 
         btnGo.setOnClickListener(v -> {
-
+            Intent intent = new Intent(getApplicationContext(), HitchActivity.class);
+            DriverActivity.this.startActivity(intent);
         });
 
         locationDriver_switch.setOnCheckedChangeListener(b -> {

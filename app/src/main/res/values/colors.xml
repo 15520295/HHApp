@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#888888</color>
+    <color name="colorPrimary">#c5c5c5</color>
     <color name="colorPrimaryDark">#000000</color>
     <color name="colorAccent">#000000</color>
     <color name="edit_text_hint">#B0BEC5</color>
@@ -33,16 +33,23 @@
     <color name="placeAutocomplete_search_hint">#ffffff</color>
     <color name="placeAutocomplete_search_text">#212121</color>
     <color name="placeAutocomplete_separator">#1F000000</color>
-    <color name="bar">#d9d9d9</color>
+    <color name="bar">#dcdfdfdf</color>
 
     // Accepting Dialog
     <color name="dialog_gray_line">#e3e3e3</color>
     <color name="dialog_white_line">#ffffff</color>
 
     // Flat Button Design
-    <color name="flat_pressed">#66dddddd</color>
+    <color name="flat_pressed">#d1dbdbdb</color>
     <color name="flat_normal_text">#000000</color>
     <color name="flat_disabled_text">#40000000</color>
 
+    // Title Bar
+    <color name="title_bar_background_color">#39be47</color>
+    <color name="title_bar_text_color">#eaffffff</color>
+
+    // Radius Button
+    <color name="btn_unpressed">#39be47</color>
+    <color name="btn_pressed">#309d3b</color>
 
 </resources>

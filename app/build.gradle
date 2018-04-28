@@ -22,6 +22,8 @@ android {
         sourceCompatibility 1.8
     }
 }
+
+
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     //noinspection GradleCompatible
@@ -80,6 +82,12 @@ dependencies {
     // process bar
     implementation 'me.zhanghai.android.materialprogressbar:library:1.4.2'
 
+    // action bar
+    implementation 'cn.bingoogolapple:bga-titlebar:1.0.8'
+
+    // radius button
+    implementation 'com.rilixtech:materialfancybuttons:1.8.7'
+    implementation 'com.rilixtech:fontawesome-typeface:4.7.0.4'
 }
 // Add to the bottom of the file
 apply plugin: 'com.google.gms.google-services'
