@@ -39,7 +39,7 @@ public class TimeUtils {
     }
 
     public static String dateToStr(Date date) {
-        return userDateFormat.format(date);
+        return fullDateFormat.format(date);
     }
 
     /**
@@ -62,8 +62,25 @@ public class TimeUtils {
         Calendar cal = Calendar.getInstance();
         return userTimeFormat.format(cal.getTime());
     }
+    public static String curTimeToUserString(int plusMinute) {
+        Calendar cal = Calendar.getInstance();
+        cal.add(Calendar.MINUTE, plusMinute);
+        return userTimeFormat.format(cal.getTime());
+    }
     // Func
 
+    /**
+     * @return -1 == after the Date argument ( checkTime in pass )
+     * @return 0 ==
+     * @return 1 == before the Date argument ( checkTime in feature )
+     * note : >=0 valid
+     */
+    public static int compareWithNow(Date checkTime) {
+        return checkTime.compareTo(getCurrentTimeAsDate());
+    }
+    public static int compareWithNow(String checkTime) {
+        return compareWithNow(strToDate(checkTime));
+    }
 
     /**
      * Calculate time have pass from checkT

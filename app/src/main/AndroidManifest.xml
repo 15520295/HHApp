@@ -62,7 +62,8 @@
             android:name=".ActivitiesAuth.UpdateInfoActivity"
             android:windowSoftInputMode="stateVisible|adjustResize" />
         <activity android:name=".Manager.Place.PlacePickerActivity" />
-        <activity android:name=".Main.Driver.CreateRouteActivity"></activity>
+        <activity android:name=".Main.Driver.CreateRouteActivity" />
+        <activity android:name=".Main.Driver.RouteManager.RouteRequestManagerActivity"></activity>
     </application>
 
 </manifest>

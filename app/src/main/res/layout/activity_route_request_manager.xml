@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".Main.Driver.RouteManager.RouteRequestManagerActivity"
+    xmlns:fancy="http://schemas.android.com/apk/res-auto"
+    >
+
+    <cn.bingoogolapple.titlebar.BGATitleBar
+        android:id="@+id/titlebar"
+        style="@style/CusTitleBar"
+        app:bgatitlebar_leftDrawablePadding="15dp"
+        app:bgatitlebar_leftDrawable="@drawable/ic_back_v2_white_26px"
+        app:bgatitlebar_leftText="Route Request"
+        app:bgatitlebar_leftMaxWidth="500dp"
+        app:bgatitlebar_leftAndRightTextSize="19sp"
+        />
+
+    <com.lsjwzh.widget.materialloadingprogressbar.CircleProgressBar
+        android:id="@+id/prb_loading_route"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_centerHorizontal="true"
+        app:mlpb_progress_color="@color/title_bar_background_color"
+        android:layout_below="@id/titlebar"
+        android:layout_marginTop="@dimen/margin_default_30"/>
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/recycler_view_route_requests"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/titlebar">
+
+    </android.support.v7.widget.RecyclerView>
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/fab_add_route"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@android:drawable/ic_menu_add"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:layout_margin="20dp"
+        app:backgroundTint="@color/title_bar_background_color"/>
+</RelativeLayout>

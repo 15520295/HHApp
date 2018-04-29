@@ -23,12 +23,17 @@ public class Define {
 
     // Online User
     public static final String DB_ONLINE_USERS = " OnlineUsers";
-    public static final String DB_ONLINE_USERS_TRIP_UID = "tripUId";
+    public static final String DB_ONLINE_USERS_NOTIFY_TRIP = "notifyTrip";
     public static final String DB_ONLINE_USERS_STATE = "userState";
 
 
     //driver
-    public static final String DB_DRIVER_REQUESTS = " DriverRequests";
+    public static final String DB_ROUTE_REQUESTS = " RouteRequests";
+    public static final String DB_ROUTE_REQUESTS_NOTIFY_TRIP = "notifyTrip";
+    public static final String DB_ROUTE_REQUESTS_ROUTE_REQUEST_STATE = "routeRequestState";
+
+//    public static final String DB_ROUTE_REQUESTS_TRIPUID = "tripUId";
+
     //passenger
 //    public static final String DB_PASSENGER_REQUESTS = "PassengerRequests";
 

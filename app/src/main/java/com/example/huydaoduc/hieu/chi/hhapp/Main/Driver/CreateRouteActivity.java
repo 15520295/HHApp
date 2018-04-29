@@ -1,14 +1,16 @@
 package com.example.huydaoduc.hieu.chi.hhapp.Main.Driver;
 
+import android.app.Activity;
+import android.app.Instrumentation;
 import android.content.Intent;
 import android.location.Geocoder;
 import android.os.Bundle;
 import android.support.v4.content.res.ResourcesCompat;
-import android.text.TextUtils;
 import android.util.Log;
 import android.widget.Button;
 
 import com.example.huydaoduc.hieu.chi.hhapp.Define;
+import com.example.huydaoduc.hieu.chi.hhapp.Main.Driver.RouteManager.RouteRequestManagerActivity;
 import com.example.huydaoduc.hieu.chi.hhapp.Manager.DBManager;
 import com.example.huydaoduc.hieu.chi.hhapp.Manager.Direction.DirectionFinderListener;
 import com.example.huydaoduc.hieu.chi.hhapp.Manager.Direction.Route;
@@ -17,8 +19,10 @@ import com.example.huydaoduc.hieu.chi.hhapp.Manager.Place.SavedPlace;
 import com.example.huydaoduc.hieu.chi.hhapp.Manager.Place.SearchActivity;
 import com.example.huydaoduc.hieu.chi.hhapp.Manager.SimpleMapActivity;
 import com.example.huydaoduc.hieu.chi.hhapp.Manager.TimeUtils;
-import com.example.huydaoduc.hieu.chi.hhapp.Model.DriverRequest;
+import com.example.huydaoduc.hieu.chi.hhapp.Model.NotifyTrip;
+import com.example.huydaoduc.hieu.chi.hhapp.Model.RouteRequest.RouteRequest;
 import com.example.huydaoduc.hieu.chi.hhapp.Model.PassengerRequest;
+import com.example.huydaoduc.hieu.chi.hhapp.Model.RouteRequest.RouteRequestState;
 import com.example.huydaoduc.hieu.chi.hhapp.Model.Trip.Trip;
 import com.example.huydaoduc.hieu.chi.hhapp.Model.User.OnlineUser;
 import com.example.huydaoduc.hieu.chi.hhapp.Model.User.UserState;
@@ -29,15 +33,24 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.rilixtech.materialfancybutton.MaterialFancyButton;
 import com.wdullaer.materialdatetimepicker.date.DatePickerDialog;
 import com.wdullaer.materialdatetimepicker.time.TimePickerDialog;
 
+import java.sql.Time;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
 
+import cn.bingoogolapple.titlebar.BGATitleBar;
+
 public class CreateRouteActivity extends SimpleMapActivity implements SimpleMapActivity.SimpleMapListener {
+
+    BGATitleBar titleBar;
+    private MaterialFancyButton btn_create_route;
+
 
     Geocoder geocoder;
 
@@ -62,6 +75,9 @@ public class CreateRouteActivity extends SimpleMapActivity implements SimpleMapA
     }
 
     private void Init() {
+        // init view
+        btn_create_route = findViewById(R.id.btn_create_route);
+
         btn_start_picker = findViewById(R.id.btn_start_place_picker);
         btn_end_picker = findViewById(R.id.btn_end_place_picker);
 
@@ -69,13 +85,40 @@ public class CreateRouteActivity extends SimpleMapActivity implements SimpleMapA
         btn_date_picker.setText(TimeUtils.curDateToUserStr());
 
         btn_time_picker = findViewById(R.id.btn_time_picker);
-        btn_time_picker.setText(TimeUtils.curTimeToUserString());
+        btn_time_picker.setText(TimeUtils.curTimeToUserString(15));
 
         initDateTimePicker();
+
+        titleBar = (BGATitleBar) findViewById(R.id.titlebar);
+
+        // init database
+        dbRefe = FirebaseDatabase.getInstance().getReference();
     }
 
     private void Event() {
         searViewEvent();
+
+        titleBar.setDelegate(new BGATitleBar.Delegate() {
+            @Override
+            public void onClickLeftCtv() {
+                finish();
+            }
+
+            @Override
+            public void onClickTitleCtv() {
+
+            }
+
+            @Override
+            public void onClickRightCtv() {
+
+            }
+
+            @Override
+            public void onClickRightSecondaryCtv() {
+
+            }
+        });
 
         btn_date_picker.setOnClickListener(view -> {
             datePickerDialog.show(getFragmentManager(),"datePickerDialog");
@@ -83,6 +126,10 @@ public class CreateRouteActivity extends SimpleMapActivity implements SimpleMapA
 
         btn_time_picker.setOnClickListener(v ->{
             timePickerDialog.show(getFragmentManager(),"timePickerDialog");
+        });
+
+        btn_create_route.setOnClickListener(v -> {
+            createRouteRequest(autoCompleteRoute);
         });
     }
 
@@ -124,227 +171,6 @@ public class CreateRouteActivity extends SimpleMapActivity implements SimpleMapA
     // User Property
     UserState userState;
 
-    //region ------ HH Request   --------
-//    private void putRouteToDB() {
-//        // find/ show/ put_online  route + start real time checking
-//        directionManager.findPath(LocationUtils.locaToLatLng(mLastLocation), getEndPlace().func_getLatLngLocation(),
-//                new DirectionFinderListener() {
-//                    @Override
-//                    public void onDirectionFinderStart() {
-//
-//                    }
-//
-//                    @Override
-//                    public void onDirectionFinderSuccess(List<Route> routes) {
-//                        // run this to put value the first time
-//
-//
-//                        //todo: get the selected route
-//                        // put Route online
-//                        putRouteRequest(routes.get(0));
-//
-//                        // move camera
-//                        cameraManager.moveCamWithRoutes(routes);
-//
-//                        // draw markers
-//                        markerManager.draw_DropPlaceMarker(routes.get(0).getLegs().get(0).getEndLocation());
-//
-//                        updateOnlineUserInfo();
-//                        // This will Enable real time checking
-//                        if (userState != UserState.D_RECEIVING_BOOKING_HH) {
-//                            userState = UserState.D_RECEIVING_BOOKING_HH;
-//                        }
-//
-//                        //Listen to Trip UId
-//                        dbRefe.child(Define.DB_ONLINE_USERS)
-//                                .child(getCurUid())
-//                                .child(Define.DB_ONLINE_USERS_TRIP_UID)
-//                                .addValueEventListener(new ValueEventListener() {
-//                                    @Override
-//                                    public void onDataChange(DataSnapshot dataSnapshot) {
-//                                        String tripUId = dataSnapshot.getValue(String.class);
-//
-//                                        if(! TextUtils.isEmpty(tripUId))
-//                                        {
-//                                            showPassengerRequestAndChangeState(tripUId);
-//                                        }
-//                                    }
-//
-//                                    @Override
-//                                    public void onCancelled(DatabaseError databaseError) {
-//
-//                                    }
-//                                });
-//                    }
-//                });
-//
-//    }
-//
-//    /**
-//     * Put Route Request Online
-//     */
-//    private void putRouteRequest(Route route) {
-//        String uid = getCurUid();
-//        //todo: handle price
-//        Float pricePerKm = 1f;
-//
-//        // get Driver Request from route
-//        DriverRequest driverRequest = DriverRequest.func_createDriverRequestFromRoute(route, uid, pricePerKm);
-//
-//        dbRefe.child(Define.DB_DRIVER_REQUESTS).child(uid).setValue(driverRequest);
-//    }
-//
-//    /**
-//     * This will trigger when current location update = POLLING_FREQ_MILLI_SECONDS
-//     * For "DriverRequest" we will:
-//     * + Update real time location after current location is update
-//     * + Update real time Route request after a period of ONLINE_USER_TIMEOUT or radius out of ONLINE_USER_RADIUS_UPDATE
-//     */
-//    private void realTimeChecking_DriverRequest() {
-//        // todo: handle if getAccuracy > 100 --> will not update data
-//
-//        // Get old value and Check if location out of radius or Out of time Then update Route Request
-//        DBManager.getOnlineUserById(getCurUid(), onlineUser -> {
-//            // Check with distance
-//            if (Define.ONLINE_USER_RADIUS_UPDATE < LocationUtils.calcDistance(LocationUtils.locaToLatLng(mLastLocation), LocationUtils.strToLatLng(onlineUser.getLocation()))) {
-//                updateAndDrawRouteRequest();
-//            }
-//            // Check with time out
-//            else if (onlineUser.func_isTimeOut(Define.ONLINE_USER_TIMEOUT)) {
-//                updateAndDrawRouteRequest();
-//            }
-//        });
-//
-//        // Update new Online User value
-//        updateOnlineUserInfo();
-//    }
-//
-//    private void updateAndDrawRouteRequest() {
-//        // find routes
-//        directionManager.findPath(mLastLocation, btn_endLocation.getText().toString(),
-//                new DirectionFinderListener() {
-//                    @Override
-//                    public void onDirectionFinderStart() {
-//
-//                    }
-//
-//                    @Override
-//                    public void onDirectionFinderSuccess(List<Route> routes) {
-//                        // Redraw route
-//                        directionManager.drawRoutes(routes, true);
-//
-//                        //todo: get the selected route
-//                        // put Route online
-//
-//                    }
-//                });
-//    }
-//
-//    private void endRealTimeChecking() {
-//        if (userState == UserState.D_RECEIVING_BOOKING_HH) {
-//            directionManager.removeAllRoutes();
-//            markerManager.dropPlaceMarker.remove();
-//
-//            dbRefe.child(Define.DB_DRIVER_REQUESTS).child(getCurUid()).removeValue();
-//
-//            // Update User state
-//            userState = UserState.OFFLINE;
-//            updateOnlineUserInfo();
-//        }
-//    }
-//
-//    private void updateOnlineUserInfo() {
-//        dbRefe.child(Define.DB_ONLINE_USERS).child(getCurUid()).addListenerForSingleValueEvent(new ValueEventListener() {
-//            @Override
-//            public void onDataChange(DataSnapshot dataSnapshot) {
-//                OnlineUser onlineUser = dataSnapshot.getValue(OnlineUser.class);
-//
-//                if (onlineUser != null) {
-//                    onlineUser.setLocation(LocationUtils.locaToStr(mLastLocation));
-//                    onlineUser.setState(userState);
-//                    onlineUser.setLastTimeCheck(TimeUtils.getCurrentTimeAsString());
-//                    dbRefe.child(Define.DB_ONLINE_USERS).child(getCurUid()).setValue(onlineUser);
-//                }
-//                else{
-//                    // first time put
-//                    OnlineUser newOnlineUser = new OnlineUser();
-//                    newOnlineUser.setLocation(LocationUtils.locaToStr(mLastLocation));
-//                    newOnlineUser.setState(userState);
-//                    newOnlineUser.setLastTimeCheck(TimeUtils.getCurrentTimeAsString());
-//                    dbRefe.child(Define.DB_ONLINE_USERS).child(getCurUid()).setValue(newOnlineUser);
-//                }
-//            }
-//
-//            @Override
-//            public void onCancelled(DatabaseError databaseError) {
-//
-//            }
-//        });
-//    }
-//
-//    private void showPassengerRequestAndChangeState(String tripUId) {
-//        // Change Driver State
-//        userState = UserState.D_WAITING_FOR_ACCEPT;
-//        dbRefe.child(Define.DB_ONLINE_USERS)
-//                .child(getCurUid())
-//                .child(Define.DB_ONLINE_USERS_STATE).setValue(userState);
-//
-//        // show passenger request
-//        dbRefe.child(Define.DB_TRIPS)
-//                .child(tripUId)
-//                .addListenerForSingleValueEvent(new ValueEventListener() {
-//                    @Override
-//                    public void onDataChange(DataSnapshot dataSnapshot) {
-//                        Trip trip = dataSnapshot.getValue(Trip.class);
-//
-//                        showAcceptingFragment(trip);
-//                    }
-//
-//                    @Override
-//                    public void onCancelled(DatabaseError databaseError) {
-//
-//                    }
-//                });
-//
-//    }
-//
-//    private void showAcceptingFragment(Trip trip) {
-//        PassengerRequest request = trip.getPassengerRequest();
-//
-//        //todo: distance between pickup and cur OR between pickup and drop off
-//        float distance = LocationUtils.calcDistance(request.getPickUpSavePlace().getLocation(),request.getDropOffSavePlace().getLocation());
-//        float fare;
-//
-//        if (userState == UserState.D_RECEIVING_BOOKING_HH) {
-//            fare = trip.getTripDistance() * Define.FARE_VND_PER_M * 0.25f;
-//        }
-//        else
-//            fare = trip.getTripDistance() * Define.FARE_VND_PER_M;
-//
-//        // create dialog
-//        AcceptingTripFragment acceptingTripFragment = AcceptingTripFragment
-//                .newInstance(distance, request.getPickUpSavePlace().getAddress(),
-//                        request.getDropOffSavePlace().getAddress(),
-//                        request.getNote(),
-//                        fare);
-//
-//        // set event
-//        acceptingTripFragment.show(getSupportFragmentManager(), "dialog");
-//
-//
-//    }
-//
-//    private void driverAccepted(String tripUId) {
-//        // update driver uid to trip info
-//        dbRefe.child(Define.DB_TRIPS)
-//                .child(tripUId)
-//                .child(Define.DB_TRIPS_DRIVER_UID).setValue(getCurUid());
-//    }
-//
-
-
-    //endregion
-
     // new
 
     Route autoCompleteRoute;
@@ -367,6 +193,70 @@ public class CreateRouteActivity extends SimpleMapActivity implements SimpleMapA
                         autoCompleteRoute = routes.get(0);
                     }
                 });
+    }
+
+    /**
+     * Put Route Request Online
+     */
+    private void createRouteRequest(Route route) {
+        String driverUId = getCurUid();
+        //todo: handle price
+        Float percentDiscount = 1f;
+
+        String routeRequestUId = dbRefe.child(Define.DB_ROUTE_REQUESTS).child(driverUId).push().getKey();
+
+        // get Route Request from route
+//        RouteRequest routeRequest = RouteRequest.func_createDriverRequestFromRoute(routeRequestUId, driverUId, route, selectedDateTime.getTime(), pricePerKm);
+
+        RouteRequest routeRequest = RouteRequest.Builder
+                .aRouteRequest(routeRequestUId)
+                .setDriverUId(driverUId)
+                .setStartPlace(getStartPlace())
+                .setEndPlace(getEndPlace())
+                .setStartTime(TimeUtils.dateToStr(selectedDateTime.getTime()))
+                .setPercentDiscount(percentDiscount)
+                .setSummary("sumary")
+                .build();
+
+        dbRefe.child(Define.DB_ROUTE_REQUESTS).child(driverUId)
+                .child(routeRequestUId).setValue(routeRequest);
+
+
+        //Listen to Trip Notify - asynchronous with service
+        dbRefe.child(Define.DB_ROUTE_REQUESTS).child(driverUId)
+                .child(routeRequestUId).child(Define.DB_ROUTE_REQUESTS_NOTIFY_TRIP)
+                .addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        NotifyTrip notifyTrip = dataSnapshot.getValue(NotifyTrip.class);
+
+                        if(notifyTrip != null && !notifyTrip.isNotified())
+                        {
+                            // update NotifyTrip value to notified
+                            notifyTrip.setNotified(true);
+                            dbRefe.child(Define.DB_ROUTE_REQUESTS).child(driverUId)
+                                    .child(routeRequestUId)
+                                    .child(Define.DB_ROUTE_REQUESTS_NOTIFY_TRIP).setValue(notifyTrip);
+
+                            // change Route state
+                            dbRefe.child(Define.DB_ROUTE_REQUESTS).child(driverUId)
+                                    .child(routeRequestUId)
+                                    .child(Define.DB_ROUTE_REQUESTS_ROUTE_REQUEST_STATE).setValue(RouteRequestState.FOUND_PASSENGER);
+
+                            // notify driver
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                });
+
+        // close and add to list
+        Intent returnIntent = new Intent();
+        setResult(Activity.RESULT_OK,returnIntent);
+        finish();
     }
 
     //region ------ Date Time Picker  --------

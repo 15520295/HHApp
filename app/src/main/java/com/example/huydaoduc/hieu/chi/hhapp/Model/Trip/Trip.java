@@ -1,7 +1,7 @@
 package com.example.huydaoduc.hieu.chi.hhapp.Model.Trip;
 
 
-import com.example.huydaoduc.hieu.chi.hhapp.Model.DriverRequest;
+import com.example.huydaoduc.hieu.chi.hhapp.Model.RouteRequest.RouteRequest;
 import com.example.huydaoduc.hieu.chi.hhapp.Model.PassengerRequest;
 
 public class Trip {
@@ -23,12 +23,12 @@ public class Trip {
     private Float finalFare;
 
     private PassengerRequest passengerRequest;
-    private DriverRequest driverRequest;
+    private RouteRequest routeRequest;
 
     public Trip() {
     }
 
-    public Trip(String tripUId, String passengerUId, String driverUId, TripStyle tripStyle, TripState tripState, String startTime, String endTime, Float tripDistance, Float tripDuration, Float estimateFare, Float finalFare, PassengerRequest passengerRequest, DriverRequest driverRequest) {
+    public Trip(String tripUId, String passengerUId, String driverUId, TripStyle tripStyle, TripState tripState, String startTime, String endTime, Float tripDistance, Float tripDuration, Float estimateFare, Float finalFare, PassengerRequest passengerRequest, RouteRequest routeRequest) {
         this.tripUId = tripUId;
         this.passengerUId = passengerUId;
         this.driverUId = driverUId;
@@ -41,7 +41,7 @@ public class Trip {
         this.estimateFare = estimateFare;
         this.finalFare = finalFare;
         this.passengerRequest = passengerRequest;
-        this.driverRequest = driverRequest;
+        this.routeRequest = routeRequest;
     }
 
     public String getTripUId() {
@@ -140,12 +140,12 @@ public class Trip {
         this.passengerRequest = passengerRequest;
     }
 
-    public DriverRequest getDriverRequest() {
-        return driverRequest;
+    public RouteRequest getRouteRequest() {
+        return routeRequest;
     }
 
-    public void setDriverRequest(DriverRequest driverRequest) {
-        this.driverRequest = driverRequest;
+    public void setRouteRequest(RouteRequest routeRequest) {
+        this.routeRequest = routeRequest;
     }
 
 
@@ -162,7 +162,7 @@ public class Trip {
         private Float estimateFare;
         private Float finalFare;
         private PassengerRequest passengerRequest;
-        private DriverRequest driverRequest;
+        private RouteRequest routeRequest;
 
         private Builder() {
         }
@@ -231,8 +231,8 @@ public class Trip {
             return this;
         }
 
-        public Builder setDriverRequest(DriverRequest driverRequest) {
-            this.driverRequest = driverRequest;
+        public Builder setRouteRequest(RouteRequest routeRequest) {
+            this.routeRequest = routeRequest;
             return this;
         }
 
@@ -250,7 +250,7 @@ public class Trip {
             trip.setEstimateFare(estimateFare);
             trip.setFinalFare(finalFare);
             trip.setPassengerRequest(passengerRequest);
-            trip.setDriverRequest(driverRequest);
+            trip.setRouteRequest(routeRequest);
             return trip;
         }
     }

@@ -55,5 +55,11 @@
     // Date Time picker
     <color name="date_picker_bar">#309d3b</color>
 
+    // Route Request Row
+    <color name="route_request_back_ground">#ffffff</color>
+    <color name="route_request_title">#000000</color>
+    <color name="route_request_time">#7b7b7b</color>
+
+
 
 </resources>

@@ -37,10 +37,10 @@ public class DirectionManager {
      * 1 Location (LatLng) - 1 Place (Address)
      * Find Direction after done, it will raise the @listener
      */
-    public void findPath(Location startLocation, String endPlace, DirectionFinderListener listener) {
+    public void findPath(Location startLocation, String endPlaceAddress, DirectionFinderListener listener) {
         LatLng latLng_startLocation = LocationUtils.locaToLatLng(startLocation);
 
-        if (endPlace.isEmpty()) {
+        if (endPlaceAddress.isEmpty()) {
             Toast.makeText(context, "Please enter destination address!", Toast.LENGTH_SHORT).show();
             return;
         }
@@ -49,7 +49,7 @@ public class DirectionManager {
 
             DirectionFinder directionFinder = new DirectionFinder(listener, context);
 
-            directionFinder.createUrl(latLng_startLocation, endPlace);
+            directionFinder.createUrl(latLng_startLocation, endPlaceAddress);
 
             directionFinder.execute();
 

@@ -2,14 +2,14 @@ package com.example.huydaoduc.hieu.chi.hhapp.Model;
 
 public class NotifyTrip {
     private String tripUId;
-    private String lastTimeCheck;
+    private Boolean isNotified;
 
     public NotifyTrip() {
     }
 
-    public NotifyTrip(String tripUId, String lastTimeCheck) {
+    public NotifyTrip(String tripUId, Boolean isNotified) {
         this.tripUId = tripUId;
-        this.lastTimeCheck = lastTimeCheck;
+        this.isNotified = isNotified;
     }
 
     public String getTripUId() {
@@ -20,11 +20,11 @@ public class NotifyTrip {
         this.tripUId = tripUId;
     }
 
-    public String getLastTimeCheck() {
-        return lastTimeCheck;
+    public Boolean isNotified() {
+        return isNotified;
     }
 
-    public void setLastTimeCheck(String lastTimeCheck) {
-        this.lastTimeCheck = lastTimeCheck;
+    public void setNotified(Boolean notified) {
+        isNotified = notified;
     }
 }

@@ -13,6 +13,7 @@ public class UserInfo {
     private String name;
     private String yearOfBirth;
     private Uri photoUri;
+    //todo : private Integer cancelPercent;
 
     private CarInfo carInfo;
 

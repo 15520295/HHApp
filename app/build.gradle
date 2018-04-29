@@ -81,6 +81,7 @@ dependencies {
 
     // process bar
     implementation 'me.zhanghai.android.materialprogressbar:library:1.4.2'
+    implementation 'com.lsjwzh:materialloadingprogressbar:0.5.8-RELEASE'
 
     // action bar
     implementation 'cn.bingoogolapple:bga-titlebar:1.0.8'
@@ -90,6 +91,10 @@ dependencies {
 
     // Date & Time picker
     implementation 'com.wdullaer:materialdatetimepicker:3.6.0'
+
+    // recycler view
+    implementation 'com.github.CymChad:BaseRecyclerViewAdapterHelper:2.9.38'
+    implementation 'com.android.support:cardview-v7:26.1.0'
 
 
 }

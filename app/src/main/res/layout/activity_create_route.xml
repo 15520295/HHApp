@@ -5,7 +5,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".Main.Driver.CreateRouteActivity"
-    xmlns:fancy="http://schemas.android.com/apk/res-auto">
+    xmlns:fancy="http://schemas.android.com/apk/res-auto"
+    >
 
     <cn.bingoogolapple.titlebar.BGATitleBar
         android:id="@+id/titlebar"
@@ -129,7 +130,7 @@
         android:layout_below="@id/group_setup_route" />
 
     <com.rilixtech.materialfancybutton.MaterialFancyButton
-        android:id="@+id/btn_spotify"
+        android:id="@+id/btn_create_route"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"

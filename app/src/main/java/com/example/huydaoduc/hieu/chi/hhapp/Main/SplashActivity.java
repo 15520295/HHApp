@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 
+import com.example.huydaoduc.hieu.chi.hhapp.Main.Driver.RouteManager.RouteRequestManagerActivity;
 import com.example.huydaoduc.hieu.chi.hhapp.R;
 import com.example.huydaoduc.hieu.chi.hhapp.ActivitiesAuth.PhoneAuthActivity;
 import com.google.firebase.auth.FirebaseAuth;
@@ -26,7 +27,7 @@ public class SplashActivity extends AppCompatActivity {
             new Handler().postDelayed(new Runnable(){
                 @Override
                 public void run() {
-                    Intent startIntent = new Intent(SplashActivity.this,MainActivity.class);
+                    Intent startIntent = new Intent(SplashActivity.this,RouteRequestManagerActivity.class);
                     SplashActivity.this.startActivity(startIntent);
                     SplashActivity.this.finish();
                 }

@@ -14,7 +14,6 @@ public class OnlineUser {
     private String lastTimeCheck;       // last time update Location
     private UserState state;
     private Float bearing;
-    private NotifyTrip notifyTrip;
 
     public OnlineUser() {
 
@@ -42,13 +41,12 @@ public class OnlineUser {
         lastTimeCheck = TimeUtils.getCurrentTimeAsString();
     }
 
-    public OnlineUser(String uid, String location, String lastTimeCheck, UserState state, Float bearing, NotifyTrip notifyTrip) {
+    public OnlineUser(String uid, String location, String lastTimeCheck, UserState state, Float bearing) {
         this.uid = uid;
         this.location = location;
         this.lastTimeCheck = lastTimeCheck;
         this.state = state;
         this.bearing = bearing;
-        this.notifyTrip = notifyTrip;
     }
 
     // Getter Setter
@@ -92,13 +90,5 @@ public class OnlineUser {
 
     public void setBearing(Float bearing) {
         this.bearing = bearing;
-    }
-
-    public NotifyTrip getNotifyTrip() {
-        return notifyTrip;
-    }
-
-    public void setNotifyTrip(NotifyTrip notifyTrip) {
-        this.notifyTrip = notifyTrip;
     }
 }
