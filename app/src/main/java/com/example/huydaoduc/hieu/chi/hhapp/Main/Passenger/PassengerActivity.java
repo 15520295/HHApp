@@ -53,6 +53,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.rilixtech.materialfancybutton.MaterialFancyButton;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -70,10 +71,10 @@ public class PassengerActivity extends SimpleMapActivity
 {
     private static final String TAG = "PassengerActivity";
 
-    MaterialAnimatedSwitch locationRider_switch;
-
-    private Button btnPost, btnFindDriver, btnMessage, btnCall;
+    private Button btnMessage, btnCall;
     private TextView tvName, tvPhone;
+
+    MaterialFancyButton btn_findDriver;
 
     //------------------------------------ Chi :
 
@@ -880,10 +881,8 @@ public class PassengerActivity extends SimpleMapActivity
         dbRefe = FirebaseDatabase.getInstance().getReference();
 
         // Init View
-        locationRider_switch = findViewById(R.id.locationRider_switch);
 
-        btnPost = findViewById(R.id.btnPost);
-        btnFindDriver = findViewById(R.id.btn_find_driver);
+        btn_findDriver = findViewById(R.id.btn_find_driver);
 
 
         // search view
@@ -894,34 +893,7 @@ public class PassengerActivity extends SimpleMapActivity
 
     private void addEven() {
 
-        //// Rider
-        locationRider_switch.setOnCheckedChangeListener(new MaterialAnimatedSwitch.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(boolean b) {
-                if (b) {
-
-                } else {
-
-                }
-            }
-        });
-
-
-        // post Pick up point and destination -- not done
-        btnPost.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-//                //todo: set Event + add callback value + filter Vietnam
-//                destination = destination.replace(" ", "+"); //Replace space with + for fetch data
-//                Toast.makeText(getApplicationContext(), "SS", Toast.LENGTH_SHORT).show();
-//                //Log.d("EDMTDEV", destination);
-//                getDirection();
-
-
-            }
-        });
-
-        btnFindDriver.setOnClickListener(new View.OnClickListener() {
+        btn_findDriver.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 startBooking();

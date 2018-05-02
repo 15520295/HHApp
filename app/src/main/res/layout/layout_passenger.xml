@@ -1,23 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:fancy="http://schemas.android.com/apk/res-auto">
 
     <android.support.v7.widget.CardView
-        android:id="@+id/cardView2"
+        android:id="@+id/group_auto_complete"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="top"
         android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        app:cardElevation="10dp"
+        android:layout_marginTop="15dp"
+        app:cardElevation="4dp"
+        app:cardCornerRadius="5dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:ignore="MissingConstraints">
+        app:layout_constraintTop_toTopOf="parent">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -38,6 +39,13 @@
                 android:drawableLeft="@drawable/mkr_pair_start"
                 android:gravity="left|center_vertical"/>
 
+            <View
+                android:layout_width="fill_parent"
+                android:layout_height="1dp"
+                android:layout_below="@id/prb_loading"
+                android:background="@color/bar"
+                android:layout_marginStart="40dp"/>
+
             <Button
                 android:id="@+id/btn_end_location"
                 android:layout_width="match_parent"
@@ -51,50 +59,95 @@
                 android:paddingLeft="10dp"
                 android:drawableLeft="@drawable/mkr_pair_end"
                 android:gravity="left|center_vertical"/>
+        </LinearLayout>
+
+    </android.support.v7.widget.CardView>
+
+    <android.support.v7.widget.CardView
+        android:id="@+id/group_condition"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="top"
+        android:layout_alignStart="@id/group_auto_complete"
+        android:layout_alignEnd="@id/group_auto_complete"
+        android:layout_below="@+id/group_auto_complete"
+        android:background="@color/transparent"
+        app:cardCornerRadius="8dp"
+        app:cardElevation="0dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <com.rilixtech.materialfancybutton.MaterialFancyButton
+                android:id="@+id/btn_time_start_picker"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:paddingBottom="10dp"
+                android:paddingTop="10dp"
+                fancy:mfb_textGravity="left"
+                fancy:mfb_iconResource="@drawable/ic_clock_black"
+                fancy:mfb_iconPaddingTop="2dp"
+                fancy:mfb_text="Now"
+                fancy:mfb_defaultColor="#f8fbfc"
+                fancy:mfb_focusColor="#c6c6c6"
+                fancy:mfb_iconPosition="left"
+                fancy:mfb_textColor="#6b6b6b"
+                fancy:mfb_textSize="14sp"/>
+
+            <View
+                android:id="@+id/bar"
+                android:layout_width="1dp"
+                android:layout_height="match_parent"
+                android:layout_below="@id/prb_loading"
+                android:background="@color/bar"/>
+
+            <com.rilixtech.materialfancybutton.MaterialFancyButton
+                android:id="@+id/btn_note"
+                android:layout_width="0dp"
+                android:layout_weight="2"
+                android:layout_height="wrap_content"
+                android:paddingBottom="10dp"
+                android:paddingTop="10dp"
+                fancy:mfb_iconPaddingTop="2dp"
+                fancy:mfb_iconResource="@drawable/ic_note_black"
+                fancy:mfb_text="Notes for driver"
+                fancy:mfb_defaultColor="#f8fbfc"
+                fancy:mfb_focusColor="#c6c6c6"
+                fancy:mfb_textColor="#6b6b6b"
+                fancy:mfb_textSize="14sp"/>
+
 
 
         </LinearLayout>
 
     </android.support.v7.widget.CardView>
 
-    <LinearLayout
+
+
+
+    <com.rilixtech.materialfancybutton.MaterialFancyButton
+        android:id="@+id/btn_find_driver"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="bottom"
-        android:layout_margin="16dp"
-        android:layout_marginBottom="8dp"
-        android:orientation="horizontal"
-        android:weightSum="10"
-        app:layout_constraintBottom_toBottomOf="parent">
-
-        <com.github.glomadrian.materialanimatedswitch.MaterialAnimatedSwitch
-            android:id="@+id/locationRider_switch"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="3"
-            app:ball_press_color="@android:color/white"
-            app:ball_release_color="@color/ballReleaseColor"
-            app:base_press_color="@color/basePressColor"
-            app:base_release_color="@color/baseReleaseColor"
-            app:icon_press="@drawable/ic_location_on"
-            app:icon_release="@drawable/ic_location_off" />
-
-        <Button
-            android:id="@+id/btn_find_driver"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="4"
-            android:text="FIND Driver" />
-
-        <Button
-            android:id="@+id/btnPost"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="3"
-            android:padding="10dp"
-            android:text="Post" />
-
-    </LinearLayout>
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_margin="@dimen/margin_default_15"
+        android:paddingBottom="10dp"
+        android:paddingLeft="20dp"
+        android:paddingRight="20dp"
+        android:paddingTop="10dp"
+        fancy:mfb_text="FIND DRIVER"
+        fancy:mfb_borderColor="#FFFFFF"
+        fancy:mfb_borderWidth="1dp"
+        fancy:mfb_defaultColor="@color/btn_unpressed"
+        fancy:mfb_focusColor="@color/btn_pressed"
+        fancy:mfb_iconPosition="left"
+        fancy:mfb_radius="5dp"
+        fancy:mfb_textColor="#FFFFFF"
+        fancy:mfb_textSize="18sp"/>
 
 
-</android.support.constraint.ConstraintLayout>
+</RelativeLayout>
