@@ -3,7 +3,12 @@ package com.example.huydaoduc.hieu.chi.hhapp.Main;
 import android.Manifest;
 import android.animation.ValueAnimator;
 import android.annotation.SuppressLint;
+import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.BroadcastReceiver;
+import android.content.ContentResolver;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
@@ -12,31 +17,33 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
-import android.util.Log;
-import android.view.View;
-import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.view.animation.LinearInterpolator;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.RelativeLayout;
-import android.widget.TabHost;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.huydaoduc.hieu.chi.hhapp.ActivitiesAuth.PhoneAuthActivity;
 import com.example.huydaoduc.hieu.chi.hhapp.Common.Common;
 import com.example.huydaoduc.hieu.chi.hhapp.CostomInfoWindow.CustomInfoWindow;
 import com.example.huydaoduc.hieu.chi.hhapp.Define;
+import com.example.huydaoduc.hieu.chi.hhapp.Manager.DBManager;
 import com.example.huydaoduc.hieu.chi.hhapp.Manager.Direction.DirectionFinderListener;
 import com.example.huydaoduc.hieu.chi.hhapp.Manager.Direction.Route;
 import com.example.huydaoduc.hieu.chi.hhapp.Manager.DirectionManager;
@@ -46,13 +53,10 @@ import com.example.huydaoduc.hieu.chi.hhapp.Manager.MarkerManager;
 import com.example.huydaoduc.hieu.chi.hhapp.Manager.Place.SavedPlace;
 import com.example.huydaoduc.hieu.chi.hhapp.Manager.Place.SearchActivity;
 import com.example.huydaoduc.hieu.chi.hhapp.Manager.RouteRequest;
-import com.example.huydaoduc.hieu.chi.hhapp.Manager.User.RealtimeUser;
 import com.example.huydaoduc.hieu.chi.hhapp.Manager.User.UserApp;
 import com.example.huydaoduc.hieu.chi.hhapp.Manager.User.UserState;
-import com.example.huydaoduc.hieu.chi.hhapp.Manager.DBManager;
 import com.example.huydaoduc.hieu.chi.hhapp.R;
 import com.example.huydaoduc.hieu.chi.hhapp.Remote.IGoogleAPI;
-import com.example.huydaoduc.hieu.chi.hhapp.ActivitiesAuth.PhoneAuthActivity;
 import com.firebase.geofire.GeoFire;
 import com.firebase.geofire.GeoLocation;
 import com.firebase.geofire.GeoQuery;
@@ -61,10 +65,8 @@ import com.github.glomadrian.materialanimatedswitch.MaterialAnimatedSwitch;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.location.places.PlaceBuffer;
 import com.google.android.gms.location.places.Places;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -137,6 +139,8 @@ public class Home extends AppCompatActivity
 
     DatabaseReference onlineRef, currenUserRef;
 
+    private BroadcastReceiver broadcastReceiver;
+
     //Car animation
     private List<LatLng> polyLineList;
     private Marker carMaker, userMaker;
@@ -168,6 +172,7 @@ public class Home extends AppCompatActivity
     //region ------ Makers --------
 
     MarkerManager markerManager;
+
     private void initMarkerManager() {
         GoogleMap.OnMarkerClickListener listener = new GoogleMap.OnMarkerClickListener() {
             @Override
@@ -215,10 +220,11 @@ public class Home extends AppCompatActivity
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
 
-                for (DataSnapshot postSnapshot: dataSnapshot.getChildren()) {
-                    if (isDriverFound)
-                    {
+                for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
+                    if (isDriverFound) {
                         break;      // if found the driver done checking
+                    } else {
+                        Toast.makeText(getApplicationContext(), getResources().getString(R.string.can_find_driver), Toast.LENGTH_LONG).show();
                     }
                     RouteRequest request = postSnapshot.getValue(RouteRequest.class);
                     isMatch(request);
@@ -261,9 +267,8 @@ public class Home extends AppCompatActivity
                             final List<LatLng> polyline = LocationUtils.getPointsFromRoute(routes.get(0));
 
                             // check if Pickup Place and End Place match to the Polyline
-                            boolean isMatch = LocationUtils.isMatching(polyline,pickupPlace.getLatLng(),endPlace.getLatLng(),500);
-                            if(isMatch)
-                            {
+                            boolean isMatch = LocationUtils.isMatching(polyline, pickupPlace.getLatLng(), endPlace.getLatLng(), 500);
+                            if (isMatch) {
                                 isDriverFound = true;
                                 setUpFoundDriverDialog(request.getUid());
                             }
@@ -281,8 +286,7 @@ public class Home extends AppCompatActivity
         {
             //todo: check lai dieu kien cho dung
             // check if user is GOING && Time out
-            if (realtimeUser.getState() == UserState.GOING && !realtimeUser.timeOut(Define.REALTIME_USER_TIMEOUT))
-            {
+            if (realtimeUser.getState() == UserState.GOING && !realtimeUser.timeOut(Define.REALTIME_USER_TIMEOUT)) {
                 // get Driver Info
                 DBManager.getUserById(realtimeUser.getUid(), (userApp) ->
                         {
@@ -388,7 +392,42 @@ public class Home extends AppCompatActivity
     @Override
     public boolean onMyLocationButtonClick() {
 
+        checkAlowLocation();
         return false;
+    }
+
+    private void checkAlowLocation() {
+        ContentResolver contentResolver = getApplicationContext().getContentResolver();
+        // Find out what the settings say about which providers are enabled
+        int mode = Settings.Secure.getInt(
+                contentResolver, Settings.Secure.LOCATION_MODE, Settings.Secure.LOCATION_MODE_OFF);
+
+        if (mode != Settings.Secure.LOCATION_MODE_OFF) {
+            return;
+        } else {
+            buildAlertMessageNoGps();
+        }
+
+    }
+
+    private void buildAlertMessageNoGps() {
+        final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage("Your GPS seems to be disabled, do you want to enable it?")
+                .setCancelable(false)
+                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                    public Context ctx;
+
+                    public void onClick(final DialogInterface dialog, final int id) {
+                        startActivity(new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS));
+                    }
+                })
+                .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                    public void onClick(final DialogInterface dialog, final int id) {
+                        dialog.cancel();
+                    }
+                });
+        final AlertDialog alert = builder.create();
+        alert.show();
     }
 
     //endregion
@@ -443,8 +482,7 @@ public class Home extends AppCompatActivity
                 // Move Camera
                 if (pickupPlace != null && endPlace != null) {
                     cameraManager.moveCam(pickupPlace.getLatLng(), endPlace.getLatLng());
-                }
-                else if (pickupPlace != null) {
+                } else if (pickupPlace != null) {
                     cameraManager.moveCam(pickupPlace.getLatLng());
                 } else if (endPlace != null) {
                     cameraManager.moveCam(endPlace.getLatLng());
@@ -455,14 +493,13 @@ public class Home extends AppCompatActivity
 
     private void StartAutoCompleteIntent(int requestCode) {
         if (mLastLocation != null) {
-            Intent intent = new Intent(Home. this,SearchActivity.class);
+            Intent intent = new Intent(Home.this, SearchActivity.class);
             intent.putExtra("cur_lat", mLastLocation.getLatitude());
             intent.putExtra("cur_lng", mLastLocation.getLongitude());
             intent.putExtra("radius", Define.RADIUS_AUTO_COMPLETE);        // radius (meters)
             // note: result with be relative with the bound (more details in Activity Class)
             startActivityForResult(intent, requestCode);
-        }
-        else {
+        } else {
             //todo : handle null mLastLocation
 
         }
@@ -517,7 +554,6 @@ public class Home extends AppCompatActivity
     //endregion
 
     //------------------------------------
-
 
 
     // ve xe nho nho
@@ -645,7 +681,7 @@ public class Home extends AppCompatActivity
 
         // search view
         et_pickupLocation = findViewById(R.id.et_pick_up_location);
-        et_endLocation= findViewById(R.id.et_end_location);
+        et_endLocation = findViewById(R.id.et_end_location);
 
     }
 
@@ -1064,7 +1100,6 @@ public class Home extends AppCompatActivity
 //        });
 //
 //    }
-
 
 
     private void displayLocationAndUpdateData() {

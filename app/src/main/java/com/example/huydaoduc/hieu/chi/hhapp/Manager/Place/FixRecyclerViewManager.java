@@ -1,11 +1,9 @@
 package com.example.huydaoduc.hieu.chi.hhapp.Manager.Place;
 
 import android.content.Context;
-import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
-import android.widget.LinearLayout;
 
 public class FixRecyclerViewManager extends LinearLayoutManager {
     public FixRecyclerViewManager(Context context) {
