@@ -1,9 +1,7 @@
-package com.example.huydaoduc.hieu.chi.hhapp.Manager;
+package com.example.huydaoduc.hieu.chi.hhapp.Framework;
 
 import com.google.android.gms.maps.model.LatLng;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 
 /**

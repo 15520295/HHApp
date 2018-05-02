@@ -1,4 +1,4 @@
-package com.example.huydaoduc.hieu.chi.hhapp.Manager;
+package com.example.huydaoduc.hieu.chi.hhapp.Framework;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
@@ -193,9 +193,9 @@ public class SimpleMapActivity extends AppCompatActivity implements
      * Use when need stop checking
      */
     protected void stopLocationUpdate() {
-        if (mFusedLocationClient != null) {
-            mFusedLocationClient.removeLocationUpdates(mLocationCallback);
-        }
+//        if (mFusedLocationClient != null) {
+//            mFusedLocationClient.removeLocationUpdates(mLocationCallback);
+//        }
     }
 
     /**

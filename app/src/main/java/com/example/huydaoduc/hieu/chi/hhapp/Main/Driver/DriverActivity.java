@@ -11,10 +11,11 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Button;
 
-import com.example.huydaoduc.hieu.chi.hhapp.Manager.LocationUtils;
-import com.example.huydaoduc.hieu.chi.hhapp.Manager.Place.SavedPlace;
-import com.example.huydaoduc.hieu.chi.hhapp.Manager.Place.SearchActivity;
-import com.example.huydaoduc.hieu.chi.hhapp.Manager.SimpleMapActivity;
+import com.example.huydaoduc.hieu.chi.hhapp.Main.Driver.RouteManager.CreateRouteActivity;
+import com.example.huydaoduc.hieu.chi.hhapp.Framework.LocationUtils;
+import com.example.huydaoduc.hieu.chi.hhapp.Framework.Place.SavedPlace;
+import com.example.huydaoduc.hieu.chi.hhapp.Framework.Place.SearchActivity;
+import com.example.huydaoduc.hieu.chi.hhapp.Framework.SimpleMapActivity;
 import com.example.huydaoduc.hieu.chi.hhapp.Model.User.UserState;
 import com.example.huydaoduc.hieu.chi.hhapp.R;
 import com.example.huydaoduc.hieu.chi.hhapp.ActivitiesAuth.PhoneAuthActivity;
@@ -153,7 +154,7 @@ public class DriverActivity extends SimpleMapActivity
 //                updateAndDrawRouteRequest();
 //            }
 //            // Check with time out
-//            else if (onlineUser.func_isInThePass(Define.ONLINE_USER_TIMEOUT)) {
+//            else if (onlineUser.func_isInTheFeuture(Define.ONLINE_USER_TIMEOUT)) {
 //                updateAndDrawRouteRequest();
 //            }
 //        });

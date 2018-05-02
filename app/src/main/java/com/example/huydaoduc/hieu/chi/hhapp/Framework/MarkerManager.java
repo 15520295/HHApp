@@ -1,6 +1,6 @@
-package com.example.huydaoduc.hieu.chi.hhapp.Manager;
+package com.example.huydaoduc.hieu.chi.hhapp.Framework;
 
-import com.example.huydaoduc.hieu.chi.hhapp.Manager.Place.SavedPlace;
+import com.example.huydaoduc.hieu.chi.hhapp.Framework.Place.SavedPlace;
 import com.example.huydaoduc.hieu.chi.hhapp.Model.User.OnlineUser;
 import com.example.huydaoduc.hieu.chi.hhapp.Model.User.UserInfo;
 import com.example.huydaoduc.hieu.chi.hhapp.R;

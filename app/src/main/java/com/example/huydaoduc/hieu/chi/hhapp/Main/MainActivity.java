@@ -13,6 +13,7 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.example.huydaoduc.hieu.chi.hhapp.Main.Driver.DriverActivity;
+import com.example.huydaoduc.hieu.chi.hhapp.Main.Driver.RouteManager.RouteRequestManagerActivity;
 import com.example.huydaoduc.hieu.chi.hhapp.Main.Passenger.PassengerActivity;
 import com.example.huydaoduc.hieu.chi.hhapp.Model.PassengerRequest;
 import com.example.huydaoduc.hieu.chi.hhapp.R;
@@ -44,7 +45,7 @@ public class MainActivity extends AppCompatActivity {
         btn_driver.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(MainActivity.this, DriverActivity.class);
+                Intent intent = new Intent(MainActivity.this, RouteRequestManagerActivity.class);
                 MainActivity.this.startActivity(intent);
             }
         });

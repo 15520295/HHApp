@@ -1,4 +1,4 @@
-package com.example.huydaoduc.hieu.chi.hhapp.Manager.Place;
+package com.example.huydaoduc.hieu.chi.hhapp.Framework.Place;
 
 import android.annotation.SuppressLint;
 import android.content.Context;

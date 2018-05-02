@@ -1,7 +1,7 @@
-package com.example.huydaoduc.hieu.chi.hhapp.Manager;
+package com.example.huydaoduc.hieu.chi.hhapp.Framework;
 
 import com.example.huydaoduc.hieu.chi.hhapp.Define;
-import com.example.huydaoduc.hieu.chi.hhapp.Manager.Direction.Route;
+import com.example.huydaoduc.hieu.chi.hhapp.Framework.Direction.Route;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;

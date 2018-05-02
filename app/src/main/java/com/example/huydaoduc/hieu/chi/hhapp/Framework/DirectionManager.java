@@ -1,14 +1,14 @@
-package com.example.huydaoduc.hieu.chi.hhapp.Manager;
+package com.example.huydaoduc.hieu.chi.hhapp.Framework;
 
 import android.content.Context;
 import android.graphics.Color;
 import android.location.Location;
 import android.widget.Toast;
 
-import com.example.huydaoduc.hieu.chi.hhapp.Manager.Direction.DirectionFinder;
-import com.example.huydaoduc.hieu.chi.hhapp.Manager.Direction.DirectionFinderListener;
-import com.example.huydaoduc.hieu.chi.hhapp.Manager.Direction.Leg;
-import com.example.huydaoduc.hieu.chi.hhapp.Manager.Direction.Route;
+import com.example.huydaoduc.hieu.chi.hhapp.Framework.Direction.DirectionFinder;
+import com.example.huydaoduc.hieu.chi.hhapp.Framework.Direction.DirectionFinderListener;
+import com.example.huydaoduc.hieu.chi.hhapp.Framework.Direction.Leg;
+import com.example.huydaoduc.hieu.chi.hhapp.Framework.Direction.Route;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Polyline;

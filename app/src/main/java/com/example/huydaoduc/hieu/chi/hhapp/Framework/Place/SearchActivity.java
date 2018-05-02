@@ -1,4 +1,4 @@
-package com.example.huydaoduc.hieu.chi.hhapp.Manager.Place;
+package com.example.huydaoduc.hieu.chi.hhapp.Framework.Place;
 
 import android.content.Context;
 import android.content.Intent;
@@ -15,15 +15,13 @@ import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.ViewTreeObserver;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
-import android.widget.Toast;
 
-import com.example.huydaoduc.hieu.chi.hhapp.Manager.LocationUtils;
+import com.example.huydaoduc.hieu.chi.hhapp.Framework.LocationUtils;
 import com.example.huydaoduc.hieu.chi.hhapp.R;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesNotAvailableException;

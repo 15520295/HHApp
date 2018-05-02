@@ -12,7 +12,7 @@
         android:id="@+id/titlebar"
         style="@style/CusTitleBar"
         app:bgatitlebar_leftDrawablePadding="15dp"
-        app:bgatitlebar_leftDrawable="@drawable/ic_back_v2_white_26px"
+        app:bgatitlebar_leftDrawable="@drawable/ic_menu_white"
         app:bgatitlebar_leftText="Route Request"
         app:bgatitlebar_leftMaxWidth="500dp"
         app:bgatitlebar_leftAndRightTextSize="19sp"
@@ -25,7 +25,7 @@
         android:layout_centerHorizontal="true"
         app:mlpb_progress_color="@color/title_bar_background_color"
         android:layout_below="@id/titlebar"
-        android:layout_marginTop="@dimen/margin_default_30"/>
+        android:layout_marginTop="40dp"/>
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/recycler_view_route_requests"
@@ -39,7 +39,7 @@
         android:id="@+id/fab_add_route"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:src="@android:drawable/ic_menu_add"
+        android:src="@drawable/ic_add_white"
         android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
         android:layout_margin="20dp"

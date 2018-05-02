@@ -1,8 +1,8 @@
-package com.example.huydaoduc.hieu.chi.hhapp.Manager.Place;
+package com.example.huydaoduc.hieu.chi.hhapp.Framework.Place;
 
 import android.util.Log;
 
-import com.example.huydaoduc.hieu.chi.hhapp.Manager.LocationUtils;
+import com.example.huydaoduc.hieu.chi.hhapp.Framework.LocationUtils;
 import com.google.android.gms.maps.model.LatLng;
 
 public class SavedPlace {

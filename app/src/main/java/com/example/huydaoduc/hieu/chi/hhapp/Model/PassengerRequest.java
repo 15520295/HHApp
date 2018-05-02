@@ -1,9 +1,8 @@
 package com.example.huydaoduc.hieu.chi.hhapp.Model;
 
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
-import com.example.huydaoduc.hieu.chi.hhapp.Manager.Place.SavedPlace;
+import com.example.huydaoduc.hieu.chi.hhapp.Framework.Place.SavedPlace;
 import com.example.huydaoduc.hieu.chi.hhapp.Model.User.CarType;
 
 public class PassengerRequest {

@@ -1,7 +1,6 @@
-package com.example.huydaoduc.hieu.chi.hhapp.Main.Driver;
+package com.example.huydaoduc.hieu.chi.hhapp.Main.Driver.RouteManager;
 
 import android.app.Activity;
-import android.app.Instrumentation;
 import android.content.Intent;
 import android.location.Geocoder;
 import android.os.Bundle;
@@ -10,21 +9,16 @@ import android.util.Log;
 import android.widget.Button;
 
 import com.example.huydaoduc.hieu.chi.hhapp.Define;
-import com.example.huydaoduc.hieu.chi.hhapp.Main.Driver.RouteManager.RouteRequestManagerActivity;
-import com.example.huydaoduc.hieu.chi.hhapp.Manager.DBManager;
-import com.example.huydaoduc.hieu.chi.hhapp.Manager.Direction.DirectionFinderListener;
-import com.example.huydaoduc.hieu.chi.hhapp.Manager.Direction.Route;
-import com.example.huydaoduc.hieu.chi.hhapp.Manager.LocationUtils;
-import com.example.huydaoduc.hieu.chi.hhapp.Manager.Place.SavedPlace;
-import com.example.huydaoduc.hieu.chi.hhapp.Manager.Place.SearchActivity;
-import com.example.huydaoduc.hieu.chi.hhapp.Manager.SimpleMapActivity;
-import com.example.huydaoduc.hieu.chi.hhapp.Manager.TimeUtils;
+import com.example.huydaoduc.hieu.chi.hhapp.Framework.Direction.DirectionFinderListener;
+import com.example.huydaoduc.hieu.chi.hhapp.Framework.Direction.Route;
+import com.example.huydaoduc.hieu.chi.hhapp.Framework.LocationUtils;
+import com.example.huydaoduc.hieu.chi.hhapp.Framework.Place.SavedPlace;
+import com.example.huydaoduc.hieu.chi.hhapp.Framework.Place.SearchActivity;
+import com.example.huydaoduc.hieu.chi.hhapp.Framework.SimpleMapActivity;
+import com.example.huydaoduc.hieu.chi.hhapp.Framework.TimeUtils;
 import com.example.huydaoduc.hieu.chi.hhapp.Model.NotifyTrip;
 import com.example.huydaoduc.hieu.chi.hhapp.Model.RouteRequest.RouteRequest;
-import com.example.huydaoduc.hieu.chi.hhapp.Model.PassengerRequest;
 import com.example.huydaoduc.hieu.chi.hhapp.Model.RouteRequest.RouteRequestState;
-import com.example.huydaoduc.hieu.chi.hhapp.Model.Trip.Trip;
-import com.example.huydaoduc.hieu.chi.hhapp.Model.User.OnlineUser;
 import com.example.huydaoduc.hieu.chi.hhapp.Model.User.UserState;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.SupportMapFragment;
@@ -39,7 +33,6 @@ import com.rilixtech.materialfancybutton.MaterialFancyButton;
 import com.wdullaer.materialdatetimepicker.date.DatePickerDialog;
 import com.wdullaer.materialdatetimepicker.time.TimePickerDialog;
 
-import java.sql.Time;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
@@ -152,15 +145,17 @@ public class CreateRouteActivity extends SimpleMapActivity implements SimpleMapA
 
     @Override
     public void OnMapSetupDone() {
-        String startAddress = LocationUtils.getLocationAddress(geocoder,mLastLocation);
+        if (mLastLocation != null) {
+            String startAddress = LocationUtils.getLocationAddress(geocoder,mLastLocation);
 
-        getStartPlace().setAddress(startAddress);
-        getStartPlace().setLocation(LocationUtils.locaToStr(mLastLocation));
-        getStartPlace().setPrimaryText(startAddress);
+            getStartPlace().setAddress(startAddress);
+            getStartPlace().setLocation(LocationUtils.locaToStr(mLastLocation));
+            getStartPlace().setPrimaryText(startAddress);
 
-        btn_start_picker.setText(getStartPlace().getPrimaryText());
+            btn_start_picker.setText(getStartPlace().getPrimaryText());
 
-        markerManager.draw_PickupPlaceMarker(getStartPlace());
+            markerManager.draw_PickupPlaceMarker(getStartPlace());
+        }
 
     }
 
@@ -288,6 +283,8 @@ public class CreateRouteActivity extends SimpleMapActivity implements SimpleMapA
         };
 
         timePickerDialog = TimePickerDialog.newInstance(timeSetListener, true);
+        timePickerDialog.setAccentColor(ResourcesCompat.getColor(getResources(), R.color.date_picker_bar, null));
+
     }
 
     //endregion

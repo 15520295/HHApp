@@ -2,9 +2,8 @@ package com.example.huydaoduc.hieu.chi.hhapp.Model.User;
 
 import android.location.Location;
 
-import com.example.huydaoduc.hieu.chi.hhapp.Manager.LocationUtils;
-import com.example.huydaoduc.hieu.chi.hhapp.Manager.TimeUtils;
-import com.example.huydaoduc.hieu.chi.hhapp.Model.NotifyTrip;
+import com.example.huydaoduc.hieu.chi.hhapp.Framework.LocationUtils;
+import com.example.huydaoduc.hieu.chi.hhapp.Framework.TimeUtils;
 import com.google.android.gms.maps.model.LatLng;
 
 public class OnlineUser {

@@ -1,10 +1,7 @@
-package com.example.huydaoduc.hieu.chi.hhapp.Manager.Direction;
+package com.example.huydaoduc.hieu.chi.hhapp.Framework.Direction;
 
 import android.content.Context;
-import android.location.Location;
-import android.os.AsyncTask;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.example.huydaoduc.hieu.chi.hhapp.Common.Common;
 import com.example.huydaoduc.hieu.chi.hhapp.R;
@@ -15,13 +12,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;

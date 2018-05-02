@@ -1,14 +1,13 @@
-package com.example.huydaoduc.hieu.chi.hhapp.Manager;
+package com.example.huydaoduc.hieu.chi.hhapp.Framework;
 
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
 import android.util.Log;
-import android.widget.Toast;
 
-import com.example.huydaoduc.hieu.chi.hhapp.Manager.Direction.Leg;
-import com.example.huydaoduc.hieu.chi.hhapp.Manager.Direction.Route;
-import com.example.huydaoduc.hieu.chi.hhapp.Manager.Direction.Step;
+import com.example.huydaoduc.hieu.chi.hhapp.Framework.Direction.Leg;
+import com.example.huydaoduc.hieu.chi.hhapp.Framework.Direction.Route;
+import com.example.huydaoduc.hieu.chi.hhapp.Framework.Direction.Step;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.maps.android.PolyUtil;
@@ -123,8 +122,9 @@ public class LocationUtils {
      * the @polyline and check if @endLocation is nearby that path
      */
     public static boolean isMatching(List<LatLng> polyline, LatLng startLocation, LatLng endLocation, int radius) {
-
+        // check start location is near and get the path to end
         List<LatLng> pathToEnd = bdccGeoAlgorithm.bdccGeoGetPathOfPolyLineEnd(polyline, startLocation, radius);
+
         if (pathToEnd != null) {
             if (LocationUtils.isNearBy(pathToEnd, endLocation, radius)) {
                 return true;

@@ -37,7 +37,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".Manager.Place.SearchActivity"
+            android:name=".Framework.Place.SearchActivity"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".Main.Driver.DriverActivity"
@@ -61,8 +61,8 @@
         <activity
             android:name=".ActivitiesAuth.UpdateInfoActivity"
             android:windowSoftInputMode="stateVisible|adjustResize" />
-        <activity android:name=".Manager.Place.PlacePickerActivity" />
-        <activity android:name=".Main.Driver.CreateRouteActivity" />
+        <activity android:name=".Framework.Place.PlacePickerActivity" />
+        <activity android:name=".Main.Driver.RouteManager.CreateRouteActivity" />
         <activity android:name=".Main.Driver.RouteManager.RouteRequestManagerActivity"></activity>
     </application>
 

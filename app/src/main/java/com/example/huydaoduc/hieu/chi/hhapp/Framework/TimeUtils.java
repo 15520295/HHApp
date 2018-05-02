@@ -1,4 +1,4 @@
-package com.example.huydaoduc.hieu.chi.hhapp.Manager;
+package com.example.huydaoduc.hieu.chi.hhapp.Framework;
 
 import android.annotation.SuppressLint;
 
@@ -30,7 +30,7 @@ public class TimeUtils {
     public static Date strToDate(String string) {
         Calendar cal = Calendar.getInstance();
         try {
-            cal.setTime(userDateFormat.parse(string));
+            cal.setTime(fullDateFormat.parse(string));
         } catch (ParseException e) {
             e.printStackTrace();
             return null;
@@ -70,9 +70,9 @@ public class TimeUtils {
     // Func
 
     /**
-     * @return -1 == after the Date argument ( checkTime in pass )
+     * @return -1 == checkTime before Now( checkTime in pass )
      * @return 0 ==
-     * @return 1 == before the Date argument ( checkTime in feature )
+     * @return 1 == checkTime after Now   ( checkTime in feature )
      * note : >=0 valid
      */
     public static int compareWithNow(Date checkTime) {
@@ -91,6 +91,10 @@ public class TimeUtils {
         return TimeUnit.MILLISECONDS.toSeconds(difference);
     }
 
+    public static long getPassTime(Date startTime, Date endTime) {
+        long difference = startTime.getTime() - endTime.getTime();
+        return TimeUnit.MILLISECONDS.toSeconds(difference);
+    }
 
     public static boolean checkTimeOut(long checkAmountSec, String lastTimeCheck) {
         long secondsPass = TimeUtils.getPassTime(lastTimeCheck);
@@ -99,4 +103,5 @@ public class TimeUtils {
             return true;
         return false;
     }
+
 }

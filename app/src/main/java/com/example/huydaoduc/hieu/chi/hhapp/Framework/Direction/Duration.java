@@ -1,14 +1,14 @@
-package com.example.huydaoduc.hieu.chi.hhapp.Manager.Direction;
+package com.example.huydaoduc.hieu.chi.hhapp.Framework.Direction;
 
 
-public class Distance {
-    private String text;
-    private long value;
-
-    public Distance(String text, long value) {
+public class Duration {
+    public Duration(String text, long value) {
         this.text = text;
         this.value = value;
     }
+
+    private String text;
+    private long value;
 
     public String getText() {
         return text;

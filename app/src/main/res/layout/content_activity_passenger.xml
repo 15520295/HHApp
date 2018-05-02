@@ -1,21 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
-    tools:context=".Main.Home">
-
-
+    tools:context=".Main.Passenger.PassengerActivity">
 
     <fragment
         android:id="@+id/map"
         android:name="com.google.android.gms.maps.SupportMapFragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginBottom="8dp" />
+        android:layout_below="@id/titlebar"/>
 
-    <include layout="@layout/layout_passenger" />
+    <include layout="@layout/layout_passenger"
+        android:layout_below="@id/titlebar"
+        android:layout_height="match_parent"
+        android:layout_width="match_parent" />
 
-</android.support.constraint.ConstraintLayout>
+    <cn.bingoogolapple.titlebar.BGATitleBar
+        android:id="@+id/titlebar"
+        style="@style/CusTitleBar"
+        app:bgatitlebar_leftDrawablePadding="15dp"
+        app:bgatitlebar_leftDrawable="@drawable/ic_menu_white"
+        app:bgatitlebar_leftText="Find your driver"
+        app:bgatitlebar_leftMaxWidth="500dp"
+        />
+</RelativeLayout>

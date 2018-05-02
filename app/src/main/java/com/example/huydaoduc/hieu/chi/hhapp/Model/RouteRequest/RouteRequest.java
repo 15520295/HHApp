@@ -1,13 +1,9 @@
 package com.example.huydaoduc.hieu.chi.hhapp.Model.RouteRequest;
 
 import com.example.huydaoduc.hieu.chi.hhapp.Define;
-import com.example.huydaoduc.hieu.chi.hhapp.Manager.Direction.Leg;
-import com.example.huydaoduc.hieu.chi.hhapp.Manager.LocationUtils;
-import com.example.huydaoduc.hieu.chi.hhapp.Manager.Place.SavedPlace;
-import com.example.huydaoduc.hieu.chi.hhapp.Manager.TimeUtils;
+import com.example.huydaoduc.hieu.chi.hhapp.Framework.Place.SavedPlace;
+import com.example.huydaoduc.hieu.chi.hhapp.Framework.TimeUtils;
 import com.example.huydaoduc.hieu.chi.hhapp.Model.NotifyTrip;
-
-import java.util.Date;
 
 public class RouteRequest {
 
@@ -33,7 +29,7 @@ public class RouteRequest {
         return percentDiscount * length * Define.VND_PER_M;
     }
 
-    public boolean func_isInThePass() {
+    public boolean func_isInTheFuture() {
         if(TimeUtils.compareWithNow(startTime) >= 0)
             return true;
         return false;
