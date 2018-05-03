@@ -1,17 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="com.example.huydaoduc.hieu.chi.hhapp">
 
-    <uses-feature android:name="android.hardware.location.gps" />
-
-    <uses-permission android:name="android.permission.ACCESS_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-    <uses-permission android:name="android.permission.ACCESS_LOCATION_EXTRA_COMMANDS" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.CALL_PHONE" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.SEND_SMS" />
+
+    <!-- Check Internet connection -->
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_LOCATION_EXTRA_COMMANDS" />
 
     <!-- To auto-complete the email text field in the login form with the user's emails -->
     <uses-permission android:name="android.permission.GET_ACCOUNTS" />
@@ -36,19 +39,28 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <receiver android:name=".CheckInternetBroadcastReceiver">
+            <intent-filter>
+                <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
+                <action android:name="android.location.GPS_ENABLED_CHANGE" />
+                <action android:name="android.location.PROVIDERS_CHANGED" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </receiver>
+
         <activity
-            android:name=".Framework.Place.SearchActivity"
+            android:name=".Main.Home"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name=".Main.Driver.DriverActivity"
-            android:launchMode="singleTask"
+            android:name=".Manager.Place.SearchActivity"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name=".Main.Passenger.PassengerActivity"
-            android:launchMode="singleTask"
+            android:name=".Main.DriverActivity"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity android:name=".ActivitiesAuth.PhoneAuthActivity" />
-        <activity android:name=".Main.MainActivity" />
+        <activity android:name=".Main.MainActivity"></activity>
         <activity
             android:name=".ActivitiesAuth.EnterPhoneNumberActivity"
             android:label="@string/title_activity_enter_phone_number"
@@ -61,9 +73,14 @@
         <activity
             android:name=".ActivitiesAuth.UpdateInfoActivity"
             android:windowSoftInputMode="stateVisible|adjustResize" />
-        <activity android:name=".Framework.Place.PlacePickerActivity" />
-        <activity android:name=".Main.Driver.RouteManager.CreateRouteActivity" />
-        <activity android:name=".Main.Driver.RouteManager.RouteRequestManagerActivity"></activity>
+
+        <service
+            android:name=".Manager.CheckActivityCloseService"
+            android:stopWithTask="false"
+            android:label="Real time location checking service" >
+        </service>
+        <activity android:name=".Main.FindingDriver">
+        </activity>
     </application>
 
 </manifest>

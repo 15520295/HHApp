@@ -26,6 +26,7 @@
     <color name="baseReleaseColor">#212121</color>
     <color name="basePressColor">#FAFAFA</color>
     <color name="ballReleaseColor">#9E9E9E</color>
+    <color name="colorCancelButton">#247100</color>
 
     <color name="dividerColor">#1f747474</color>
 
