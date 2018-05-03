@@ -75,10 +75,10 @@ public class CreateRouteActivity extends SimpleMapActivity implements SimpleMapA
         btn_end_picker = findViewById(R.id.btn_end_place_picker);
 
         btn_date_picker = findViewById(R.id.btn_date_picker);
-        btn_date_picker.setText(TimeUtils.curDateToUserStr());
+        btn_date_picker.setText(TimeUtils.curDateToUserDateStr());
 
         btn_time_picker = findViewById(R.id.btn_time_picker);
-        btn_time_picker.setText(TimeUtils.curDateToUserStr());
+        btn_time_picker.setText(TimeUtils.curDateToUserDateStr());
 
         initDateTimePicker();
 
@@ -263,11 +263,11 @@ public class CreateRouteActivity extends SimpleMapActivity implements SimpleMapA
     private void initDateTimePicker() {
         selectedDateTime = Calendar.getInstance();
         selectedDateTime.add(Calendar.MINUTE,20);
-        btn_time_picker.setText(TimeUtils.timeToUserString(selectedDateTime.getTime()));
+        btn_time_picker.setText(TimeUtils.timeToUserTimeStr(selectedDateTime.getTime()));
 
         // Date
         DatePickerDialog.OnDateSetListener dateSetListener = (view, year, monthOfYear, dayOfMonth) -> {
-                    btn_date_picker.setText(TimeUtils.dateToUserStr(dayOfMonth,monthOfYear,year));
+                    btn_date_picker.setText(TimeUtils.dateToUserDateStr(dayOfMonth,monthOfYear,year));
 
                     selectedDateTime.set(year,monthOfYear,dayOfMonth);
                 };
@@ -278,7 +278,7 @@ public class CreateRouteActivity extends SimpleMapActivity implements SimpleMapA
 
         // Time
         TimePickerDialog.OnTimeSetListener timeSetListener = (view, hourOfDay, minute, second) -> {
-            btn_time_picker.setText(TimeUtils.timeToUserString(hourOfDay,minute));
+            btn_time_picker.setText(TimeUtils.timeToUserTimeStr(hourOfDay,minute));
 
             selectedDateTime.set(Calendar.HOUR_OF_DAY,hourOfDay);
             selectedDateTime.set(Calendar.MINUTE,minute);

@@ -10,6 +10,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.View;
 
 import com.example.huydaoduc.hieu.chi.hhapp.Define;
+import com.example.huydaoduc.hieu.chi.hhapp.Main.Driver.PassengerRequestInfoActivity;
 import com.example.huydaoduc.hieu.chi.hhapp.Model.NotifyTrip;
 import com.example.huydaoduc.hieu.chi.hhapp.Model.RouteRequest.RouteRequest;
 import com.example.huydaoduc.hieu.chi.hhapp.Model.RouteRequest.RouteRequestState;
@@ -32,7 +33,7 @@ public class RouteRequestManagerActivity extends AppCompatActivity {
 
     private static final int CREATE_ROUTE_REQUEST_CODE = 1;
     BGATitleBar titleBar;
-    RecyclerView rv_route_request;
+    RecyclerView rycv_route_request;
     FloatingActionButton fab_add_route;
     CircleProgressBar loadingProgress;
 
@@ -69,10 +70,10 @@ public class RouteRequestManagerActivity extends AppCompatActivity {
 
 
         // recycler
-        rv_route_request = findViewById(R.id.recycler_view_route_requests);
+        rycv_route_request = findViewById(R.id.recycler_view_route_requests);
         LinearLayoutManager llm = new LinearLayoutManager(getApplicationContext());
         llm.setOrientation(LinearLayoutManager.VERTICAL);
-        rv_route_request.setLayoutManager(llm);
+        rycv_route_request.setLayoutManager(llm);
 
         routeRequests = new ArrayList<>();
 
@@ -108,6 +109,7 @@ public class RouteRequestManagerActivity extends AppCompatActivity {
             Intent intent = new Intent(getApplicationContext(), CreateRouteActivity.class);
             RouteRequestManagerActivity.this.startActivityForResult(intent,CREATE_ROUTE_REQUEST_CODE);
         });
+
     }
 
     @Override
@@ -141,8 +143,29 @@ public class RouteRequestManagerActivity extends AppCompatActivity {
                     routeRequests.add(request);
                 }
 
+                // btn_request_state click event
                 RouteRequestAdapter adapter = new RouteRequestAdapter(routeRequests);
-                rv_route_request.setAdapter(adapter);
+                adapter.setOnItemChildClickListener((adapter1, view, position) -> {
+
+                    NotifyTrip notifyTrip = routeRequests.get(position).getNotifyTrip();
+                    if (notifyTrip == null) {
+
+                    }
+                    else
+                    {
+//                        if (view == adapter.getViewByPosition(position, R.id.btn_request_state)) {
+//
+//                        }
+                        Intent intent = new Intent(RouteRequestManagerActivity.this, PassengerRequestInfoActivity.class);
+                        intent.putExtra("tripUId", notifyTrip.getTripUId());
+                        RouteRequestManagerActivity.this.startActivity(intent);
+                    }
+
+
+
+                });
+
+                rycv_route_request.setAdapter(adapter);
                 stopLoading();
             }
 

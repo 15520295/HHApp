@@ -51,16 +51,10 @@
         </receiver>
 
         <activity
-            android:name=".Main.Home"
-            android:theme="@style/AppTheme.NoActionBar" />
-        <activity
-            android:name=".Manager.Place.SearchActivity"
-            android:theme="@style/AppTheme.NoActionBar" />
-        <activity
-            android:name=".Main.DriverActivity"
+            android:name=".Framework.Place.SearchActivity"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity android:name=".ActivitiesAuth.PhoneAuthActivity" />
-        <activity android:name=".Main.MainActivity"></activity>
+        <activity android:name=".Main.MainActivity" />
         <activity
             android:name=".ActivitiesAuth.EnterPhoneNumberActivity"
             android:label="@string/title_activity_enter_phone_number"
@@ -70,17 +64,20 @@
             android:label="@string/title_activity_enter_phone_number"
             android:windowSoftInputMode="stateVisible|adjustResize" />
         <activity android:name=".ActivitiesAuth.EnterPassActivity" />
+        <activity android:name=".Main.Passenger.PassengerActivity" />
+        <activity android:name=".Main.Driver.RouteManager.RouteRequestManagerActivity" />
+        <activity android:name=".Main.Driver.RouteManager.CreateRouteActivity" />
         <activity
             android:name=".ActivitiesAuth.UpdateInfoActivity"
             android:windowSoftInputMode="stateVisible|adjustResize" />
 
         <service
-            android:name=".Manager.CheckActivityCloseService"
-            android:stopWithTask="false"
-            android:label="Real time location checking service" >
-        </service>
-        <activity android:name=".Main.FindingDriver">
-        </activity>
+            android:name=".Framework.CheckActivityCloseService"
+            android:label="Real time location checking service"
+            android:stopWithTask="false"></service>
+
+        <activity android:name=".Main.Passenger.FindingDriverActivity"></activity>
+        <activity android:name=".Main.Driver.PassengerRequestInfoActivity"></activity>
     </application>
 
 </manifest>

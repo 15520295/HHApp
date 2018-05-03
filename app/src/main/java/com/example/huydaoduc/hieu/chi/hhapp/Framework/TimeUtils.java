@@ -14,10 +14,12 @@ public class TimeUtils {
 
     public static final SimpleDateFormat userDateFormat = new SimpleDateFormat("EEEE dd MMMM yyyy");
     public static final SimpleDateFormat userTimeFormat = new SimpleDateFormat("HH:mm");
+    public static final SimpleDateFormat userDateTimeFormat = new SimpleDateFormat("EEEE dd MMMM, HH:mm");
+
 
     public static String getCurrentTimeAsString() {
         Calendar c = Calendar.getInstance();
-        return  userDateFormat.format(c.getTime());
+        return  fullDateFormat.format(c.getTime());
     }
 
     public static Date getCurrentTimeAsDate() {
@@ -45,30 +47,36 @@ public class TimeUtils {
     /**
      * User string mean a String of date that User can easily read
      */
-    public static String dateToUserStr(int day, int month, int year) {
+    public static String dateToUserDateStr(int day, int month, int year) {
         Calendar cal = Calendar.getInstance();
         cal.set(year,month,day);
         return userDateFormat.format(cal.getTime());
     }
-    public static String curDateToUserStr() {
+    public static String curDateToUserDateStr() {
         Calendar cal = Calendar.getInstance();
         return userDateFormat.format(cal.getTime());
     }
 
-    public static String timeToUserString(int hourOfDay, int minute) {
+    public static String timeToUserTimeStr(int hourOfDay, int minute) {
         return String.format("%02d:%02d",hourOfDay,minute);
     }
-    public static String timeToUserString(Date date) {
+    public static String timeToUserTimeStr(Date date) {
         return userTimeFormat.format(date);
     }
-    public static String curTimeToUserString() {
+    public static String curTimeToUserTimeStr() {
         Calendar cal = Calendar.getInstance();
         return userTimeFormat.format(cal.getTime());
     }
-    public static String curTimeToUserString(int plusMinute) {
+    public static String curTimeToUserTimeStr(int plusMinute) {
         Calendar cal = Calendar.getInstance();
         cal.add(Calendar.MINUTE, plusMinute);
         return userTimeFormat.format(cal.getTime());
+    }
+    public static String dateToUserDateTimeStr(Date date) {
+        return userDateTimeFormat.format(date);
+    }
+    public static String dateToUserDateTimeStr(String date) {
+        return userDateTimeFormat.format(strToDate(date));
     }
     // Func
 

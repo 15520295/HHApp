@@ -1,15 +1,11 @@
 package com.example.huydaoduc.hieu.chi.hhapp.Main.Driver.RouteManager;
 
 import android.text.TextUtils;
-import android.text.method.ScrollingMovementMethod;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.TextView;
 
 import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.chad.library.adapter.base.BaseViewHolder;
 import com.example.huydaoduc.hieu.chi.hhapp.Define;
+import com.example.huydaoduc.hieu.chi.hhapp.Framework.TimeUtils;
 import com.example.huydaoduc.hieu.chi.hhapp.Model.RouteRequest.RouteRequest;
 import com.example.huydaoduc.hieu.chi.hhapp.R;
 
@@ -19,13 +15,13 @@ import java.util.List;
 public class RouteRequestAdapter extends BaseQuickAdapter<RouteRequest, com.chad.library.adapter.base.BaseViewHolder> {
 
     public RouteRequestAdapter( List data) {
-        super(R.layout.route_request_line, data);
+        super(R.layout.route_request_row, data);
     }
 
 
     @Override
     protected void convert(BaseViewHolder helper, RouteRequest routeRequest) {
-        helper.setText(R.id.tv_time, routeRequest.getStartTime())
+        helper.setText(R.id.tv_time, TimeUtils.dateToUserDateTimeStr(routeRequest.getStartTime()))
                 .setText(R.id.tv_start_address, routeRequest.getStartPlace().getAddress())
                 .setText(R.id.tv_end_address, routeRequest.getEndPlace().getAddress())
                 .addOnClickListener(R.id.btn_request_state);
@@ -41,6 +37,4 @@ public class RouteRequestAdapter extends BaseQuickAdapter<RouteRequest, com.chad
 
         helper.setText(R.id.btn_request_state, Define.REQUEST_STATE_MAP.get(routeRequest.getRouteRequestState()));
     }
-
-
 }

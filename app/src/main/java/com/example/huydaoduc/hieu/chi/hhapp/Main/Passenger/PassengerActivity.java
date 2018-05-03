@@ -4,7 +4,6 @@ import android.Manifest;
 import android.app.Dialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.graphics.Color;
 import android.location.Geocoder;
 import android.location.Location;
 import android.net.Uri;
@@ -13,7 +12,6 @@ import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.text.InputType;
 import android.util.Log;
-import android.util.Pair;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -931,7 +929,8 @@ public class PassengerActivity extends SimpleMapActivity
         btn_findDriver.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startBooking();
+//                startBooking();
+                PassengerActivity.this.startActivity(new Intent(getApplicationContext(),FindingDriverActivity.class));
             }
         });
 

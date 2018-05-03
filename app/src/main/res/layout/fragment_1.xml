@@ -2,74 +2,72 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    xmlns:fancy="http://schemas.android.com/apk/res-auto"
+    >
+
 
     <LinearLayout
+        android:id="@+id/group_place"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_margin="10dp"
-        android:weightSum="6">
+        android:orientation="vertical"
+        android:layout_below="@id/tv_time_start"
+        android:layout_marginStart="@dimen/margin_default_25"
+        android:layout_marginEnd="@dimen/margin_default_25"
+        android:layout_marginTop="@dimen/dp_10">
 
-        <ImageView
-            android:layout_width="0dp"
+
+        <TextView
+            android:id="@+id/tv_start_address"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:layout_weight="1"
-            android:src="@drawable/ic_start_location_black_24dp" />
-
-        <EditText
-            android:id="@+id/edit_pick_up"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="5"
-            android:textColor="@color/place_autocomplete_search_text"
-            android:textColorHint="@color/place_autocomplete_search_hint"
-            android:hint="Where to?"
-            android:focusable="false"
-
+            android:drawableLeft="@drawable/ic_vertical_line_blue_60x"
+            android:layout_below="@id/tv_time_start"
+            android:drawablePadding="10dp"
+            android:ellipsize="marquee"
+            android:gravity="center_vertical"
+            android:marqueeRepeatLimit="marquee_forever"
+            android:scrollHorizontally="true"
+            android:singleLine="true"
+            android:text="Start "
+            android:textSize="20sp"
             />
 
+        <TextView
+            android:id="@+id/tv_end_address"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/tv_start_address"
+            android:text="End"
+            android:textSize="20sp"
+            android:gravity="center_vertical"
+            android:drawableLeft="@drawable/ic_vertical_line_red_60"
+            android:drawablePadding="10dp"
+            android:ellipsize="marquee"
+            android:scrollHorizontally="true"
+            android:marqueeRepeatLimit ="marquee_forever"
+            android:singleLine="true"
+            />
     </LinearLayout>
 
-    <LinearLayout
+    <com.rilixtech.materialfancybutton.MaterialFancyButton
+        android:id="@+id/btn_create_route"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_margin="10dp"
-        android:weightSum="6">
-
-        <ImageView
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:layout_weight="1"
-            android:src="@drawable/ic_map_black_24dp" />
-
-        <EditText
-            android:id="@+id/edit_go_to"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="5"
-            android:textColor="@color/place_autocomplete_search_text"
-            android:textColorHint="@color/place_autocomplete_search_hint"
-            android:hint="Go To ..."
-            android:focusable="false"
-
-            />
-
-    </LinearLayout>
-
-    <Button
-        android:id="@+id/btnCancel"
-        android:layout_width="match_parent"
-        android:layout_height="40dp"
-        android:layout_below="@id/spaceHolder"
-        android:background="@drawable/cancel_button"
-        android:fontFamily="sans-serif-medium"
-        android:text="Cancel"
-        android:layout_margin="20dp"
-        android:textColor="@android:color/white"
-        android:textSize="16sp" />
-
+        android:layout_centerHorizontal="true"
+        android:paddingBottom="10dp"
+        android:paddingLeft="20dp"
+        android:paddingRight="20dp"
+        android:paddingTop="10dp"
+        android:layout_marginBottom="@dimen/margin_default_20"
+        fancy:mfb_borderColor="#FFFFFF"
+        fancy:mfb_borderWidth="1dp"
+        fancy:mfb_defaultColor="@color/btn_unpressed"
+        fancy:mfb_focusColor="@color/btn_pressed"
+        fancy:mfb_iconPosition="left"
+        fancy:mfb_radius="5dp"
+        fancy:mfb_text="Create Route"
+        fancy:mfb_textColor="#FFFFFF"
+        fancy:mfb_textSize="18sp"/>
 </LinearLayout>

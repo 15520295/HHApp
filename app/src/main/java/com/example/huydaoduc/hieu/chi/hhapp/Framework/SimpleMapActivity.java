@@ -2,10 +2,16 @@ package com.example.huydaoduc.hieu.chi.hhapp.Framework;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.AlertDialog;
+import android.content.ContentResolver;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
 import android.os.Looper;
+import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
@@ -266,9 +272,42 @@ public class SimpleMapActivity extends AppCompatActivity implements
 
     }
 
+    private void checkAlowLocation() {
+        ContentResolver contentResolver = getApplicationContext().getContentResolver();
+        // Find out what the settings say about which providers are enabled
+        int mode = Settings.Secure.getInt(
+                contentResolver, Settings.Secure.LOCATION_MODE, Settings.Secure.LOCATION_MODE_OFF);
+
+        if (mode != Settings.Secure.LOCATION_MODE_OFF) {
+            return;
+        } else {
+            buildAlertMessageNoGps();
+        }
+    }
+
+    private void buildAlertMessageNoGps() {
+        final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage("Your GPS seems to be disabled, do you want to enable it?")
+                .setCancelable(false)
+                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                    public Context ctx;
+
+                    public void onClick(final DialogInterface dialog, final int id) {
+                        startActivity(new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS));
+                    }
+                })
+                .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                    public void onClick(final DialogInterface dialog, final int id) {
+                        dialog.cancel();
+                    }
+                });
+        final AlertDialog alert = builder.create();
+        alert.show();
+    }
+
     @Override
     public boolean onMyLocationButtonClick() {
-
+        checkAlowLocation();
         return false;
     }
 

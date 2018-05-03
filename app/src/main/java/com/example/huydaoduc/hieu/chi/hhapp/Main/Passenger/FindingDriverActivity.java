@@ -1,16 +1,13 @@
-package com.example.huydaoduc.hieu.chi.hhapp.Main;
+package com.example.huydaoduc.hieu.chi.hhapp.Main.Passenger;
 
-import android.app.Fragment;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
-import android.widget.ImageView;
-import android.widget.ProgressBar;
 
 import com.example.huydaoduc.hieu.chi.hhapp.R;
 
-public class FindingDriver extends AppCompatActivity {
+public class FindingDriverActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -21,7 +18,7 @@ public class FindingDriver extends AppCompatActivity {
         close.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                FindingDriver.this.getSupportFragmentManager().popBackStack();
+                FindingDriverActivity.this.getSupportFragmentManager().popBackStack();
             }
         });
     }
