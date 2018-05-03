@@ -87,7 +87,7 @@
     <!--Conditional Button-->
     <style name="ConditionalButton" parent="Base.Widget.AppCompat.Button">
         <item name="android:background">@drawable/flat_btn_selector</item>
-        <item name="android:textColor">@android:color/black</item>
+        <item name="android:textColor">#6b6b6b</item>
         <item name="android:textStyle">normal</item>
         <item name="android:textAllCaps">false</item>
         <item name="android:paddingLeft">5dp</item>

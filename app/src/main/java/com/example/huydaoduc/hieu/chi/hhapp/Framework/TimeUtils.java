@@ -11,8 +11,8 @@ import java.util.concurrent.TimeUnit;
 public class TimeUtils {
     @SuppressLint("SimpleDateFormat")
     public static final SimpleDateFormat fullDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-    public static final SimpleDateFormat userDateFormat = new SimpleDateFormat("EEEE dd MMMM yyyy");
 
+    public static final SimpleDateFormat userDateFormat = new SimpleDateFormat("EEEE dd MMMM yyyy");
     public static final SimpleDateFormat userTimeFormat = new SimpleDateFormat("HH:mm");
 
     public static String getCurrentTimeAsString() {
@@ -57,6 +57,9 @@ public class TimeUtils {
 
     public static String timeToUserString(int hourOfDay, int minute) {
         return String.format("%02d:%02d",hourOfDay,minute);
+    }
+    public static String timeToUserString(Date date) {
+        return userTimeFormat.format(date);
     }
     public static String curTimeToUserString() {
         Calendar cal = Calendar.getInstance();

@@ -15,7 +15,7 @@ public class PassengerRequest {
     private SavedPlace pickUpSavePlace;
     private SavedPlace dropOffSavePlace;
 
-    private String postTime;
+    private String startTime;
     private CarType carType;
     @Nullable
     private String note;        // note for Driver
@@ -25,11 +25,11 @@ public class PassengerRequest {
     public PassengerRequest() {
     }
 
-    public PassengerRequest(String passengerUId, SavedPlace pickUpSavePlace, SavedPlace dropOffSavePlace, String postTime, CarType carType, String note, float percentOff) {
+    public PassengerRequest(String passengerUId, SavedPlace pickUpSavePlace, SavedPlace dropOffSavePlace, String startTime, CarType carType, String note, float percentOff) {
         this.passengerUId = passengerUId;
         this.pickUpSavePlace = pickUpSavePlace;
         this.dropOffSavePlace = dropOffSavePlace;
-        this.postTime = postTime;
+        this.startTime = startTime;
         this.carType = carType;
         this.note = note;
         this.percentOff = percentOff;
@@ -59,12 +59,12 @@ public class PassengerRequest {
         this.dropOffSavePlace = dropOffSavePlace;
     }
 
-    public String getPostTime() {
-        return postTime;
+    public String getStartTime() {
+        return startTime;
     }
 
-    public void setPostTime(String postTime) {
-        this.postTime = postTime;
+    public void setStartTime(String startTime) {
+        this.startTime = startTime;
     }
 
     public CarType getCarType() {
@@ -97,7 +97,7 @@ public class PassengerRequest {
         private String passengerUId;
         private SavedPlace pickUpSavePlace;
         private SavedPlace dropOffSavePlace;
-        private String postTime;
+        private String startTime;
         private CarType carType;
         private String note;        // note for Driver
         private float percentOff;
@@ -124,8 +124,8 @@ public class PassengerRequest {
             return this;
         }
 
-        public Builder setPostTime(String postTime) {
-            this.postTime = postTime;
+        public Builder setStartTime(String startTime) {
+            this.startTime = startTime;
             return this;
         }
 
@@ -149,7 +149,7 @@ public class PassengerRequest {
             passengerRequest.setPassengerUId(passengerUId);
             passengerRequest.setPickUpSavePlace(pickUpSavePlace);
             passengerRequest.setDropOffSavePlace(dropOffSavePlace);
-            passengerRequest.setPostTime(postTime);
+            passengerRequest.setStartTime(startTime);
             passengerRequest.setCarType(carType);
             passengerRequest.setNote(note);
             passengerRequest.setPercentOff(percentOff);

@@ -2,7 +2,6 @@ package com.example.huydaoduc.hieu.chi.hhapp.Main.Driver.RouteManager;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.opengl.Visibility;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -11,11 +10,14 @@ import android.support.v7.widget.RecyclerView;
 import android.view.View;
 
 import com.example.huydaoduc.hieu.chi.hhapp.Define;
+import com.example.huydaoduc.hieu.chi.hhapp.Model.NotifyTrip;
 import com.example.huydaoduc.hieu.chi.hhapp.Model.RouteRequest.RouteRequest;
+import com.example.huydaoduc.hieu.chi.hhapp.Model.RouteRequest.RouteRequestState;
 import com.example.huydaoduc.hieu.chi.hhapp.R;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.lsjwzh.widget.materialloadingprogressbar.CircleProgressBar;
@@ -35,6 +37,9 @@ public class RouteRequestManagerActivity extends AppCompatActivity {
     CircleProgressBar loadingProgress;
 
     List<RouteRequest> routeRequests;
+
+    DatabaseReference dbRefe;
+
 
 
     private String getCurUid() {
@@ -70,6 +75,10 @@ public class RouteRequestManagerActivity extends AppCompatActivity {
         rv_route_request.setLayoutManager(llm);
 
         routeRequests = new ArrayList<>();
+
+
+        // init database
+        dbRefe = FirebaseDatabase.getInstance().getReference();
     }
 
     private void Event() {
@@ -123,8 +132,11 @@ public class RouteRequestManagerActivity extends AppCompatActivity {
                 .child(getCurUid()).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
+                routeRequests.clear();
                 for (DataSnapshot postSnapshot: dataSnapshot.getChildren()) {
                     RouteRequest request = postSnapshot.getValue(RouteRequest.class);
+
+                    notifyTripAndUpdateRequest(request);
 
                     routeRequests.add(request);
                 }
@@ -139,6 +151,27 @@ public class RouteRequestManagerActivity extends AppCompatActivity {
 
             }
         });
+    }
+
+    private void notifyTripAndUpdateRequest(RouteRequest request) {
+        NotifyTrip notifyTrip = request.getNotifyTrip();
+        if(notifyTrip != null && !notifyTrip.isNotified())
+        {
+            // update NotifyTrip value to notified
+            notifyTrip.setNotified(true);
+            dbRefe.child(Define.DB_ROUTE_REQUESTS).child(request.getDriverUId())
+                    .child(request.getRouteRequestUId())
+                    .child(Define.DB_ROUTE_REQUESTS_NOTIFY_TRIP).setValue(notifyTrip);
+
+            // change Route state
+            dbRefe.child(Define.DB_ROUTE_REQUESTS).child(request.getDriverUId())
+                    .child(request.getRouteRequestUId())
+                    .child(Define.DB_ROUTE_REQUESTS_ROUTE_REQUEST_STATE).setValue(RouteRequestState.FOUND_PASSENGER);
+
+            // notify driver
+        }
+        request.setNotifyTrip(notifyTrip);
+
     }
 
     private void startLoading() {

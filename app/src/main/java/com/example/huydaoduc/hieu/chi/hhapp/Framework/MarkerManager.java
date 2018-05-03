@@ -40,7 +40,7 @@ public class MarkerManager {
             pickupPlaceMarker.remove();
 
         pickupPlaceMarker = mMap.addMarker(new MarkerOptions().position(pickupPlace.func_getLatLngLocation())
-                .icon(BitmapDescriptorFactory.fromResource(R.drawable.mkr_map_pin_40px)));
+                .icon(BitmapDescriptorFactory.fromResource(R.drawable.mkr_pick_up_place_40px)));
     }
 
     public void draw_DropPlaceMarker(SavedPlace endPlace) {

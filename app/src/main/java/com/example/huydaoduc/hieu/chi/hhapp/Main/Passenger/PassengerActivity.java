@@ -4,12 +4,16 @@ import android.Manifest;
 import android.app.Dialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
+import android.location.Geocoder;
 import android.location.Location;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
+import android.text.InputType;
 import android.util.Log;
+import android.util.Pair;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -17,10 +21,12 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.afollestad.materialdialogs.MaterialDialog;
 import com.example.huydaoduc.hieu.chi.hhapp.Define;
 import com.example.huydaoduc.hieu.chi.hhapp.Framework.DBManager;
 import com.example.huydaoduc.hieu.chi.hhapp.Framework.Direction.DirectionFinderListener;
@@ -43,7 +49,6 @@ import com.example.huydaoduc.hieu.chi.hhapp.Model.User.UserInfo;
 import com.example.huydaoduc.hieu.chi.hhapp.Model.User.UserState;
 import com.example.huydaoduc.hieu.chi.hhapp.R;
 import com.example.huydaoduc.hieu.chi.hhapp.ActivitiesAuth.PhoneAuthActivity;
-import com.github.glomadrian.materialanimatedswitch.MaterialAnimatedSwitch;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
@@ -59,6 +64,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
+
+import stream.customalert.CustomAlertDialogue;
 
 import static com.google.android.gms.location.LocationServices.getFusedLocationProviderClient;
 
@@ -74,11 +82,16 @@ public class PassengerActivity extends SimpleMapActivity
     private Button btnMessage, btnCall;
     private TextView tvName, tvPhone;
 
+    MaterialFancyButton btn_cd_start_time, btn_cd_note, btn_cd_wait_time;
+
     MaterialFancyButton btn_findDriver;
 
     //------------------------------------ Chi :
 
     // Activity Property
+    Geocoder geocoder;
+
+
     private UserState userState;
 
     Dialog dialogInfo;
@@ -92,7 +105,18 @@ public class PassengerActivity extends SimpleMapActivity
 
     @Override
     public void OnMapSetupDone() {
+        if (mLastLocation != null) {
+            String startAddress = LocationUtils.getLocationAddress(geocoder,mLastLocation);
 
+            getPickupPlace().setAddress(startAddress);
+            getPickupPlace().setLocation(LocationUtils.locaToStr(mLastLocation));
+            getPickupPlace().setPrimaryText(startAddress);
+
+            btn_pickupLocation.setText(getPickupPlace().getPrimaryText());
+            btn_pickupLocation.setSelected(true);
+
+            markerManager.draw_PickupPlaceMarker(getPickupPlace());
+        }
     }
 
 
@@ -125,9 +149,15 @@ public class PassengerActivity extends SimpleMapActivity
         notFoundHH = false;
 
         estimateFare = 10000f;
-        int waitMinute = 10;
+        int waitMinute;
+        if (btn_cd_start_time.getText().toString() == Define.DEFAULT_WAIT_TIME.first)
+            waitMinute = Define.DEFAULT_WAIT_TIME.second;
+        else
+            waitMinute = Define.WAIT_TIME_MAP.get(btn_cd_wait_time.getText().toString());
+
         float distance = 1000;
         float duration = 1000;
+
 
 
         // create a trip
@@ -146,7 +176,7 @@ public class PassengerActivity extends SimpleMapActivity
         PassengerRequest passengerRequest = PassengerRequest.Builder.aPassengerRequest(getCurUid())
                 .setPickUpSavePlace(getPickupPlace())
                 .setDropOffSavePlace(getDropPlace())
-                .setPostTime(TimeUtils.getCurrentTimeAsString())
+                .setStartTime(TimeUtils.getCurrentTimeAsString())
                 .setCarType(CarType.BIKE)
                 .setNote("Notes..")
                 .build();
@@ -500,7 +530,7 @@ public class PassengerActivity extends SimpleMapActivity
 //        PassengerRequest passengerRequest = PassengerRequest.Builder.aPassengerRequest(getCurUid())
 //                .setPickUpSavePlace(pickupPlace)
 //                .setDropOffSavePlace(dropPlace)
-//                .setPostTime(TimeUtils.getCurrentTimeAsString())
+//                .setStartTime(TimeUtils.getCurrentTimeAsString())
 //                .setCarType(CarType.BIKE)
 //                .setNote("Notes..")
 //                .build();
@@ -864,6 +894,8 @@ public class PassengerActivity extends SimpleMapActivity
         mapFragment.getMapAsync(this);      // set Callback listener
         isFirstGetLocation = false;
 
+        geocoder = new Geocoder(this, Locale.getDefault());
+
         isDriverFound = false;
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
@@ -884,6 +916,9 @@ public class PassengerActivity extends SimpleMapActivity
 
         btn_findDriver = findViewById(R.id.btn_find_driver);
 
+        btn_cd_start_time = findViewById(R.id.btn_cd_start_time);
+        btn_cd_wait_time = findViewById(R.id.btn_cd_wait_time);
+        btn_cd_note = findViewById(R.id.btn_cd_note);
 
         // search view
         btn_pickupLocation = findViewById(R.id.btn_pick_up_location);
@@ -898,6 +933,54 @@ public class PassengerActivity extends SimpleMapActivity
             public void onClick(View v) {
                 startBooking();
             }
+        });
+
+        btn_cd_start_time.setOnClickListener(e ->{
+
+        });
+
+        btn_cd_wait_time.setOnClickListener(e ->{
+            ArrayList<String> destructive = new ArrayList<>();
+            destructive.add(Define.DEFAULT_WAIT_TIME.first);
+
+            ArrayList<String> other = new ArrayList<>();
+
+            for (String key : Define.WAIT_TIME_MAP.keySet()) {
+                other.add(key);
+            }
+
+            CustomAlertDialogue.Builder alert = new CustomAlertDialogue.Builder(PassengerActivity.this)
+                    .setStyle(CustomAlertDialogue.Style.SELECTOR)
+                    .setDestructive(destructive)
+                    .setOthers(other)
+                    .setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                        @Override
+                        public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                            if (i > 0) {
+                                btn_cd_wait_time.setText(other.get(i - 1));
+                                CustomAlertDialogue.getInstance().dismiss();
+                            }
+
+                        }
+                    })
+                    .setDecorView(getWindow().getDecorView())
+                    .build();
+            alert.show();
+        });
+
+        btn_cd_note.setOnClickListener(e ->{
+            new MaterialDialog.Builder(this)
+                    .title("Notes to driver")
+                    .content("content")
+                    .inputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD)
+                    .input("input hint", "input refill", new MaterialDialog.InputCallback() {
+                        @Override
+                        public void onInput(MaterialDialog dialog, CharSequence input) {
+                            // Do something
+                        }
+                    })
+                    .positiveText("positive")
+                    .show();
         });
 
         searViewEvent();
