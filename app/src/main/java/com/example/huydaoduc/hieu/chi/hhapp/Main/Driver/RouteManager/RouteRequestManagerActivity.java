@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
+import android.widget.Toast;
 
 import com.example.huydaoduc.hieu.chi.hhapp.Define;
 import com.example.huydaoduc.hieu.chi.hhapp.Main.Driver.PassengerRequestInfoActivity;
@@ -24,6 +25,7 @@ import com.google.firebase.database.ValueEventListener;
 import com.lsjwzh.widget.materialloadingprogressbar.CircleProgressBar;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import cn.bingoogolapple.titlebar.BGATitleBar;
@@ -122,6 +124,41 @@ public class RouteRequestManagerActivity extends AppCompatActivity {
     private void handleResultCreateRoute(int requestCode, int resultCode, Intent data) {
         if (requestCode == CREATE_ROUTE_REQUEST_CODE) {
             if (resultCode == Activity.RESULT_OK) {
+                // add listener//todo: redo
+                String routeRequestUId = data.getStringExtra("routeRequestUId");
+                //Listen to Trip Notify - asynchronous with service
+                dbRefe.child(Define.DB_ROUTE_REQUESTS).child(getCurUid())
+                        .child(routeRequestUId).child(Define.DB_ROUTE_REQUESTS_NOTIFY_TRIP)
+                        .addValueEventListener(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(DataSnapshot dataSnapshot) {
+                                NotifyTrip notifyTrip = dataSnapshot.getValue(NotifyTrip.class);
+
+                                if(notifyTrip != null && !notifyTrip.isNotified())
+                                {
+                                    // update NotifyTrip value to notified
+                                    notifyTrip.setNotified(true);
+                                    dbRefe.child(Define.DB_ROUTE_REQUESTS).child(getCurUid())
+                                            .child(routeRequestUId)
+                                            .child(Define.DB_ROUTE_REQUESTS_NOTIFY_TRIP).setValue(notifyTrip);
+
+                                    // change Route state
+                                    dbRefe.child(Define.DB_ROUTE_REQUESTS).child(getCurUid())
+                                            .child(routeRequestUId)
+                                            .child(Define.DB_ROUTE_REQUESTS_ROUTE_REQUEST_STATE).setValue(RouteRequestState.FOUND_PASSENGER);
+
+                                    // notify driver
+                                    Toast.makeText(getApplicationContext(),"Found your driver",Toast.LENGTH_LONG).show();
+                                    refreshList();
+                                }
+                            }
+
+                            @Override
+                            public void onCancelled(DatabaseError databaseError) {
+
+                            }
+                        });
+
                 refreshList();
             }
         }
@@ -142,6 +179,8 @@ public class RouteRequestManagerActivity extends AppCompatActivity {
 
                     routeRequests.add(request);
                 }
+
+                Collections.reverse(routeRequests);
 
                 // btn_request_state click event
                 RouteRequestAdapter adapter = new RouteRequestAdapter(routeRequests);
@@ -204,4 +243,6 @@ public class RouteRequestManagerActivity extends AppCompatActivity {
     private void stopLoading() {
         loadingProgress.setVisibility(View.GONE);
     }
+
+
 }

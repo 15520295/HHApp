@@ -217,39 +217,40 @@ public class CreateRouteActivity extends SimpleMapActivity implements SimpleMapA
                 .child(routeRequestUId).setValue(routeRequest);
 
 
-        //Listen to Trip Notify - asynchronous with service
-        dbRefe.child(Define.DB_ROUTE_REQUESTS).child(driverUId)
-                .child(routeRequestUId).child(Define.DB_ROUTE_REQUESTS_NOTIFY_TRIP)
-                .addValueEventListener(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        NotifyTrip notifyTrip = dataSnapshot.getValue(NotifyTrip.class);
-
-                        if(notifyTrip != null && !notifyTrip.isNotified())
-                        {
-                            // update NotifyTrip value to notified
-                            notifyTrip.setNotified(true);
-                            dbRefe.child(Define.DB_ROUTE_REQUESTS).child(driverUId)
-                                    .child(routeRequestUId)
-                                    .child(Define.DB_ROUTE_REQUESTS_NOTIFY_TRIP).setValue(notifyTrip);
-
-                            // change Route state
-                            dbRefe.child(Define.DB_ROUTE_REQUESTS).child(driverUId)
-                                    .child(routeRequestUId)
-                                    .child(Define.DB_ROUTE_REQUESTS_ROUTE_REQUEST_STATE).setValue(RouteRequestState.FOUND_PASSENGER);
-
-                            // notify driver
-                        }
-                    }
-
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
-
-                    }
-                });
+//        //Listen to Trip Notify - asynchronous with service
+//        dbRefe.child(Define.DB_ROUTE_REQUESTS).child(driverUId)
+//                .child(routeRequestUId).child(Define.DB_ROUTE_REQUESTS_NOTIFY_TRIP)
+//                .addValueEventListener(new ValueEventListener() {
+//                    @Override
+//                    public void onDataChange(DataSnapshot dataSnapshot) {
+//                        NotifyTrip notifyTrip = dataSnapshot.getValue(NotifyTrip.class);
+//
+//                        if(notifyTrip != null && !notifyTrip.isNotified())
+//                        {
+//                            // update NotifyTrip value to notified
+//                            notifyTrip.setNotified(true);
+//                            dbRefe.child(Define.DB_ROUTE_REQUESTS).child(driverUId)
+//                                    .child(routeRequestUId)
+//                                    .child(Define.DB_ROUTE_REQUESTS_NOTIFY_TRIP).setValue(notifyTrip);
+//
+//                            // change Route state
+//                            dbRefe.child(Define.DB_ROUTE_REQUESTS).child(driverUId)
+//                                    .child(routeRequestUId)
+//                                    .child(Define.DB_ROUTE_REQUESTS_ROUTE_REQUEST_STATE).setValue(RouteRequestState.FOUND_PASSENGER);
+//
+//                            // notify driver
+//                        }
+//                    }
+//
+//                    @Override
+//                    public void onCancelled(DatabaseError databaseError) {
+//
+//                    }
+//                });
 
         // close and add to list
         Intent returnIntent = new Intent();
+        returnIntent.putExtra("routeRequestUId", routeRequestUId);
         setResult(Activity.RESULT_OK,returnIntent);
         finish();
     }

@@ -1,7 +1,11 @@
 package com.example.huydaoduc.hieu.chi.hhapp.Main.Driver;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.util.Base64;
 import android.util.Log;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -9,13 +13,19 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
 
+import com.example.huydaoduc.hieu.chi.hhapp.Define;
 import com.example.huydaoduc.hieu.chi.hhapp.Main.Driver.RouteManager.CreateRouteActivity;
 import com.example.huydaoduc.hieu.chi.hhapp.Framework.LocationUtils;
 import com.example.huydaoduc.hieu.chi.hhapp.Framework.Place.SavedPlace;
 import com.example.huydaoduc.hieu.chi.hhapp.Framework.Place.SearchActivity;
 import com.example.huydaoduc.hieu.chi.hhapp.Framework.SimpleMapActivity;
+import com.example.huydaoduc.hieu.chi.hhapp.Main.InfoCar;
+import com.example.huydaoduc.hieu.chi.hhapp.Main.Passenger.PassengerActivity;
+import com.example.huydaoduc.hieu.chi.hhapp.Model.User.UserInfo;
 import com.example.huydaoduc.hieu.chi.hhapp.Model.User.UserState;
 import com.example.huydaoduc.hieu.chi.hhapp.R;
 import com.example.huydaoduc.hieu.chi.hhapp.ActivitiesAuth.PhoneAuthActivity;
@@ -23,8 +33,13 @@ import com.github.glomadrian.materialanimatedswitch.MaterialAnimatedSwitch;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+
+import de.hdodenhof.circleimageview.CircleImageView;
 
 import static com.google.android.gms.location.LocationServices.getFusedLocationProviderClient;
 
@@ -418,6 +433,7 @@ public class DriverActivity extends SimpleMapActivity
         // Firebase Init
         dbRefe = FirebaseDatabase.getInstance().getReference();
 
+        onCreateHieu();
     }
 
     private void addEven() {
@@ -492,6 +508,63 @@ public class DriverActivity extends SimpleMapActivity
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+    // Hieu
+
+    public static TextView txtName;
+    private TextView txtPhone;
+    private CircleImageView avatar;
+    private  String carInfo ="", carNumber = "";
+
+    @SuppressLint("CutPasteId")
+    public void onCreateHieu() {
+        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        navigationView.setNavigationItemSelectedListener(DriverActivity.this);
+
+        View header= navigationView.getHeaderView(0);
+        txtName = (TextView) header.findViewById(R.id.txtName);
+        txtPhone = (TextView) header.findViewById(R.id.txtPhone);
+        avatar = (CircleImageView) header.findViewById(R.id.imageViewAvatar) ;
+
+        dbRefe.child(Define.DB_USERS_INFO)
+                .child(getCurUid())
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        UserInfo userInfo = dataSnapshot.getValue(UserInfo.class);
+
+
+
+                        txtName.setText("Name: " + userInfo.getName());
+                        txtPhone.setText("Phone: "+ userInfo.getPhoneNumber());
+
+//                        carInfo
+
+//                        if(userInfo.getPhotoUri() != null){
+//                            Bitmap bitmap = decodeBase64(userInfo.getPhotoUri() );
+//                            avatar.setImageBitmap(bitmap);
+//                        }
+
+                        if(carInfo.equals("")&&carNumber.equals("")){
+                            Intent intent = new Intent(DriverActivity.this, InfoCar.class);
+                            startActivity(intent);
+                        }
+                    }
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+                    }
+                });
+    }
+
+    private void loadUserInfo() {
+
+    }
+
+    public static Bitmap decodeBase64(String input)
+    {
+        byte[] decodedBytes = Base64.decode(input,0);
+        return BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.length);
     }
 
 

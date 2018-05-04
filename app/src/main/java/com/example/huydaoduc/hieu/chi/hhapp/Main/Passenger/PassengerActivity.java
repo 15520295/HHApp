@@ -1,9 +1,12 @@
 package com.example.huydaoduc.hieu.chi.hhapp.Main.Passenger;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.location.Geocoder;
 import android.location.Location;
 import android.net.Uri;
@@ -11,6 +14,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.text.InputType;
+import android.util.Base64;
 import android.util.Log;
 import android.view.View;
 import android.support.design.widget.NavigationView;
@@ -33,6 +37,10 @@ import com.example.huydaoduc.hieu.chi.hhapp.Framework.LocationUtils;
 import com.example.huydaoduc.hieu.chi.hhapp.Framework.Place.SavedPlace;
 import com.example.huydaoduc.hieu.chi.hhapp.Framework.Place.SearchActivity;
 import com.example.huydaoduc.hieu.chi.hhapp.Framework.SimpleMapActivity;
+import com.example.huydaoduc.hieu.chi.hhapp.Main.AboutApp;
+import com.example.huydaoduc.hieu.chi.hhapp.Main.AboutUser;
+import com.example.huydaoduc.hieu.chi.hhapp.Main.InfoCar;
+import com.example.huydaoduc.hieu.chi.hhapp.Main.MainActivity;
 import com.example.huydaoduc.hieu.chi.hhapp.Model.NotifyTrip;
 import com.example.huydaoduc.hieu.chi.hhapp.Model.PassengerRequest;
 import com.example.huydaoduc.hieu.chi.hhapp.Model.RouteRequest.RouteRequest;
@@ -64,6 +72,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
+import de.hdodenhof.circleimageview.CircleImageView;
 import stream.customalert.CustomAlertDialogue;
 
 import static com.google.android.gms.location.LocationServices.getFusedLocationProviderClient;
@@ -185,7 +194,6 @@ public class PassengerActivity extends SimpleMapActivity
         trip.setTripState(TripState.WAITING_ACCEPT);
         trip.setTripStyle(TripStyle.HH);
         trip.setPassengerRequest(passengerRequest);
-
 
         Intent intent = new Intent(getApplicationContext(), FindingDriverActivity.class);
         intent.putExtra("trip", trip);
@@ -1027,6 +1035,7 @@ public class PassengerActivity extends SimpleMapActivity
         //
         Init();
         addEven();
+
     }
 
 
@@ -1095,15 +1104,9 @@ public class PassengerActivity extends SimpleMapActivity
         btn_cd_note.setOnClickListener(e ->{
             new MaterialDialog.Builder(this)
                     .title("Notes to driver")
-                    .content("content")
-                    .inputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD)
-                    .input("input hint", "input refill", new MaterialDialog.InputCallback() {
-                        @Override
-                        public void onInput(MaterialDialog dialog, CharSequence input) {
-                            // Do something
-                        }
-                    })
-                    .positiveText("positive")
+                    .inputType(InputType.TYPE_CLASS_TEXT )
+                    .input("I'm wearing white shirt",null, (dialog, input) -> btn_cd_note.setText(input.toString()))
+                    .positiveText("Ok")
                     .show();
         });
 
@@ -1150,18 +1153,43 @@ public class PassengerActivity extends SimpleMapActivity
         int id = item.getItemId();
 
         if (id == R.id.nav_user_info) {
+
+            Intent i = new Intent(PassengerActivity.this, AboutUser.class);
+            PassengerActivity.this.startActivity(i);
+
+
+
             // Handle the camera action
         } else if (id == R.id.nav_about) {
+
+            Intent i = new Intent(PassengerActivity.this, AboutApp.class);
+            PassengerActivity.this.startActivity(i);
+
 
         } else if (id == R.id.nav_logout) {
             FirebaseAuth.getInstance().signOut();
             Intent intent = new Intent(PassengerActivity.this, PhoneAuthActivity.class);
             startActivity(intent);
         }
+        else if(id==R.id.nav_share){
+
+            Intent i = new Intent(Intent.ACTION_SEND);
+
+            i.setType("text/plain");
+            String shareBody = "link";
+            String shareName = "SBike";
+            i.putExtra(Intent.EXTRA_TEXT,shareBody);
+            i.putExtra(Intent.EXTRA_SUBJECT,shareName);
+
+            startActivity(Intent.createChooser(i, "Sharing"));
+
+        }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
+
+
 
 }

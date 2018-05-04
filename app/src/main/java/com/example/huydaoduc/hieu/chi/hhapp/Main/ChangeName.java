@@ -11,7 +11,9 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 
+import com.example.huydaoduc.hieu.chi.hhapp.Model.User.UserInfo;
 import com.example.huydaoduc.hieu.chi.hhapp.R;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -25,7 +27,13 @@ public class ChangeName extends Activity {
     private DatabaseReference mDatabase;
     public static String newName="";
 
+    private String getCurUid() {
+        return FirebaseAuth.getInstance().getCurrentUser().getUid();
+    }
 
+//todo: handle putExtra
+
+    UserInfo userInfo;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,12 +55,12 @@ public class ChangeName extends Activity {
         getWindow().setAttributes(params);
 
         FirebaseDatabase.getInstance().getReference("Users")
-                .child(MainActivity.id)
+                .child(getCurUid())
                 .addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
 
-                        MainActivity.nameUser = dataSnapshot.child("name").getValue().toString();
+//                        userInfo.setName(dataSnapshot.child("name").getValue().toString());
 
                     }
                     @Override
@@ -60,26 +68,24 @@ public class ChangeName extends Activity {
                     }
                 });
 
-        editText.setText(MainActivity.nameUser);
+        editText.setText(userInfo.getName());
 
 
 
-
-
-        button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                newName = editText.getText().toString();
-                AboutUser.txtNameUser.setText(newName);
-                mDatabase.child("Users").child(MainActivity.id).child("name").setValue(newName);
-                DriverActivity.txtName.setText("Name: " + newName);
-                finish();
-
-
-            }
-
-        });
+//        button.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//
+//                newName = editText.getText().toString();
+//                AboutUser.txtNameUser.setText(newName);
+//                mDatabase.child("Users").child(MainActivity.id).child("name").setValue(newName);
+//                DriverActivity.txtName.setText("Name: " + newName);
+//                finish();
+//
+//
+//            }
+//
+//        });
 
 
     }

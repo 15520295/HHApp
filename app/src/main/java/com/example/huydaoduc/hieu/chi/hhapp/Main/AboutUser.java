@@ -25,10 +25,12 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.huydaoduc.hieu.chi.hhapp.ActivitiesAuth.PhoneAuthActivity;
+import com.example.huydaoduc.hieu.chi.hhapp.Model.User.UserInfo;
 import com.example.huydaoduc.hieu.chi.hhapp.R;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -65,12 +67,20 @@ public class AboutUser extends AppCompatActivity {
     StorageReference storageReference;
     DatabaseReference databaseReference;
 
+    UserInfo userInfo;
+
+    private String getCurUid() {
+        return FirebaseAuth.getInstance().getCurrentUser().getUid();
+    }
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_about_user);
 
         Init();
+
 
 
         txtNameUser.setOnClickListener(new View.OnClickListener() {
@@ -84,20 +94,20 @@ public class AboutUser extends AppCompatActivity {
         });
 
 
-        FirebaseDatabase.getInstance().getReference("Users")
-                .child(MainActivity.id)
-                .addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-
-                        MainActivity.nameUser = dataSnapshot.child("name").getValue().toString();
-                        txtNameUser.setText(MainActivity.nameUser);
-                    }
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
-                    }
-                });
-        txtNameUser.setText(MainActivity.nameUser);
+//        FirebaseDatabase.getInstance().getReference("Users")
+//                .child(MainActivity.id)
+//                .addListenerForSingleValueEvent(new ValueEventListener() {
+//                    @Override
+//                    public void onDataChange(DataSnapshot dataSnapshot) {
+//
+//                        MainActivity.nameUser = dataSnapshot.child("name").getValue().toString();
+//                        txtNameUser.setText(MainActivity.nameUser);
+//                    }
+//                    @Override
+//                    public void onCancelled(DatabaseError databaseError) {
+//                    }
+//                });
+        txtNameUser.setText(userInfo.getName());
 
         final String[] items = new String[]{"From SD Card", "From Camera"};
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.select_dialog_item, items);
@@ -142,9 +152,9 @@ public class AboutUser extends AppCompatActivity {
         });
 
 
-        Bitmap bitmap = decodeBase64(MainActivity.avatar);
-        if (!MainActivity.avatar.equals(""))
-            circleImageView.setImageBitmap(bitmap);
+//        Bitmap bitmap = decodeBase64(userInfo.getPhotoUri());
+//        if (userInfo.getPhotoUri() != null)
+//            circleImageView.setImageBitmap(bitmap);
 
     }
 
@@ -167,7 +177,7 @@ public class AboutUser extends AppCompatActivity {
                     String encodedImage = encodeToBase64(bitmap, Bitmap.CompressFormat.PNG, 100);
 //
 //                    Toast.makeText(AboutUser.this, encodedImage, Toast.LENGTH_LONG).show();
-                    mDatabase.child("Users").child(MainActivity.id).child("avatar").setValue(encodedImage);
+                    mDatabase.child("Users").child(getCurUid()).child("avatar").setValue(encodedImage);
 
 
 
@@ -183,7 +193,7 @@ public class AboutUser extends AppCompatActivity {
 
                     String encodedImage = encodeToBase64(bitmap, Bitmap.CompressFormat.JPEG, 100);
 //                    Toast.makeText(AboutUser.this, encodedImage, Toast.LENGTH_LONG).show();
-                    mDatabase.child("Users").child(MainActivity.id).child("avatar").setValue(encodedImage);
+                    mDatabase.child("Users").child(getCurUid()).child("avatar").setValue(encodedImage);
 
 
                 }
@@ -192,12 +202,12 @@ public class AboutUser extends AppCompatActivity {
         }
 
         FirebaseDatabase.getInstance().getReference("Users")
-                .child(MainActivity.id)
+                .child(getCurUid())
                 .addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
 
-                        MainActivity.avatar = dataSnapshot.child("avatar").getValue().toString();
+//                        userInfo.getPhotoUri() = dataSnapshot.child("avatar").getValue().toString();
                     }
                     @Override
                     public void onCancelled(DatabaseError databaseError) {
@@ -221,8 +231,10 @@ public class AboutUser extends AppCompatActivity {
         storageReference = storage.getReference();
         databaseReference = FirebaseDatabase.getInstance().getReference();
         mDatabase = FirebaseDatabase.getInstance().getReference();
-        phone = MainActivity.phoneNumber;
-        name = MainActivity.nameUser;
+
+        phone = userInfo.getPhoneNumber();
+        name = userInfo.getName();
+
         txtPhoneNumber.setText(phone);
         txtNameUser.setText(name);
 

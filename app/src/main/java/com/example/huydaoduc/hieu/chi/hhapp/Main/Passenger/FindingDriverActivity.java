@@ -13,6 +13,7 @@ import android.location.Location;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -136,12 +137,15 @@ public class FindingDriverActivity extends AppCompatActivity {
     //region ------ Start Booking --------
 
     Boolean isDriverFound;      // --> use for synchronous purpose
-    boolean notFoundHH;      // --> use for synchronous purpose
     boolean hhMode;
 
     Float estimateFare;
 
     private void startBooking() {
+
+        hhMode = true;
+        isDriverFound = false;
+
         String tripUId = trip.getTripUId();
         PassengerRequest passengerRequest = trip.getPassengerRequest();
 
@@ -161,6 +165,16 @@ public class FindingDriverActivity extends AppCompatActivity {
                                 // if loop through all the objects but still not find matching HH request then use normal request
 //                                if( ! isDriverFound)
 //                                    findNearestDriver(trip);
+                                if (! isDriverFound) {
+                                    Toast.makeText(getApplicationContext(),"Can't find your driver",Toast.LENGTH_LONG).show();
+                                }
+
+                                new Handler().postDelayed(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        FindingDriverActivity.this.finish();
+                                    }
+                                }, 2000);
                             }
                         }
 

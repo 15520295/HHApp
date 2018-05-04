@@ -8,6 +8,7 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.example.huydaoduc.hieu.chi.hhapp.R;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -20,6 +21,11 @@ public class InfoCar extends AppCompatActivity {
     Button btnSave;
     private DatabaseReference mDatabase;
     String carInfo = "", carNumber = "";
+
+    private String getCurUid() {
+        return FirebaseAuth.getInstance().getCurrentUser().getUid();
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -40,8 +46,8 @@ public class InfoCar extends AppCompatActivity {
                     Toast.makeText(InfoCar.this, "Bạn chưa nhập đủ thông tin", Toast.LENGTH_LONG).show();
                 }
                 else {
-                    mDatabase.child("Users").child(MainActivity.id).child("carinfo").setValue(carInfo);
-                    mDatabase.child("Users").child(MainActivity.id).child("carnumber").setValue(carNumber);
+                    mDatabase.child("Users").child(getCurUid()).child("carinfo").setValue(carInfo);
+                    mDatabase.child("Users").child(getCurUid()).child("carnumber").setValue(carNumber);
                 }
             }
         });

@@ -6,24 +6,15 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
-import android.widget.EditText;
-import android.widget.Toast;
 
-import com.example.huydaoduc.hieu.chi.hhapp.Main.Driver.DriverActivity;
 import com.example.huydaoduc.hieu.chi.hhapp.Main.Driver.RouteManager.RouteRequestManagerActivity;
 import com.example.huydaoduc.hieu.chi.hhapp.Main.Passenger.PassengerActivity;
-import com.example.huydaoduc.hieu.chi.hhapp.Model.PassengerRequest;
 import com.example.huydaoduc.hieu.chi.hhapp.R;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
-import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.MapView;
-import com.google.android.gms.maps.MapsInitializer;
-import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -31,17 +22,15 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import ru.dimorinny.floatingtextbutton.FloatingTextButton;
+
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
-    Button btn_rider, btn_driver;
+    FloatingTextButton btn_passenger, btn_driver;
 
     FirebaseAuth auth;
     FirebaseDatabase db;
     DatabaseReference users;
-    public static String phoneNumber;
-    public static String nameUser;
-    public static String id;
-    public static String avatar;
 
 
     @Override
@@ -49,9 +38,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-
         initView();
-        loadInfor();
 
         addEven();
 
@@ -70,7 +57,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
 
-        btn_rider.setOnClickListener(new View.OnClickListener() {
+        btn_passenger.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(MainActivity.this, PassengerActivity.class);
@@ -80,31 +67,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void initView() {
-        btn_rider = findViewById(R.id.btn_rider);
+        btn_passenger = findViewById(R.id.btn_passenger);
         btn_driver = findViewById(R.id.btn_driver);
-    }
-
-    private void loadInfor(){
-
-        id = FirebaseAuth.getInstance().getCurrentUser().getUid();
-        FirebaseDatabase.getInstance().getReference("Users")
-                .child(id)
-                .addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-
-                        nameUser = dataSnapshot.child("name").getValue().toString();
-                        phoneNumber = dataSnapshot.child("phoneNumber").getValue().toString();
-                        avatar = dataSnapshot.child("avatar").getValue().toString();
-
-
-                    }
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
-                    }
-                });
-
-
     }
 
     private static final int MY_PERMISSION_REQUEST_CODE = 7000;

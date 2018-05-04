@@ -11,6 +11,7 @@
         android:id="@+id/imageView3"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
+        android:scaleType="fitXY"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -19,7 +20,7 @@
 
 
     <ru.dimorinny.floatingtextbutton.FloatingTextButton
-        android:id="@+id/btnpass"
+        android:id="@+id/btn_passenger"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="40dp"
@@ -33,7 +34,7 @@
         tools:ignore="MissingConstraints" />
 
     <ru.dimorinny.floatingtextbutton.FloatingTextButton
-        android:id="@+id/btndriver"
+        android:id="@+id/btn_driver"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="128dp"
