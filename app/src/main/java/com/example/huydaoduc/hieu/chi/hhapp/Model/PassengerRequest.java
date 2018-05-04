@@ -1,11 +1,13 @@
 package com.example.huydaoduc.hieu.chi.hhapp.Model;
 
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.support.annotation.Nullable;
 
 import com.example.huydaoduc.hieu.chi.hhapp.Framework.Place.SavedPlace;
 import com.example.huydaoduc.hieu.chi.hhapp.Model.User.CarType;
 
-public class PassengerRequest {
+public class PassengerRequest implements Parcelable {
 
     /**
      * Get LatLng only for correction purpose
@@ -17,21 +19,25 @@ public class PassengerRequest {
 
     private String startTime;
     private CarType carType;
+
     @Nullable
     private String note;        // note for Driver
+    private Integer waitMinute;     // how long can passenger wait for driver begin from startTime
     private float percentOff;
+
 
 
     public PassengerRequest() {
     }
 
-    public PassengerRequest(String passengerUId, SavedPlace pickUpSavePlace, SavedPlace dropOffSavePlace, String startTime, CarType carType, String note, float percentOff) {
+    public PassengerRequest(String passengerUId, SavedPlace pickUpSavePlace, SavedPlace dropOffSavePlace, String startTime, CarType carType, String note, Integer waitMinute, float percentOff) {
         this.passengerUId = passengerUId;
         this.pickUpSavePlace = pickUpSavePlace;
         this.dropOffSavePlace = dropOffSavePlace;
         this.startTime = startTime;
         this.carType = carType;
         this.note = note;
+        this.waitMinute = waitMinute;
         this.percentOff = percentOff;
     }
 
@@ -84,6 +90,14 @@ public class PassengerRequest {
         this.note = note;
     }
 
+    public Integer getWaitMinute() {
+        return waitMinute;
+    }
+
+    public void setWaitMinute(Integer waitMinute) {
+        this.waitMinute = waitMinute;
+    }
+
     public float getPercentOff() {
         return percentOff;
     }
@@ -100,6 +114,7 @@ public class PassengerRequest {
         private String startTime;
         private CarType carType;
         private String note;        // note for Driver
+        private Integer waitMinute;     // how long can passenger wait for driver begin from startTime
         private float percentOff;
 
         private Builder() {
@@ -139,6 +154,11 @@ public class PassengerRequest {
             return this;
         }
 
+        public Builder setWaitMinute(Integer waitMinute) {
+            this.waitMinute = waitMinute;
+            return this;
+        }
+
         public Builder setPercentOff(float percentOff) {
             this.percentOff = percentOff;
             return this;
@@ -152,8 +172,50 @@ public class PassengerRequest {
             passengerRequest.setStartTime(startTime);
             passengerRequest.setCarType(carType);
             passengerRequest.setNote(note);
+            passengerRequest.setWaitMinute(waitMinute);
             passengerRequest.setPercentOff(percentOff);
             return passengerRequest;
         }
     }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(this.passengerUId);
+        dest.writeParcelable(this.pickUpSavePlace, flags);
+        dest.writeParcelable(this.dropOffSavePlace, flags);
+        dest.writeString(this.startTime);
+        dest.writeInt(this.carType == null ? -1 : this.carType.ordinal());
+        dest.writeString(this.note);
+        dest.writeValue(this.waitMinute);
+        dest.writeFloat(this.percentOff);
+    }
+
+    protected PassengerRequest(Parcel in) {
+        this.passengerUId = in.readString();
+        this.pickUpSavePlace = in.readParcelable(SavedPlace.class.getClassLoader());
+        this.dropOffSavePlace = in.readParcelable(SavedPlace.class.getClassLoader());
+        this.startTime = in.readString();
+        int tmpCarType = in.readInt();
+        this.carType = tmpCarType == -1 ? null : CarType.values()[tmpCarType];
+        this.note = in.readString();
+        this.waitMinute = (Integer) in.readValue(Integer.class.getClassLoader());
+        this.percentOff = in.readFloat();
+    }
+
+    public static final Creator<PassengerRequest> CREATOR = new Creator<PassengerRequest>() {
+        @Override
+        public PassengerRequest createFromParcel(Parcel source) {
+            return new PassengerRequest(source);
+        }
+
+        @Override
+        public PassengerRequest[] newArray(int size) {
+            return new PassengerRequest[size];
+        }
+    };
 }

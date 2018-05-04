@@ -3,6 +3,7 @@ package com.example.huydaoduc.hieu.chi.hhapp.Framework;
 import android.content.Context;
 import android.graphics.Color;
 import android.location.Location;
+import android.util.Log;
 import android.widget.Toast;
 
 import com.example.huydaoduc.hieu.chi.hhapp.Framework.Direction.DirectionFinder;
@@ -19,8 +20,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class DirectionManager {
+    private static final String TAG = "DirectionManager";
     private Context context;
-    private GoogleMap mMap;
+    private GoogleMap mMap;         // this only use for draw route
 
     private List<Polyline> polylinePaths = new ArrayList<>();
 
@@ -31,6 +33,13 @@ public class DirectionManager {
     public DirectionManager(Context context, GoogleMap mMap) {
         this.context = context;
         this.mMap = mMap;
+    }
+
+    /**
+     * if use this constructor u can't use draw route
+     */
+    public DirectionManager(Context context) {
+        this.context = context;
     }
 
     /**
@@ -77,6 +86,10 @@ public class DirectionManager {
 
 
     public void drawRoutes(List<Route> routes, boolean removeAll) {
+        if (mMap == null) {
+            Log.e(TAG,"mMap null");
+            return;
+        }
 
         if (removeAll) {
             removeAllRoutes();

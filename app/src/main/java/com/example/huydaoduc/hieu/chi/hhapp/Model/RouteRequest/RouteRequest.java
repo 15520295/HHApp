@@ -1,11 +1,14 @@
 package com.example.huydaoduc.hieu.chi.hhapp.Model.RouteRequest;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import com.example.huydaoduc.hieu.chi.hhapp.Define;
 import com.example.huydaoduc.hieu.chi.hhapp.Framework.Place.SavedPlace;
 import com.example.huydaoduc.hieu.chi.hhapp.Framework.TimeUtils;
 import com.example.huydaoduc.hieu.chi.hhapp.Model.NotifyTrip;
 
-public class RouteRequest {
+public class RouteRequest implements Parcelable {
 
     private String routeRequestUId;
     private String driverUId;
@@ -211,4 +214,46 @@ public class RouteRequest {
     }
 
 
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(this.routeRequestUId);
+        dest.writeString(this.driverUId);
+        dest.writeParcelable(this.startPlace, flags);
+        dest.writeParcelable(this.endPlace, flags);
+        dest.writeString(this.summary);
+        dest.writeString(this.startTime);
+        dest.writeValue(this.percentDiscount);
+        dest.writeInt(this.routeRequestState == null ? -1 : this.routeRequestState.ordinal());
+        dest.writeParcelable(this.notifyTrip, flags);
+    }
+
+    protected RouteRequest(Parcel in) {
+        this.routeRequestUId = in.readString();
+        this.driverUId = in.readString();
+        this.startPlace = in.readParcelable(SavedPlace.class.getClassLoader());
+        this.endPlace = in.readParcelable(SavedPlace.class.getClassLoader());
+        this.summary = in.readString();
+        this.startTime = in.readString();
+        this.percentDiscount = (Float) in.readValue(Float.class.getClassLoader());
+        int tmpRouteRequestState = in.readInt();
+        this.routeRequestState = tmpRouteRequestState == -1 ? null : RouteRequestState.values()[tmpRouteRequestState];
+        this.notifyTrip = in.readParcelable(NotifyTrip.class.getClassLoader());
+    }
+
+    public static final Parcelable.Creator<RouteRequest> CREATOR = new Parcelable.Creator<RouteRequest>() {
+        @Override
+        public RouteRequest createFromParcel(Parcel source) {
+            return new RouteRequest(source);
+        }
+
+        @Override
+        public RouteRequest[] newArray(int size) {
+            return new RouteRequest[size];
+        }
+    };
 }

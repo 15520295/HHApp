@@ -248,7 +248,7 @@ public class SearchActivity extends AppCompatActivity implements
             }
 
             private Timer timer=new Timer();
-            private final long DELAY = 500; // milliseconds -- waiting 1s after text change to filter list
+            private final long DELAY = 700; // milliseconds -- waiting 1s after text change to filter list
 
             @Override
             public void afterTextChanged(Editable s) {

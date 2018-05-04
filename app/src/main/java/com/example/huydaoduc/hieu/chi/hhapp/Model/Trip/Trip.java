@@ -1,10 +1,13 @@
 package com.example.huydaoduc.hieu.chi.hhapp.Model.Trip;
 
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import com.example.huydaoduc.hieu.chi.hhapp.Model.RouteRequest.RouteRequest;
 import com.example.huydaoduc.hieu.chi.hhapp.Model.PassengerRequest;
 
-public class Trip {
+public class Trip implements Parcelable {
 
     private String tripUId;
     private String passengerUId;
@@ -27,6 +30,7 @@ public class Trip {
 
     public Trip() {
     }
+
 
     public Trip(String tripUId, String passengerUId, String driverUId, TripStyle tripStyle, TripState tripState, String startTime, String endTime, Float tripDistance, Float tripDuration, Float estimateFare, Float finalFare, PassengerRequest passengerRequest, RouteRequest routeRequest) {
         this.tripUId = tripUId;
@@ -254,4 +258,56 @@ public class Trip {
             return trip;
         }
     }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(this.tripUId);
+        dest.writeString(this.passengerUId);
+        dest.writeString(this.driverUId);
+        dest.writeInt(this.tripStyle == null ? -1 : this.tripStyle.ordinal());
+        dest.writeInt(this.tripState == null ? -1 : this.tripState.ordinal());
+        dest.writeString(this.startTime);
+        dest.writeString(this.endTime);
+        dest.writeValue(this.tripDistance);
+        dest.writeValue(this.tripDuration);
+        dest.writeValue(this.estimateFare);
+        dest.writeValue(this.finalFare);
+        dest.writeParcelable(this.passengerRequest, flags);
+        dest.writeParcelable(this.routeRequest, flags);
+    }
+
+    protected Trip(Parcel in) {
+        this.tripUId = in.readString();
+        this.passengerUId = in.readString();
+        this.driverUId = in.readString();
+        int tmpTripStyle = in.readInt();
+        this.tripStyle = tmpTripStyle == -1 ? null : TripStyle.values()[tmpTripStyle];
+        int tmpTripState = in.readInt();
+        this.tripState = tmpTripState == -1 ? null : TripState.values()[tmpTripState];
+        this.startTime = in.readString();
+        this.endTime = in.readString();
+        this.tripDistance = (Float) in.readValue(Float.class.getClassLoader());
+        this.tripDuration = (Float) in.readValue(Float.class.getClassLoader());
+        this.estimateFare = (Float) in.readValue(Float.class.getClassLoader());
+        this.finalFare = (Float) in.readValue(Float.class.getClassLoader());
+        this.passengerRequest = in.readParcelable(PassengerRequest.class.getClassLoader());
+        this.routeRequest = in.readParcelable(RouteRequest.class.getClassLoader());
+    }
+
+    public static final Parcelable.Creator<Trip> CREATOR = new Parcelable.Creator<Trip>() {
+        @Override
+        public Trip createFromParcel(Parcel source) {
+            return new Trip(source);
+        }
+
+        @Override
+        public Trip[] newArray(int size) {
+            return new Trip[size];
+        }
+    };
 }

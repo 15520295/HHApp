@@ -76,6 +76,7 @@ public class PassengerActivity extends SimpleMapActivity
         NavigationView.OnNavigationItemSelectedListener
 {
     private static final String TAG = "PassengerActivity";
+    private static final int FIND_DRIVER_REQUEST_CODE = 85;
 
     private Button btnMessage, btnCall;
     private TextView tvName, tvPhone;
@@ -133,7 +134,6 @@ public class PassengerActivity extends SimpleMapActivity
 
     //endregion
 
-    //region ------ Start Booking --------
 
     Boolean isDriverFound;      // --> use for synchronous purpose
     boolean notFoundHH;      // --> use for synchronous purpose
@@ -141,6 +141,7 @@ public class PassengerActivity extends SimpleMapActivity
 
     Float estimateFare;
 
+    // new Start Booking
     private void startBooking() {
         //todo: put hhMode to screen
         hhMode = true;
@@ -148,10 +149,11 @@ public class PassengerActivity extends SimpleMapActivity
 
         estimateFare = 10000f;
         int waitMinute;
-        if (btn_cd_start_time.getText().toString() == Define.DEFAULT_WAIT_TIME.first)
+        String waitMinuteStr = btn_cd_wait_time.getText().toString();
+        if (waitMinuteStr == Define.DEFAULT_WAIT_TIME.first)
             waitMinute = Define.DEFAULT_WAIT_TIME.second;
         else
-            waitMinute = Define.WAIT_TIME_MAP.get(btn_cd_wait_time.getText().toString());
+            waitMinute = Define.WAIT_TIME_MAP.get(waitMinuteStr);
 
         float distance = 1000;
         float duration = 1000;
@@ -177,258 +179,30 @@ public class PassengerActivity extends SimpleMapActivity
                 .setStartTime(TimeUtils.getCurrentTimeAsString())
                 .setCarType(CarType.BIKE)
                 .setNote("Notes..")
+                .setWaitMinute(waitMinute)
                 .build();
 
         trip.setTripState(TripState.WAITING_ACCEPT);
         trip.setTripStyle(TripStyle.HH);
         trip.setPassengerRequest(passengerRequest);
 
-        dbRefe.child(Define.DB_TRIPS)
-                .child(tripUId).setValue(trip);
+
+        Intent intent = new Intent(getApplicationContext(), FindingDriverActivity.class);
+        intent.putExtra("trip", trip);
+        PassengerActivity.this.startActivityForResult(intent,FIND_DRIVER_REQUEST_CODE);
 
 
-        // Find Driver todo: add car type
-        if (hhMode) {
-            findMatchingHH(trip, TimeUtils.getCurrentTimeAsDate(), waitMinute, new FindHHCompleteListener() {
-                        @Override
-                        public void OnLoopThoughAllRequestHH() {
-                            synchronized (isDriverFound)
-                            {
-                                //todo:v2
-                                // if loop through all the objects but still not find matching HH request then use normal request
-//                                if( ! isDriverFound)
-//                                    findNearestDriver(trip);
-                            }
-                        }
-
-                        @Override
-                        public void OnFoundDriverRequest(RouteRequest request) {
-                            isDriverFound = true;
-                            String driverUId = request.getDriverUId();
-
-                            NotifyTrip notifyTrip = new NotifyTrip(tripUId, false);
-                            // notify driver thought database
-                            dbRefe.child(Define.DB_ROUTE_REQUESTS).child(driverUId)
-                                    .child(request.getRouteRequestUId()).child(Define.DB_ROUTE_REQUESTS_NOTIFY_TRIP)
-                                    .setValue(notifyTrip);
-
-                            //listen to trip state
-                            dbRefe.child(Define.DB_TRIPS)
-                                    .child(tripUId).child(Define.DB_TRIPS_TRIP_STATE)
-                                    .addValueEventListener(new ValueEventListener() {
-                                        @Override
-                                        public void onDataChange(DataSnapshot dataSnapshot) {
-
-                                        }
-
-                                        @Override
-                                        public void onCancelled(DatabaseError databaseError) {
-
-                                        }
-                                    });
-
-                            // show driver info
-                            setUpFoundDriver(request.getDriverUId());
-
-                            Log.i(TAG, "Found HH request" + request.getDriverUId());
-                        }
-                    }
-            );
-        } else {
-            //todo:v2
-//            findNearestDriver(trip);
-        }
     }
 
 
-    //region ------------ Find matching Active Driver
-
-    interface FindActiveDriverListener {
-        void OnLoopThoughAllRequestHH();
-        void OnFoundDriverRequest(RouteRequest request);
-    }
-
-
-    private void findNearestDriver(Trip trip) {
-
-//        startFindActiveDriver();
-    }
-    //endregion
-
-
-    //region ------------ Find matching HH request
-
-    // for synchronous purpose use interface and synchronized keyword
-    // interface for raise loop thought all list event
-    // synchronized keyword for locking the Boolean variable
-    interface FindHHCompleteListener {
-        void OnLoopThoughAllRequestHH();
-        void OnFoundDriverRequest(RouteRequest request);
-    }
-
-    private void findMatchingHH(Trip trip, Date passengerStartTime, int waitMinute, FindHHCompleteListener listener) {
-        DatabaseReference dbRequest = dbRefe.child(Define.DB_ROUTE_REQUESTS);
-
-        dbRequest.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                // Note: We need to find the matching and the nearest also
-                // Because the latency when get the polyline form google server, so
-                // we need to sort all HH driver request in nearest other then we can check from that
-
-                // get List from DataSnapshot after filtered and ordered
-                List<RouteRequest> routeRequestsFiltered = filterAndOrderingRequestList(dataSnapshot, passengerStartTime, waitMinute, mLastLocation);
-
-                checkListDriverRequest(routeRequestsFiltered, passengerStartTime, waitMinute, listener);
-
-                // if list null raise event
-                if (routeRequestsFiltered.size() == 0) {
-                    listener.OnLoopThoughAllRequestHH();
-                }
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-                //todo: handle error
-                Log.e(TAG, databaseError.getMessage());
-            }
-        });
-    }
-
-    private List<RouteRequest> filterAndOrderingRequestList(DataSnapshot listDriverRequestDS,
-                                                            Date passengerStartTime,
-                                                            int waitMinute,
-                                                            Location curLocation) {
-        List<RouteRequest> requestList = new ArrayList();
-
-        // get list from database
-        for (DataSnapshot postSnapshot: listDriverRequestDS.getChildren()) {
-            for (DataSnapshot requestSnapshot : postSnapshot.getChildren()) {
-                RouteRequest request = requestSnapshot.getValue(RouteRequest.class);
-
-                if (request.getRouteRequestState() == RouteRequestState.FINDING_PASSENGER
-                        && request.func_isInTheFuture()) {
-//                    LatLng latLng_startLocation = request.getStartPlace().func_getLatLngLocation();
-//                    // check validate HH request before add to list
-//                    if ((LocationUtils.calcDistance(latLng_startLocation, mLastLocation) < limitHHRadius)
-//                            && !request.func_isInTheFuture(Define.DRIVER_REQUESTS_TIMEOUT)) {
-//                        requestList.add(request);
-//                    }
-
-                    // estimate check the request start time to the passenger start time is in the waitMinute
-                    // (this also check passengerStartTime > requestStartTime) todo: is it?
-                    Date requestStartTime = TimeUtils.strToDate(request.getStartTime());
-                    if(TimeUtils.getPassTime(passengerStartTime, requestStartTime) < waitMinute*60)
-                        requestList.add(request);
-
-                }
+    private void FoundDriverResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == FIND_DRIVER_REQUEST_CODE) {
+            if (resultCode == SearchActivity.RESULT_OK) {
+                String driverUId = data.getStringExtra("driverUId");
+                setUpFoundDriver(driverUId);
             }
         }
-
-        // sort list
-        Collections.sort(requestList, (dq1, dq2) ->{
-            double distance1 = LocationUtils.calcDistance(dq1.getStartPlace().func_getLatLngLocation(), curLocation);
-            double distance2 = LocationUtils.calcDistance(dq2.getStartPlace().func_getLatLngLocation(), curLocation);
-
-            if(distance1 < distance2)
-                return -1;
-            else if (distance1 == distance2)
-                return 0;
-            else
-                return 1;
-        } );
-
-        return requestList;
     }
-
-    //todo : check if user swich off
-    //todo : Check driver state
-
-    /**
-     * check if Pickup Place and End Place match to the Request Polyline
-     * isDriverFound --> use for synchronous purpose
-     */
-    private void checkListDriverRequest(List<RouteRequest> routeRequestsFiltered, Date passengerStartTime, int waitMinute, FindHHCompleteListener listener) {
-        // loop the the list and find matching request if not found raise the loop thought listener
-        // if found run foundDriver method
-        for (int i = 0; i < routeRequestsFiltered.size(); i++) {
-            // if driver found break the check loop
-            synchronized (isDriverFound) {
-                if(isDriverFound)
-                    break;
-            }
-            final RouteRequest request = routeRequestsFiltered.get(i);
-            int itemIndex = i;
-
-            //get Location From Request
-            LatLng latLng_startLocation = request.getStartPlace().func_getLatLngLocation();
-            LatLng latLng_endLocation = request.getEndPlace().func_getLatLngLocation();
-
-            // check if wait minute is accepted
-            directionManager.findPath(latLng_startLocation, getPickupPlace().func_getLatLngLocation(),
-                    new DirectionFinderListener() {
-                        @Override
-                        public void onDirectionFinderStart() {
-
-                        }
-
-                        @Override
-                        public void onDirectionFinderSuccess(List<Route> routes) {
-                            // routeDurationSec = time depend on route from driver to passenger
-                            // startTimeInterval = passenger start time - request start time
-                            // timeToWait = total time passenger have to wait
-                            long routeDurationSec = routes.get(0).getLegs().get(0).getDuration().getValue();
-                            long startTimeInterval = TimeUtils.getPassTime(passengerStartTime, TimeUtils.strToDate(request.getStartTime()));
-                            long timeToWaitSec = routeDurationSec + startTimeInterval;
-
-                            if(timeToWaitSec < waitMinute*60)
-                            {
-                                // check limit radius --> if out off range will not check
-                                // find the Direction depend on Request
-                                directionManager.findPath(latLng_startLocation, latLng_endLocation,
-                                        new DirectionFinderListener() {
-                                            @Override
-                                            public void onDirectionFinderStart() {
-
-                                            }
-
-                                            @Override
-                                            public void onDirectionFinderSuccess(List<Route> routes) {
-                                                // isDriverFound --> for synchronous purpose
-                                                if (!isDriverFound && routes.size() > 0) {
-                                                    {
-                                                        // get Driver Request Polyline
-                                                        final List<LatLng> polyline = LocationUtils.getPointsFromRoute(routes.get(0));
-
-                                                        // check if Pickup Place and End Place match to the Polyline
-                                                        boolean isMatch = LocationUtils.isMatching(polyline,
-                                                                getPickupPlace().func_getLatLngLocation(),
-                                                                getDropPlace().func_getLatLngLocation(),
-                                                                500);
-
-                                                        synchronized (isDriverFound) {
-                                                            if (isMatch && !isDriverFound) {
-                                                                listener.OnFoundDriverRequest(request);
-                                                            }
-                                                        }
-                                                    }
-                                                }
-
-                                                // raise event loop thought all request if last element
-                                                if (routeRequestsFiltered.size() == itemIndex + 1) {
-                                                    listener.OnLoopThoughAllRequestHH();
-                                                    Log.i(TAG, "Loop thought all HH request");
-                                                }
-                                            }
-                                        });
-                            }
-                        }
-                    });
-        }
-    }
-
-    //endrigon
-
 
     //region -------------- Show Driver Info
 
@@ -488,10 +262,358 @@ public class PassengerActivity extends SimpleMapActivity
 
     //endregion
 
-
-    //endregion
-
-    //endregion
+//    //region ------ Start Booking --------
+//    private void startBooking() {
+//        //todo: put hhMode to screen
+//        hhMode = true;
+//        notFoundHH = false;
+//
+//        estimateFare = 10000f;
+//        int waitMinute;
+//        if (btn_cd_start_time.getText().toString() == Define.DEFAULT_WAIT_TIME.first)
+//            waitMinute = Define.DEFAULT_WAIT_TIME.second;
+//        else
+//            waitMinute = Define.WAIT_TIME_MAP.get(btn_cd_wait_time.getText().toString());
+//
+//        float distance = 1000;
+//        float duration = 1000;
+//
+//
+//
+//        // create a trip
+//        String tripUId = dbRefe.child(Define.DB_TRIPS).push().getKey();
+//
+//        Trip trip = Trip.Builder.aTrip(tripUId)
+//                .setPassengerUId(getCurUid())
+//                .setEstimateFare(estimateFare)
+//                .setTripDistance(distance)
+//                .setTripDuration(duration)
+//                .build();
+//
+//        // Set up Trip
+//        // todo: handle car type, notes
+//        // create Passenger Request
+//        PassengerRequest passengerRequest = PassengerRequest.Builder.aPassengerRequest(getCurUid())
+//                .setPickUpSavePlace(getPickupPlace())
+//                .setDropOffSavePlace(getDropPlace())
+//                .setStartTime(TimeUtils.getCurrentTimeAsString())
+//                .setCarType(CarType.BIKE)
+//                .setNote("Notes..")
+//                .build();
+//
+//        trip.setTripState(TripState.WAITING_ACCEPT);
+//        trip.setTripStyle(TripStyle.HH);
+//        trip.setPassengerRequest(passengerRequest);
+//
+//        dbRefe.child(Define.DB_TRIPS)
+//                .child(tripUId).setValue(trip);
+//
+//
+//        // Find Driver todo: add car type
+//        if (hhMode) {
+//            findMatchingHH(trip, TimeUtils.getCurrentTimeAsDate(), waitMinute, new FindHHCompleteListener() {
+//                        @Override
+//                        public void OnLoopThoughAllRequestHH() {
+//                            synchronized (isDriverFound)
+//                            {
+//                                //todo:v2
+//                                // if loop through all the objects but still not find matching HH request then use normal request
+////                                if( ! isDriverFound)
+////                                    findNearestDriver(trip);
+//                            }
+//                        }
+//
+//                        @Override
+//                        public void OnFoundDriverRequest(RouteRequest request) {
+//                            isDriverFound = true;
+//                            String driverUId = request.getDriverUId();
+//
+//                            NotifyTrip notifyTrip = new NotifyTrip(tripUId, false);
+//                            // notify driver thought database
+//                            dbRefe.child(Define.DB_ROUTE_REQUESTS).child(driverUId)
+//                                    .child(request.getRouteRequestUId()).child(Define.DB_ROUTE_REQUESTS_NOTIFY_TRIP)
+//                                    .setValue(notifyTrip);
+//
+//                            //listen to trip state
+//                            dbRefe.child(Define.DB_TRIPS)
+//                                    .child(tripUId).child(Define.DB_TRIPS_TRIP_STATE)
+//                                    .addValueEventListener(new ValueEventListener() {
+//                                        @Override
+//                                        public void onDataChange(DataSnapshot dataSnapshot) {
+//
+//                                        }
+//
+//                                        @Override
+//                                        public void onCancelled(DatabaseError databaseError) {
+//
+//                                        }
+//                                    });
+//
+//                            // show driver info
+//                            setUpFoundDriver(request.getDriverUId());
+//
+//                            Log.i(TAG, "Found HH request" + request.getDriverUId());
+//                        }
+//                    }
+//            );
+//        } else {
+//            //todo:v2
+////            findNearestDriver(trip);
+//        }
+//    }
+//
+//
+//    //region ------------ Find matching Active Driver
+//
+//    interface FindActiveDriverListener {
+//        void OnLoopThoughAllRequestHH();
+//        void OnFoundDriverRequest(RouteRequest request);
+//    }
+//
+//
+//    private void findNearestDriver(Trip trip) {
+//
+////        startFindActiveDriver();
+//    }
+//    //endregion
+//
+//
+//    //region ------------ Find matching HH request
+//
+//    // for synchronous purpose use interface and synchronized keyword
+//    // interface for raise loop thought all list event
+//    // synchronized keyword for locking the Boolean variable
+//    interface FindHHCompleteListener {
+//        void OnLoopThoughAllRequestHH();
+//        void OnFoundDriverRequest(RouteRequest request);
+//    }
+//
+//    private void findMatchingHH(Trip trip, Date passengerStartTime, int waitMinute, FindHHCompleteListener listener) {
+//        DatabaseReference dbRequest = dbRefe.child(Define.DB_ROUTE_REQUESTS);
+//
+//        dbRequest.addListenerForSingleValueEvent(new ValueEventListener() {
+//            @Override
+//            public void onDataChange(DataSnapshot dataSnapshot) {
+//                // Note: We need to find the matching and the nearest also
+//                // Because the latency when get the polyline form google server, so
+//                // we need to sort all HH driver request in nearest other then we can check from that
+//
+//                // get List from DataSnapshot after filtered and ordered
+//                List<RouteRequest> routeRequestsFiltered = filterAndOrderingRequestList(dataSnapshot, passengerStartTime, waitMinute, mLastLocation);
+//
+//                checkListDriverRequest(routeRequestsFiltered, passengerStartTime, waitMinute, listener);
+//
+//                // if list null raise event
+//                if (routeRequestsFiltered.size() == 0) {
+//                    listener.OnLoopThoughAllRequestHH();
+//                }
+//            }
+//
+//            @Override
+//            public void onCancelled(DatabaseError databaseError) {
+//                //todo: handle error
+//                Log.e(TAG, databaseError.getMessage());
+//            }
+//        });
+//    }
+//
+//    private List<RouteRequest> filterAndOrderingRequestList(DataSnapshot listDriverRequestDS,
+//                                                            Date passengerStartTime,
+//                                                            int waitMinute,
+//                                                            Location curLocation) {
+//        List<RouteRequest> requestList = new ArrayList();
+//
+//        // get list from database
+//        for (DataSnapshot postSnapshot: listDriverRequestDS.getChildren()) {
+//            for (DataSnapshot requestSnapshot : postSnapshot.getChildren()) {
+//                RouteRequest request = requestSnapshot.getValue(RouteRequest.class);
+//
+//                if (request.getRouteRequestState() == RouteRequestState.FINDING_PASSENGER
+//                        && request.func_isInTheFuture()) {
+////                    LatLng latLng_startLocation = request.getStartPlace().func_getLatLngLocation();
+////                    // check validate HH request before add to list
+////                    if ((LocationUtils.calcDistance(latLng_startLocation, mLastLocation) < limitHHRadius)
+////                            && !request.func_isInTheFuture(Define.DRIVER_REQUESTS_TIMEOUT)) {
+////                        requestList.add(request);
+////                    }
+//
+//                    // estimate check the request start time to the passenger start time is in the waitMinute
+//                    // (this also check passengerStartTime > requestStartTime) todo: is it?
+//                    Date requestStartTime = TimeUtils.strToDate(request.getStartTime());
+//                    if(TimeUtils.getPassTime(passengerStartTime, requestStartTime) < waitMinute*60)
+//                        requestList.add(request);
+//
+//                }
+//            }
+//        }
+//
+//        // sort list
+//        Collections.sort(requestList, (dq1, dq2) ->{
+//            double distance1 = LocationUtils.calcDistance(dq1.getStartPlace().func_getLatLngLocation(), curLocation);
+//            double distance2 = LocationUtils.calcDistance(dq2.getStartPlace().func_getLatLngLocation(), curLocation);
+//
+//            if(distance1 < distance2)
+//                return -1;
+//            else if (distance1 == distance2)
+//                return 0;
+//            else
+//                return 1;
+//        } );
+//
+//        return requestList;
+//    }
+//
+//    //todo : check if user swich off
+//    //todo : Check driver state
+//
+//    /**
+//     * check if Pickup Place and End Place match to the Request Polyline
+//     * isDriverFound --> use for synchronous purpose
+//     */
+//    private void checkListDriverRequest(List<RouteRequest> routeRequestsFiltered, Date passengerStartTime, int waitMinute, FindHHCompleteListener listener) {
+//        // loop the the list and find matching request if not found raise the loop thought listener
+//        // if found run foundDriver method
+//        for (int i = 0; i < routeRequestsFiltered.size(); i++) {
+//            // if driver found break the check loop
+//            synchronized (isDriverFound) {
+//                if(isDriverFound)
+//                    break;
+//            }
+//            final RouteRequest request = routeRequestsFiltered.get(i);
+//            int itemIndex = i;
+//
+//            //get Location From Request
+//            LatLng latLng_startLocation = request.getStartPlace().func_getLatLngLocation();
+//            LatLng latLng_endLocation = request.getEndPlace().func_getLatLngLocation();
+//
+//            // check if wait minute is accepted
+//            directionManager.findPath(latLng_startLocation, getPickupPlace().func_getLatLngLocation(),
+//                    new DirectionFinderListener() {
+//                        @Override
+//                        public void onDirectionFinderStart() {
+//
+//                        }
+//
+//                        @Override
+//                        public void onDirectionFinderSuccess(List<Route> routes) {
+//                            // routeDurationSec = time depend on route from driver to passenger
+//                            // startTimeInterval = passenger start time - request start time
+//                            // timeToWait = total time passenger have to wait
+//                            long routeDurationSec = routes.get(0).getLegs().get(0).getDuration().getValue();
+//                            long startTimeInterval = TimeUtils.getPassTime(passengerStartTime, TimeUtils.strToDate(request.getStartTime()));
+//                            long timeToWaitSec = routeDurationSec + startTimeInterval;
+//
+//                            if(timeToWaitSec < waitMinute*60)
+//                            {
+//                                // check limit radius --> if out off range will not check
+//                                // find the Direction depend on Request
+//                                directionManager.findPath(latLng_startLocation, latLng_endLocation,
+//                                        new DirectionFinderListener() {
+//                                            @Override
+//                                            public void onDirectionFinderStart() {
+//
+//                                            }
+//
+//                                            @Override
+//                                            public void onDirectionFinderSuccess(List<Route> routes) {
+//                                                // isDriverFound --> for synchronous purpose
+//                                                if (!isDriverFound && routes.size() > 0) {
+//                                                    {
+//                                                        // get Driver Request Polyline
+//                                                        final List<LatLng> polyline = LocationUtils.getPointsFromRoute(routes.get(0));
+//
+//                                                        // check if Pickup Place and End Place match to the Polyline
+//                                                        boolean isMatch = LocationUtils.isMatching(polyline,
+//                                                                getPickupPlace().func_getLatLngLocation(),
+//                                                                getDropPlace().func_getLatLngLocation(),
+//                                                                500);
+//
+//                                                        synchronized (isDriverFound) {
+//                                                            if (isMatch && !isDriverFound) {
+//                                                                listener.OnFoundDriverRequest(request);
+//                                                            }
+//                                                        }
+//                                                    }
+//                                                }
+//
+//                                                // raise event loop thought all request if last element
+//                                                if (routeRequestsFiltered.size() == itemIndex + 1) {
+//                                                    listener.OnLoopThoughAllRequestHH();
+//                                                    Log.i(TAG, "Loop thought all HH request");
+//                                                }
+//                                            }
+//                                        });
+//                            }
+//                        }
+//                    });
+//        }
+//    }
+//
+//    //endrigon
+//
+//
+//    //region -------------- Show Driver Info
+//
+//    /**
+//     * If Online User is in "D_RECEIVING_BOOKING_HH state" and NOT "time out" then get User info as marker
+//     */
+//    //todo: add Driver end location
+//    private void setUpFoundDriver(String driverUId) {
+//        DBManager.getUserById(driverUId, (userInfo) ->
+//            {
+//                setUpDialogInfo(userInfo);
+//                dialogInfo.show();
+//            }
+//        );
+//    }
+//
+//    private void setUpDialogInfo(final UserInfo driverInfo) {
+//        dialogInfo = new Dialog(PassengerActivity.this);
+//        dialogInfo.setContentView(R.layout.info_user);
+//
+//        btnMessage = dialogInfo.findViewById(R.id.btnMessage);
+//        btnCall = dialogInfo.findViewById(R.id.btnCall);
+//        tvName = dialogInfo.findViewById(R.id.tvName);
+//        tvPhone = dialogInfo.findViewById(R.id.tvPhone);
+//
+//        tvName.setText(driverInfo.getName());
+//        tvPhone.setText("SDT: " + driverInfo.getPhoneNumber());
+//
+//        btnMessage.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                Toast.makeText(getApplicationContext(), "Open Messenger", Toast.LENGTH_LONG).show();
+//                dialogInfo.dismiss();
+//            }
+//        });
+//
+//        btnCall.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                Intent intent = new Intent(Intent.ACTION_CALL);
+//                intent.setData(Uri.parse("tel:" + driverInfo.getPhoneNumber()));
+//                if (Build.VERSION.SDK_INT >= 23) {
+//                    if (checkSelfPermission(Manifest.permission.CALL_PHONE)
+//                            == PackageManager.PERMISSION_GRANTED) {
+//
+//                        PassengerActivity.this.startActivity(intent);
+//                        dialogInfo.dismiss();
+//
+//                    } else {
+//                        ActivityCompat.requestPermissions(PassengerActivity.this, new String[]{Manifest.permission.CALL_PHONE}, 1001);
+//                    }
+//                }
+//            }
+//        });
+//
+//    }
+//
+//    //endregion
+//
+//
+//    //endregion
+//
+//    //endregion
 
 //    //region ------ Start Booking v1--------
 //
@@ -859,7 +981,10 @@ public class PassengerActivity extends SimpleMapActivity
 
         AutoCompleteIntentResultHandle(requestCode, resultCode, data);
 
+        FoundDriverResult(requestCode, resultCode, data);
+
     }
+
 
     private String getCurUid() {
         return FirebaseAuth.getInstance().getCurrentUser().getUid();
@@ -916,6 +1041,7 @@ public class PassengerActivity extends SimpleMapActivity
 
         btn_cd_start_time = findViewById(R.id.btn_cd_start_time);
         btn_cd_wait_time = findViewById(R.id.btn_cd_wait_time);
+        btn_cd_wait_time.setText(Define.DEFAULT_WAIT_TIME.first);
         btn_cd_note = findViewById(R.id.btn_cd_note);
 
         // search view
@@ -929,8 +1055,7 @@ public class PassengerActivity extends SimpleMapActivity
         btn_findDriver.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-//                startBooking();
-                PassengerActivity.this.startActivity(new Intent(getApplicationContext(),FindingDriverActivity.class));
+                startBooking();
             }
         });
 
