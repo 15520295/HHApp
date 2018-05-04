@@ -7,21 +7,46 @@
     tools:context="com.example.huydaoduc.hieu.chi.hhapp.Main.MainActivity">
 
 
-    <Button
-        android:id="@+id/btn_rider"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Rider"
-        tools:layout_editor_absoluteX="61dp"
-        tools:layout_editor_absoluteY="89dp" />
+    <ImageView
+        android:id="@+id/imageView3"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/sbike1" />
 
-    <Button
-        android:id="@+id/btn_driver"
+
+    <ru.dimorinny.floatingtextbutton.FloatingTextButton
+        android:id="@+id/btnpass"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="44dp"
-        android:text="btn_driver"
-        app:layout_constraintStart_toEndOf="@+id/btn_rider"
-        tools:layout_editor_absoluteY="96dp" />
+        android:layout_marginStart="40dp"
+        android:layout_marginTop="40dp"
+        app:floating_background_color="#4ec5e3"
+        app:floating_left_icon="@drawable/iconmap"
+        app:floating_title="PASSENGER"
+        app:floating_title_color="@android:color/white"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:ignore="MissingConstraints" />
+
+    <ru.dimorinny.floatingtextbutton.FloatingTextButton
+        android:id="@+id/btndriver"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="128dp"
+        android:layout_marginEnd="32dp"
+        app:floating_background_color="#31c674"
+        app:floating_left_icon="@drawable/iconcar"
+        app:floating_title="DRIVER"
+        app:floating_title_color="@android:color/white"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        tools:ignore="MissingConstraints" />
+
+
+
 
 </android.support.constraint.ConstraintLayout>

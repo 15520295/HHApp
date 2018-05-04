@@ -20,6 +20,8 @@
     <uses-permission android:name="android.permission.GET_ACCOUNTS" />
     <uses-permission android:name="android.permission.READ_PROFILE" />
     <uses-permission android:name="android.permission.READ_CONTACTS" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 
     <application
         android:allowBackup="true"
@@ -56,6 +58,9 @@
         <activity android:name=".ActivitiesAuth.PhoneAuthActivity" />
         <activity android:name=".Main.MainActivity" />
         <activity
+            android:name=".Main.AboutApp"
+            android:theme="@style/AppTheme.PopMe" />
+        <activity
             android:name=".ActivitiesAuth.EnterPhoneNumberActivity"
             android:label="@string/title_activity_enter_phone_number"
             android:windowSoftInputMode="adjustResize" />
@@ -70,6 +75,11 @@
         <activity
             android:name=".ActivitiesAuth.UpdateInfoActivity"
             android:windowSoftInputMode="stateVisible|adjustResize" />
+        <activity android:name=".Main.AboutUser" />
+        <activity
+            android:name=".Main.ChangeName"
+            android:theme="@style/AppTheme.PopMe" />
+        <activity android:name=".Main.InfoCar"></activity>
 
         <service
             android:name=".Framework.CheckActivityCloseService"

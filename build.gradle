@@ -27,6 +27,7 @@ allprojects {
             }
         maven {
             url "http://dl.bintray.com/rilixtech/maven"
+
         }
         maven { url "https://jitpack.io" }
     }
