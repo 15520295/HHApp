@@ -1,5 +1,6 @@
 package com.example.huydaoduc.hieu.chi.hhapp.ActivitiesAuth;
 
+import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.support.design.widget.FloatingActionButton;
@@ -75,7 +76,7 @@ public class UpdateInfoActivity extends AppCompatActivity {
     }
 
     private void updateInfo() {
-        String uid = firebaseAuth.getUid();
+        @SuppressLint("RestrictedApi") String uid = firebaseAuth.getUid();
         String name = et_name.getText().toString();
         String yob = et_yob.getText().toString();
 
@@ -96,7 +97,7 @@ public class UpdateInfoActivity extends AppCompatActivity {
             return false;
         }
         int i = Integer.valueOf(et_yob.getText().toString());
-        if (i <= 1900 && i > Calendar.getInstance().get(Calendar.YEAR)) {
+        if (i <= 1900 || i > Calendar.getInstance().get(Calendar.YEAR)) {
             tv_error.setText("Year of birth not correct");
             return false;
         }

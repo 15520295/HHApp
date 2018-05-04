@@ -209,6 +209,7 @@ public class VerifyPhoneActivity extends AppCompatActivity {
                             // Sign in Success, update UI with the signed-in user's information
                             Log.d(TAG, "signInWithCredential:success");
                             // Get User Firebase id
+
                             final String uid = task.getResult().getUser().getUid();
 
                             // Check if user has

@@ -3,16 +3,21 @@ package com.example.huydaoduc.hieu.chi.hhapp.Main;
 import android.Manifest;
 import android.animation.ValueAnimator;
 import android.annotation.SuppressLint;
+import android.app.Dialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.location.Location;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
+import android.util.Base64;
 import android.util.Log;
 import android.view.View;
 import android.support.design.widget.NavigationView;
@@ -31,12 +36,15 @@ import android.widget.TabHost;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.huydaoduc.hieu.chi.hhapp.ActivitiesAuth.EnterPassActivity;
+import com.example.huydaoduc.hieu.chi.hhapp.ActivitiesAuth.VerifyPhoneActivity;
 import com.example.huydaoduc.hieu.chi.hhapp.Common.Common;
 import com.example.huydaoduc.hieu.chi.hhapp.CostomInfoWindow.CustomInfoWindow;
 import com.example.huydaoduc.hieu.chi.hhapp.Manager.Direction.DirectionFinder;
 import com.example.huydaoduc.hieu.chi.hhapp.Manager.Direction.DirectionFinderListener;
 import com.example.huydaoduc.hieu.chi.hhapp.Manager.Direction.Leg;
 import com.example.huydaoduc.hieu.chi.hhapp.Manager.Direction.Route;
+import com.example.huydaoduc.hieu.chi.hhapp.Model.PhoneNumber;
 import com.example.huydaoduc.hieu.chi.hhapp.Model.UserApp;
 import com.example.huydaoduc.hieu.chi.hhapp.R;
 import com.example.huydaoduc.hieu.chi.hhapp.Remote.IGoogleAPI;
@@ -90,6 +98,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
+import de.hdodenhof.circleimageview.CircleImageView;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -108,6 +117,8 @@ public class DriverActivity extends AppCompatActivity
         GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
         com.google.android.gms.location.LocationListener {
+
+
 
     // store all info in the map
     private GoogleMap mMap;
@@ -157,12 +168,19 @@ public class DriverActivity extends AppCompatActivity
     int radius = 1; //1km
     int distance = 1; //3km
 
+
+    public static TextView txtName;
+    private TextView txtPhone;
+    private CircleImageView avatar;
+    private  String carInfo ="", carNumber = "";
+
     //------------------------------------ Chi :
 
     //------ DirectionFinder --------
     private List<Marker> originMarkers = new ArrayList<>();
     private List<Marker> destinationMarkers = new ArrayList<>();
     private List<Polyline> polylinePaths = new ArrayList<>();
+
 
     @Override
     public void onDirectionFinderStart() {
@@ -383,8 +401,52 @@ public class DriverActivity extends AppCompatActivity
         drawer.addDrawerListener(toggle);
         toggle.syncState();
 
+
+
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+        View header=navigationView.getHeaderView(0);
+        txtName = (TextView) header.findViewById(R.id.txtName);
+        txtPhone = (TextView) header.findViewById(R.id.txtPhone);
+        avatar = (CircleImageView) header.findViewById(R.id.imageViewAvatar) ;
+
+        txtName.setText("Name: " + MainActivity.nameUser);
+        txtPhone.setText("Phone: "+MainActivity.phoneNumber);
+
+
+
+        FirebaseDatabase.getInstance().getReference("Users")
+                .child(MainActivity.id)
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+
+                        txtName.setText("Name: " + MainActivity.nameUser);
+                        carInfo = dataSnapshot.child("carinfor").getValue().toString();
+                        carNumber = dataSnapshot.child("carnumber").getValue().toString();
+
+
+
+                    }
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+                    }
+                });
+
+        if(!MainActivity.avatar.equals("")){
+            Bitmap bitmap = decodeBase64(MainActivity.avatar );
+            avatar.setImageBitmap(bitmap);
+        }
+
+        if(carInfo.equals("")&&carNumber.equals("")){
+            Intent intent = new Intent(DriverActivity.this, InfoCar.class);
+            startActivity(intent);
+        }
+
+
+
+
+
 
         //
         Init();
@@ -409,7 +471,10 @@ public class DriverActivity extends AppCompatActivity
         placeAutoCompleteDriver = (PlaceAutocompleteFragment) getFragmentManager().findFragmentById(R.id.place_autocomplete_startDriverLocation);
         // placeAutoComplete ??
 
+
+
     }
+
 
     private void addEven() {
 
@@ -908,13 +973,36 @@ public class DriverActivity extends AppCompatActivity
         int id = item.getItemId();
 
         if (id == R.id.nav_user_info) {
+
+            Intent i = new Intent(DriverActivity.this, AboutUser.class);
+            DriverActivity.this.startActivity(i);
+
+
+
             // Handle the camera action
         } else if (id == R.id.nav_about) {
+
+            Intent i = new Intent(DriverActivity.this, AboutApp.class);
+            DriverActivity.this.startActivity(i);
+
 
         } else if (id == R.id.nav_logout) {
             FirebaseAuth.getInstance().signOut();
             Intent intent = new Intent(DriverActivity.this, PhoneAuthActivity.class);
             startActivity(intent);
+        }
+        else if(id==R.id.nav_share){
+
+            Intent i = new Intent(Intent.ACTION_SEND);
+
+            i.setType("text/plain");
+            String shareBody = "link";
+            String shareName = "SBike";
+            i.putExtra(Intent.EXTRA_TEXT,shareBody);
+            i.putExtra(Intent.EXTRA_SUBJECT,shareName);
+
+            startActivity(Intent.createChooser(i, "Sharing"));
+
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -1017,5 +1105,10 @@ public class DriverActivity extends AppCompatActivity
         rlp.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM, RelativeLayout.TRUE);
         rlp.setMargins(0, 0, 30, 30);
 
+    }
+    public static Bitmap decodeBase64(String input)
+    {
+        byte[] decodedBytes = Base64.decode(input,0);
+        return BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.length);
     }
 }

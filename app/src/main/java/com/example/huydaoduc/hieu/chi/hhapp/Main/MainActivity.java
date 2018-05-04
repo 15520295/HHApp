@@ -9,16 +9,25 @@ import android.widget.EditText;
 
 import com.example.huydaoduc.hieu.chi.hhapp.R;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+
+import ru.dimorinny.floatingtextbutton.FloatingTextButton;
 
 public class MainActivity extends AppCompatActivity {
-    Button btn_rider, btn_driver;
+    FloatingTextButton btn_rider, btn_driver;
     EditText edtEmail, edtPassword, edtName, edtPhone;
 
     FirebaseAuth auth;
     FirebaseDatabase db;
     DatabaseReference users;
+    public static String phoneNumber;
+    public static String nameUser;
+    public static String id;
+    public static String avatar;
 
 
     @Override
@@ -27,7 +36,10 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
 
+
+
         initView();
+        loadInfor();
 
         addEven();
     }
@@ -54,8 +66,30 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void initView() {
-        btn_rider = findViewById(R.id.btn_rider);
-        btn_driver = findViewById(R.id.btn_driver);
+        btn_rider = findViewById(R.id.btnpass);
+        btn_driver = findViewById(R.id.btndriver);
+    }
+    private void loadInfor(){
+
+        id = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        FirebaseDatabase.getInstance().getReference("Users")
+                .child(id)
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+
+                        nameUser = dataSnapshot.child("name").getValue().toString();
+                        phoneNumber = dataSnapshot.child("phoneNumber").getValue().toString();
+                        avatar = dataSnapshot.child("avatar").getValue().toString();
+
+
+                    }
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+                    }
+                });
+
+
     }
 
 }
