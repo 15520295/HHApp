@@ -59,17 +59,17 @@
         android:orientation="horizontal"
         android:weightSum="5">
 
-        <com.github.glomadrian.materialanimatedswitch.MaterialAnimatedSwitch
-            android:id="@+id/locationDriver_switch"
-            app:ball_press_color="@android:color/white"
-            app:ball_release_color="@color/ballReleaseColor"
-            app:base_press_color="@color/basePressColor"
-            app:base_release_color="@color/baseReleaseColor"
-            app:icon_press="@drawable/ic_location_on"
-            app:icon_release="@drawable/ic_location_off"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1" />
+        <!--<com.github.glomadrian.materialanimatedswitch.MaterialAnimatedSwitch-->
+            <!--android:id="@+id/locationDriver_switch"-->
+            <!--app:ball_press_color="@android:color/white"-->
+            <!--app:ball_release_color="@color/ballReleaseColor"-->
+            <!--app:base_press_color="@color/basePressColor"-->
+            <!--app:base_release_color="@color/baseReleaseColor"-->
+            <!--app:icon_press="@drawable/ic_location_on"-->
+            <!--app:icon_release="@drawable/ic_location_off"-->
+            <!--android:layout_width="0dp"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:layout_weight="1" />-->
 
         <Button
             android:id="@+id/btnGo"

@@ -1013,8 +1013,8 @@ public class PassengerActivity extends SimpleMapActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_passenger);
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
+//        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+//        setSupportActionBar(toolbar);
 
         // setup map
         setupCheckRealtime = false;

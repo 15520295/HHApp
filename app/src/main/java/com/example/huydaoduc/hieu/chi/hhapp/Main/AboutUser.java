@@ -36,10 +36,6 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.OnProgressListener;
-import com.google.firebase.storage.StorageReference;
-import com.google.firebase.storage.UploadTask;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -63,8 +59,6 @@ public class AboutUser extends AppCompatActivity {
 
     CircleImageView circleImageView;
 
-    FirebaseStorage storage;
-    StorageReference storageReference;
     DatabaseReference databaseReference;
 
     UserInfo userInfo;
@@ -227,8 +221,6 @@ public class AboutUser extends AppCompatActivity {
         circleImageView = findViewById(R.id.profile_image);
         circleEditView = findViewById(R.id.profile_edit);
         imageButton = findViewById(R.id.imageButton);
-        storage = FirebaseStorage.getInstance();
-        storageReference = storage.getReference();
         databaseReference = FirebaseDatabase.getInstance().getReference();
         mDatabase = FirebaseDatabase.getInstance().getReference();
 
