@@ -3,7 +3,7 @@
     <color name="colorPrimary">#c5c5c5</color>
     <color name="colorPrimaryDark">#000000</color>
     <color name="colorAccent">#000000</color>
-    <color name="edit_text_hint">#B0BEC5</color>
+    <color name="edit_text_hint">#a4b0b7</color>
     <color name="edit_text_txt">#000000</color>
 
     <color name="transparent">#00ffffff</color>
@@ -60,7 +60,7 @@
     <color name="route_request_back_ground">#ffffff</color>
     <color name="route_request_title">#000000</color>
     <color name="route_request_time">#7b7b7b</color>
-
+    <color name="deep_blue_gray">#6b6b6b</color>
 
 
 </resources>

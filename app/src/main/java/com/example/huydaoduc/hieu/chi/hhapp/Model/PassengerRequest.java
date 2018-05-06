@@ -5,7 +5,7 @@ import android.os.Parcelable;
 import android.support.annotation.Nullable;
 
 import com.example.huydaoduc.hieu.chi.hhapp.Framework.Place.SavedPlace;
-import com.example.huydaoduc.hieu.chi.hhapp.Model.User.CarType;
+import com.example.huydaoduc.hieu.chi.hhapp.Model.Car.CarType;
 
 public class PassengerRequest implements Parcelable {
 

@@ -62,19 +62,4 @@ public class Define {
     // Fare
     public static final float FARE_VND_PER_M = 5000;
 
-    // Enum to string
-    public static final HashMap<RouteRequestState,String> REQUEST_STATE_MAP = new HashMap<RouteRequestState, String>() {{
-        put(RouteRequestState.FINDING_PASSENGER,"Finding passenger");
-        put(RouteRequestState.PAUSE,"Pause finding");
-        put(RouteRequestState.FOUND_PASSENGER,"Found your passenger");
-    }};
-
-    public static final Pair<String, Integer> DEFAULT_WAIT_TIME = new Pair<>("How long can you wait the driver?", 5);
-    public static final LinkedHashMap<String,Integer> WAIT_TIME_MAP = new LinkedHashMap<String, Integer>() {{
-        put("5 minute", 5);
-        put("10 minute", 10);
-        put("20 minute", 20);
-        put("30 minute", 30);
-    }};
-
 }

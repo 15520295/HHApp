@@ -1,6 +1,4 @@
-package com.example.huydaoduc.hieu.chi.hhapp.Model;
-
-import com.example.huydaoduc.hieu.chi.hhapp.Model.User.CarType;
+package com.example.huydaoduc.hieu.chi.hhapp.Model.Car;
 
 public class CarInfo {
 

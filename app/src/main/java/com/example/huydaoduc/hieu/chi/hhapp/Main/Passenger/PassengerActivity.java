@@ -1,37 +1,33 @@
 package com.example.huydaoduc.hieu.chi.hhapp.Main.Passenger;
 
 import android.Manifest;
-import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.location.Geocoder;
-import android.location.Location;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.text.InputType;
-import android.util.Base64;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
-import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.example.huydaoduc.hieu.chi.hhapp.Define;
+import com.example.huydaoduc.hieu.chi.hhapp.DefineString;
 import com.example.huydaoduc.hieu.chi.hhapp.Framework.DBManager;
 import com.example.huydaoduc.hieu.chi.hhapp.Framework.Direction.DirectionFinderListener;
+import com.example.huydaoduc.hieu.chi.hhapp.Framework.Direction.Leg;
 import com.example.huydaoduc.hieu.chi.hhapp.Framework.Direction.Route;
 import com.example.huydaoduc.hieu.chi.hhapp.Framework.LocationUtils;
 import com.example.huydaoduc.hieu.chi.hhapp.Framework.Place.SavedPlace;
@@ -39,17 +35,12 @@ import com.example.huydaoduc.hieu.chi.hhapp.Framework.Place.SearchActivity;
 import com.example.huydaoduc.hieu.chi.hhapp.Framework.SimpleMapActivity;
 import com.example.huydaoduc.hieu.chi.hhapp.Main.AboutApp;
 import com.example.huydaoduc.hieu.chi.hhapp.Main.AboutUser;
-import com.example.huydaoduc.hieu.chi.hhapp.Main.InfoCar;
-import com.example.huydaoduc.hieu.chi.hhapp.Main.MainActivity;
-import com.example.huydaoduc.hieu.chi.hhapp.Model.NotifyTrip;
 import com.example.huydaoduc.hieu.chi.hhapp.Model.PassengerRequest;
-import com.example.huydaoduc.hieu.chi.hhapp.Model.RouteRequest.RouteRequest;
 import com.example.huydaoduc.hieu.chi.hhapp.Framework.TimeUtils;
-import com.example.huydaoduc.hieu.chi.hhapp.Model.RouteRequest.RouteRequestState;
 import com.example.huydaoduc.hieu.chi.hhapp.Model.Trip.Trip;
 import com.example.huydaoduc.hieu.chi.hhapp.Model.Trip.TripState;
-import com.example.huydaoduc.hieu.chi.hhapp.Model.Trip.TripStyle;
-import com.example.huydaoduc.hieu.chi.hhapp.Model.User.CarType;
+import com.example.huydaoduc.hieu.chi.hhapp.Model.Trip.TripType;
+import com.example.huydaoduc.hieu.chi.hhapp.Model.Car.CarType;
 import com.example.huydaoduc.hieu.chi.hhapp.Model.User.OnlineUser;
 import com.example.huydaoduc.hieu.chi.hhapp.Model.User.UserInfo;
 import com.example.huydaoduc.hieu.chi.hhapp.Model.User.UserState;
@@ -57,23 +48,14 @@ import com.example.huydaoduc.hieu.chi.hhapp.R;
 import com.example.huydaoduc.hieu.chi.hhapp.ActivitiesAuth.PhoneAuthActivity;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.LatLng;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 import com.rilixtech.materialfancybutton.MaterialFancyButton;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 import java.util.Locale;
-
-import de.hdodenhof.circleimageview.CircleImageView;
-import stream.customalert.CustomAlertDialogue;
 
 import static com.google.android.gms.location.LocationServices.getFusedLocationProviderClient;
 
@@ -157,17 +139,20 @@ public class PassengerActivity extends SimpleMapActivity
         notFoundHH = false;
 
         estimateFare = 10000f;
+
         int waitMinute;
         String waitMinuteStr = btn_cd_wait_time.getText().toString();
-        if (waitMinuteStr == Define.DEFAULT_WAIT_TIME.first)
-            waitMinute = Define.DEFAULT_WAIT_TIME.second;
+        if (waitMinuteStr.equals(DefineString.DEFAULT_WAIT_TIME.first))
+            waitMinute = DefineString.DEFAULT_WAIT_TIME.second;
         else
-            waitMinute = Define.WAIT_TIME_MAP.get(waitMinuteStr);
+            waitMinute = DefineString.WAIT_TIME_MAP.get(waitMinuteStr);
 
-        float distance = 1000;
-        float duration = 1000;
+        String notes = btn_cd_note.getText().toString();
+        if(notes.equals(DefineString.NOTES_TO_DRIVER_HINT))
+            notes = null;
 
-
+        float distance = 0;
+        float duration = 0;
 
         // create a trip
         String tripUId = dbRefe.child(Define.DB_TRIPS).push().getKey();
@@ -187,19 +172,39 @@ public class PassengerActivity extends SimpleMapActivity
                 .setDropOffSavePlace(getDropPlace())
                 .setStartTime(TimeUtils.getCurrentTimeAsString())
                 .setCarType(CarType.BIKE)
-                .setNote("Notes..")
+                .setNote(notes)
                 .setWaitMinute(waitMinute)
                 .build();
 
         trip.setTripState(TripState.WAITING_ACCEPT);
-        trip.setTripStyle(TripStyle.HH);
+        trip.setTripType(TripType.HH);
         trip.setPassengerRequest(passengerRequest);
 
         Intent intent = new Intent(getApplicationContext(), FindingDriverActivity.class);
         intent.putExtra("trip", trip);
         PassengerActivity.this.startActivityForResult(intent,FIND_DRIVER_REQUEST_CODE);
 
+        directionManager.findPath(getPickupPlace().func_getLatLngLocation(), getDropPlace().func_getLatLngLocation()
+                , new DirectionFinderListener() {
+            @Override
+            public void onDirectionFinderStart() {
 
+            }
+
+            @Override
+            public void onDirectionFinderSuccess(List<Route> routes) {
+                if (routes == null || routes.size() == 0) {
+                    Log.e(TAG, "onDirectionFinderSuccess : routes == null || routes.size() == 0");
+                    return;
+                }
+                Leg leg = routes.get(0).getLegs().get(0);
+
+                float distance = leg.getDistance().getValue();
+                float duration = leg.getDuration().getValue();
+
+
+            }
+        });
     }
 
 
@@ -310,7 +315,7 @@ public class PassengerActivity extends SimpleMapActivity
 //                .build();
 //
 //        trip.setTripState(TripState.WAITING_ACCEPT);
-//        trip.setTripStyle(TripStyle.HH);
+//        trip.setTripType(TripType.HH);
 //        trip.setPassengerRequest(passengerRequest);
 //
 //        dbRefe.child(Define.DB_TRIPS)
@@ -664,7 +669,7 @@ public class PassengerActivity extends SimpleMapActivity
 //                .build();
 //
 //        trip.setTripState(TripState.WAITING_ACCEPT);
-//        trip.setTripStyle(TripStyle.HH);
+//        trip.setTripType(TripType.HH);
 //        trip.setPassengerRequest(passengerRequest);
 //
 //        dbRefe.child(Define.DB_TRIPS)
@@ -1046,11 +1051,11 @@ public class PassengerActivity extends SimpleMapActivity
 
         // Init View
 
-        btn_findDriver = findViewById(R.id.btn_find_driver);
+        btn_findDriver = findViewById(R.id.btn_cancel);
 
         btn_cd_start_time = findViewById(R.id.btn_cd_start_time);
         btn_cd_wait_time = findViewById(R.id.btn_cd_wait_time);
-        btn_cd_wait_time.setText(Define.DEFAULT_WAIT_TIME.first);
+        btn_cd_wait_time.setText(DefineString.DEFAULT_WAIT_TIME.first);
         btn_cd_note = findViewById(R.id.btn_cd_note);
 
         // search view
@@ -1061,52 +1066,49 @@ public class PassengerActivity extends SimpleMapActivity
 
     private void addEven() {
 
-        btn_findDriver.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startBooking();
-            }
-        });
+        btn_findDriver.setOnClickListener(v -> startBooking());
 
         btn_cd_start_time.setOnClickListener(e ->{
 
         });
 
         btn_cd_wait_time.setOnClickListener(e ->{
-            ArrayList<String> destructive = new ArrayList<>();
-            destructive.add(Define.DEFAULT_WAIT_TIME.first);
-
             ArrayList<String> other = new ArrayList<>();
 
-            for (String key : Define.WAIT_TIME_MAP.keySet()) {
+            for (String key : DefineString.WAIT_TIME_MAP.keySet()) {
                 other.add(key);
             }
 
-            CustomAlertDialogue.Builder alert = new CustomAlertDialogue.Builder(PassengerActivity.this)
-                    .setStyle(CustomAlertDialogue.Style.SELECTOR)
-                    .setDestructive(destructive)
-                    .setOthers(other)
-                    .setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            new MaterialDialog.Builder(this)
+                    .title(DefineString.DEFAULT_WAIT_TIME.first)
+                    .items(other)
+                    .itemsCallback(new MaterialDialog.ListCallback() {
                         @Override
-                        public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                            if (i > 0) {
-                                btn_cd_wait_time.setText(other.get(i - 1));
-                                CustomAlertDialogue.getInstance().dismiss();
-                            }
-
+                        public void onSelection(MaterialDialog dialog, View view, int which, CharSequence text) {
+                            btn_cd_wait_time.setText(other.get(which));
                         }
                     })
-                    .setDecorView(getWindow().getDecorView())
-                    .build();
-            alert.show();
+                    .widgetColorRes(R.color.title_bar_background_color)
+                    .titleColor(getResources().getColor(R.color.title_bar_background_color))
+                    .show();
         });
 
         btn_cd_note.setOnClickListener(e ->{
             new MaterialDialog.Builder(this)
-                    .title("Notes to driver")
-                    .inputType(InputType.TYPE_CLASS_TEXT )
-                    .input("I'm wearing white shirt",null, (dialog, input) -> btn_cd_note.setText(input.toString()))
-                    .positiveText("Ok")
+                    .title(DefineString.NOTES_TO_DRIVER_TITLE)
+                    .inputType(InputType.TYPE_CLASS_TEXT)
+                    .input(DefineString.NOTES_TO_DRIVER_HINT, null, (dialog, input) ->
+                    {
+                        if (!TextUtils.isEmpty(input)) {
+                            btn_cd_note.setText(input.toString());
+                        }
+                    })
+                    .titleColor(getResources().getColor(R.color.title_bar_background_color))
+                    .positiveColor(getResources().getColor(R.color.title_bar_background_color))
+                    .positiveText("CONFIRM")
+                    .negativeText("CANCEL")
+                    .widgetColorRes(R.color.title_bar_background_color)
+                    .buttonRippleColorRes(R.color.title_bar_background_color)
                     .show();
         });
 

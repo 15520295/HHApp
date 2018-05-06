@@ -180,7 +180,7 @@ public class SearchActivity extends AppCompatActivity implements
                 .build();
 
 
-        mAdapter = new PlaceAutocompleteAdapter(this, R.layout.view_placesearch,
+        mAdapter = new PlaceAutocompleteAdapter(this, R.layout.row_placesearch,
                 mGoogleApiClient, bounds, typeFilter, mRecyclerView);
         mRecyclerView.setAdapter(mAdapter);
 

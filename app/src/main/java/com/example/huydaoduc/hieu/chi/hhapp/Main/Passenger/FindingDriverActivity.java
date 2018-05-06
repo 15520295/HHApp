@@ -1,44 +1,27 @@
 package com.example.huydaoduc.hieu.chi.hhapp.Main.Passenger;
 
-import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.app.Dialog;
-import android.app.FragmentTransaction;
-import android.app.Fragment;
 
 import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.location.Location;
-import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
-import android.view.View;
-import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.huydaoduc.hieu.chi.hhapp.Define;
-import com.example.huydaoduc.hieu.chi.hhapp.Framework.DBManager;
 import com.example.huydaoduc.hieu.chi.hhapp.Framework.Direction.DirectionFinderListener;
 import com.example.huydaoduc.hieu.chi.hhapp.Framework.Direction.Route;
 import com.example.huydaoduc.hieu.chi.hhapp.Framework.DirectionManager;
 import com.example.huydaoduc.hieu.chi.hhapp.Framework.LocationUtils;
-import com.example.huydaoduc.hieu.chi.hhapp.Framework.Place.SavedPlace;
 import com.example.huydaoduc.hieu.chi.hhapp.Framework.TimeUtils;
 import com.example.huydaoduc.hieu.chi.hhapp.Model.NotifyTrip;
 import com.example.huydaoduc.hieu.chi.hhapp.Model.PassengerRequest;
 import com.example.huydaoduc.hieu.chi.hhapp.Model.RouteRequest.RouteRequest;
 import com.example.huydaoduc.hieu.chi.hhapp.Model.RouteRequest.RouteRequestState;
 import com.example.huydaoduc.hieu.chi.hhapp.Model.Trip.Trip;
-import com.example.huydaoduc.hieu.chi.hhapp.Model.Trip.TripState;
-import com.example.huydaoduc.hieu.chi.hhapp.Model.Trip.TripStyle;
-import com.example.huydaoduc.hieu.chi.hhapp.Model.User.CarType;
-import com.example.huydaoduc.hieu.chi.hhapp.Model.User.UserInfo;
 import com.example.huydaoduc.hieu.chi.hhapp.R;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.firebase.auth.FirebaseAuth;
@@ -110,8 +93,8 @@ public class FindingDriverActivity extends AppCompatActivity {
 
     private void Init() {
         // View
-        tv_start_address = findViewById(R.id.tv_start_address);
-        tv_end_address = findViewById(R.id.tv_end_address);
+        tv_start_address = findViewById(R.id.tv_pick_up_address);
+        tv_end_address = findViewById(R.id.tv_drop_off_address);
         btn_cancel = findViewById(R.id.btn_cancel);
 
         // init value

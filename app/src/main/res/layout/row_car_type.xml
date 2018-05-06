@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/row_car_type"
+    android:layout_width="match_parent"
+    android:layout_height="70dp"
+    android:layout_centerVertical="true"
+    android:gravity="center_vertical">
+
+    <ImageView
+        android:id="@+id/iv_car_type"
+        android:layout_width="70dp"
+        android:layout_height="70dp"
+        android:src="@drawable/ic_bike_20"
+        android:padding="@dimen/margin_default_20"/>
+
+    <TextView
+        android:id="@+id/tv_car_type"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toEndOf="@+id/iv_car_type"
+        android:layout_centerVertical="true"
+        android:text="SBike"
+        android:textSize="16sp"
+        />
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_alignParentEnd="true"
+        android:layout_centerVertical="true"
+        android:layout_marginEnd="@dimen/margin_default_20"
+        >
+
+        <TextView
+            android:id="@+id/tv_fare"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="VND 10K"
+            android:textStyle="bold"
+            android:gravity="center"
+            />
+
+        <TextView
+            android:id="@+id/tv_duration"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="5 min"
+            android:gravity="center"
+            android:textColor="@color/edit_text_hint"
+            android:paddingEnd="@dimen/dp_10"
+            android:paddingStart="@dimen/dp_10"/>
+    </LinearLayout>
+</RelativeLayout>

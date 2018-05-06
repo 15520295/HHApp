@@ -13,7 +13,7 @@ public class Trip implements Parcelable {
     private String passengerUId;
     private String driverUId;
 
-    private TripStyle tripStyle;
+    private TripType tripType;
     private TripState tripState;
 
     private String startTime;           // when pick up
@@ -32,11 +32,11 @@ public class Trip implements Parcelable {
     }
 
 
-    public Trip(String tripUId, String passengerUId, String driverUId, TripStyle tripStyle, TripState tripState, String startTime, String endTime, Float tripDistance, Float tripDuration, Float estimateFare, Float finalFare, PassengerRequest passengerRequest, RouteRequest routeRequest) {
+    public Trip(String tripUId, String passengerUId, String driverUId, TripType tripType, TripState tripState, String startTime, String endTime, Float tripDistance, Float tripDuration, Float estimateFare, Float finalFare, PassengerRequest passengerRequest, RouteRequest routeRequest) {
         this.tripUId = tripUId;
         this.passengerUId = passengerUId;
         this.driverUId = driverUId;
-        this.tripStyle = tripStyle;
+        this.tripType = tripType;
         this.tripState = tripState;
         this.startTime = startTime;
         this.endTime = endTime;
@@ -72,12 +72,12 @@ public class Trip implements Parcelable {
         this.driverUId = driverUId;
     }
 
-    public TripStyle getTripStyle() {
-        return tripStyle;
+    public TripType getTripType() {
+        return tripType;
     }
 
-    public void setTripStyle(TripStyle tripStyle) {
-        this.tripStyle = tripStyle;
+    public void setTripType(TripType tripType) {
+        this.tripType = tripType;
     }
 
     public TripState getTripState() {
@@ -157,7 +157,7 @@ public class Trip implements Parcelable {
         private String tripUId;
         private String passengerUId;
         private String driverUId;
-        private TripStyle tripStyle;
+        private TripType tripType;
         private TripState tripState;
         private String startTime;
         private String endTime;
@@ -190,8 +190,8 @@ public class Trip implements Parcelable {
             return this;
         }
 
-        public Builder setTripStyle(TripStyle tripStyle) {
-            this.tripStyle = tripStyle;
+        public Builder setTripType(TripType tripType) {
+            this.tripType = tripType;
             return this;
         }
 
@@ -245,7 +245,7 @@ public class Trip implements Parcelable {
             trip.setTripUId(tripUId);
             trip.setPassengerUId(passengerUId);
             trip.setDriverUId(driverUId);
-            trip.setTripStyle(tripStyle);
+            trip.setTripType(tripType);
             trip.setTripState(tripState);
             trip.setStartTime(startTime);
             trip.setEndTime(endTime);
@@ -269,7 +269,7 @@ public class Trip implements Parcelable {
         dest.writeString(this.tripUId);
         dest.writeString(this.passengerUId);
         dest.writeString(this.driverUId);
-        dest.writeInt(this.tripStyle == null ? -1 : this.tripStyle.ordinal());
+        dest.writeInt(this.tripType == null ? -1 : this.tripType.ordinal());
         dest.writeInt(this.tripState == null ? -1 : this.tripState.ordinal());
         dest.writeString(this.startTime);
         dest.writeString(this.endTime);
@@ -286,7 +286,7 @@ public class Trip implements Parcelable {
         this.passengerUId = in.readString();
         this.driverUId = in.readString();
         int tmpTripStyle = in.readInt();
-        this.tripStyle = tmpTripStyle == -1 ? null : TripStyle.values()[tmpTripStyle];
+        this.tripType = tmpTripStyle == -1 ? null : TripType.values()[tmpTripStyle];
         int tmpTripState = in.readInt();
         this.tripState = tmpTripState == -1 ? null : TripState.values()[tmpTripState];
         this.startTime = in.readString();

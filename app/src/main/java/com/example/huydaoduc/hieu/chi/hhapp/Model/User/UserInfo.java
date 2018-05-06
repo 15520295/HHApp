@@ -2,7 +2,7 @@ package com.example.huydaoduc.hieu.chi.hhapp.Model.User;
 
 import android.net.Uri;
 
-import com.example.huydaoduc.hieu.chi.hhapp.Model.CarInfo;
+import com.example.huydaoduc.hieu.chi.hhapp.Model.Car.CarInfo;
 
 import java.util.List;
 

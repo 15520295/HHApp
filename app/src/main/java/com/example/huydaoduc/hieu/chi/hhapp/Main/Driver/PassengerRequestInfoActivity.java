@@ -1,6 +1,5 @@
 package com.example.huydaoduc.hieu.chi.hhapp.Main.Driver;
 
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.widget.TextView;
 
@@ -9,14 +8,10 @@ import com.example.huydaoduc.hieu.chi.hhapp.Framework.DBManager;
 import com.example.huydaoduc.hieu.chi.hhapp.Framework.Place.SavedPlace;
 import com.example.huydaoduc.hieu.chi.hhapp.Framework.SimpleMapActivity;
 import com.example.huydaoduc.hieu.chi.hhapp.Framework.TimeUtils;
-import com.example.huydaoduc.hieu.chi.hhapp.Main.Driver.RouteManager.CreateRouteActivity;
-import com.example.huydaoduc.hieu.chi.hhapp.Main.Passenger.PassengerActivity;
 import com.example.huydaoduc.hieu.chi.hhapp.Model.PassengerRequest;
 import com.example.huydaoduc.hieu.chi.hhapp.Model.Trip.Trip;
-import com.example.huydaoduc.hieu.chi.hhapp.Model.User.UserInfo;
 import com.example.huydaoduc.hieu.chi.hhapp.R;
 import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -94,8 +89,8 @@ public class PassengerRequestInfoActivity extends SimpleMapActivity implements S
     private void Init() {
         tv_passenger_name = findViewById(R.id.tv_passenger_name);
         tv_time_start = findViewById(R.id.tv_time_start);
-        tv_start_address = findViewById(R.id.tv_start_address);
-        tv_end_address = findViewById(R.id.tv_end_address);
+        tv_start_address = findViewById(R.id.tv_pick_up_address);
+        tv_end_address = findViewById(R.id.tv_drop_off_address);
 
 
         // init database

@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/transparent"
+    xmlns:fancy="http://schemas.android.com/apk/res-auto">
+
+    <android.support.v7.widget.CardView
+        android:id="@+id/group_car_type"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:cardElevation="4dp"
+        app:cardCornerRadius="5dp"
+        android:layout_above="@+id/btn_cancel"
+        app:cardBackgroundColor="@color/deep_blue_gray"
+        >
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:id="@+id/tv_car_type"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Car type"
+                android:padding="@dimen/dp_10"/>
+
+            <TextView
+                android:id="@+id/tv_estimate_fare"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Estimate fare"
+                android:layout_alignParentEnd="true"
+                android:padding="@dimen/dp_10"/>
+
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/recycler_view_car_type"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/tv_estimate_fare">
+            </android.support.v7.widget.RecyclerView>
+
+        </RelativeLayout>
+    </android.support.v7.widget.CardView>
+
+
+
+    <com.rilixtech.materialfancybutton.MaterialFancyButton
+        android:id="@+id/btn_cancel"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_margin="5dp"
+        android:paddingBottom="15dp"
+        android:paddingTop="15dp"
+        fancy:mfb_iconResource="@drawable/ic_arrow_down_white"
+        fancy:mfb_iconPosition="top"
+        fancy:mfb_borderColor="#FFFFFF"
+        fancy:mfb_borderWidth="4dp"
+        fancy:mfb_defaultColor="@color/transparent"
+        fancy:mfb_focusColor="@color/transparent"
+        fancy:mfb_radius="50dp"
+        fancy:mfb_textColor="#FFFFFF"
+        fancy:mfb_textSize="16sp" />
+</RelativeLayout>

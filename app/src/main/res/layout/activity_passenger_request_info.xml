@@ -83,7 +83,7 @@
 
 
         <TextView
-            android:id="@+id/tv_start_address"
+            android:id="@+id/tv_pick_up_address"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:drawableLeft="@drawable/ic_vertical_line_blue_60x"
@@ -99,10 +99,10 @@
             />
 
         <TextView
-            android:id="@+id/tv_end_address"
+            android:id="@+id/tv_drop_off_address"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@id/tv_start_address"
+            android:layout_below="@id/tv_pick_up_address"
             android:text="End"
             android:textSize="20sp"
             android:gravity="center_vertical"
