@@ -82,8 +82,6 @@
                 android:singleLine="true"
                 />
 
-
-
             <View
                 android:id="@+id/bar"
                 android:layout_width="fill_parent"

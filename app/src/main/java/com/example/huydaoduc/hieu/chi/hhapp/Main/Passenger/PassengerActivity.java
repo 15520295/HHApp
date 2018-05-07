@@ -1,6 +1,7 @@
 package com.example.huydaoduc.hieu.chi.hhapp.Main.Passenger;
 
 import android.Manifest;
+import android.app.Activity;
 import android.app.Dialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -9,6 +10,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
+import android.support.v7.widget.CardView;
 import android.text.InputType;
 import android.text.TextUtils;
 import android.util.Log;
@@ -18,7 +20,10 @@ import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -41,6 +46,7 @@ import com.example.huydaoduc.hieu.chi.hhapp.Model.Trip.Trip;
 import com.example.huydaoduc.hieu.chi.hhapp.Model.Trip.TripState;
 import com.example.huydaoduc.hieu.chi.hhapp.Model.Trip.TripType;
 import com.example.huydaoduc.hieu.chi.hhapp.Model.Car.CarType;
+import com.example.huydaoduc.hieu.chi.hhapp.Model.Trip.TripFareInfo;
 import com.example.huydaoduc.hieu.chi.hhapp.Model.User.OnlineUser;
 import com.example.huydaoduc.hieu.chi.hhapp.Model.User.UserInfo;
 import com.example.huydaoduc.hieu.chi.hhapp.Model.User.UserState;
@@ -54,6 +60,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.rilixtech.materialfancybutton.MaterialFancyButton;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
@@ -64,17 +71,24 @@ import static com.google.android.gms.location.LocationServices.getFusedLocationP
 public class PassengerActivity extends SimpleMapActivity
         implements
         SimpleMapActivity.SimpleMapListener,
-        NavigationView.OnNavigationItemSelectedListener
+        NavigationView.OnNavigationItemSelectedListener,
+        SelectCarTypeFragment.SelectCarTypeFragmentListener
 {
     private static final String TAG = "PassengerActivity";
-    private static final int FIND_DRIVER_REQUEST_CODE = 85;
+    private static final int FIND_DRIVER_REQUEST_CODE = 80;
+    private static final int SELECT_CAR_TYPE_REQUEST_CODE = 81;
 
     private Button btnMessage, btnCall;
     private TextView tvName, tvPhone;
 
     MaterialFancyButton btn_cd_start_time, btn_cd_note, btn_cd_wait_time;
 
+    private TextView tv_fare, tv_duration, tv_car_type;
+    private ImageView iv_car_type;
+
     MaterialFancyButton btn_findDriver;
+
+    private CardView group_trip_info;
 
     //------------------------------------ Chi :
 
@@ -86,7 +100,6 @@ public class PassengerActivity extends SimpleMapActivity
 
     Dialog dialogInfo;
     DatabaseReference dbRefe;
-
 
     @Override
     public void OnRealTimeLocationUpdate() {
@@ -151,17 +164,12 @@ public class PassengerActivity extends SimpleMapActivity
         if(notes.equals(DefineString.NOTES_TO_DRIVER_HINT))
             notes = null;
 
-        float distance = 0;
-        float duration = 0;
-
         // create a trip
         String tripUId = dbRefe.child(Define.DB_TRIPS).push().getKey();
 
         Trip trip = Trip.Builder.aTrip(tripUId)
                 .setPassengerUId(getCurUid())
-                .setEstimateFare(estimateFare)
-                .setTripDistance(distance)
-                .setTripDuration(duration)
+                .setTripFareInfo(getCurTripFareInfoInstance())
                 .build();
 
         // Set up Trip
@@ -170,8 +178,6 @@ public class PassengerActivity extends SimpleMapActivity
         PassengerRequest passengerRequest = PassengerRequest.Builder.aPassengerRequest(getCurUid())
                 .setPickUpSavePlace(getPickupPlace())
                 .setDropOffSavePlace(getDropPlace())
-                .setStartTime(TimeUtils.getCurrentTimeAsString())
-                .setCarType(CarType.BIKE)
                 .setNote(notes)
                 .setWaitMinute(waitMinute)
                 .build();
@@ -183,28 +189,6 @@ public class PassengerActivity extends SimpleMapActivity
         Intent intent = new Intent(getApplicationContext(), FindingDriverActivity.class);
         intent.putExtra("trip", trip);
         PassengerActivity.this.startActivityForResult(intent,FIND_DRIVER_REQUEST_CODE);
-
-        directionManager.findPath(getPickupPlace().func_getLatLngLocation(), getDropPlace().func_getLatLngLocation()
-                , new DirectionFinderListener() {
-            @Override
-            public void onDirectionFinderStart() {
-
-            }
-
-            @Override
-            public void onDirectionFinderSuccess(List<Route> routes) {
-                if (routes == null || routes.size() == 0) {
-                    Log.e(TAG, "onDirectionFinderSuccess : routes == null || routes.size() == 0");
-                    return;
-                }
-                Leg leg = routes.get(0).getLegs().get(0);
-
-                float distance = leg.getDistance().getValue();
-                float duration = leg.getDuration().getValue();
-
-
-            }
-        });
     }
 
 
@@ -895,6 +879,94 @@ public class PassengerActivity extends SimpleMapActivity
 
     //endregion
 
+    //region -------------- Estimate Fare --------------
+
+    private TripFareInfo curTripFareInfo;
+
+    public TripFareInfo getCurTripFareInfoInstance() {
+        if (curTripFareInfo == null) {
+            curTripFareInfo = new TripFareInfo();
+        }
+        return curTripFareInfo;
+    }
+
+    private void updateDistanceAndDuration() {
+        directionManager.findPath(getPickupPlace().func_getLatLngLocation(), getDropPlace().func_getLatLngLocation()
+                , new DirectionFinderListener() {
+                    @Override
+                    public void onDirectionFinderStart() {
+
+                    }
+
+                    @Override
+                    public void onDirectionFinderSuccess(List<Route> routes) {
+                        if (routes == null || routes.size() == 0) {
+                            Log.e(TAG, "onDirectionFinderSuccess : routes == null || routes.size() == 0");
+                            return;
+                        }
+                        Leg leg = routes.get(0).getLegs().get(0);
+
+                        getCurTripFareInfoInstance().setDistance((float) leg.getDistance().getValue());
+                        getCurTripFareInfoInstance().setDuration((float) leg.getDuration().getValue());
+
+                        updateTripFareInfoView();
+                    }
+                });
+    }
+
+    private void updateTripFareInfoView() {
+        getCurTripFareInfoInstance().func_RecalculateEstimateFare();
+
+        tv_fare.setText(getCurTripFareInfoInstance().func_getEstimateFareText());
+        tv_fare.setVisibility(View.VISIBLE);
+        tv_duration.setText(getCurTripFareInfoInstance().func_getDurationText());
+
+        tv_car_type.setText(getCurTripFareInfoInstance().func_getCarTypeText());
+
+        iv_car_type.setImageResource(Define.CAR_TYPE_ICON_MAP.get(getCurTripFareInfoInstance().getCarType()));
+    }
+
+    private void showSelectCarTypeFragment() {
+        btn_findDriver.startAnimation(AnimationUtils.loadAnimation(PassengerActivity.this, R.anim.anim_fade_out));
+
+        // create
+        ArrayList<TripFareInfo> tripFareInfoList = new ArrayList<>();
+        for (CarType carType :
+                DefineString.CAR_TYPE_MAP.keySet()) {
+
+            TripFareInfo tripFareInfo = new TripFareInfo(carType, getCurTripFareInfoInstance().func_getStartTimeAsDate(), getCurTripFareInfoInstance().getDuration(), getCurTripFareInfoInstance().getDistance());
+            tripFareInfoList.add(tripFareInfo);
+        }
+
+        // create fragment
+        SelectCarTypeFragment selectCarTypeFragment = SelectCarTypeFragment
+                .newInstance(tripFareInfoList, getCurTripFareInfoInstance().getCarType());
+
+        selectCarTypeFragment.setTargetFragment(selectCarTypeFragment.getTargetFragment(), SELECT_CAR_TYPE_REQUEST_CODE);
+        selectCarTypeFragment.show(getSupportFragmentManager(), "SelectCarTypeFragment");
+    }
+
+    private void showButtonFinder() {
+        Animation animation = AnimationUtils.loadAnimation(PassengerActivity.this, R.anim.anim_fade_in);
+        animation.setDuration(200);
+        btn_findDriver.startAnimation(animation);
+    }
+
+    @Override
+    public void OnCarTypeSelect(CarType carType) {
+        getCurTripFareInfoInstance().setCarType(carType);
+
+        updateTripFareInfoView();
+
+        showButtonFinder();
+    }
+
+    @Override
+    public void OnCancel() {
+        showButtonFinder();
+    }
+    //endregion
+
     //region ------ Auto Complete  --------
 
     int PICKUP_PLACE_AUTOCOMPLETE_REQUEST_CODE = 2001;
@@ -963,6 +1035,7 @@ public class PassengerActivity extends SimpleMapActivity
                 // Move Camera
                 if (pickupPlace != null && dropPlace != null) {
                     cameraManager.moveCam(pickupPlace.func_getLatLngLocation(), dropPlace.func_getLatLngLocation());
+                    updateDistanceAndDuration();
                 }
                 else if (pickupPlace != null) {
                     cameraManager.moveCam(pickupPlace.func_getLatLngLocation());
@@ -999,6 +1072,7 @@ public class PassengerActivity extends SimpleMapActivity
     }
 
 
+
     private String getCurUid() {
         return FirebaseAuth.getInstance().getCurrentUser().getUid();
     }
@@ -1032,6 +1106,7 @@ public class PassengerActivity extends SimpleMapActivity
 
         geocoder = new Geocoder(this, Locale.getDefault());
 
+        // default value
         isDriverFound = false;
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
@@ -1045,7 +1120,6 @@ public class PassengerActivity extends SimpleMapActivity
 
 
     private void Init() {
-
         // Init firebase
         dbRefe = FirebaseDatabase.getInstance().getReference();
 
@@ -1057,6 +1131,12 @@ public class PassengerActivity extends SimpleMapActivity
         btn_cd_wait_time = findViewById(R.id.btn_cd_wait_time);
         btn_cd_wait_time.setText(DefineString.DEFAULT_WAIT_TIME.first);
         btn_cd_note = findViewById(R.id.btn_cd_note);
+
+        group_trip_info = findViewById(R.id.group_trip_info);
+        tv_fare = findViewById(R.id.tv_fare);
+        tv_duration = findViewById(R.id.tv_duration);
+        tv_car_type = findViewById(R.id.tv_car_type);
+        iv_car_type = findViewById(R.id.iv_car_type);
 
         // search view
         btn_pickupLocation = findViewById(R.id.btn_pick_up_location);
@@ -1110,6 +1190,13 @@ public class PassengerActivity extends SimpleMapActivity
                     .widgetColorRes(R.color.title_bar_background_color)
                     .buttonRippleColorRes(R.color.title_bar_background_color)
                     .show();
+        });
+
+        group_trip_info.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showSelectCarTypeFragment();
+            }
         });
 
         searViewEvent();
@@ -1191,7 +1278,5 @@ public class PassengerActivity extends SimpleMapActivity
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
-
-
 
 }

@@ -2,6 +2,7 @@ package com.example.huydaoduc.hieu.chi.hhapp;
 
 import android.util.Pair;
 
+import com.example.huydaoduc.hieu.chi.hhapp.Model.Car.CarType;
 import com.example.huydaoduc.hieu.chi.hhapp.Model.RouteRequest.RouteRequest;
 import com.example.huydaoduc.hieu.chi.hhapp.Model.RouteRequest.RouteRequestState;
 
@@ -59,7 +60,12 @@ public class Define {
     public static final long DRIVER_REQUESTS_TIMEOUT = 10*60;
 
 
-    // Fare
-    public static final float FARE_VND_PER_M = 5000;
+    // CarInfo
+    public static final CarType DEFAULT_CAR_TYPE = CarType.BIKE;
+    public static final HashMap<CarType,Integer> CAR_TYPE_ICON_MAP = new HashMap<CarType, Integer>() {{
+        put(CarType.BIKE, R.drawable.ic_bike_20);
+        put(CarType.CAR_4,R.drawable.ic_car_20);
+        put(CarType.CAR_7,R.drawable.ic_car_20);
+    }};
 
 }

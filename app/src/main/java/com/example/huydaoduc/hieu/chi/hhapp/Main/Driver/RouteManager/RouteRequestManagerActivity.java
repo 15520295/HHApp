@@ -12,7 +12,7 @@ import android.widget.Toast;
 
 import com.example.huydaoduc.hieu.chi.hhapp.Define;
 import com.example.huydaoduc.hieu.chi.hhapp.Main.Driver.PassengerRequestInfoActivity;
-import com.example.huydaoduc.hieu.chi.hhapp.Model.NotifyTrip;
+import com.example.huydaoduc.hieu.chi.hhapp.Model.Trip.NotifyTrip;
 import com.example.huydaoduc.hieu.chi.hhapp.Model.RouteRequest.RouteRequest;
 import com.example.huydaoduc.hieu.chi.hhapp.Model.RouteRequest.RouteRequestState;
 import com.example.huydaoduc.hieu.chi.hhapp.R;
@@ -78,7 +78,6 @@ public class RouteRequestManagerActivity extends AppCompatActivity {
         rycv_route_request.setLayoutManager(llm);
 
         routeRequests = new ArrayList<>();
-
 
         // init database
         dbRefe = FirebaseDatabase.getInstance().getReference();
@@ -185,7 +184,6 @@ public class RouteRequestManagerActivity extends AppCompatActivity {
                 // btn_request_state click event
                 RouteRequestAdapter adapter = new RouteRequestAdapter(routeRequests);
                 adapter.setOnItemChildClickListener((adapter1, view, position) -> {
-
                     NotifyTrip notifyTrip = routeRequests.get(position).getNotifyTrip();
                     if (notifyTrip == null) {
 
@@ -199,9 +197,6 @@ public class RouteRequestManagerActivity extends AppCompatActivity {
                         intent.putExtra("tripUId", notifyTrip.getTripUId());
                         RouteRequestManagerActivity.this.startActivity(intent);
                     }
-
-
-
                 });
 
                 rycv_route_request.setAdapter(adapter);

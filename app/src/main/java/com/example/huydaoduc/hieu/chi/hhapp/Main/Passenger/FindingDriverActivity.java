@@ -17,7 +17,7 @@ import com.example.huydaoduc.hieu.chi.hhapp.Framework.Direction.Route;
 import com.example.huydaoduc.hieu.chi.hhapp.Framework.DirectionManager;
 import com.example.huydaoduc.hieu.chi.hhapp.Framework.LocationUtils;
 import com.example.huydaoduc.hieu.chi.hhapp.Framework.TimeUtils;
-import com.example.huydaoduc.hieu.chi.hhapp.Model.NotifyTrip;
+import com.example.huydaoduc.hieu.chi.hhapp.Model.Trip.NotifyTrip;
 import com.example.huydaoduc.hieu.chi.hhapp.Model.PassengerRequest;
 import com.example.huydaoduc.hieu.chi.hhapp.Model.RouteRequest.RouteRequest;
 import com.example.huydaoduc.hieu.chi.hhapp.Model.RouteRequest.RouteRequestState;

@@ -223,13 +223,14 @@
                 >
             </android.support.v7.widget.CardView>
 
-            <LinearLayout
+            <RelativeLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:layout_alignParentEnd="true"
+                android:layout_toEndOf="@id/tv_car_type"
                 android:layout_centerVertical="true"
-                android:layout_marginEnd="@dimen/dp_10"
+                android:layout_marginEnd="@dimen/margin_default_25"
                 >
 
                 <TextView
@@ -238,19 +239,22 @@
                     android:layout_height="wrap_content"
                     android:text="VND 10K"
                     android:textStyle="bold"
-                    android:gravity="center"
+                    android:layout_alignParentEnd="true"
+                    android:layout_centerHorizontal="true"
+                    android:visibility="gone"
                     />
 
                 <TextView
                     android:id="@+id/tv_duration"
-                    android:layout_width="match_parent"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_below="@id/tv_fare"
                     android:text="5 min"
-                    android:gravity="center"
+                    android:layout_alignParentEnd="true"
                     android:textColor="@color/edit_text_hint"
                     android:paddingEnd="@dimen/dp_10"
                     android:paddingStart="@dimen/dp_10"/>
-            </LinearLayout>
+            </RelativeLayout>
 
         </RelativeLayout>
 

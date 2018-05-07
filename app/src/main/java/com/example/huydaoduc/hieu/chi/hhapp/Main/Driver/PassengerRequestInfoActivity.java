@@ -109,7 +109,7 @@ public class PassengerRequestInfoActivity extends SimpleMapActivity implements S
             tv_passenger_name.setText(userInfo.getName());
         });
 
-        Date passengerStartTime = TimeUtils.strToDate(passengerRequest.getStartTime());
+        Date passengerStartTime = trip.getTripFareInfo().func_getStartTimeAsDate();
         tv_time_start.setText(TimeUtils.dateToUserDateTimeStr(passengerStartTime));
 
         tv_start_address.setText(passengerRequest.getPickUpSavePlace().getPrimaryText());

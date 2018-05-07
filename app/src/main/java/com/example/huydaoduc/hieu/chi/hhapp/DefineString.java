@@ -26,8 +26,8 @@ public class DefineString {
     }};
 
     // Car type
-    public static final HashMap<CarType,String> CAR_TYPE_MAP = new HashMap<CarType, String>() {{
-        put(CarType.BIKE,"BIKE");
+    public static final LinkedHashMap<CarType,String> CAR_TYPE_MAP = new LinkedHashMap<CarType, String>() {{
+        put(CarType.BIKE, "BIKE");
         put(CarType.CAR_4,"4 SEAT CAR");
         put(CarType.CAR_7,"7 SEAT CAR");
     }};

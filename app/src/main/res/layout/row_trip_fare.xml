@@ -2,11 +2,19 @@
 <RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/row_car_type"
+    android:id="@+id/row_trip_fare"
     android:layout_width="match_parent"
     android:layout_height="70dp"
     android:layout_centerVertical="true"
     android:gravity="center_vertical">
+
+    <View
+        android:id="@+id/bar"
+        android:layout_width="fill_parent"
+        android:layout_height="1dp"
+        android:layout_below="@id/tv_drop_off_address"
+        android:background="@color/light_blue_gray"
+        android:layout_alignParentTop="true"/>
 
     <ImageView
         android:id="@+id/iv_car_type"
@@ -25,12 +33,12 @@
         android:textSize="16sp"
         />
 
-    <LinearLayout
+    <RelativeLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:layout_alignParentEnd="true"
         android:layout_centerVertical="true"
+        android:layout_toEndOf="@+id/tv_car_type"
         android:layout_marginEnd="@dimen/margin_default_20"
         >
 
@@ -38,19 +46,23 @@
             android:id="@+id/tv_fare"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="VND 10K"
+            android:text="VND 0K"
+            android:layout_alignParentRight="true"
             android:textStyle="bold"
-            android:gravity="center"
+            android:gravity="left"
             />
 
         <TextView
             android:id="@+id/tv_duration"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_below="@id/tv_fare"
             android:text="5 min"
-            android:gravity="center"
-            android:textColor="@color/edit_text_hint"
+            android:gravity="left"
+            android:textColor="@color/deep_blue_gray"
             android:paddingEnd="@dimen/dp_10"
-            android:paddingStart="@dimen/dp_10"/>
-    </LinearLayout>
+            android:paddingStart="@dimen/dp_10"
+            android:layout_alignParentRight="true"
+            />
+    </RelativeLayout>
 </RelativeLayout>

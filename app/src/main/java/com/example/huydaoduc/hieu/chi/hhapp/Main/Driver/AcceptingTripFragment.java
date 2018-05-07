@@ -34,7 +34,6 @@ public class AcceptingTripFragment extends DialogFragment {
     TextView tv_note;
     Button btn_accept;
 
-
     private OnAcceptingFragmentListener mListener;
 
     public AcceptingTripFragment() {
@@ -110,7 +109,7 @@ public class AcceptingTripFragment extends DialogFragment {
         tv_note.setText(note);
 
         btn_accept.setOnClickListener(e ->{
-//            mListener.OnTripAccepted();
+            mListener.OnTripAccepted();
             dismiss();
         });
 

@@ -60,7 +60,11 @@
     <color name="route_request_back_ground">#ffffff</color>
     <color name="route_request_title">#000000</color>
     <color name="route_request_time">#7b7b7b</color>
-    <color name="deep_blue_gray">#6b6b6b</color>
+
+    // Car type row
+    <color name="deep_blue_gray">#9497a1</color>
+    <color name="light_blue_gray">#eaeff2</color>
+    <color name="selected_car_type_row">#33c066</color>
 
 
 </resources>

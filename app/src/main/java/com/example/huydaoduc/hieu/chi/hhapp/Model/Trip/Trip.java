@@ -16,14 +16,7 @@ public class Trip implements Parcelable {
     private TripType tripType;
     private TripState tripState;
 
-    private String startTime;           // when pick up
-    private String endTime;             // when drop off
-
-    private Float tripDistance;
-    private Float tripDuration;
-
-    private Float estimateFare;
-    private Float finalFare;
+    private TripFareInfo tripFareInfo;
 
     private PassengerRequest passengerRequest;
     private RouteRequest routeRequest;
@@ -31,19 +24,13 @@ public class Trip implements Parcelable {
     public Trip() {
     }
 
-
-    public Trip(String tripUId, String passengerUId, String driverUId, TripType tripType, TripState tripState, String startTime, String endTime, Float tripDistance, Float tripDuration, Float estimateFare, Float finalFare, PassengerRequest passengerRequest, RouteRequest routeRequest) {
+    public Trip(String tripUId, String passengerUId, String driverUId, TripType tripType, TripState tripState, TripFareInfo tripFareInfo, PassengerRequest passengerRequest, RouteRequest routeRequest) {
         this.tripUId = tripUId;
         this.passengerUId = passengerUId;
         this.driverUId = driverUId;
         this.tripType = tripType;
         this.tripState = tripState;
-        this.startTime = startTime;
-        this.endTime = endTime;
-        this.tripDistance = tripDistance;
-        this.tripDuration = tripDuration;
-        this.estimateFare = estimateFare;
-        this.finalFare = finalFare;
+        this.tripFareInfo = tripFareInfo;
         this.passengerRequest = passengerRequest;
         this.routeRequest = routeRequest;
     }
@@ -88,52 +75,12 @@ public class Trip implements Parcelable {
         this.tripState = tripState;
     }
 
-    public String getStartTime() {
-        return startTime;
+    public TripFareInfo getTripFareInfo() {
+        return tripFareInfo;
     }
 
-    public void setStartTime(String startTime) {
-        this.startTime = startTime;
-    }
-
-    public String getEndTime() {
-        return endTime;
-    }
-
-    public void setEndTime(String endTime) {
-        this.endTime = endTime;
-    }
-
-    public Float getTripDistance() {
-        return tripDistance;
-    }
-
-    public void setTripDistance(Float tripDistance) {
-        this.tripDistance = tripDistance;
-    }
-
-    public Float getTripDuration() {
-        return tripDuration;
-    }
-
-    public void setTripDuration(Float tripDuration) {
-        this.tripDuration = tripDuration;
-    }
-
-    public Float getEstimateFare() {
-        return estimateFare;
-    }
-
-    public void setEstimateFare(Float estimateFare) {
-        this.estimateFare = estimateFare;
-    }
-
-    public Float getFinalFare() {
-        return finalFare;
-    }
-
-    public void setFinalFare(Float finalFare) {
-        this.finalFare = finalFare;
+    public void setTripFareInfo(TripFareInfo tripFareInfo) {
+        this.tripFareInfo = tripFareInfo;
     }
 
     public PassengerRequest getPassengerRequest() {
@@ -152,19 +99,13 @@ public class Trip implements Parcelable {
         this.routeRequest = routeRequest;
     }
 
-
     public static final class Builder {
         private String tripUId;
         private String passengerUId;
         private String driverUId;
         private TripType tripType;
         private TripState tripState;
-        private String startTime;
-        private String endTime;
-        private Float tripDistance;
-        private Float tripDuration;
-        private Float estimateFare;
-        private Float finalFare;
+        private TripFareInfo tripFareInfo;
         private PassengerRequest passengerRequest;
         private RouteRequest routeRequest;
 
@@ -174,6 +115,7 @@ public class Trip implements Parcelable {
         public static Builder aTrip(String tripUId) {
             return new Builder().setTripUId(tripUId);
         }
+
 
         private Builder setTripUId(String tripUId) {
             this.tripUId = tripUId;
@@ -200,33 +142,8 @@ public class Trip implements Parcelable {
             return this;
         }
 
-        public Builder setStartTime(String startTime) {
-            this.startTime = startTime;
-            return this;
-        }
-
-        public Builder setEndTime(String endTime) {
-            this.endTime = endTime;
-            return this;
-        }
-
-        public Builder setTripDistance(Float tripDistance) {
-            this.tripDistance = tripDistance;
-            return this;
-        }
-
-        public Builder setTripDuration(Float tripDuration) {
-            this.tripDuration = tripDuration;
-            return this;
-        }
-
-        public Builder setEstimateFare(Float estimateFare) {
-            this.estimateFare = estimateFare;
-            return this;
-        }
-
-        public Builder setFinalFare(Float finalFare) {
-            this.finalFare = finalFare;
+        public Builder setTripFareInfo(TripFareInfo tripFareInfo) {
+            this.tripFareInfo = tripFareInfo;
             return this;
         }
 
@@ -247,12 +164,7 @@ public class Trip implements Parcelable {
             trip.setDriverUId(driverUId);
             trip.setTripType(tripType);
             trip.setTripState(tripState);
-            trip.setStartTime(startTime);
-            trip.setEndTime(endTime);
-            trip.setTripDistance(tripDistance);
-            trip.setTripDuration(tripDuration);
-            trip.setEstimateFare(estimateFare);
-            trip.setFinalFare(finalFare);
+            trip.setTripFareInfo(tripFareInfo);
             trip.setPassengerRequest(passengerRequest);
             trip.setRouteRequest(routeRequest);
             return trip;
@@ -271,12 +183,7 @@ public class Trip implements Parcelable {
         dest.writeString(this.driverUId);
         dest.writeInt(this.tripType == null ? -1 : this.tripType.ordinal());
         dest.writeInt(this.tripState == null ? -1 : this.tripState.ordinal());
-        dest.writeString(this.startTime);
-        dest.writeString(this.endTime);
-        dest.writeValue(this.tripDistance);
-        dest.writeValue(this.tripDuration);
-        dest.writeValue(this.estimateFare);
-        dest.writeValue(this.finalFare);
+        dest.writeParcelable(this.tripFareInfo, flags);
         dest.writeParcelable(this.passengerRequest, flags);
         dest.writeParcelable(this.routeRequest, flags);
     }
@@ -285,21 +192,16 @@ public class Trip implements Parcelable {
         this.tripUId = in.readString();
         this.passengerUId = in.readString();
         this.driverUId = in.readString();
-        int tmpTripStyle = in.readInt();
-        this.tripType = tmpTripStyle == -1 ? null : TripType.values()[tmpTripStyle];
+        int tmpTripType = in.readInt();
+        this.tripType = tmpTripType == -1 ? null : TripType.values()[tmpTripType];
         int tmpTripState = in.readInt();
         this.tripState = tmpTripState == -1 ? null : TripState.values()[tmpTripState];
-        this.startTime = in.readString();
-        this.endTime = in.readString();
-        this.tripDistance = (Float) in.readValue(Float.class.getClassLoader());
-        this.tripDuration = (Float) in.readValue(Float.class.getClassLoader());
-        this.estimateFare = (Float) in.readValue(Float.class.getClassLoader());
-        this.finalFare = (Float) in.readValue(Float.class.getClassLoader());
+        this.tripFareInfo = in.readParcelable(TripFareInfo.class.getClassLoader());
         this.passengerRequest = in.readParcelable(PassengerRequest.class.getClassLoader());
         this.routeRequest = in.readParcelable(RouteRequest.class.getClassLoader());
     }
 
-    public static final Parcelable.Creator<Trip> CREATOR = new Parcelable.Creator<Trip>() {
+    public static final Creator<Trip> CREATOR = new Creator<Trip>() {
         @Override
         public Trip createFromParcel(Parcel source) {
             return new Trip(source);

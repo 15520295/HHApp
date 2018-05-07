@@ -1,4 +1,4 @@
-package com.example.huydaoduc.hieu.chi.hhapp.Model;
+package com.example.huydaoduc.hieu.chi.hhapp.Model.Trip;
 
 import android.os.Parcel;
 import android.os.Parcelable;

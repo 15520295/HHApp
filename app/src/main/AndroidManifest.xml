@@ -79,15 +79,15 @@
         <activity
             android:name=".Main.ChangeName"
             android:theme="@style/AppTheme.PopMe" />
-        <activity android:name=".Main.InfoCar"></activity>
+        <activity android:name=".Main.InfoCar" />
 
         <service
             android:name=".Framework.CheckActivityCloseService"
             android:label="Real time location checking service"
-            android:stopWithTask="false"></service>
+            android:stopWithTask="false" />
 
-        <activity android:name=".Main.Passenger.FindingDriverActivity"></activity>
-        <activity android:name=".Main.Driver.PassengerRequestInfoActivity"></activity>
+        <activity android:name=".Main.Passenger.FindingDriverActivity" />
+        <activity android:name=".Main.Driver.PassengerRequestInfoActivity" />
     </application>
 
 </manifest>

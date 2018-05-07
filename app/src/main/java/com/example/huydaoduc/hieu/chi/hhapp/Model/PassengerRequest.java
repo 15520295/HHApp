@@ -17,25 +17,18 @@ public class PassengerRequest implements Parcelable {
     private SavedPlace pickUpSavePlace;
     private SavedPlace dropOffSavePlace;
 
-    private String startTime;
-    private CarType carType;
-
     @Nullable
     private String note;        // note for Driver
     private Integer waitMinute;     // how long can passenger wait for driver begin from startTime
     private float percentOff;
 
-
-
     public PassengerRequest() {
     }
 
-    public PassengerRequest(String passengerUId, SavedPlace pickUpSavePlace, SavedPlace dropOffSavePlace, String startTime, CarType carType, String note, Integer waitMinute, float percentOff) {
+    public PassengerRequest(String passengerUId, SavedPlace pickUpSavePlace, SavedPlace dropOffSavePlace, String note, Integer waitMinute, float percentOff) {
         this.passengerUId = passengerUId;
         this.pickUpSavePlace = pickUpSavePlace;
         this.dropOffSavePlace = dropOffSavePlace;
-        this.startTime = startTime;
-        this.carType = carType;
         this.note = note;
         this.waitMinute = waitMinute;
         this.percentOff = percentOff;
@@ -63,22 +56,6 @@ public class PassengerRequest implements Parcelable {
 
     public void setDropOffSavePlace(SavedPlace dropOffSavePlace) {
         this.dropOffSavePlace = dropOffSavePlace;
-    }
-
-    public String getStartTime() {
-        return startTime;
-    }
-
-    public void setStartTime(String startTime) {
-        this.startTime = startTime;
-    }
-
-    public CarType getCarType() {
-        return carType;
-    }
-
-    public void setCarType(CarType carType) {
-        this.carType = carType;
     }
 
     @Nullable
@@ -111,8 +88,6 @@ public class PassengerRequest implements Parcelable {
         private String passengerUId;
         private SavedPlace pickUpSavePlace;
         private SavedPlace dropOffSavePlace;
-        private String startTime;
-        private CarType carType;
         private String note;        // note for Driver
         private Integer waitMinute;     // how long can passenger wait for driver begin from startTime
         private float percentOff;
@@ -139,16 +114,6 @@ public class PassengerRequest implements Parcelable {
             return this;
         }
 
-        public Builder setStartTime(String startTime) {
-            this.startTime = startTime;
-            return this;
-        }
-
-        public Builder setCarType(CarType carType) {
-            this.carType = carType;
-            return this;
-        }
-
         public Builder setNote(String note) {
             this.note = note;
             return this;
@@ -169,8 +134,6 @@ public class PassengerRequest implements Parcelable {
             passengerRequest.setPassengerUId(passengerUId);
             passengerRequest.setPickUpSavePlace(pickUpSavePlace);
             passengerRequest.setDropOffSavePlace(dropOffSavePlace);
-            passengerRequest.setStartTime(startTime);
-            passengerRequest.setCarType(carType);
             passengerRequest.setNote(note);
             passengerRequest.setWaitMinute(waitMinute);
             passengerRequest.setPercentOff(percentOff);
@@ -188,8 +151,6 @@ public class PassengerRequest implements Parcelable {
         dest.writeString(this.passengerUId);
         dest.writeParcelable(this.pickUpSavePlace, flags);
         dest.writeParcelable(this.dropOffSavePlace, flags);
-        dest.writeString(this.startTime);
-        dest.writeInt(this.carType == null ? -1 : this.carType.ordinal());
         dest.writeString(this.note);
         dest.writeValue(this.waitMinute);
         dest.writeFloat(this.percentOff);
@@ -199,9 +160,6 @@ public class PassengerRequest implements Parcelable {
         this.passengerUId = in.readString();
         this.pickUpSavePlace = in.readParcelable(SavedPlace.class.getClassLoader());
         this.dropOffSavePlace = in.readParcelable(SavedPlace.class.getClassLoader());
-        this.startTime = in.readString();
-        int tmpCarType = in.readInt();
-        this.carType = tmpCarType == -1 ? null : CarType.values()[tmpCarType];
         this.note = in.readString();
         this.waitMinute = (Integer) in.readValue(Integer.class.getClassLoader());
         this.percentOff = in.readFloat();

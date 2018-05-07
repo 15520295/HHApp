@@ -6,7 +6,7 @@ import android.os.Parcelable;
 import com.example.huydaoduc.hieu.chi.hhapp.Define;
 import com.example.huydaoduc.hieu.chi.hhapp.Framework.Place.SavedPlace;
 import com.example.huydaoduc.hieu.chi.hhapp.Framework.TimeUtils;
-import com.example.huydaoduc.hieu.chi.hhapp.Model.NotifyTrip;
+import com.example.huydaoduc.hieu.chi.hhapp.Model.Trip.NotifyTrip;
 
 public class RouteRequest implements Parcelable {
 
