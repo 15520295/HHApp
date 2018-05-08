@@ -10,6 +10,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.Toast;
 
+import com.afollestad.materialdialogs.MaterialDialog;
 import com.example.huydaoduc.hieu.chi.hhapp.Define;
 import com.example.huydaoduc.hieu.chi.hhapp.Main.Driver.PassengerRequestInfoActivity;
 import com.example.huydaoduc.hieu.chi.hhapp.Model.Trip.NotifyTrip;
@@ -23,6 +24,8 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.lsjwzh.widget.materialloadingprogressbar.CircleProgressBar;
+import com.zaaach.toprightmenu.MenuItem;
+import com.zaaach.toprightmenu.TopRightMenu;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -42,8 +45,6 @@ public class RouteRequestManagerActivity extends AppCompatActivity {
     List<RouteRequest> routeRequests;
 
     DatabaseReference dbRefe;
-
-
 
     private String getCurUid() {
         return FirebaseAuth.getInstance().getCurrentUser().getUid();
@@ -184,18 +185,52 @@ public class RouteRequestManagerActivity extends AppCompatActivity {
                 // btn_request_state click event
                 RouteRequestAdapter adapter = new RouteRequestAdapter(routeRequests);
                 adapter.setOnItemChildClickListener((adapter1, view, position) -> {
-                    NotifyTrip notifyTrip = routeRequests.get(position).getNotifyTrip();
-                    if (notifyTrip == null) {
+                    if (view.getId() == R.id.iv_menu) {
+                        TopRightMenu topRightMenu;
+                        topRightMenu = new TopRightMenu(RouteRequestManagerActivity.this);
 
+                        List<MenuItem> menuItems = new ArrayList<>();
+                        menuItems.add( new MenuItem(R.drawable.ic_pause_20, getString(R.string.pause)));
+                        menuItems.add( new MenuItem(R.drawable.ic_delete_20, getString(R.string.delete)));
+                        menuItems.add( new MenuItem(R.drawable.ic_resume_20, getString(R.string.resume)));
+
+                        topRightMenu
+                                .setHeight(340)
+                                .setWidth(320)
+                                .showIcon(true)
+                                .dimBackground(true)
+                                .needAnimationStyle(true)
+                                .setAnimationStyle(R.style.TRM_ANIM_STYLE)
+                                .addMenuList(menuItems)
+                                .setOnMenuItemClickListener(new TopRightMenu.OnMenuItemClickListener() {
+                                    @Override
+                                    public void onMenuItemClick(int menuPosition) {
+                                        String command = null;
+
+                                        if (menuPosition == 0) {
+                                            command = "Pause";
+                                        } else if (menuPosition == 1) {
+                                            command = "Delete";
+                                        } else if (menuPosition == 2) {
+                                            command = "Resume";
+                                        }
+
+                                        changeRouteRequestState(position, command);
+                                    }
+                                })
+                                .showAsDropDown(view, -250, 0);	//带偏移量
                     }
-                    else
-                    {
-//                        if (view == adapter.getViewByPosition(position, R.id.btn_request_state)) {
-//
-//                        }
-                        Intent intent = new Intent(RouteRequestManagerActivity.this, PassengerRequestInfoActivity.class);
-                        intent.putExtra("tripUId", notifyTrip.getTripUId());
-                        RouteRequestManagerActivity.this.startActivity(intent);
+                    if (view.getId() == R.id.btn_request_state) {
+                        NotifyTrip notifyTrip = routeRequests.get(position).getNotifyTrip();
+                        if (notifyTrip == null) {
+
+                        }
+                        else
+                        {
+                            Intent intent = new Intent(RouteRequestManagerActivity.this, PassengerRequestInfoActivity.class);
+                            intent.putExtra("tripUId", notifyTrip.getTripUId());
+                            RouteRequestManagerActivity.this.startActivity(intent);
+                        }
                     }
                 });
 
@@ -208,6 +243,91 @@ public class RouteRequestManagerActivity extends AppCompatActivity {
 
             }
         });
+    }
+
+    private void changeRouteRequestState(int position, String command) {
+        if (command == null) {
+            return;
+        }
+
+        RouteRequest routeRequest = routeRequests.get(position);
+        RouteRequestState state = routeRequest.getRouteRequestState();
+
+        if (state == RouteRequestState.TIME_OUT) {
+            new MaterialDialog.Builder(this)
+                    .content(R.string.request_out_of_date)
+                    .positiveText(R.string.ok)
+                    .titleColor(getResources().getColor(R.color.title_bar_background_color))
+                    .positiveColor(getResources().getColor(R.color.title_bar_background_color))
+                    .widgetColorRes(R.color.title_bar_background_color)
+                    .buttonRippleColorRes(R.color.title_bar_background_color)
+                    .show();
+
+            return;
+        }
+        else if (state == RouteRequestState.FOUND_PASSENGER) {
+            if (command.equals("Pause") || command.equals("Delete")) {
+                new MaterialDialog.Builder(this)
+                        .content(R.string.cancel_request_warning)
+                        .positiveText(R.string.ok)
+                        .titleColor(getResources().getColor(R.color.title_bar_background_color))
+                        .positiveColor(getResources().getColor(R.color.title_bar_background_color))
+                        .widgetColorRes(R.color.title_bar_background_color)
+                        .buttonRippleColorRes(R.color.title_bar_background_color)
+                        .show();
+
+                return;
+            }
+        }
+        else if (command.equals("Delete")) {
+            // change state on server
+            dbRefe.child(Define.DB_ROUTE_REQUESTS)
+                    .child(routeRequest.getDriverUId())
+                    .child(routeRequest.getRouteRequestUId())
+                    .removeValue();
+
+            refreshList();
+
+            return;
+        }
+
+
+        if (state == RouteRequestState.FINDING_PASSENGER) {
+            if (command.equals("Pause")) {
+                new MaterialDialog.Builder(this)
+                        .title(R.string.pause_request_title)
+                        .content(R.string.pause_request_content)
+                        .positiveText(R.string.ok)
+                        .negativeText(R.string.cancel)
+                        .titleColor(getResources().getColor(R.color.title_bar_background_color))
+                        .positiveColor(getResources().getColor(R.color.title_bar_background_color))
+                        .widgetColorRes(R.color.title_bar_background_color)
+                        .buttonRippleColorRes(R.color.title_bar_background_color)
+                        .onPositive((dialog, which) -> {
+                            // change state on server
+                            dbRefe.child(Define.DB_ROUTE_REQUESTS)
+                                    .child(routeRequest.getDriverUId())
+                                    .child(routeRequest.getRouteRequestUId())
+                                    .child(Define.DB_ROUTE_REQUESTS_ROUTE_REQUEST_STATE)
+                                    .setValue(RouteRequestState.PAUSE);
+
+                            refreshList();
+                        })
+                        .show();
+            }
+        }
+        if (state == RouteRequestState.PAUSE) {
+            if (command.equals("Resume")) {
+                // change state on server
+                dbRefe.child(Define.DB_ROUTE_REQUESTS)
+                        .child(routeRequest.getDriverUId())
+                        .child(routeRequest.getRouteRequestUId())
+                        .child(Define.DB_ROUTE_REQUESTS_ROUTE_REQUEST_STATE)
+                        .setValue(RouteRequestState.FINDING_PASSENGER);
+
+                refreshList();
+            }
+        }
     }
 
     private void notifyTripAndUpdateRequest(RouteRequest request) {

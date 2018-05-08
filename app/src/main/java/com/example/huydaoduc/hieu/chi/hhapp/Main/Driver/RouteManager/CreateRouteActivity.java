@@ -69,12 +69,6 @@ public class CreateRouteActivity extends SimpleMapActivity implements SimpleMapA
         btn_start_picker = findViewById(R.id.btn_start_place_picker);
         btn_end_picker = findViewById(R.id.btn_end_place_picker);
 
-        btn_date_picker = findViewById(R.id.btn_date_picker);
-        btn_date_picker.setText(TimeUtils.curDateToUserDateStr());
-
-        btn_time_picker = findViewById(R.id.btn_time_picker);
-        btn_time_picker.setText(TimeUtils.curDateToUserDateStr());
-
         initDateTimePicker();
 
         titleBar = (BGATitleBar) findViewById(R.id.titlebar);
@@ -106,14 +100,6 @@ public class CreateRouteActivity extends SimpleMapActivity implements SimpleMapA
             public void onClickRightSecondaryCtv() {
 
             }
-        });
-
-        btn_date_picker.setOnClickListener(view -> {
-            datePickerDialog.show(getFragmentManager(),"datePickerDialog");
-        });
-
-        btn_time_picker.setOnClickListener(v ->{
-            timePickerDialog.show(getFragmentManager(),"timePickerDialog");
         });
 
         btn_create_route.setOnClickListener(v -> {
@@ -257,6 +243,12 @@ public class CreateRouteActivity extends SimpleMapActivity implements SimpleMapA
     TimePickerDialog timePickerDialog;
 
     private void initDateTimePicker() {
+        btn_date_picker = findViewById(R.id.btn_date_picker);
+        btn_date_picker.setText(TimeUtils.curDateToUserDateStr());
+
+        btn_time_picker = findViewById(R.id.btn_time_picker);
+        btn_time_picker.setText(TimeUtils.curDateToUserDateStr());
+
         selectedDateTime = Calendar.getInstance();
         selectedDateTime.add(Calendar.MINUTE,20);
         btn_time_picker.setText(TimeUtils.timeToUserTimeStr(selectedDateTime.getTime()));
@@ -272,6 +264,13 @@ public class CreateRouteActivity extends SimpleMapActivity implements SimpleMapA
         datePickerDialog.setVersion(DatePickerDialog.Version.VERSION_2);
         datePickerDialog.setAccentColor(ResourcesCompat.getColor(getResources(), R.color.date_picker_bar, null));
 
+        btn_date_picker.setOnClickListener(view -> {
+            if(datePickerDialog.isAdded())
+                return;
+
+            datePickerDialog.show(getFragmentManager(),"datePickerDialog");
+        });
+
         // Time
         TimePickerDialog.OnTimeSetListener timeSetListener = (view, hourOfDay, minute, second) -> {
             btn_time_picker.setText(TimeUtils.timeToUserTimeStr(hourOfDay,minute));
@@ -285,6 +284,12 @@ public class CreateRouteActivity extends SimpleMapActivity implements SimpleMapA
         timePickerDialog = TimePickerDialog.newInstance(timeSetListener, true);
         timePickerDialog.setAccentColor(ResourcesCompat.getColor(getResources(), R.color.date_picker_bar, null));
 
+        btn_time_picker.setOnClickListener(v ->{
+            if(timePickerDialog.isAdded())
+                return;
+
+            timePickerDialog.show(getFragmentManager(),"timePickerDialog");
+        });
     }
 
     //endregion

@@ -104,9 +104,9 @@
         <item name="bgatitlebar_leftAndRightTextSize">18sp</item>
     </style>
     <style name="AppTheme.PopMe">
-
         <item name="android:windowIsTranslucent">true</item>
         <item name="android:windowCloseOnTouchOutside">true</item>
     </style>
+
 
 </resources>

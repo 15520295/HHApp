@@ -1,7 +1,6 @@
 package com.example.huydaoduc.hieu.chi.hhapp.Main.Passenger;
 
 import android.Manifest;
-import android.app.Activity;
 import android.app.Dialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -10,6 +9,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.widget.CardView;
 import android.text.InputType;
 import android.text.TextUtils;
@@ -58,9 +58,11 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.rilixtech.materialfancybutton.MaterialFancyButton;
+import com.wdullaer.materialdatetimepicker.date.DatePickerDialog;
+import com.wdullaer.materialdatetimepicker.time.TimePickerDialog;
 
 import java.util.ArrayList;
-import java.util.Date;
+import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
 
@@ -81,7 +83,7 @@ public class PassengerActivity extends SimpleMapActivity
     private Button btnMessage, btnCall;
     private TextView tvName, tvPhone;
 
-    MaterialFancyButton btn_cd_start_time, btn_cd_note, btn_cd_wait_time;
+    Button btn_cd_note, btn_cd_wait_time;
 
     private TextView tv_fare, tv_duration, tv_car_type;
     private ImageView iv_car_type;
@@ -109,7 +111,7 @@ public class PassengerActivity extends SimpleMapActivity
     @Override
     public void OnMapSetupDone() {
         if (mLastLocation != null) {
-            String startAddress = LocationUtils.getLocationAddress(geocoder,mLastLocation);
+            String startAddress = LocationUtils.getLocationAddress(geocoder, mLastLocation);
 
             getPickupPlace().setAddress(startAddress);
             getPickupPlace().setLocation(LocationUtils.locaToStr(mLastLocation));
@@ -119,6 +121,9 @@ public class PassengerActivity extends SimpleMapActivity
             btn_pickupLocation.setSelected(true);
 
             markerManager.draw_PickupPlaceMarker(getPickupPlace());
+        } else {
+            btn_pickupLocation.setText(R.string.enter_pick_up);
+            btn_pickupLocation.setSelected(true);
         }
     }
 
@@ -965,6 +970,69 @@ public class PassengerActivity extends SimpleMapActivity
     public void OnCancel() {
         showButtonFinder();
     }
+
+    //endregion
+
+    //region ------ Date Time Picker  --------
+    Calendar selectedDateTime;
+    DatePickerDialog datePickerDialog;
+    Button btn_cd_time_picker, btn_cd_date_picker;
+    TimePickerDialog timePickerDialog;
+
+    private void initDateTimePicker() {
+        selectedDateTime = Calendar.getInstance();
+
+        btn_cd_date_picker = findViewById(R.id.btn_cd_date_picker);
+        btn_cd_date_picker.setText(TimeUtils.curDateToUserDateStr());
+
+        btn_cd_time_picker = findViewById(R.id.btn_cd_time_picker);
+        btn_cd_time_picker.setText(TimeUtils.timeToUserTimeStr(selectedDateTime.getTime()));
+
+        // Date
+        DatePickerDialog.OnDateSetListener dateSetListener = (view, year, monthOfYear, dayOfMonth) -> {
+            btn_cd_date_picker.setText(TimeUtils.dateToUserDateStr(dayOfMonth,monthOfYear,year));
+
+            selectedDateTime.set(year,monthOfYear,dayOfMonth);
+
+            getCurTripFareInfoInstance().setStartTime(TimeUtils.dateToStr(selectedDateTime.getTime()));
+            updateTripFareInfoView();
+        };
+
+        btn_cd_date_picker.setOnClickListener(view -> {
+            if(datePickerDialog.isAdded())
+                return;
+
+            datePickerDialog.show(getFragmentManager(),"datePickerDialog");
+        });
+
+        datePickerDialog = DatePickerDialog.newInstance(dateSetListener, Calendar.getInstance());
+        datePickerDialog.setVersion(DatePickerDialog.Version.VERSION_2);
+        datePickerDialog.setAccentColor(ResourcesCompat.getColor(getResources(), R.color.date_picker_bar, null));
+
+        // Time
+        TimePickerDialog.OnTimeSetListener timeSetListener = (view, hourOfDay, minute, second) -> {
+            btn_cd_time_picker.setText(TimeUtils.timeToUserTimeStr(hourOfDay,minute));
+
+            selectedDateTime.set(Calendar.HOUR_OF_DAY,hourOfDay);
+            selectedDateTime.set(Calendar.MINUTE,minute);
+            selectedDateTime.set(Calendar.SECOND,0);
+            selectedDateTime.set(Calendar.MILLISECOND,0);
+
+            getCurTripFareInfoInstance().setStartTime(TimeUtils.dateToStr(selectedDateTime.getTime()));
+            updateTripFareInfoView();
+        };
+
+        timePickerDialog = TimePickerDialog.newInstance(timeSetListener, true);
+        timePickerDialog.setAccentColor(ResourcesCompat.getColor(getResources(), R.color.date_picker_bar, null));
+
+        btn_cd_time_picker.setOnClickListener(v ->{
+            if(timePickerDialog.isAdded())
+                return;
+
+            timePickerDialog.show(getFragmentManager(),"timePickerDialog");
+        });
+    }
+
     //endregion
 
     //region ------ Auto Complete  --------
@@ -1011,11 +1079,19 @@ public class PassengerActivity extends SimpleMapActivity
 
 
                 if (requestCode == PICKUP_PLACE_AUTOCOMPLETE_REQUEST_CODE) {
+
                     pickupPlace = new SavedPlace();
                     pickupPlace.setId(placeId);
-                    pickupPlace.setPrimaryText(placePrimaryText);
-                    pickupPlace.setAddress(placeAddress);
                     pickupPlace.setLocation(placeLocation);
+                    if (placePrimaryText == null && placeLocation != null) {
+                        String address = LocationUtils.getLocationAddress(geocoder, LocationUtils.strToLatLng(placeLocation));
+
+                        pickupPlace.setPrimaryText(address);
+                        pickupPlace.setAddress(address);
+                    } else {
+                        pickupPlace.setPrimaryText(placePrimaryText);
+                        pickupPlace.setAddress(placeAddress);
+                    }
 
                     btn_pickupLocation.setText(placePrimaryText);
 
@@ -1023,9 +1099,17 @@ public class PassengerActivity extends SimpleMapActivity
                 } else if (requestCode == END_PLACE_AUTOCOMPLETE_REQUEST_CODE) {
                     dropPlace = new SavedPlace();
                     dropPlace.setId(placeId);
-                    dropPlace.setPrimaryText(placePrimaryText);
-                    dropPlace.setAddress(placeAddress);
                     dropPlace.setLocation(placeLocation);
+                    // if network is slow get address by geocoder
+                    if (placePrimaryText == null && placeLocation != null) {
+                        String address = LocationUtils.getLocationAddress(geocoder, LocationUtils.strToLatLng(placeLocation));
+
+                        dropPlace.setPrimaryText(address);
+                        dropPlace.setAddress(address);
+                    } else {
+                        dropPlace.setPrimaryText(placePrimaryText);
+                        dropPlace.setAddress(placeAddress);
+                    }
 
                     btn_dropLocation.setText(placePrimaryText);
 
@@ -1124,13 +1208,16 @@ public class PassengerActivity extends SimpleMapActivity
         dbRefe = FirebaseDatabase.getInstance().getReference();
 
         // Init View
-
         btn_findDriver = findViewById(R.id.btn_cancel);
 
-        btn_cd_start_time = findViewById(R.id.btn_cd_start_time);
         btn_cd_wait_time = findViewById(R.id.btn_cd_wait_time);
         btn_cd_wait_time.setText(DefineString.DEFAULT_WAIT_TIME.first);
+        btn_cd_wait_time.setSelected(true);
+
         btn_cd_note = findViewById(R.id.btn_cd_note);
+        btn_cd_note.setText(DefineString.NOTES_TO_DRIVER_TITLE);
+
+        initDateTimePicker();
 
         group_trip_info = findViewById(R.id.group_trip_info);
         tv_fare = findViewById(R.id.tv_fare);
@@ -1145,12 +1232,7 @@ public class PassengerActivity extends SimpleMapActivity
     }
 
     private void addEven() {
-
         btn_findDriver.setOnClickListener(v -> startBooking());
-
-        btn_cd_start_time.setOnClickListener(e ->{
-
-        });
 
         btn_cd_wait_time.setOnClickListener(e ->{
             ArrayList<String> other = new ArrayList<>();
@@ -1174,19 +1256,26 @@ public class PassengerActivity extends SimpleMapActivity
         });
 
         btn_cd_note.setOnClickListener(e ->{
+            String prefill = null;
+            if (! btn_cd_note.getText().toString().equals(DefineString.NOTES_TO_DRIVER_TITLE)) {
+                prefill = btn_cd_note.getText().toString();
+            }
+
             new MaterialDialog.Builder(this)
                     .title(DefineString.NOTES_TO_DRIVER_TITLE)
                     .inputType(InputType.TYPE_CLASS_TEXT)
-                    .input(DefineString.NOTES_TO_DRIVER_HINT, null, (dialog, input) ->
+                    .input(DefineString.NOTES_TO_DRIVER_HINT, prefill, (dialog, input) ->
                     {
                         if (!TextUtils.isEmpty(input)) {
                             btn_cd_note.setText(input.toString());
+                        } else {
+                            btn_cd_note.setText(DefineString.NOTES_TO_DRIVER_TITLE);
                         }
                     })
                     .titleColor(getResources().getColor(R.color.title_bar_background_color))
                     .positiveColor(getResources().getColor(R.color.title_bar_background_color))
-                    .positiveText("CONFIRM")
-                    .negativeText("CANCEL")
+                    .positiveText(getResources().getString(R.string.confirm).toUpperCase())
+                    .negativeText(getResources().getString(R.string.cancel).toUpperCase())
                     .widgetColorRes(R.color.title_bar_background_color)
                     .buttonRippleColorRes(R.color.title_bar_background_color)
                     .show();

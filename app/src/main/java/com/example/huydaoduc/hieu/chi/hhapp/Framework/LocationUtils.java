@@ -76,10 +76,13 @@ public class LocationUtils {
     //endregion
 
     public static String getLocationAddress(Geocoder geocoder, Location location) {
+        return getLocationAddress(geocoder,LocationUtils.locaToLatLng(location));
+    }
+    public static String getLocationAddress(Geocoder geocoder, LatLng latLng) {
 
         StringBuilder result = new StringBuilder();
         try {
-            List<Address> addresses = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(), 1);
+            List<Address> addresses = geocoder.getFromLocation(latLng.latitude, latLng.longitude, 1);
             if (addresses != null && addresses.size() > 0) {
                 Address address = addresses.get(0);
                 result.append(address.getAddressLine(0));

@@ -66,5 +66,10 @@
     <color name="light_blue_gray">#eaeff2</color>
     <color name="selected_car_type_row">#33c066</color>
 
+    // Condition Button
+    <color name="condition_text">#9497a1</color>
+    <color name="condition_focus">#d9ddde</color>
+    <color name="condition_default">#f8fbfc</color>
+
 
 </resources>

@@ -47,14 +47,19 @@ public class TimeUtils {
     /**
      * User string mean a String of date that User can easily read
      */
+    public static String dateToUserDateStr(Date date) {
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(date);
+        return userDateFormat.format(cal.getTime());
+    }
     public static String dateToUserDateStr(int day, int month, int year) {
         Calendar cal = Calendar.getInstance();
         cal.set(year,month,day);
-        return userDateFormat.format(cal.getTime());
+        return dateToUserDateStr(cal.getTime());
     }
     public static String curDateToUserDateStr() {
         Calendar cal = Calendar.getInstance();
-        return userDateFormat.format(cal.getTime());
+        return dateToUserDateStr(cal.getTime());
     }
 
     public static String timeToUserTimeStr(int hourOfDay, int minute) {

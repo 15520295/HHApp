@@ -2,11 +2,11 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    xmlns:fancy="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".Main.Driver.PassengerRequestInfoActivity"
     android:background="#ffffff">
-
 
 
     <ImageView
@@ -18,17 +18,18 @@
         android:background="#C4CCDF"/>
 
 
-    <ImageButton
+    <com.rilixtech.materialfancybutton.MaterialFancyButton
         android:id="@+id/btn_back"
-        android:layout_width="20dp"
-        android:layout_height="20dp"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
         android:layout_marginStart="25dp"
         android:layout_marginTop="25dp"
-        android:background="@color/transparent"
-        android:scaleType="fitCenter"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/ic_back_v2_white_26px" />
+        android:padding="2dp"
+        fancy:mfb_iconResource="@drawable/ic_back_50"
+        fancy:mfb_iconPosition="top"
+        fancy:mfb_defaultColor="#7b989898"
+        fancy:mfb_focusColor="#7b989898"
+        fancy:mfb_radius="50dp" />
 
     <android.support.v7.widget.CardView
         android:id="@+id/group_passenger_name"
@@ -68,8 +69,8 @@
         android:layout_marginStart="@dimen/margin_default_25"
         android:text="Start time"
         android:textStyle="bold"
-        android:textSize="18sp"
-        android:layout_marginTop="@dimen/margin_default_15"/>
+        android:textSize="14sp"
+        android:layout_marginTop="@dimen/dp_10"/>
 
     <LinearLayout
         android:id="@+id/group_place"
@@ -86,7 +87,7 @@
             android:id="@+id/tv_pick_up_address"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:drawableLeft="@drawable/ic_vertical_line_blue_60x"
+            android:drawableLeft="@drawable/ic_vertical_line_blue"
             android:layout_below="@id/tv_time_start"
             android:drawablePadding="10dp"
             android:ellipsize="marquee"
@@ -95,7 +96,7 @@
             android:scrollHorizontally="true"
             android:singleLine="true"
             android:text="Start "
-            android:textSize="20sp"
+            android:textSize="16sp"
             />
 
         <TextView
@@ -104,9 +105,9 @@
             android:layout_height="wrap_content"
             android:layout_below="@id/tv_pick_up_address"
             android:text="End"
-            android:textSize="20sp"
+            android:textSize="16sp"
             android:gravity="center_vertical"
-            android:drawableLeft="@drawable/ic_vertical_line_red_60"
+            android:drawableLeft="@drawable/ic_vertical_line_red"
             android:drawablePadding="10dp"
             android:ellipsize="marquee"
             android:scrollHorizontally="true"
@@ -135,11 +136,10 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:name="com.google.android.gms.maps.SupportMapFragment" />
-
-
-    </RelativeLayout>
-
+        </RelativeLayout>
     </android.support.v7.widget.CardView>
+
+
 
 
 

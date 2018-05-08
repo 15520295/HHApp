@@ -94,25 +94,26 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:weightSum="3">
+                android:weightSum="9">
 
-                <com.rilixtech.materialfancybutton.MaterialFancyButton
-                    android:id="@+id/btn_cd_start_time"
+                <Button
+                    android:id="@+id/btn_cd_time_picker"
                     android:layout_width="0dp"
-                    android:layout_weight="1"
-                    android:layout_height="wrap_content"
-                    android:paddingBottom="10dp"
-                    android:paddingTop="10dp"
-                    android:paddingStart="0dp"
-                    fancy:mfb_textGravity="left"
-                    fancy:mfb_iconResource="@drawable/ic_clock_black"
-                    fancy:mfb_iconPaddingTop="2dp"
-                    fancy:mfb_text="Now"
-                    fancy:mfb_defaultColor="#f8fbfc"
-                    fancy:mfb_focusColor="#d9ddde"
-                    fancy:mfb_iconPosition="left"
-                    fancy:mfb_textColor="@color/deep_blue_gray"
-                    fancy:mfb_textSize="14sp"/>
+                    android:layout_weight="4"
+                    android:layout_height="40dp"
+                    style="@style/CusFlatButtonStyle"
+                    android:background="@color/condition_default"
+                    android:text="Now"
+                    android:textColor="@color/condition_text"
+                    android:textSize="14sp"
+                    android:gravity="left|center_vertical"
+                    android:textAllCaps="false"
+                    android:drawablePadding="10dp"
+                    android:drawableLeft="@drawable/ic_clock_black"
+                    android:ellipsize="marquee"
+                    android:scrollHorizontally="true"
+                    android:marqueeRepeatLimit ="marquee_forever"
+                    android:singleLine="true" />
 
                 <View
                     android:id="@+id/bar"
@@ -121,23 +122,25 @@
                     android:layout_below="@id/prb_loading"
                     android:background="@color/bar"/>
 
-
-                <com.rilixtech.materialfancybutton.MaterialFancyButton
-                    android:id="@+id/btn_cd_wait_time"
+                <Button
+                    android:id="@+id/btn_cd_date_picker"
                     android:layout_width="0dp"
-                    android:layout_weight="2"
-                    android:layout_height="wrap_content"
-                    android:paddingBottom="10dp"
-                    android:paddingTop="10dp"
-                    fancy:mfb_textGravity="left"
-                    fancy:mfb_iconResource="@drawable/ic_wait_time_black"
-                    fancy:mfb_iconPaddingTop="2dp"
-                    fancy:mfb_text="How long can you wait"
-                    fancy:mfb_defaultColor="#f8fbfc"
-                    fancy:mfb_focusColor="#d9ddde"
-                    fancy:mfb_iconPosition="left"
-                    fancy:mfb_textColor="@color/deep_blue_gray"
-                    fancy:mfb_textSize="14sp"/>
+                    android:layout_weight="5"
+                    android:layout_height="40dp"
+                    style="@style/CusFlatButtonStyle"
+                    android:background="@color/condition_default"
+                    android:text="Today"
+                    android:textColor="@color/condition_text"
+                    android:textSize="14sp"
+                    android:gravity="left|center_vertical"
+                    android:textAllCaps="false"
+                    android:drawablePadding="10dp"
+                    android:drawableLeft="@drawable/ic_calendar_black"
+                    android:ellipsize="marquee"
+                    android:scrollHorizontally="true"
+                    android:marqueeRepeatLimit ="marquee_forever"
+                    android:singleLine="true" />
+
 
             </LinearLayout>
 
@@ -149,23 +152,54 @@
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:weightSum="9">
 
-
-                <com.rilixtech.materialfancybutton.MaterialFancyButton
+                <Button
                     android:id="@+id/btn_cd_note"
                     android:layout_width="0dp"
-                    android:layout_weight="1"
-                    android:layout_height="wrap_content"
-                    android:paddingBottom="10dp"
-                    android:paddingTop="10dp"
-                    fancy:mfb_iconPaddingTop="2dp"
-                    fancy:mfb_iconResource="@drawable/ic_note_black"
-                    fancy:mfb_text="Notes for driver"
-                    fancy:mfb_defaultColor="#f8fbfc"
-                    fancy:mfb_focusColor="#d9ddde"
-                    fancy:mfb_textColor="@color/deep_blue_gray"
-                    fancy:mfb_textSize="14sp"/>
+                    android:layout_weight="4"
+                    android:layout_height="40dp"
+                    style="@style/CusFlatButtonStyle"
+                    android:background="@color/condition_default"
+                    android:text="Notes to driver"
+                    android:textColor="@color/condition_text"
+                    android:textSize="14sp"
+                    android:gravity="left|center_vertical"
+                    android:textAllCaps="false"
+                    android:drawablePadding="10dp"
+                    android:drawableLeft="@drawable/ic_note_black"
+                    android:ellipsize="marquee"
+                    android:scrollHorizontally="true"
+                    android:marqueeRepeatLimit ="marquee_forever"
+                    android:singleLine="true" />
+
+                <View
+                    android:layout_width="1dp"
+                    android:layout_height="match_parent"
+                    android:layout_below="@id/prb_loading"
+                    android:background="@color/bar"/>
+
+                <Button
+                    android:id="@+id/btn_cd_wait_time"
+                    android:layout_width="0dp"
+                    android:layout_weight="5"
+                    android:layout_height="40dp"
+                    style="@style/CusFlatButtonStyle"
+                    android:paddingRight="@dimen/dp_10"
+                    android:background="@color/condition_default"
+                    android:text="How long can you wait"
+                    android:textColor="@color/condition_text"
+                    android:textSize="14sp"
+                    android:gravity="left|center_vertical"
+                    android:textAllCaps="false"
+                    android:drawablePadding="10dp"
+                    android:drawableLeft="@drawable/ic_wait_time_black"
+                    android:ellipsize="marquee"
+                    android:scrollHorizontally="true"
+                    android:marqueeRepeatLimit ="marquee_forever"
+                    android:singleLine="true" />
             </LinearLayout>
 
         </LinearLayout>
