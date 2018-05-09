@@ -105,6 +105,10 @@ dependencies {
     // Top right menu
     implementation 'com.zaaach:toprightmenu:1.1.2'
 
+    // Header For layout
+    implementation 'com.scwang.smartrefresh:SmartRefreshLayout:1.1.0-alpha-5'
+    implementation 'com.scwang.smartrefresh:SmartRefreshHeader:1.1.0-alpha-5'
+
     // Hieu
     implementation 'com.rilixtech:materialfancybuttons:1.8.7'
     implementation 'com.github.dimorinny:floating-text-button:0.0.4'

@@ -18,22 +18,35 @@
         app:bgatitlebar_leftAndRightTextSize="19sp"
         />
 
-    <com.lsjwzh.widget.materialloadingprogressbar.CircleProgressBar
-        android:id="@+id/prb_loading_route"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
-        android:layout_centerHorizontal="true"
-        app:mlpb_progress_color="@color/title_bar_background_color"
-        android:layout_below="@id/titlebar"
-        android:layout_marginTop="40dp"/>
-
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/recycler_view_route_requests"
+    <com.scwang.smartrefresh.layout.SmartRefreshLayout
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/refreshLayout"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/titlebar">
+        android:layout_height="match_parent"
+        android:layout_below="@+id/titlebar"
+        android:background="#ffffff"
+        app:srlAccentColor="#000000"
+        app:srlEnablePreviewInEditMode="true"
+        app:srlPrimaryColor="#eaffffff">
+        <!--srlAccentColor and srlPrimaryColor, Will change the Header and Footer theme colors-->
+        <!--srlEnablePreviewInEditMode, Can open and close the preview function-->
+        <com.scwang.smartrefresh.layout.header.ClassicsHeader
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
 
-    </android.support.v7.widget.RecyclerView>
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/recycler_view_route_requests"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+            </android.support.v7.widget.RecyclerView>
+
+        </RelativeLayout>
+    </com.scwang.smartrefresh.layout.SmartRefreshLayout>
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/fab_add_route"
@@ -43,5 +56,6 @@
         android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
         android:layout_margin="20dp"
+        android:layout_marginBottom="@dimen/margin_default_20"
         app:backgroundTint="@color/title_bar_background_color"/>
 </RelativeLayout>

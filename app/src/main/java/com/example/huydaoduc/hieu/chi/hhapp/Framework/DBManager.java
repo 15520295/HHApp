@@ -1,6 +1,7 @@
 package com.example.huydaoduc.hieu.chi.hhapp.Framework;
 
 import com.example.huydaoduc.hieu.chi.hhapp.Define;
+import com.example.huydaoduc.hieu.chi.hhapp.Model.Trip.Trip;
 import com.example.huydaoduc.hieu.chi.hhapp.Model.User.OnlineUser;
 import com.example.huydaoduc.hieu.chi.hhapp.Model.User.UserInfo;
 import com.google.firebase.database.DataSnapshot;
@@ -55,6 +56,30 @@ public class DBManager {
 
     public interface GetOnlineUserListener {
         void OnGetDataDone(OnlineUser onlineUser);
+    }
+
+    public static void getTripById(String tripUId, final GetTripListener listener) {
+        DatabaseReference db = FirebaseDatabase.getInstance().getReference(Define.DB_TRIPS);
+
+        db
+                .child(tripUId)
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        Trip trip = dataSnapshot.getValue(Trip.class);
+                        assert trip != null;
+                        listener.OnGetDataDone(trip);
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                });
+    }
+
+    public interface GetTripListener {
+        void OnGetDataDone(Trip trip);
     }
 
 }

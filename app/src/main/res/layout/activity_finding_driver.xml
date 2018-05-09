@@ -76,117 +76,16 @@
             app:cardCornerRadius="4dp"
             app:cardElevation="2dp">
 
-            <LinearLayout
-                android:layout_width="match_parent"
+            <include
+                android:id="@+id/group_place"
+                layout="@layout/group_place_layout"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_below="@id/tv_time_start"
                 android:layout_marginBottom="@dimen/dp_10"
                 android:layout_marginEnd="@dimen/margin_default_20"
                 android:layout_marginStart="@dimen/margin_default_20"
-                android:layout_marginTop="@dimen/dp_10"
-                android:orientation="vertical">
-
-                <RelativeLayout
-                    android:id="@+id/group_pick_up_address"
-                    android:layout_width="match_parent"
-                    android:layout_height="60dp">
-
-                    <ImageView
-                        android:id="@+id/iv_start_line"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:src="@drawable/ic_vertical_line_blue_60x"
-                        android:layout_centerVertical="true"
-                        android:layout_marginRight="10dp"/>
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        android:layout_toEndOf="@id/iv_start_line">
-
-                        <TextView
-                            android:id="@+id/tv_pick_up_address_label"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_below="@id/tv_time_start"
-                            android:ellipsize="marquee"
-                            android:gravity="center_vertical"
-                            android:marqueeRepeatLimit="marquee_forever"
-                            android:scrollHorizontally="true"
-                            android:singleLine="true"
-                            android:text="PICK-UP"
-                            android:textColor="@color/edit_text_hint"
-                            android:textSize="16sp" />
-
-                        <TextView
-                            android:id="@+id/tv_pick_up_address"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_below="@id/tv_pick_up_address_label"
-                            android:drawablePadding="10dp"
-                            android:ellipsize="marquee"
-                            android:gravity="center_vertical"
-                            android:marqueeRepeatLimit="marquee_forever"
-                            android:scrollHorizontally="true"
-                            android:singleLine="true"
-                            android:text="Start "
-                            android:textSize="18sp" />
-                    </LinearLayout>
-                </RelativeLayout>
-
-
-                <RelativeLayout
-                    android:id="@+id/group_drop_off_address"
-                    android:layout_width="match_parent"
-                    android:layout_height="60dp">
-
-                    <ImageView
-                        android:id="@+id/iv_end_line"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:src="@drawable/ic_vertical_line_red_60"
-                        android:layout_centerVertical="true"
-                        android:layout_marginRight="@dimen/dp_10"/>
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        android:layout_toEndOf="@id/iv_end_line"
-                        android:layout_marginTop="@dimen/dp_10"
-                        >
-
-                        <TextView
-                            android:id="@+id/tv_drop_off_address_label"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_below="@id/tv_time_start"
-                            android:drawablePadding="10dp"
-                            android:ellipsize="marquee"
-                            android:gravity="center_vertical"
-                            android:marqueeRepeatLimit="marquee_forever"
-                            android:scrollHorizontally="true"
-                            android:singleLine="true"
-                            android:text="DROP-OFF"
-                            android:textColor="@color/edit_text_hint"
-                            android:textSize="16sp" />
-
-                        <TextView
-                            android:id="@+id/tv_drop_off_address"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_below="@id/tv_drop_off_address_label"
-                            android:ellipsize="marquee"
-                            android:gravity="center_vertical"
-                            android:marqueeRepeatLimit="marquee_forever"
-                            android:scrollHorizontally="true"
-                            android:singleLine="true"
-                            android:text="End"
-                            android:textSize="18sp" />
-                    </LinearLayout>
-                </RelativeLayout>
-            </LinearLayout>
+                android:layout_marginTop="@dimen/dp_10" />
 
         </android.support.v7.widget.CardView>
 

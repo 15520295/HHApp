@@ -1,12 +1,14 @@
 package com.example.huydaoduc.hieu.chi.hhapp.Model.User;
 
 import android.net.Uri;
+import android.os.Parcel;
+import android.os.Parcelable;
 
 import com.example.huydaoduc.hieu.chi.hhapp.Model.Car.CarInfo;
 
 import java.util.List;
 
-public class UserInfo {
+public class UserInfo implements Parcelable {
 
     private String uid;
     private String phoneNumber;
@@ -15,21 +17,18 @@ public class UserInfo {
     private Uri photoUri;
     //todo : private Integer cancelPercent;
 
-    private CarInfo carInfo;
-
     private List<String> trips;
 
     public UserInfo() {
 
     }
 
-    public UserInfo(String uid, String phoneNumber, String name, String yearOfBirth, Uri photoUri, CarInfo carInfo, List<String> trips) {
+    public UserInfo(String uid, String phoneNumber, String name, String yearOfBirth, Uri photoUri, List<String> trips) {
         this.uid = uid;
         this.phoneNumber = phoneNumber;
         this.name = name;
         this.yearOfBirth = yearOfBirth;
         this.photoUri = photoUri;
-        this.carInfo = carInfo;
         this.trips = trips;
     }
 
@@ -73,14 +72,6 @@ public class UserInfo {
         this.photoUri = photoUri;
     }
 
-    public CarInfo getCarInfo() {
-        return carInfo;
-    }
-
-    public void setCarInfo(CarInfo carInfo) {
-        this.carInfo = carInfo;
-    }
-
     public List<String> getTrips() {
         return trips;
     }
@@ -89,14 +80,12 @@ public class UserInfo {
         this.trips = trips;
     }
 
-
     public static final class Builder {
         private String uid;
         private String phoneNumber;
         private String name;
         private String yearOfBirth;
         private Uri photoUri;
-        private CarInfo carInfo;
         private List<String> trips;
 
         private Builder() {
@@ -105,6 +94,7 @@ public class UserInfo {
         public static Builder anUserInfo(String uid) {
             return new Builder().setUid(uid);
         }
+
 
         private Builder setUid(String uid) {
             this.uid = uid;
@@ -131,11 +121,6 @@ public class UserInfo {
             return this;
         }
 
-        public Builder setCarInfo(CarInfo carInfo) {
-            this.carInfo = carInfo;
-            return this;
-        }
-
         public Builder setTrips(List<String> trips) {
             this.trips = trips;
             return this;
@@ -148,9 +133,44 @@ public class UserInfo {
             userInfo.setName(name);
             userInfo.setYearOfBirth(yearOfBirth);
             userInfo.setPhotoUri(photoUri);
-            userInfo.setCarInfo(carInfo);
             userInfo.setTrips(trips);
             return userInfo;
         }
     }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(this.uid);
+        dest.writeString(this.phoneNumber);
+        dest.writeString(this.name);
+        dest.writeString(this.yearOfBirth);
+        dest.writeParcelable(this.photoUri, flags);
+        dest.writeStringList(this.trips);
+    }
+
+    protected UserInfo(Parcel in) {
+        this.uid = in.readString();
+        this.phoneNumber = in.readString();
+        this.name = in.readString();
+        this.yearOfBirth = in.readString();
+        this.photoUri = in.readParcelable(Uri.class.getClassLoader());
+        this.trips = in.createStringArrayList();
+    }
+
+    public static final Creator<UserInfo> CREATOR = new Creator<UserInfo>() {
+        @Override
+        public UserInfo createFromParcel(Parcel source) {
+            return new UserInfo(source);
+        }
+
+        @Override
+        public UserInfo[] newArray(int size) {
+            return new UserInfo[size];
+        }
+    };
 }

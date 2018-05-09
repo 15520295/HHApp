@@ -1,35 +1,35 @@
 package com.example.huydaoduc.hieu.chi.hhapp.Main.Driver;
 
 import android.os.Bundle;
+import android.text.TextUtils;
+import android.view.View;
 import android.widget.TextView;
 
-import com.example.huydaoduc.hieu.chi.hhapp.Define;
-import com.example.huydaoduc.hieu.chi.hhapp.Framework.DBManager;
 import com.example.huydaoduc.hieu.chi.hhapp.Framework.Place.SavedPlace;
 import com.example.huydaoduc.hieu.chi.hhapp.Framework.SimpleMapActivity;
 import com.example.huydaoduc.hieu.chi.hhapp.Framework.TimeUtils;
 import com.example.huydaoduc.hieu.chi.hhapp.Model.PassengerRequest;
 import com.example.huydaoduc.hieu.chi.hhapp.Model.Trip.Trip;
+import com.example.huydaoduc.hieu.chi.hhapp.Model.User.UserInfo;
 import com.example.huydaoduc.hieu.chi.hhapp.R;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.SupportMapFragment;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
+import com.rilixtech.materialfancybutton.MaterialFancyButton;
 
 import java.util.Date;
 import java.util.concurrent.atomic.AtomicInteger;
 
 
 public class PassengerRequestInfoActivity extends SimpleMapActivity implements SimpleMapActivity.SimpleMapListener {
-
     String tripUId;
     Trip trip;
+    UserInfo userInfo = null;
+
+    MaterialFancyButton btn_call, btn_messenger, btn_back;
 
     private DatabaseReference dbRefe;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,39 +37,27 @@ public class PassengerRequestInfoActivity extends SimpleMapActivity implements S
         setContentView(R.layout.activity_passenger_request_info);
 
         Init();
-
         Event();
 
         if (savedInstanceState == null) {
             Bundle extras = getIntent().getExtras();
             if (extras == null) {
-                tripUId = null;
+                trip = null;
             } else {
-                tripUId = extras.getString("tripUId");
+                trip = extras.getParcelable("trip");
+                userInfo = extras.getParcelable("userInfo");
+
             }
         } else {
-            tripUId = (String) savedInstanceState.getSerializable("tripUId");
+            trip = (Trip) savedInstanceState.getParcelable("trip");
+            userInfo = (UserInfo) savedInstanceState.getParcelable("userInfo");
         }
 
-        if (tripUId == null) {
+        if (trip == null || userInfo == null) {
             finish();
         } else {
-
+            loadInfo(trip, userInfo);
         }
-
-        dbRefe.child(Define.DB_TRIPS).child(tripUId).addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                trip = dataSnapshot.getValue(Trip.class);
-                loadTripInfo(trip);
-                onResponseReceived();
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
 
         // setup map
         setupCheckRealtime = false;
@@ -79,41 +67,72 @@ public class PassengerRequestInfoActivity extends SimpleMapActivity implements S
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
         isFirstGetLocation = false;
-
-
     }
 
-    TextView tv_passenger_name, tv_time_start, tv_start_address, tv_end_address;
+    TextView tv_passenger_name, tv_time_start, tv_estimate_fare, tv_start_address, tv_end_address, tv_note;
 
 
     private void Init() {
         tv_passenger_name = findViewById(R.id.tv_passenger_name);
         tv_time_start = findViewById(R.id.tv_time_start);
+        tv_estimate_fare = findViewById(R.id.tv_estimate_fare);
         tv_start_address = findViewById(R.id.tv_pick_up_address);
         tv_end_address = findViewById(R.id.tv_drop_off_address);
 
+        btn_call = findViewById(R.id.btn_call);
+        btn_messenger = findViewById(R.id.btn_messenger);
+        btn_back = findViewById(R.id.btn_back);
 
         // init database
         dbRefe = FirebaseDatabase.getInstance().getReference();
     }
 
     private void Event() {
+        btn_call.setOnClickListener(v ->{
+            // todo: btn_call
+        });
 
+        btn_messenger.setOnClickListener(v -> {
+            // todo: btn_messenger
+        });
+
+        btn_back.setOnClickListener(v -> finish());
     }
 
 
-    private void loadTripInfo(Trip trip) {
+    private void loadInfo(Trip trip, UserInfo userInfo) {
         PassengerRequest passengerRequest = trip.getPassengerRequest();
 
-        DBManager.getUserById(trip.getPassengerUId(), userInfo -> {
-            tv_passenger_name.setText(userInfo.getName());
-        });
+        tv_passenger_name.setText(userInfo.getName());
 
         Date passengerStartTime = trip.getTripFareInfo().func_getStartTimeAsDate();
         tv_time_start.setText(TimeUtils.dateToUserDateTimeStr(passengerStartTime));
 
+        tv_estimate_fare.setText(trip.getTripFareInfo().func_getEstimateFareText());
+
         tv_start_address.setText(passengerRequest.getPickUpSavePlace().getPrimaryText());
         tv_end_address.setText(passengerRequest.getDropOffSavePlace().getPrimaryText());
+
+        findViewById(R.id.tv_pick_up_address).setOnClickListener(v -> {
+            if(v.isSelected())
+                v.setSelected(false);
+            else
+                v.setSelected(true);
+        });
+        findViewById(R.id.tv_drop_off_address).setOnClickListener(v -> {
+            if(v.isSelected())
+                v.setSelected(false);
+            else
+                v.setSelected(true);
+        });
+
+
+        if (TextUtils.isEmpty(passengerRequest.getNote())) {
+            findViewById(R.id.group_note).setVisibility(View.GONE);
+        } else {
+            tv_note = findViewById(R.id.tv_note);
+            tv_note.setText(passengerRequest.getNote());
+        }
     }
 
     @Override
@@ -123,23 +142,17 @@ public class PassengerRequestInfoActivity extends SimpleMapActivity implements S
 
     @Override
     public void OnMapSetupDone() {
-        onResponseReceived();
+        mMap.getUiSettings().setAllGesturesEnabled(false);
 
-    }
+        if (trip != null) {
+            SavedPlace pickUpSavePlace = trip.getPassengerRequest().getPickUpSavePlace();
+            SavedPlace dropOffSavePlace = trip.getPassengerRequest().getDropOffSavePlace();
 
-    AtomicInteger receivedCount= new AtomicInteger();
-    public void onResponseReceived() {
-        if (receivedCount.incrementAndGet() == 2){
-            if (trip != null) {
-                SavedPlace pickUpSavePlace = trip.getPassengerRequest().getPickUpSavePlace();
-                SavedPlace dropOffSavePlace = trip.getPassengerRequest().getDropOffSavePlace();
+            markerManager.draw_PickupPlaceMarker(pickUpSavePlace);
+            markerManager.draw_DropPlaceMarker(dropOffSavePlace);
 
-                markerManager.draw_PickupPlaceMarker(pickUpSavePlace);
-                markerManager.draw_DropPlaceMarker(dropOffSavePlace);
-
-                if (trip.getPassengerRequest().getPickUpSavePlace() != null && trip.getPassengerRequest().getDropOffSavePlace() != null) {
-                    cameraManager.moveCam(pickUpSavePlace.func_getLatLngLocation(), dropOffSavePlace.func_getLatLngLocation());
-                }
+            if (trip.getPassengerRequest().getPickUpSavePlace() != null && trip.getPassengerRequest().getDropOffSavePlace() != null) {
+                cameraManager.moveCam(pickUpSavePlace.func_getLatLngLocation(), dropOffSavePlace.func_getLatLngLocation());
             }
         }
     }

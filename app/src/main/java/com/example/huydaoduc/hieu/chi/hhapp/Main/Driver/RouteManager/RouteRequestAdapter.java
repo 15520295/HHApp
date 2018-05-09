@@ -33,8 +33,6 @@ public class RouteRequestAdapter extends BaseQuickAdapter<RouteRequest, com.chad
             helper.setText(R.id.tv_request_title, routeRequest.getEndPlace().getAddress());
         }
 
-        ((TextView) helper.getView(R.id.tv_request_title)).setSelected(true);
-
         // State
         helper.setText(R.id.btn_request_state, DefineString.REQUEST_STATE_MAP.get(routeRequest.getRouteRequestState()));
         if (routeRequest.getRouteRequestState() == RouteRequestState.FOUND_PASSENGER) {
@@ -59,5 +57,26 @@ public class RouteRequestAdapter extends BaseQuickAdapter<RouteRequest, com.chad
         // Event
         helper.addOnClickListener(R.id.btn_request_state)
             .addOnClickListener(R.id.iv_menu);
+
+
+        // moving text
+        helper.getView(R.id.tv_request_title).setOnClickListener(v -> {
+            if(v.isSelected())
+                v.setSelected(false);
+            else
+                v.setSelected(true);
+        });
+        helper.getView(R.id.tv_pick_up_address).setOnClickListener(v -> {
+            if(v.isSelected())
+                v.setSelected(false);
+            else
+                v.setSelected(true);
+        });
+        helper.getView(R.id.tv_drop_off_address).setOnClickListener(v -> {
+            if(v.isSelected())
+                v.setSelected(false);
+            else
+                v.setSelected(true);
+        });
     }
 }
