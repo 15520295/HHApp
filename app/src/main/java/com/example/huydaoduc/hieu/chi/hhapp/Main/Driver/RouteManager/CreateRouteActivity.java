@@ -6,6 +6,7 @@ import android.location.Geocoder;
 import android.os.Bundle;
 import android.support.v4.content.res.ResourcesCompat;
 import android.util.Log;
+import android.view.View;
 import android.widget.Button;
 
 import com.example.huydaoduc.hieu.chi.hhapp.Define;
@@ -16,6 +17,7 @@ import com.example.huydaoduc.hieu.chi.hhapp.Framework.Place.SavedPlace;
 import com.example.huydaoduc.hieu.chi.hhapp.Framework.Place.SearchActivity;
 import com.example.huydaoduc.hieu.chi.hhapp.Framework.SimpleMapActivity;
 import com.example.huydaoduc.hieu.chi.hhapp.Framework.TimeUtils;
+import com.example.huydaoduc.hieu.chi.hhapp.Main.Passenger.PassengerActivity;
 import com.example.huydaoduc.hieu.chi.hhapp.Model.RouteRequest.RouteRequest;
 import com.example.huydaoduc.hieu.chi.hhapp.Model.User.UserState;
 import com.google.android.gms.location.LocationServices;
@@ -60,7 +62,55 @@ public class CreateRouteActivity extends SimpleMapActivity implements SimpleMapA
 
         Init();
         Event();
+        notifyBtnState();
     }
+
+    //region -------------- Button State --------------
+    private enum BtnState {
+        CREATE,
+        ENTER_START_POINT,
+        ENTER_END_POINT
+    }
+
+    private void mainBtnChangeState(BtnState state) {
+        if (state == BtnState.ENTER_START_POINT) {
+            btn_create_route.setText("Choose your Start point");
+            btn_create_route.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    btn_start_picker.callOnClick();
+                }
+            });
+        } else if (state == BtnState.ENTER_END_POINT) {
+            btn_create_route.setText("Choose your End point");
+            btn_create_route.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    btn_end_picker.callOnClick();
+                }
+            });
+        } else {
+            btn_create_route.setText("Create Route");
+            btn_create_route.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    createRouteRequest(autoCompleteRoute);
+                }
+            });
+        }
+
+    }
+
+    private void notifyBtnState() {
+        if (startPlace == null) {
+            mainBtnChangeState(BtnState.ENTER_START_POINT);
+        } else if (endPlace == null) {
+            mainBtnChangeState(BtnState.ENTER_END_POINT);
+        } else {
+            mainBtnChangeState(BtnState.CREATE);
+        }
+    }
+    //endregion
 
     private void Init() {
         // init view
@@ -111,7 +161,7 @@ public class CreateRouteActivity extends SimpleMapActivity implements SimpleMapA
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        AutoCompleteIntentResultHandle(requestCode,resultCode,data);
+        AutoCompleteIntentResultHandle(requestCode, resultCode, data);
     }
 
 
@@ -127,7 +177,7 @@ public class CreateRouteActivity extends SimpleMapActivity implements SimpleMapA
     @Override
     public void OnMapSetupDone() {
         if (mLastLocation != null) {
-            String startAddress = LocationUtils.getLocationAddress(geocoder,mLastLocation);
+            String startAddress = LocationUtils.getLocationAddress(geocoder, mLastLocation);
 
             getStartPlace().setAddress(startAddress);
             getStartPlace().setLocation(LocationUtils.locaToStr(mLastLocation));
@@ -136,7 +186,10 @@ public class CreateRouteActivity extends SimpleMapActivity implements SimpleMapA
             btn_start_picker.setText(getStartPlace().getPrimaryText());
 
             markerManager.draw_PickupPlaceMarker(getStartPlace());
+
+            notifyBtnState();
         }
+
 
     }
 
@@ -150,6 +203,7 @@ public class CreateRouteActivity extends SimpleMapActivity implements SimpleMapA
     // new
 
     Route autoCompleteRoute;
+
     private void getAutoCompleteRoute() {
         directionManager.findPath(getStartPlace().func_getLatLngLocation(), getEndPlace().func_getLatLngLocation(),
                 new DirectionFinderListener() {
@@ -232,7 +286,7 @@ public class CreateRouteActivity extends SimpleMapActivity implements SimpleMapA
         // close and add to list
         Intent returnIntent = new Intent();
         returnIntent.putExtra("routeRequestUId", routeRequestUId);
-        setResult(Activity.RESULT_OK,returnIntent);
+        setResult(Activity.RESULT_OK, returnIntent);
         finish();
     }
 
@@ -250,45 +304,45 @@ public class CreateRouteActivity extends SimpleMapActivity implements SimpleMapA
         btn_time_picker.setText(TimeUtils.curDateToUserDateStr());
 
         selectedDateTime = Calendar.getInstance();
-        selectedDateTime.add(Calendar.MINUTE,20);
+        selectedDateTime.add(Calendar.MINUTE, 20);
         btn_time_picker.setText(TimeUtils.timeToUserTimeStr(selectedDateTime.getTime()));
 
         // Date
         DatePickerDialog.OnDateSetListener dateSetListener = (view, year, monthOfYear, dayOfMonth) -> {
-                    btn_date_picker.setText(TimeUtils.dateToUserDateStr(dayOfMonth,monthOfYear,year));
+            btn_date_picker.setText(TimeUtils.dateToUserDateStr(dayOfMonth, monthOfYear, year));
 
-                    selectedDateTime.set(year,monthOfYear,dayOfMonth);
-                };
+            selectedDateTime.set(year, monthOfYear, dayOfMonth);
+        };
 
         datePickerDialog = DatePickerDialog.newInstance(dateSetListener, Calendar.getInstance());
         datePickerDialog.setVersion(DatePickerDialog.Version.VERSION_2);
         datePickerDialog.setAccentColor(ResourcesCompat.getColor(getResources(), R.color.date_picker_bar, null));
 
         btn_date_picker.setOnClickListener(view -> {
-            if(datePickerDialog.isAdded())
+            if (datePickerDialog.isAdded())
                 return;
 
-            datePickerDialog.show(getFragmentManager(),"datePickerDialog");
+            datePickerDialog.show(getFragmentManager(), "datePickerDialog");
         });
 
         // Time
         TimePickerDialog.OnTimeSetListener timeSetListener = (view, hourOfDay, minute, second) -> {
-            btn_time_picker.setText(TimeUtils.timeToUserTimeStr(hourOfDay,minute));
+            btn_time_picker.setText(TimeUtils.timeToUserTimeStr(hourOfDay, minute));
 
-            selectedDateTime.set(Calendar.HOUR_OF_DAY,hourOfDay);
-            selectedDateTime.set(Calendar.MINUTE,minute);
-            selectedDateTime.set(Calendar.SECOND,0);
-            selectedDateTime.set(Calendar.MILLISECOND,0);
+            selectedDateTime.set(Calendar.HOUR_OF_DAY, hourOfDay);
+            selectedDateTime.set(Calendar.MINUTE, minute);
+            selectedDateTime.set(Calendar.SECOND, 0);
+            selectedDateTime.set(Calendar.MILLISECOND, 0);
         };
 
         timePickerDialog = TimePickerDialog.newInstance(timeSetListener, true);
         timePickerDialog.setAccentColor(ResourcesCompat.getColor(getResources(), R.color.date_picker_bar, null));
 
-        btn_time_picker.setOnClickListener(v ->{
-            if(timePickerDialog.isAdded())
+        btn_time_picker.setOnClickListener(v -> {
+            if (timePickerDialog.isAdded())
                 return;
 
-            timePickerDialog.show(getFragmentManager(),"timePickerDialog");
+            timePickerDialog.show(getFragmentManager(), "timePickerDialog");
         });
     }
 
@@ -368,12 +422,14 @@ public class CreateRouteActivity extends SimpleMapActivity implements SimpleMapA
                 } else if (endPlace != null) {
                     cameraManager.moveCam(getEndPlace().func_getLatLngLocation());
                 }
+
+                notifyBtnState();
             }
         }
     }
 
     private void StartAutoCompleteIntent(int requestCode) {
-        Intent intent = new Intent(CreateRouteActivity.this,SearchActivity.class);
+        Intent intent = new Intent(CreateRouteActivity.this, SearchActivity.class);
         if (mLastLocation != null) {
             intent.putExtra("cur_lat", mLastLocation.getLatitude());
             intent.putExtra("cur_lng", mLastLocation.getLongitude());

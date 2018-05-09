@@ -7,6 +7,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
@@ -43,9 +44,10 @@ public class SplashActivity extends AppCompatActivity {
         broadcastReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                int[] type = {ConnectivityManager.TYPE_MOBILE, ConnectivityManager.TYPE_WIFI};
-                if (CheckInternetBroadcastReceiver.isNetworkAvailable(context, type)) {
 
+                ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+                NetworkInfo netInfo = cm.getActiveNetworkInfo();
+                if (netInfo != null && netInfo.isConnectedOrConnecting()) {
                     FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
                     if (user != null) {
                         // User is signed in
@@ -70,11 +72,43 @@ public class SplashActivity extends AppCompatActivity {
                             }
                         }, SPLASH_DISPLAY_LENGTH);
                     }
-
                     return;
                 } else {
                     showAlertDialog();
                 }
+
+            /*    int[] type = {ConnectivityManager.TYPE_MOBILE, ConnectivityManager.TYPE_WIFI};
+                if (CheckInternetBroadcastReceiver.isNetworkAvailable(context, type)) {
+
+                    FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+                    if (user != null) {
+                        // User is signed in
+                        new Handler().postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                Intent startIntent = new Intent(SplashActivity.this, MainActivity.class);
+                                SplashActivity.this.startActivity(startIntent);
+                                SplashActivity.this.finish();
+                            }
+                        }, SPLASH_DISPLAY_LENGTH);
+                    } else {
+                        // No user is signed in
+                        *//* New Handler to start the Menu-Activity
+                 * and close this Splash-Screen after some seconds.*//*
+                        new Handler().postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                Intent startIntent = new Intent(SplashActivity.this, PhoneAuthActivity.class);
+                                SplashActivity.this.startActivity(startIntent);
+                                SplashActivity.this.finish();
+                            }
+                        }, SPLASH_DISPLAY_LENGTH);
+                    }
+
+                    return;
+                } else {
+                    showAlertDialog();
+                }*/
             }
         };
         registerReceiver(broadcastReceiver, intentFilter);

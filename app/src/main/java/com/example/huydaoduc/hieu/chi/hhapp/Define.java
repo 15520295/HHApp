@@ -68,4 +68,7 @@ public class Define {
         put(CarType.CAR_7,R.drawable.ic_car_20);
     }};
 
+    //sale off
+    public static float SALE_OFF_ESTIMATEFARE = 0.5f; //50%
+
 }
