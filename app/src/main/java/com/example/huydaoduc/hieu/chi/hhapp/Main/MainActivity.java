@@ -1,9 +1,16 @@
 package com.example.huydaoduc.hieu.chi.hhapp.Main;
 
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.media.RingtoneManager;
+import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.NotificationCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -21,6 +28,8 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+
+import java.sql.Driver;
 
 import ru.dimorinny.floatingtextbutton.FloatingTextButton;
 
@@ -60,6 +69,43 @@ public class MainActivity extends AppCompatActivity {
         btn_passenger.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
+                NotificationCompat.Builder mBuilder =
+                        new NotificationCompat.Builder(getApplicationContext())
+                                .setSmallIcon(R.drawable.ic_location_on)
+                                .setContentTitle("Test notification")
+                                .setContentText("Hi, This is Android Notification Detail!");
+
+                Intent resultIntent = new Intent(getApplicationContext(), MainActivity.class);
+
+                /*resultIntent.putExtra(DBSQL.WORD_ID_KEY_PUT_EXTRA, dsWords.get(a).getId());
+                resultIntent.putExtra(DBSQL.WORD_TEN_KEY_PUT_EXTRA, dsWords.get(a).getTen());
+                resultIntent.putExtra(DBSQL.WORD_MOTA_KEY_PUT_EXTRA, dsWords.get(a).getMota());*/
+
+                PendingIntent resultPendingIntent =
+                        PendingIntent.getActivity(
+                                getApplicationContext(),
+                                0,
+                                resultIntent,
+                                PendingIntent.FLAG_UPDATE_CURRENT
+                        );
+
+                mBuilder.setContentIntent(resultPendingIntent);
+
+                Uri uri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+                mBuilder.setSound(uri);
+
+//                        Uri newSound= Uri.parse("android.resource://"
+//                                + getPackageName() + "/" + R.raw.gaugau);
+//                        mBuilder.setSound(newSound);
+
+                int mNotificationId = 155;
+                // Gets an instance of the NotificationManager service
+                NotificationManager mNotifyMgr =
+                        (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+                // Builds the notification and issues it.
+                mNotifyMgr.notify(mNotificationId, mBuilder.build());
+
                 Intent intent = new Intent(MainActivity.this, PassengerActivity.class);
                 MainActivity.this.startActivity(intent);
             }

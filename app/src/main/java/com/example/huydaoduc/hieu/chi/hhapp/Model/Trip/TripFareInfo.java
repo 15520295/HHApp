@@ -9,6 +9,7 @@ import com.example.huydaoduc.hieu.chi.hhapp.Framework.TimeUtils;
 import com.example.huydaoduc.hieu.chi.hhapp.Main.CalculateFare;
 import com.example.huydaoduc.hieu.chi.hhapp.Model.Car.CarType;
 
+import java.text.DecimalFormat;
 import java.util.Date;
 
 public class TripFareInfo implements Parcelable {
@@ -35,7 +36,10 @@ public class TripFareInfo implements Parcelable {
     }
 
     public String func_getEstimateFareText() {
-        return "VND " + estimateFare + "K";
+        DecimalFormat decimalFormat = new DecimalFormat("#,##0");
+        String s = decimalFormat.format(estimateFare);
+
+        return "VND " + s + "K";
     }
 
     public void func_RecalculateEstimateFare() {

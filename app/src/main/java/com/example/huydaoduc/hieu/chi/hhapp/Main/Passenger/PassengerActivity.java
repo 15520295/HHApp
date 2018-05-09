@@ -113,14 +113,16 @@ public class PassengerActivity extends SimpleMapActivity
         if (mLastLocation != null) {
             String startAddress = LocationUtils.getLocationAddress(geocoder, mLastLocation);
 
-            getPickupPlace().setAddress(startAddress);
-            getPickupPlace().setLocation(LocationUtils.locaToStr(mLastLocation));
-            getPickupPlace().setPrimaryText(startAddress);
+            getPickupPlaceInstance().setAddress(startAddress);
+            getPickupPlaceInstance().setLocation(LocationUtils.locaToStr(mLastLocation));
+            getPickupPlaceInstance().setPrimaryText(startAddress);
 
-            btn_pickupLocation.setText(getPickupPlace().getPrimaryText());
+            btn_pickupLocation.setText(getPickupPlaceInstance().getPrimaryText());
             btn_pickupLocation.setSelected(true);
 
-            markerManager.draw_PickupPlaceMarker(getPickupPlace());
+            markerManager.draw_PickupPlaceMarker(getPickupPlaceInstance());
+
+            notifyBtnState();
         } else {
             btn_pickupLocation.setText(R.string.enter_pick_up);
             btn_pickupLocation.setSelected(true);
@@ -181,8 +183,8 @@ public class PassengerActivity extends SimpleMapActivity
         // todo: handle car type, notes
         // create Passenger Request
         PassengerRequest passengerRequest = PassengerRequest.Builder.aPassengerRequest(getCurUid())
-                .setPickUpSavePlace(getPickupPlace())
-                .setDropOffSavePlace(getDropPlace())
+                .setPickUpSavePlace(getPickupPlaceInstance())
+                .setDropOffSavePlace(getDropPlaceInstance())
                 .setNote(notes)
                 .setWaitMinute(waitMinute)
                 .build();
@@ -296,8 +298,8 @@ public class PassengerActivity extends SimpleMapActivity
 //        // todo: handle car type, notes
 //        // create Passenger Request
 //        PassengerRequest passengerRequest = PassengerRequest.Builder.aPassengerRequest(getCurUid())
-//                .setPickUpSavePlace(getPickupPlace())
-//                .setDropOffSavePlace(getDropPlace())
+//                .setPickUpSavePlace(getPickupPlaceInstance())
+//                .setDropOffSavePlace(getDropPlaceInstance())
 //                .setStartTime(TimeUtils.getCurrentTimeAsString())
 //                .setCarType(CarType.BIKE)
 //                .setNote("Notes..")
@@ -489,7 +491,7 @@ public class PassengerActivity extends SimpleMapActivity
 //            LatLng latLng_endLocation = request.getEndPlace().func_getLatLngLocation();
 //
 //            // check if wait minute is accepted
-//            directionManager.findPath(latLng_startLocation, getPickupPlace().func_getLatLngLocation(),
+//            directionManager.findPath(latLng_startLocation, getPickupPlaceInstance().func_getLatLngLocation(),
 //                    new DirectionFinderListener() {
 //                        @Override
 //                        public void onDirectionFinderStart() {
@@ -526,8 +528,8 @@ public class PassengerActivity extends SimpleMapActivity
 //
 //                                                        // check if Pickup Place and End Place match to the Polyline
 //                                                        boolean isMatch = LocationUtils.isMatching(polyline,
-//                                                                getPickupPlace().func_getLatLngLocation(),
-//                                                                getDropPlace().func_getLatLngLocation(),
+//                                                                getPickupPlaceInstance().func_getLatLngLocation(),
+//                                                                getDropPlaceInstance().func_getLatLngLocation(),
 //                                                                500);
 //
 //                                                        synchronized (isDriverFound) {
@@ -854,8 +856,8 @@ public class PassengerActivity extends SimpleMapActivity
 //
 //                                // check if Pickup Place and End Place match to the Polyline
 //                                boolean isMatch = LocationUtils.isMatching(polyline,
-//                                        getPickupPlace().func_getLatLngLocation(),
-//                                        getDropPlace().func_getLatLngLocation(),
+//                                        getPickupPlaceInstance().func_getLatLngLocation(),
+//                                        getDropPlaceInstance().func_getLatLngLocation(),
 //                                        500);
 //
 //                                synchronized (isDriverFound) {
@@ -896,7 +898,7 @@ public class PassengerActivity extends SimpleMapActivity
     }
 
     private void updateDistanceAndDuration() {
-        directionManager.findPath(getPickupPlace().func_getLatLngLocation(), getDropPlace().func_getLatLngLocation()
+        directionManager.findPath(getPickupPlaceInstance().func_getLatLngLocation(), getDropPlaceInstance().func_getLatLngLocation()
                 , new DirectionFinderListener() {
                     @Override
                     public void onDirectionFinderStart() {
@@ -1043,7 +1045,7 @@ public class PassengerActivity extends SimpleMapActivity
 
     SavedPlace dropPlace, pickupPlace;
 
-    private SavedPlace getDropPlace() {
+    private SavedPlace getDropPlaceInstance() {
         if (dropPlace == null) {
             Log.e(TAG, "startPlace null");
             dropPlace = new SavedPlace();
@@ -1052,7 +1054,7 @@ public class PassengerActivity extends SimpleMapActivity
         return dropPlace;
     }
 
-    private SavedPlace getPickupPlace() {
+    private SavedPlace getPickupPlaceInstance() {
         if (pickupPlace == null) {
             Log.e(TAG, "endPlace null");
             pickupPlace = new SavedPlace();
@@ -1072,6 +1074,7 @@ public class PassengerActivity extends SimpleMapActivity
     private void AutoCompleteIntentResultHandle(int requestCode, int resultCode, Intent data) {
         if (requestCode == PICKUP_PLACE_AUTOCOMPLETE_REQUEST_CODE || requestCode == END_PLACE_AUTOCOMPLETE_REQUEST_CODE) {
             if (resultCode == SearchActivity.RESULT_OK) {
+
                 String placeId = data.getStringExtra("place_id");
                 final String placePrimaryText = data.getStringExtra("place_primary_text");
                 final String placeLocation = data.getStringExtra("place_location");
@@ -1126,6 +1129,8 @@ public class PassengerActivity extends SimpleMapActivity
                 } else if (dropPlace != null) {
                     cameraManager.moveCam(dropPlace.func_getLatLngLocation());
                 }
+
+                notifyBtnState();
             }
         }
     }
@@ -1160,6 +1165,55 @@ public class PassengerActivity extends SimpleMapActivity
     private String getCurUid() {
         return FirebaseAuth.getInstance().getCurrentUser().getUid();
     }
+    //endregion
+
+    //region -------------- Button State --------------
+    private enum BtnState {
+        BOOK,
+        ENTER_PICK_UP,
+        ENTER_DROP_OFF
+    }
+
+    private void mainBtnChangeState(BtnState state) {
+        if (state == BtnState.ENTER_PICK_UP) {
+            btn_findDriver.setText("Choose your pick up");
+            btn_findDriver.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    btn_pickupLocation.callOnClick();
+                }
+            });
+        } else if (state == BtnState.ENTER_DROP_OFF) {
+            btn_findDriver.setText("Choose your drop off");
+            btn_findDriver.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    btn_dropLocation.callOnClick();
+                }
+            });
+        } else {
+            btn_findDriver.setText("Book");
+            btn_findDriver.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    startBooking();
+                }
+            });
+        }
+
+    }
+
+    private void notifyBtnState() {
+        if (pickupPlace == null) {
+            mainBtnChangeState(BtnState.ENTER_PICK_UP);
+        } else if (dropPlace == null) {
+            mainBtnChangeState(BtnState.ENTER_DROP_OFF);
+        } else {
+            mainBtnChangeState(BtnState.BOOK);
+        }
+    }
+
+
     //endregion
 
     //------------------------------------
@@ -1199,6 +1253,7 @@ public class PassengerActivity extends SimpleMapActivity
         //
         Init();
         addEven();
+        notifyBtnState();
 
     }
 
