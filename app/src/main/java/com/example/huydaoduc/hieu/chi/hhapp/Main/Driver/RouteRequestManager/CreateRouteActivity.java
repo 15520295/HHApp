@@ -1,4 +1,4 @@
-package com.example.huydaoduc.hieu.chi.hhapp.Main.Driver.RouteManager;
+package com.example.huydaoduc.hieu.chi.hhapp.Main.Driver.RouteRequestManager;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -17,7 +17,7 @@ import com.example.huydaoduc.hieu.chi.hhapp.Framework.Place.SavedPlace;
 import com.example.huydaoduc.hieu.chi.hhapp.Framework.Place.SearchActivity;
 import com.example.huydaoduc.hieu.chi.hhapp.Framework.SimpleMapActivity;
 import com.example.huydaoduc.hieu.chi.hhapp.Framework.TimeUtils;
-import com.example.huydaoduc.hieu.chi.hhapp.Main.Passenger.PassengerActivity;
+import com.example.huydaoduc.hieu.chi.hhapp.Model.Car.CarType;
 import com.example.huydaoduc.hieu.chi.hhapp.Model.RouteRequest.RouteRequest;
 import com.example.huydaoduc.hieu.chi.hhapp.Model.User.UserState;
 import com.google.android.gms.location.LocationServices;
@@ -230,8 +230,12 @@ public class CreateRouteActivity extends SimpleMapActivity implements SimpleMapA
      */
     private void createRouteRequest(Route route) {
         String driverUId = getCurUid();
-        //todo: handle price
+        //todo: handle Cartype
+        CarType carType = CarType.BIKE;
+
+        // todo: price v2
         Float percentDiscount = 1f;
+
 
         String routeRequestUId = dbRefe.child(Define.DB_ROUTE_REQUESTS).child(driverUId).push().getKey();
 
@@ -244,6 +248,7 @@ public class CreateRouteActivity extends SimpleMapActivity implements SimpleMapA
                 .setStartPlace(getStartPlace())
                 .setEndPlace(getEndPlace())
                 .setStartTime(TimeUtils.dateToStr(selectedDateTime.getTime()))
+                .setCarType(carType)
                 .setPercentDiscount(percentDiscount)
                 .setSummary("sumary")
                 .build();

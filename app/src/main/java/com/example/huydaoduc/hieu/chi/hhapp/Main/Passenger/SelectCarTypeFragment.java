@@ -55,6 +55,7 @@ public class SelectCarTypeFragment extends DialogFragment {
     @Override
     public void onDetach() {
         super.onDetach();
+        mListener.OnCancel();
         mListener = null;
     }
 

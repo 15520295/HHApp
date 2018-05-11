@@ -13,11 +13,8 @@ import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.widget.Toast;
 
-import com.example.huydaoduc.hieu.chi.hhapp.Main.Driver.RouteManager.RouteRequestManagerActivity;
 import com.example.huydaoduc.hieu.chi.hhapp.R;
 import com.example.huydaoduc.hieu.chi.hhapp.ActivitiesAuth.PhoneAuthActivity;
-import com.example.huydaoduc.hieu.chi.hhapp.CheckInternetBroadcastReceiver;
-import com.example.huydaoduc.hieu.chi.hhapp.R;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 

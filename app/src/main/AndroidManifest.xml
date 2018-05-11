@@ -70,8 +70,8 @@
             android:windowSoftInputMode="stateVisible|adjustResize" />
         <activity android:name=".ActivitiesAuth.EnterPassActivity" />
         <activity android:name=".Main.Passenger.PassengerActivity" />
-        <activity android:name=".Main.Driver.RouteManager.RouteRequestManagerActivity" />
-        <activity android:name=".Main.Driver.RouteManager.CreateRouteActivity" />
+        <activity android:name=".Main.Driver.RouteRequestManager.RouteRequestManagerActivity" />
+        <activity android:name=".Main.Driver.RouteRequestManager.CreateRouteActivity" />
         <activity
             android:name=".ActivitiesAuth.UpdateInfoActivity"
             android:windowSoftInputMode="stateVisible|adjustResize" />

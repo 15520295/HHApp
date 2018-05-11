@@ -1,7 +1,6 @@
-package com.example.huydaoduc.hieu.chi.hhapp.Main.Driver.RouteManager;
+package com.example.huydaoduc.hieu.chi.hhapp.Main.Driver.RouteRequestManager;
 
 import android.text.TextUtils;
-import android.widget.TextView;
 
 import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.chad.library.adapter.base.BaseViewHolder;
@@ -47,7 +46,7 @@ public class RouteRequestAdapter extends BaseQuickAdapter<RouteRequest, com.chad
             helper.setVisible(R.id.prb_finding_passenger, false);
             helper.setVisible(R.id.iv_check, false);
             helper.setVisible(R.id.iv_pause, true);
-        } else if (routeRequest.getRouteRequestState() == RouteRequestState.TIME_OUT) {
+        } else if (! routeRequest.func_isInTheFuture()) {
             helper.setVisible(R.id.prb_finding_passenger, false);
             helper.setVisible(R.id.iv_check, false);
             helper.setVisible(R.id.iv_pause, false);

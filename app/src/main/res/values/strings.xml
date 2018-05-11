@@ -76,15 +76,21 @@
 
     <!--Request Menu Item-->
     <string name="pause_request_title">Do you want to pause your request?</string>
-    <string name="pause_request_content">If you pause this request, we can not find passenger for this request.</string>
+    <string name="pause_request_content_driver">If you pause this request, we can not find passenger for this request.</string>
+    <string name="pause_request_content_passenger">If you pause this request, we can not find driver for this request.</string>
     <string name="ok">OK</string>
     <string name="cancel">CANCEL</string>
-    <string name="cancel_request_warning">We have found passenger for this request, if you want to cancel you can call the passenger to confirm.</string>
+    <string name="cancel_request_warning_driver">We have found passenger for this request, if you want to cancel you can call the passenger to confirm.</string>
+    <string name="cancel_request_warning_passenger">We have found driver for this request, if you want to cancel you can call the driver to confirm.</string>
     <string name="pause">Pause</string>
     <string name="delete">Delete</string>
     <string name="resume">Resume</string>
     <string name="request_out_of_date">Your request is out of date</string>
     <string name="confirm">CONFIRM</string>
     <string name="enter_pick_up">Choose your pick up location</string>
+    <string name="estimate_fare">Estimate fare:</string>
+    <string name="loading_driver_info">Loading driver info</string>
+    <string name="loading_passenger_info">Loading passenger info</string>
+    <string name="please_wait">Please wait...</string>
 
 </resources>

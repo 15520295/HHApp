@@ -1,4 +1,4 @@
-package com.example.huydaoduc.hieu.chi.hhapp.Main.Driver.RouteManager;
+package com.example.huydaoduc.hieu.chi.hhapp.Main.Driver.RouteRequestManager;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -8,7 +8,6 @@ import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
-import android.view.ViewTreeObserver;
 import android.widget.Toast;
 
 import com.afollestad.materialdialogs.MaterialDialog;
@@ -27,7 +26,6 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.scwang.smartrefresh.layout.SmartRefreshLayout;
 import com.scwang.smartrefresh.layout.api.RefreshLayout;
-import com.scwang.smartrefresh.layout.listener.OnLoadMoreListener;
 import com.scwang.smartrefresh.layout.listener.OnRefreshListener;
 import com.zaaach.toprightmenu.MenuItem;
 import com.zaaach.toprightmenu.TopRightMenu;
@@ -126,7 +124,6 @@ public class RouteRequestManagerActivity extends AppCompatActivity {
     private void handleResultCreateRoute(int requestCode, int resultCode, Intent data) {
         if (requestCode == CREATE_ROUTE_REQUEST_CODE) {
             if (resultCode == Activity.RESULT_OK) {
-                // add listener//todo: redo
                 String routeRequestUId = data.getStringExtra("routeRequestUId");
                 //Listen to Trip Notify - asynchronous with service
                 dbRefe.child(Define.DB_ROUTE_REQUESTS).child(getCurUid())
@@ -150,7 +147,8 @@ public class RouteRequestManagerActivity extends AppCompatActivity {
                                             .child(Define.DB_ROUTE_REQUESTS_ROUTE_REQUEST_STATE).setValue(RouteRequestState.FOUND_PASSENGER);
 
                                     // notify driver
-                                    Toast.makeText(getApplicationContext(),"Found your driver",Toast.LENGTH_LONG).show();
+                                    //todo: change to notify
+                                    Toast.makeText(getApplicationContext(),"Found your passenger",Toast.LENGTH_LONG).show();
                                     refreshList(false);
                                 }
                             }
@@ -174,7 +172,7 @@ public class RouteRequestManagerActivity extends AppCompatActivity {
         RouteRequest routeRequest = routeRequests.get(position);
         RouteRequestState state = routeRequest.getRouteRequestState();
 
-        if (state == RouteRequestState.TIME_OUT) {
+        if (! routeRequest.func_isInTheFuture()) {      // time out
             new MaterialDialog.Builder(this)
                     .content(R.string.request_out_of_date)
                     .positiveText(R.string.ok)
@@ -189,7 +187,7 @@ public class RouteRequestManagerActivity extends AppCompatActivity {
         else if (state == RouteRequestState.FOUND_PASSENGER) {
             if (command.equals("Pause") || command.equals("Delete")) {
                 new MaterialDialog.Builder(this)
-                        .content(R.string.cancel_request_warning)
+                        .content(R.string.cancel_request_warning_driver)
                         .positiveText(R.string.ok)
                         .titleColor(getResources().getColor(R.color.title_bar_background_color))
                         .positiveColor(getResources().getColor(R.color.title_bar_background_color))
@@ -208,16 +206,14 @@ public class RouteRequestManagerActivity extends AppCompatActivity {
                     .removeValue();
 
             refreshList(false);
-
             return;
         }
-
 
         if (state == RouteRequestState.FINDING_PASSENGER) {
             if (command.equals("Pause")) {
                 new MaterialDialog.Builder(this)
                         .title(R.string.pause_request_title)
-                        .content(R.string.pause_request_content)
+                        .content(R.string.pause_request_content_driver)
                         .positiveText(R.string.ok)
                         .negativeText(R.string.cancel)
                         .titleColor(getResources().getColor(R.color.title_bar_background_color))
@@ -247,6 +243,7 @@ public class RouteRequestManagerActivity extends AppCompatActivity {
                         .setValue(RouteRequestState.FINDING_PASSENGER);
 
                 refreshList(false);
+                return;
             }
         }
     }
@@ -270,17 +267,21 @@ public class RouteRequestManagerActivity extends AppCompatActivity {
             DBManager.getTripById( tripUId, trip -> {
                 // get Passenger Info
                 DBManager.getUserById( trip.getPassengerUId(), userInfo -> {
+                    // get Passenger Request
+                    DBManager.getPassengerRequestById(trip.getPassengerRequestUId(), trip.getPassengerUId(), passengerRequest -> {
 
-                    Intent intent = new Intent(RouteRequestManagerActivity.this, PassengerRequestInfoActivity.class);
-                    intent.putExtra("trip", trip);
-                    intent.putExtra("userInfo", userInfo);
-                    RouteRequestManagerActivity.this.startActivity(intent);
+                        Intent intent = new Intent(RouteRequestManagerActivity.this, PassengerRequestInfoActivity.class);
+                        intent.putExtra("trip", trip);
+                        intent.putExtra("userInfo", userInfo);
+                        intent.putExtra("passengerRequest", passengerRequest);
 
-                    hideLoadingPassengerRequestInfo();
+                        RouteRequestManagerActivity.this.startActivity(intent);
+
+                        hideLoadingPassengerRequestInfo();
+                    });
                 });
+
             });
-
-
         }
     }
 
@@ -409,7 +410,7 @@ public class RouteRequestManagerActivity extends AppCompatActivity {
                 })
                 .showAsDropDown(view, -250, 0);	//带偏移量
     }
-    
+
     //endregion
 
     //region -------------- Smart Refresh Layout ----------------

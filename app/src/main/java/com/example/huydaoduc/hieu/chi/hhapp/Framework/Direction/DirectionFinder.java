@@ -118,6 +118,7 @@ public class DirectionFinder {
             @Override
             public void onFailure(Call<String> call, Throwable t) {
                 //todo: check
+                Log.e(TAG, t.getMessage());
             }
         });
 

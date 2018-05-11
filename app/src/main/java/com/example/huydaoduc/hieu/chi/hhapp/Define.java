@@ -23,11 +23,6 @@ public class Define {
     public static final float MAP_BOUND_POINT_ZOOM = 14.5f;
 
     // --------- DataBase
-    // Trips
-    public static final String DB_TRIPS = "Trips";
-    public static final String DB_TRIPS_TRIP_STATE = "tripState";
-    public static final String DB_TRIPS_DRIVER_UID = "driverUId";
-
     //
     public static final String DB_USERS_INFO = "UsersInfo";
 
@@ -36,6 +31,10 @@ public class Define {
     public static final String DB_ONLINE_USERS_NOTIFY_TRIP = "notifyTrip";
     public static final String DB_ONLINE_USERS_STATE = "userState";
 
+    // Trips
+    public static final String DB_TRIPS = "Trips";
+    public static final String DB_TRIPS_TRIP_STATE = "tripState";
+    public static final String DB_TRIPS_DRIVER_UID = "driverUId";
 
     //driver
     public static final String DB_ROUTE_REQUESTS = " RouteRequests";
@@ -46,10 +45,10 @@ public class Define {
 
     //passenger
 //    public static final String DB_PASSENGER_REQUESTS = "PassengerRequests";
+    public static final String DB_PASSENGER_REQUESTS = "PassengerRequests";
+    public static final String DB_PASSENGER_REQUESTS_NOTIFY_TRIP = "notifyTrip";
+    public static final String DB_PASSENGER_REQUESTS_PASSENGER_REQUEST_STATE = "passengerRequestState";
 
-
-
-    public static final String DB_DRIVERS = " Drivers";
 
     // Online User
     public static final double ONLINE_USER_RADIUS_UPDATE = 200;   // meter

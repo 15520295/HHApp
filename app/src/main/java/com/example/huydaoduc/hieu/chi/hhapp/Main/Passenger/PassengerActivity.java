@@ -40,7 +40,7 @@ import com.example.huydaoduc.hieu.chi.hhapp.Framework.Place.SearchActivity;
 import com.example.huydaoduc.hieu.chi.hhapp.Framework.SimpleMapActivity;
 import com.example.huydaoduc.hieu.chi.hhapp.Main.AboutApp;
 import com.example.huydaoduc.hieu.chi.hhapp.Main.AboutUser;
-import com.example.huydaoduc.hieu.chi.hhapp.Model.PassengerRequest;
+import com.example.huydaoduc.hieu.chi.hhapp.Model.Passenger.PassengerRequest;
 import com.example.huydaoduc.hieu.chi.hhapp.Framework.TimeUtils;
 import com.example.huydaoduc.hieu.chi.hhapp.Model.Trip.Trip;
 import com.example.huydaoduc.hieu.chi.hhapp.Model.Trip.TripState;
@@ -92,11 +92,8 @@ public class PassengerActivity extends SimpleMapActivity
 
     private CardView group_trip_info;
 
-    //------------------------------------ Chi :
-
     // Activity Property
     Geocoder geocoder;
-
 
     private UserState userState;
 
@@ -129,7 +126,6 @@ public class PassengerActivity extends SimpleMapActivity
         }
     }
 
-
     //region ------ Real time checking --------
 
 
@@ -144,7 +140,6 @@ public class PassengerActivity extends SimpleMapActivity
     }
 
     //endregion
-
 
     Boolean isDriverFound;      // --> use for synchronous purpose
     boolean notFoundHH;      // --> use for synchronous purpose
@@ -173,31 +168,33 @@ public class PassengerActivity extends SimpleMapActivity
 
         // create a trip
         String tripUId = dbRefe.child(Define.DB_TRIPS).push().getKey();
+        String passengerRequestUId = dbRefe.child(Define.DB_PASSENGER_REQUESTS).child(getCurUid()).push().getKey();
 
-        Trip trip = Trip.Builder.aTrip(tripUId)
-                .setPassengerUId(getCurUid())
-                .setTripFareInfo(getCurTripFareInfoInstance())
-                .build();
 
         // Set up Trip
         // todo: handle car type, notes
         // create Passenger Request
-        PassengerRequest passengerRequest = PassengerRequest.Builder.aPassengerRequest(getCurUid())
+        PassengerRequest passengerRequest = PassengerRequest.Builder.aPassengerRequest(passengerRequestUId)
+                .setPassengerUId(getCurUid())
                 .setPickUpSavePlace(getPickupPlaceInstance())
                 .setDropOffSavePlace(getDropPlaceInstance())
                 .setNote(notes)
                 .setWaitMinute(waitMinute)
+                .setTripFareInfo(getCurTripFareInfoInstance())
                 .build();
 
-        trip.setTripState(TripState.WAITING_ACCEPT);
-        trip.setTripType(TripType.HH);
-        trip.setPassengerRequest(passengerRequest);
+        Trip trip = Trip.Builder.aTrip(tripUId)
+                .setPassengerUId(getCurUid())
+                .setTripState(TripState.WAITING_ACCEPT)
+                .setTripType(TripType.HH)
+                .setPassengerRequestUId(passengerRequest.getPassengerRequestUId())
+                .build();
 
         Intent intent = new Intent(getApplicationContext(), FindingDriverActivity.class);
         intent.putExtra("trip", trip);
+        intent.putExtra("passengerRequest", passengerRequest);
         PassengerActivity.this.startActivityForResult(intent,FIND_DRIVER_REQUEST_CODE);
     }
-
 
     private void FoundDriverResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == FIND_DRIVER_REQUEST_CODE) {
@@ -208,7 +205,7 @@ public class PassengerActivity extends SimpleMapActivity
         }
     }
 
-    //region -------------- Show Driver Info
+    //region -------------- Show Driver Info --------------
 
     /**
      * If Online User is in "D_RECEIVING_BOOKING_HH state" and NOT "time out" then get User info as marker
@@ -317,7 +314,7 @@ public class PassengerActivity extends SimpleMapActivity
 //        if (hhMode) {
 //            findMatchingHH(trip, TimeUtils.getCurrentTimeAsDate(), waitMinute, new FindHHCompleteListener() {
 //                        @Override
-//                        public void OnLoopThoughAllRequestHH() {
+//                        public void OnLoopThroughAllRequestHH() {
 //                            synchronized (isDriverFound)
 //                            {
 //                                //todo:v2
@@ -370,7 +367,7 @@ public class PassengerActivity extends SimpleMapActivity
 //    //region ------------ Find matching Active Driver
 //
 //    interface FindActiveDriverListener {
-//        void OnLoopThoughAllRequestHH();
+//        void OnLoopThroughAllRequestHH();
 //        void OnFoundDriverRequest(RouteRequest request);
 //    }
 //
@@ -388,7 +385,7 @@ public class PassengerActivity extends SimpleMapActivity
 //    // interface for raise loop thought all list event
 //    // synchronized keyword for locking the Boolean variable
 //    interface FindHHCompleteListener {
-//        void OnLoopThoughAllRequestHH();
+//        void OnLoopThroughAllRequestHH();
 //        void OnFoundDriverRequest(RouteRequest request);
 //    }
 //
@@ -409,7 +406,7 @@ public class PassengerActivity extends SimpleMapActivity
 //
 //                // if list null raise event
 //                if (routeRequestsFiltered.size() == 0) {
-//                    listener.OnLoopThoughAllRequestHH();
+//                    listener.OnLoopThroughAllRequestHH();
 //                }
 //            }
 //
@@ -542,7 +539,7 @@ public class PassengerActivity extends SimpleMapActivity
 //
 //                                                // raise event loop thought all request if last element
 //                                                if (routeRequestsFiltered.size() == itemIndex + 1) {
-//                                                    listener.OnLoopThoughAllRequestHH();
+//                                                    listener.OnLoopThroughAllRequestHH();
 //                                                    Log.i(TAG, "Loop thought all HH request");
 //                                                }
 //                                            }
@@ -671,7 +668,7 @@ public class PassengerActivity extends SimpleMapActivity
 //        if (hhMode) {
 //            findMatchingHH(trip, limitHHRadius, new FindHHCompleteListener() {
 //                        @Override
-//                        public void OnLoopThoughAllRequestHH() {
+//                        public void OnLoopThroughAllRequestHH() {
 //                            synchronized (isDriverFound)
 //                            {
 //                                // if loop through all the objects but still not find matching HH request then use normal request
@@ -728,7 +725,7 @@ public class PassengerActivity extends SimpleMapActivity
 //    //region ------------ Find matching Active Driver
 //
 //    interface FindActiveDriverListener {
-//        void OnLoopThoughAllRequestHH();
+//        void OnLoopThroughAllRequestHH();
 //        void OnFoundDriverRequest(RouteRequest request);
 //    }
 //
@@ -745,7 +742,7 @@ public class PassengerActivity extends SimpleMapActivity
 //    // interface for raise loop thought all list event
 //    // synchronized keyword for locking the Boolean variable
 //    interface FindHHCompleteListener{
-//        void OnLoopThoughAllRequestHH();
+//        void OnLoopThroughAllRequestHH();
 //        void OnFoundDriverRequest(RouteRequest request);
 //    }
 //
@@ -775,7 +772,7 @@ public class PassengerActivity extends SimpleMapActivity
 //
 //                // if list null raise event
 //                if (routeRequests.size() == 0) {
-//                    listener.OnLoopThoughAllRequestHH();
+//                    listener.OnLoopThroughAllRequestHH();
 //                }
 //            }
 //
@@ -871,7 +868,7 @@ public class PassengerActivity extends SimpleMapActivity
 //
 //                        // raise event loop thought all request if last element
 //                        if (listSize == itemIndex + 1) {
-//                            listener.OnLoopThoughAllRequestHH();
+//                            listener.OnLoopThroughAllRequestHH();
 //                            Log.i(TAG, "Loop thought all HH request");
 //                        }
 //                    }
@@ -1218,7 +1215,6 @@ public class PassengerActivity extends SimpleMapActivity
 
     //------------------------------------
 
-
     @Override
     protected void onDestroy() {
         super.onDestroy();
@@ -1256,7 +1252,6 @@ public class PassengerActivity extends SimpleMapActivity
         notifyBtnState();
 
     }
-
 
     private void Init() {
         // Init firebase
