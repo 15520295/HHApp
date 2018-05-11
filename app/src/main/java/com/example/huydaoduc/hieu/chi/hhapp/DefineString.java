@@ -3,17 +3,26 @@ package com.example.huydaoduc.hieu.chi.hhapp;
 import android.util.Pair;
 
 import com.example.huydaoduc.hieu.chi.hhapp.Model.Car.CarType;
+import com.example.huydaoduc.hieu.chi.hhapp.Model.Passenger.PassengerRequest;
+import com.example.huydaoduc.hieu.chi.hhapp.Model.Passenger.PassengerRequestState;
 import com.example.huydaoduc.hieu.chi.hhapp.Model.RouteRequest.RouteRequestState;
 
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 
 public class DefineString {
-    // RouteRequestState
-    public static final HashMap<RouteRequestState,String> REQUEST_STATE_MAP = new HashMap<RouteRequestState, String>() {{
+    // Route Request State
+    public static final HashMap<RouteRequestState,String> ROUTE_REQUEST_STATE_MAP = new HashMap<RouteRequestState, String>() {{
         put(RouteRequestState.FINDING_PASSENGER,"Finding passenger...");
         put(RouteRequestState.PAUSE,"Pause finding");
         put(RouteRequestState.FOUND_PASSENGER,"Found your passenger");
+    }};
+
+    // Passenger Request State
+    public static final HashMap<PassengerRequestState,String> PASSENGER_REQUEST_STATE_MAP = new HashMap<PassengerRequestState, String>() {{
+        put(PassengerRequestState.FINDING_DRIVER,"Finding driver ...");
+        put(PassengerRequestState.PAUSE,"Pause");
+        put(PassengerRequestState.FOUND_DRIVER,"Found your driver");
     }};
 
     // Wait time

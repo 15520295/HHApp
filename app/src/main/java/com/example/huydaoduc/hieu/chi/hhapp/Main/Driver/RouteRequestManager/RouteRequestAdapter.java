@@ -33,7 +33,7 @@ public class RouteRequestAdapter extends BaseQuickAdapter<RouteRequest, com.chad
         }
 
         // State
-        helper.setText(R.id.btn_request_state, DefineString.REQUEST_STATE_MAP.get(routeRequest.getRouteRequestState()));
+        helper.setText(R.id.btn_request_state, DefineString.ROUTE_REQUEST_STATE_MAP.get(routeRequest.getRouteRequestState()));
         if (routeRequest.getRouteRequestState() == RouteRequestState.FOUND_PASSENGER) {
             helper.setVisible(R.id.prb_finding_passenger, false);
             helper.setVisible(R.id.iv_check, true);

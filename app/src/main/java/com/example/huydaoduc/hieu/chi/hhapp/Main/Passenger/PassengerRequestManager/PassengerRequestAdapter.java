@@ -5,11 +5,8 @@ import android.text.TextUtils;
 import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.chad.library.adapter.base.BaseViewHolder;
 import com.example.huydaoduc.hieu.chi.hhapp.DefineString;
-import com.example.huydaoduc.hieu.chi.hhapp.Framework.TimeUtils;
 import com.example.huydaoduc.hieu.chi.hhapp.Model.Passenger.PassengerRequest;
 import com.example.huydaoduc.hieu.chi.hhapp.Model.Passenger.PassengerRequestState;
-import com.example.huydaoduc.hieu.chi.hhapp.Model.RouteRequest.RouteRequest;
-import com.example.huydaoduc.hieu.chi.hhapp.Model.RouteRequest.RouteRequestState;
 import com.example.huydaoduc.hieu.chi.hhapp.Model.Trip.TripFareInfo;
 import com.example.huydaoduc.hieu.chi.hhapp.R;
 
@@ -39,7 +36,7 @@ public class PassengerRequestAdapter extends BaseQuickAdapter<PassengerRequest, 
 
         // State
         PassengerRequestState state = passengerRequest.getPassengerRequestState();
-        helper.setText(R.id.btn_request_state, DefineString.REQUEST_STATE_MAP.get(state));
+        helper.setText(R.id.btn_request_state, DefineString.PASSENGER_REQUEST_STATE_MAP.get(state));
         if (state == PassengerRequestState.FOUND_DRIVER) {
             helper.setVisible(R.id.prb_finding_passenger, false);
             helper.setVisible(R.id.iv_check, true);

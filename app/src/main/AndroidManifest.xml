@@ -34,14 +34,6 @@
             android:name="com.google.android.geo.API_KEY"
             android:value="@string/map_api_key" />
 
-        <activity android:name=".Main.SplashActivity">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
-
         <receiver android:name=".CheckInternetBroadcastReceiver">
             <intent-filter>
                 <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
@@ -52,14 +44,22 @@
             </intent-filter>
         </receiver>
 
-        <activity
-            android:name=".Framework.Place.SearchActivity"
-            android:theme="@style/AppTheme.NoActionBar" />
-        <activity android:name=".ActivitiesAuth.PhoneAuthActivity" />
+        <service
+            android:name=".Framework.CheckActivityCloseService"
+            android:label="Real time location checking service"
+            android:stopWithTask="false" />
+
+        <activity android:name=".Main.SplashActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
         <activity android:name=".Main.MainActivity" />
-        <activity
-            android:name=".Main.AboutApp"
-            android:theme="@style/AppTheme.PopMe" />
+
+        <!-- login Activity -->
+        <activity android:name=".ActivitiesAuth.PhoneAuthActivity" />
         <activity
             android:name=".ActivitiesAuth.EnterPhoneNumberActivity"
             android:label="@string/title_activity_enter_phone_number"
@@ -69,25 +69,35 @@
             android:label="@string/title_activity_enter_phone_number"
             android:windowSoftInputMode="stateVisible|adjustResize" />
         <activity android:name=".ActivitiesAuth.EnterPassActivity" />
-        <activity android:name=".Main.Passenger.PassengerActivity" />
-        <activity android:name=".Main.Driver.RouteRequestManager.RouteRequestManagerActivity" />
-        <activity android:name=".Main.Driver.RouteRequestManager.CreateRouteActivity" />
         <activity
             android:name=".ActivitiesAuth.UpdateInfoActivity"
             android:windowSoftInputMode="stateVisible|adjustResize" />
+
+        <!-- Framework -->
+        <activity
+            android:name=".Framework.Place.SearchActivity"
+            android:theme="@style/AppTheme.NoActionBar" />
+
+        <!-- User -->
+        <activity
+            android:name=".Main.AboutApp"
+            android:theme="@style/AppTheme.PopMe" />
         <activity android:name=".Main.AboutUser" />
         <activity
             android:name=".Main.ChangeName"
             android:theme="@style/AppTheme.PopMe" />
         <activity android:name=".Main.InfoCar" />
 
-        <service
-            android:name=".Framework.CheckActivityCloseService"
-            android:label="Real time location checking service"
-            android:stopWithTask="false" />
-
+        <!-- Passenger -->
+        <activity android:name=".Main.Passenger.PassengerActivity" />
         <activity android:name=".Main.Passenger.FindingDriverActivity" />
+        <activity android:name=".Main.Passenger.PassengerRequestManager.PassengerRequestManagerActivity" />
+
+        <!-- Driver -->
+        <activity android:name=".Main.Driver.RouteRequestManager.RouteRequestManagerActivity" />
+        <activity android:name=".Main.Driver.RouteRequestManager.CreateRouteActivity" />
         <activity android:name=".Main.Driver.PassengerRequestInfoActivity" />
+        <activity android:name=".Main.Driver.DriverActivity"></activity>
     </application>
 
 </manifest>

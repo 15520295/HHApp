@@ -1,24 +1,33 @@
 package com.example.huydaoduc.hieu.chi.hhapp.Main.Passenger.PassengerRequestManager;
 
-import android.app.Activity;
+import android.Manifest;
+import android.app.Dialog;
+import android.app.Fragment;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.FragmentActivity;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
+import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.example.huydaoduc.hieu.chi.hhapp.Define;
 import com.example.huydaoduc.hieu.chi.hhapp.Framework.DBManager;
-import com.example.huydaoduc.hieu.chi.hhapp.Main.Driver.PassengerRequestInfoActivity;
 import com.example.huydaoduc.hieu.chi.hhapp.Main.Passenger.PassengerActivity;
 import com.example.huydaoduc.hieu.chi.hhapp.Model.Passenger.PassengerRequest;
 import com.example.huydaoduc.hieu.chi.hhapp.Model.Passenger.PassengerRequestState;
 import com.example.huydaoduc.hieu.chi.hhapp.Model.RouteRequest.RouteRequestState;
 import com.example.huydaoduc.hieu.chi.hhapp.Model.Trip.NotifyTrip;
+import com.example.huydaoduc.hieu.chi.hhapp.Model.User.UserInfo;
 import com.example.huydaoduc.hieu.chi.hhapp.R;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
@@ -26,6 +35,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.rilixtech.materialfancybutton.MaterialFancyButton;
 import com.scwang.smartrefresh.layout.SmartRefreshLayout;
 import com.scwang.smartrefresh.layout.api.RefreshLayout;
 import com.scwang.smartrefresh.layout.listener.OnRefreshListener;
@@ -39,12 +49,12 @@ import java.util.List;
 import cn.bingoogolapple.titlebar.BGATitleBar;
 
 
-public class PassengerRequestManagerActivity extends AppCompatActivity {
+public class PassengerRequestManagerActivity extends FragmentActivity {
 
     private static final int CREATE_PASSENGER_REQUEST_CODE = 1;
     BGATitleBar titleBar;
-    RecyclerView rycv_route_request;
-    FloatingActionButton fab_add_route;
+    RecyclerView rycv_passenger_request;
+    FloatingActionButton fab_add_request;
 
     List<PassengerRequest> passengerRequests;
 
@@ -68,7 +78,7 @@ public class PassengerRequestManagerActivity extends AppCompatActivity {
 
     private void Init() {
         //view
-        fab_add_route = findViewById(R.id.fab_add_route);
+        fab_add_request = findViewById(R.id.fab_add_request);
 
         titleBar = (BGATitleBar) findViewById(R.id.titlebar);
 
@@ -107,66 +117,157 @@ public class PassengerRequestManagerActivity extends AppCompatActivity {
             }
         });
 
-        fab_add_route.setOnClickListener(e ->{
+        fab_add_request.setOnClickListener(e ->{
             Intent intent = new Intent(getApplicationContext(), PassengerActivity.class);
             PassengerRequestManagerActivity.this.startActivityForResult(intent,CREATE_PASSENGER_REQUEST_CODE);
         });
 
     }
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
+    //region -------------- Init Recycle View + Event ----------------
 
-        handleResultCreateRoute(requestCode, resultCode, data);
+    private void initRecyclerView() {
+        rycv_passenger_request = findViewById(R.id.recycler_view_requests);
+        LinearLayoutManager llm = new LinearLayoutManager(getApplicationContext());
+        llm.setOrientation(LinearLayoutManager.VERTICAL);
+        rycv_passenger_request.setLayoutManager(llm);
     }
 
-    //region -------------- Route request ----------------
+    private void refreshList(boolean enableLoading) {
+        if (enableLoading)
+            startLoading();
 
-    private void handleResultCreateRoute(int requestCode, int resultCode, Intent data) {
-        if (requestCode == CREATE_PASSENGER_REQUEST_CODE) {
-            if (resultCode == Activity.RESULT_OK) {
-                // add listener//todo: redo
-                String routeRequestUId = data.getStringExtra("routeRequestUId");
-                //Listen to Trip Notify - asynchronous with service
-                dbRefe.child(Define.DB_PASSENGER_REQUESTS).child(getCurUid())
-                        .child(routeRequestUId).child(Define.DB_PASSENGER_REQUESTS_NOTIFY_TRIP)
-                        .addValueEventListener(new ValueEventListener() {
-                            @Override
-                            public void onDataChange(DataSnapshot dataSnapshot) {
-                                NotifyTrip notifyTrip = dataSnapshot.getValue(NotifyTrip.class);
+        FirebaseDatabase.getInstance().getReference()
+                .child(Define.DB_PASSENGER_REQUESTS)
+                .child(getCurUid())
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        passengerRequests.clear();
+                        for (DataSnapshot postSnapshot: dataSnapshot.getChildren()) {
+                            PassengerRequest request = postSnapshot.getValue(PassengerRequest.class);
 
-                                if(notifyTrip != null && !notifyTrip.isNotified())
-                                {
-                                    // update NotifyTrip value to notified
-                                    notifyTrip.setNotified(true);
-                                    dbRefe.child(Define.DB_PASSENGER_REQUESTS).child(getCurUid())
-                                            .child(routeRequestUId)
-                                            .child(Define.DB_PASSENGER_REQUESTS_NOTIFY_TRIP).setValue(notifyTrip);
+                            // notify Trip And Update Request State On Server;
+                            NotifyTrip notifyTrip = request.getNotifyTrip();
+                            // if trip is not notify then notify and update data on server
+                            if(notifyTrip != null && ! notifyTrip.isNotified())
+                            {
+                                // update NotifyTrip value to notified
+                                notifyTrip.setNotified(true);
+                                dbRefe.child(Define.DB_PASSENGER_REQUESTS)
+                                        .child(request.getPassengerUId())
+                                        .child(request.getPassengerRequestUId())
+                                        .child(Define.DB_PASSENGER_REQUESTS_NOTIFY_TRIP)
+                                        .setValue(notifyTrip);
 
-                                    // change Route state
-                                    dbRefe.child(Define.DB_PASSENGER_REQUESTS).child(getCurUid())
-                                            .child(routeRequestUId)
-                                            .child(Define.DB_PASSENGER_REQUESTS_PASSENGER_REQUEST_STATE).setValue(RouteRequestState.FOUND_PASSENGER);
+                                // change Passenger Request state
+                                dbRefe.child(Define.DB_PASSENGER_REQUESTS)
+                                        .child(request.getPassengerUId())
+                                        .child(request.getPassengerRequestUId())
+                                        .child(Define.DB_PASSENGER_REQUESTS_PASSENGER_REQUEST_STATE)
+                                        .setValue(PassengerRequestState.FOUND_DRIVER);
 
-                                    // notify passenger
-                                    Toast.makeText(getApplicationContext(),"Found your passenger",Toast.LENGTH_LONG).show();
-                                    refreshList(false);
-                                }
+                                // notify passenger
+                                //todo : notify Notification
                             }
+                            request.setNotifyTrip(notifyTrip);
 
-                            @Override
-                            public void onCancelled(DatabaseError databaseError) {
+                            passengerRequests.add(request);
+                        }
 
+                        Collections.reverse(passengerRequests);
+
+                        // Passenger request Row Click event
+                        PassengerRequestAdapter adapter = new PassengerRequestAdapter(passengerRequests);
+                        adapter.setOnItemChildClickListener((adapter1, view, position) -> {
+                            if (view.getId() == R.id.iv_menu) {
+                                showTopRightMenuItem(position, view);
+                            }
+                            if (view.getId() == R.id.btn_request_state) {
+                                btnRequestStateClick(position);
                             }
                         });
 
-                refreshList(false);
-            }
+                        rycv_passenger_request.setAdapter(adapter);
+                        stopLoading();
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                });
+    }
+
+    //region -------------- Row Click Event ----------------
+
+    /**
+     * Show driver info if found when click state button
+     * @param position item in passengerRequests list
+     */
+    private void btnRequestStateClick(int position) {
+        showLoadingPassengerRequestInfo(getString(R.string.loading_driver_info));
+
+        PassengerRequest passengerRequest = passengerRequests.get(position);
+        if (passengerRequest.getPassengerRequestState() == PassengerRequestState.FOUND_DRIVER) {
+            String tripUId = passengerRequest.getNotifyTrip().getTripUId();
+
+            DBManager.getTripById(tripUId, trip -> {
+                // get Passenger Info
+                DBManager.getUserById(trip.getDriverUId(), (userInfo) ->
+                        {
+                            setUpDialogInfo(userInfo);
+                            dialogInfo.show();
+                        }
+                );
+            });
         }
     }
 
-    private void changeRouteRequestState(int position, String command) {
+    private void showTopRightMenuItem(int position, View view) {
+        TopRightMenu topRightMenu;
+        topRightMenu = new TopRightMenu(PassengerRequestManagerActivity.this);
+
+        List<MenuItem> menuItems = new ArrayList<>();
+        menuItems.add( new MenuItem(R.drawable.ic_pause_20, getString(R.string.pause)));
+        menuItems.add( new MenuItem(R.drawable.ic_delete_20, getString(R.string.delete)));
+        menuItems.add( new MenuItem(R.drawable.ic_resume_20, getString(R.string.resume)));
+
+        topRightMenu
+                .setHeight(340)
+                .setWidth(320)
+                .showIcon(true)
+                .dimBackground(true)
+                .needAnimationStyle(true)
+                .setAnimationStyle(R.style.TRM_ANIM_STYLE)
+                .addMenuList(menuItems)
+                .setOnMenuItemClickListener(new TopRightMenu.OnMenuItemClickListener() {
+                    @Override
+                    public void onMenuItemClick(int menuPosition) {
+                        String command = null;
+
+                        if (menuPosition == 0) {
+                            command = "Pause";
+                        } else if (menuPosition == 1) {
+                            command = "Delete";
+                        } else if (menuPosition == 2) {
+                            command = "Resume";
+                        }
+
+                        changeRequestState(position, command);
+                    }
+                })
+                .showAsDropDown(view, -250, 0);	//带偏移量
+    }
+
+    //endregion
+
+    //endregion
+
+    //region -------------- Passenger request ----------------
+
+
+    private void changeRequestState(int position, String command) {
         if (command == null) {
             return;
         }
@@ -228,7 +329,7 @@ public class PassengerRequestManagerActivity extends AppCompatActivity {
                                     .child(request.getPassengerUId())
                                     .child(request.getPassengerRequestUId())
                                     .child(Define.DB_PASSENGER_REQUESTS_PASSENGER_REQUEST_STATE)
-                                    .setValue(RouteRequestState.PAUSE);
+                                    .setValue(PassengerRequestState.PAUSE);
 
                             refreshList(false);
                         })
@@ -242,7 +343,7 @@ public class PassengerRequestManagerActivity extends AppCompatActivity {
                         .child(request.getPassengerUId())
                         .child(request.getPassengerRequestUId())
                         .child(Define.DB_PASSENGER_REQUESTS_PASSENGER_REQUEST_STATE)
-                        .setValue(RouteRequestState.FINDING_PASSENGER);
+                        .setValue(PassengerRequestState.FINDING_DRIVER);
 
                 refreshList(false);
                 return;
@@ -251,167 +352,68 @@ public class PassengerRequestManagerActivity extends AppCompatActivity {
     }
 
     //endregion
-    
-    //region -------------- Notify ----------------
 
-    private void showDriverInfoActivityItem(int position) {
-        showLoadingPassengerRequestInfo(getString(R.string.loading_passenger_info));
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
 
-        NotifyTrip notifyTrip = passengerRequests.get(position).getNotifyTrip();
-        if (notifyTrip == null) {
-
-        }
-        else
-        {
-            String tripUId = notifyTrip.getTripUId();
-
-            DBManager.getTripById( tripUId, trip -> {
-                // get Passenger Info
-                DBManager.getUserById( trip.getPassengerUId(), userInfo -> {
-
-                    Intent intent = new Intent(PassengerRequestManagerActivity.this, PassengerRequestInfoActivity.class);
-                    intent.putExtra("trip", trip);
-                    intent.putExtra("userInfo", userInfo);
-                    PassengerRequestManagerActivity.this.startActivity(intent);
-
-                    hideLoadingPassengerRequestInfo();
-                });
-            });
-        }
     }
 
-    private void notifyTripAndUpdateRequest(PassengerRequest request) {
-        NotifyTrip notifyTrip = request.getNotifyTrip();
-        if(notifyTrip != null && ! notifyTrip.isNotified())
-        {
-            // update NotifyTrip value to notified
-            notifyTrip.setNotified(true);
-            dbRefe.child(Define.DB_PASSENGER_REQUESTS)
-                    .child(request.getPassengerUId())
-                    .child(request.getPassengerRequestUId())
-                    .child(Define.DB_PASSENGER_REQUESTS_NOTIFY_TRIP)
-                    .setValue(notifyTrip);
+    //region -------------- Show Driver Info --------------
 
-            // change Route state
-            dbRefe.child(Define.DB_PASSENGER_REQUESTS)
-                    .child(request.getPassengerUId())
-                    .child(request.getPassengerRequestUId())
-                    .child(Define.DB_PASSENGER_REQUESTS_PASSENGER_REQUEST_STATE)
-                    .setValue(RouteRequestState.FOUND_PASSENGER);
+    Dialog dialogInfo;
 
-            // notify passenger
-            //todo : notify Notification
-        }
-        request.setNotifyTrip(notifyTrip);
-    }
+    /**
+     * If Online User is in "D_RECEIVING_BOOKING_HH state" and NOT "time out" then get User info as marker
+     */
 
-    MaterialDialog loadingPassengerInfo;
+    private void setUpDialogInfo(final UserInfo driverInfo) {
+        MaterialFancyButton btnMessage, btnCall;
+        TextView tvName, tvPhone;
 
-    private void showLoadingPassengerRequestInfo(String title) {
-        loadingPassengerInfo = new MaterialDialog.Builder(this)
-                .title(title)
-                .content(R.string.please_wait)
-                .progress(true, 0)
-                .titleColor(getResources().getColor(R.color.title_bar_background_color))
-                .widgetColorRes(R.color.title_bar_background_color)
-                .buttonRippleColorRes(R.color.title_bar_background_color).show();
-    }
+        dialogInfo = new Dialog(PassengerRequestManagerActivity.this);
+        dialogInfo.setContentView(R.layout.info_user);
 
-    private void hideLoadingPassengerRequestInfo() {
-        if (loadingPassengerInfo != null)
-            loadingPassengerInfo.dismiss();
-    }
-    //endregion
+        btnMessage = dialogInfo.findViewById(R.id.btn_messenger);
+        btnCall = dialogInfo.findViewById(R.id.btn_call);
+        tvName = dialogInfo.findViewById(R.id.tvName);
+        tvPhone = dialogInfo.findViewById(R.id.tvPhone);
 
+        tvName.setText(driverInfo.getName());
+        tvPhone.setText("SDT: " + driverInfo.getPhoneNumber());
 
-    //region -------------- Recycle View ----------------
-    private void initRecyclerView() {
-        rycv_route_request = findViewById(R.id.recycler_view_route_requests);
-        LinearLayoutManager llm = new LinearLayoutManager(getApplicationContext());
-        llm.setOrientation(LinearLayoutManager.VERTICAL);
-        rycv_route_request.setLayoutManager(llm);
-    }
-
-    private void refreshList(boolean enableLoading) {
-        if (enableLoading)
-            startLoading();
-
-        FirebaseDatabase.getInstance().getReference()
-                .child(Define.DB_PASSENGER_REQUESTS)
-                .child(getCurUid())
-                .addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        passengerRequests.clear();
-                        for (DataSnapshot postSnapshot: dataSnapshot.getChildren()) {
-                            PassengerRequest request = postSnapshot.getValue(PassengerRequest.class);
-
-                            notifyTripAndUpdateRequest(request);
-
-                            passengerRequests.add(request);
-                        }
-
-                        Collections.reverse(passengerRequests);
-
-                        // Route request Row click event
-                        PassengerRequestAdapter adapter = new PassengerRequestAdapter(passengerRequests);
-                        adapter.setOnItemChildClickListener((adapter1, view, position) -> {
-                            if (view.getId() == R.id.iv_menu) {
-                                showTopRightMenuItem(position, view);
-                            }
-                            if (view.getId() == R.id.btn_request_state) {
-                                showDriverInfoActivityItem(position);
-                            }
-                        });
-
-                        rycv_route_request.setAdapter(adapter);
-                        stopLoading();
-                    }
-
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
-
-                    }
+        btnMessage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(getApplicationContext(), "Open Messenger", Toast.LENGTH_LONG).show();
+                dialogInfo.dismiss();
+            }
         });
-    }
 
-    private void showTopRightMenuItem(int position, View view) {
-        TopRightMenu topRightMenu;
-        topRightMenu = new TopRightMenu(PassengerRequestManagerActivity.this);
+        btnCall.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(Intent.ACTION_CALL);
+                intent.setData(Uri.parse("tel:" + driverInfo.getPhoneNumber()));
+                if (Build.VERSION.SDK_INT >= 23) {
+                    if (checkSelfPermission(Manifest.permission.CALL_PHONE)
+                            == PackageManager.PERMISSION_GRANTED) {
 
-        List<MenuItem> menuItems = new ArrayList<>();
-        menuItems.add( new MenuItem(R.drawable.ic_pause_20, getString(R.string.pause)));
-        menuItems.add( new MenuItem(R.drawable.ic_delete_20, getString(R.string.delete)));
-        menuItems.add( new MenuItem(R.drawable.ic_resume_20, getString(R.string.resume)));
+                        PassengerRequestManagerActivity.this.startActivity(intent);
+                        dialogInfo.dismiss();
 
-        topRightMenu
-                .setHeight(340)
-                .setWidth(320)
-                .showIcon(true)
-                .dimBackground(true)
-                .needAnimationStyle(true)
-                .setAnimationStyle(R.style.TRM_ANIM_STYLE)
-                .addMenuList(menuItems)
-                .setOnMenuItemClickListener(new TopRightMenu.OnMenuItemClickListener() {
-                    @Override
-                    public void onMenuItemClick(int menuPosition) {
-                        String command = null;
-
-                        if (menuPosition == 0) {
-                            command = "Pause";
-                        } else if (menuPosition == 1) {
-                            command = "Delete";
-                        } else if (menuPosition == 2) {
-                            command = "Resume";
-                        }
-
-                        changeRouteRequestState(position, command);
+                    } else {
+                        ActivityCompat.requestPermissions(PassengerRequestManagerActivity.this, new String[]{Manifest.permission.CALL_PHONE}, 1001);
                     }
-                })
-                .showAsDropDown(view, -250, 0);	//带偏移量
+                }
+            }
+        });
+
     }
 
     //endregion
+
+
 
     //region -------------- Smart Refresh Layout ----------------
 
@@ -438,4 +440,23 @@ public class PassengerRequestManagerActivity extends AppCompatActivity {
     }
 
     //endregion
+
+
+    // Animation
+
+    MaterialDialog loadingPassengerInfo;
+    private void showLoadingPassengerRequestInfo(String title) {
+        loadingPassengerInfo = new MaterialDialog.Builder(this)
+                .title(title)
+                .content(R.string.please_wait)
+                .progress(true, 0)
+                .titleColor(getResources().getColor(R.color.title_bar_background_color))
+                .widgetColorRes(R.color.title_bar_background_color)
+                .buttonRippleColorRes(R.color.title_bar_background_color).show();
+    }
+
+    private void hideLoadingPassengerRequestInfo() {
+        if (loadingPassengerInfo != null)
+            loadingPassengerInfo.dismiss();
+    }
 }

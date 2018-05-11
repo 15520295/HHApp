@@ -42,6 +42,7 @@ import com.example.huydaoduc.hieu.chi.hhapp.Main.AboutApp;
 import com.example.huydaoduc.hieu.chi.hhapp.Main.AboutUser;
 import com.example.huydaoduc.hieu.chi.hhapp.Model.Passenger.PassengerRequest;
 import com.example.huydaoduc.hieu.chi.hhapp.Framework.TimeUtils;
+import com.example.huydaoduc.hieu.chi.hhapp.Model.Passenger.PassengerRequestState;
 import com.example.huydaoduc.hieu.chi.hhapp.Model.Trip.Trip;
 import com.example.huydaoduc.hieu.chi.hhapp.Model.Trip.TripState;
 import com.example.huydaoduc.hieu.chi.hhapp.Model.Trip.TripType;
@@ -80,8 +81,7 @@ public class PassengerActivity extends SimpleMapActivity
     private static final int FIND_DRIVER_REQUEST_CODE = 80;
     private static final int SELECT_CAR_TYPE_REQUEST_CODE = 81;
 
-    private Button btnMessage, btnCall;
-    private TextView tvName, tvPhone;
+
 
     Button btn_cd_note, btn_cd_wait_time;
 
@@ -97,7 +97,6 @@ public class PassengerActivity extends SimpleMapActivity
 
     private UserState userState;
 
-    Dialog dialogInfo;
     DatabaseReference dbRefe;
 
     @Override
@@ -181,6 +180,7 @@ public class PassengerActivity extends SimpleMapActivity
                 .setNote(notes)
                 .setWaitMinute(waitMinute)
                 .setTripFareInfo(getCurTripFareInfoInstance())
+                .setPassengerRequestState(PassengerRequestState.FINDING_DRIVER)
                 .build();
 
         Trip trip = Trip.Builder.aTrip(tripUId)
@@ -207,10 +207,11 @@ public class PassengerActivity extends SimpleMapActivity
 
     //region -------------- Show Driver Info --------------
 
+    Dialog dialogInfo;
+
     /**
      * If Online User is in "D_RECEIVING_BOOKING_HH state" and NOT "time out" then get User info as marker
      */
-    //todo: add Driver end location
     private void setUpFoundDriver(String driverUId) {
         DBManager.getUserById(driverUId, (userInfo) ->
             {
@@ -221,11 +222,14 @@ public class PassengerActivity extends SimpleMapActivity
     }
 
     private void setUpDialogInfo(final UserInfo driverInfo) {
+        MaterialFancyButton btnMessage, btnCall;
+        TextView tvName, tvPhone;
+
         dialogInfo = new Dialog(PassengerActivity.this);
         dialogInfo.setContentView(R.layout.info_user);
 
-        btnMessage = dialogInfo.findViewById(R.id.btnMessage);
-        btnCall = dialogInfo.findViewById(R.id.btnCall);
+        btnMessage = dialogInfo.findViewById(R.id.btn_messenger);
+        btnCall = dialogInfo.findViewById(R.id.btn_call);
         tvName = dialogInfo.findViewById(R.id.tvName);
         tvPhone = dialogInfo.findViewById(R.id.tvPhone);
 

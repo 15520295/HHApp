@@ -39,7 +39,7 @@
             android:layout_height="wrap_content">
 
             <android.support.v7.widget.RecyclerView
-                android:id="@+id/recycler_view_route_requests"
+                android:id="@+id/recycler_view_requests"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
 
@@ -49,7 +49,7 @@
     </com.scwang.smartrefresh.layout.SmartRefreshLayout>
 
     <android.support.design.widget.FloatingActionButton
-        android:id="@+id/fab_add_route"
+        android:id="@+id/fab_add_request"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:src="@drawable/ic_add_white"

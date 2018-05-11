@@ -6,18 +6,23 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.afollestad.materialdialogs.DialogAction;
+import com.afollestad.materialdialogs.MaterialDialog;
 import com.example.huydaoduc.hieu.chi.hhapp.Define;
 import com.example.huydaoduc.hieu.chi.hhapp.Framework.Direction.DirectionFinderListener;
 import com.example.huydaoduc.hieu.chi.hhapp.Framework.Direction.Route;
 import com.example.huydaoduc.hieu.chi.hhapp.Framework.DirectionManager;
 import com.example.huydaoduc.hieu.chi.hhapp.Framework.LocationUtils;
 import com.example.huydaoduc.hieu.chi.hhapp.Framework.TimeUtils;
+import com.example.huydaoduc.hieu.chi.hhapp.Main.Passenger.PassengerRequestManager.PassengerRequestManagerActivity;
 import com.example.huydaoduc.hieu.chi.hhapp.Model.Car.CarType;
+import com.example.huydaoduc.hieu.chi.hhapp.Model.Passenger.PassengerRequestState;
 import com.example.huydaoduc.hieu.chi.hhapp.Model.Trip.NotifyTrip;
 import com.example.huydaoduc.hieu.chi.hhapp.Model.Passenger.PassengerRequest;
 import com.example.huydaoduc.hieu.chi.hhapp.Model.RouteRequest.RouteRequest;
@@ -139,20 +144,12 @@ public class FindingDriverActivity extends AppCompatActivity {
                         public void OnLoopThroughAllRequestHH() {
                             synchronized (isDriverFound)
                             {
-                                //todo:v2
-                                // if loop through all the objects but still not find matching HH request then use normal request
-//                                if( ! isDriverFound)
-//                                    findNearestDriver(trip);
-                                if (! isDriverFound) {
-                                    Toast.makeText(getApplicationContext(),"Can't find your driver",Toast.LENGTH_LONG).show();
-                                }
-
                                 new Handler().postDelayed(new Runnable() {
                                     @Override
                                     public void run() {
-                                        FindingDriverActivity.this.finish();
+                                        handleNotFoundDriver();
                                     }
-                                }, 2000);
+                                }, 3000);
                             }
                         }
 
@@ -162,6 +159,8 @@ public class FindingDriverActivity extends AppCompatActivity {
                             dbRefe.child(Define.DB_TRIPS)
                                     .child(tripUId)
                                     .setValue(trip);
+                            passengerRequest.setPassengerRequestState(PassengerRequestState.FOUND_DRIVER);
+                            passengerRequest.setNotifyTrip(new NotifyTrip(tripUId,true));
                             dbRefe.child(Define.DB_PASSENGER_REQUESTS)
                                     .child(passengerRequest.getPassengerUId())
                                     .child(passengerRequest.getPassengerRequestUId())
@@ -176,20 +175,7 @@ public class FindingDriverActivity extends AppCompatActivity {
                                     .child(request.getRouteRequestUId()).child(Define.DB_ROUTE_REQUESTS_NOTIFY_TRIP)
                                     .setValue(notifyTrip);
 
-                            //listen to trip state
-                            dbRefe.child(Define.DB_TRIPS)
-                                    .child(tripUId).child(Define.DB_TRIPS_TRIP_STATE)
-                                    .addValueEventListener(new ValueEventListener() {
-                                        @Override
-                                        public void onDataChange(DataSnapshot dataSnapshot) {
 
-                                        }
-
-                                        @Override
-                                        public void onCancelled(DatabaseError databaseError) {
-
-                                        }
-                                    });
 
                             Log.i(TAG, "Found HH request" + request.getDriverUId());
 
@@ -205,6 +191,84 @@ public class FindingDriverActivity extends AppCompatActivity {
             //todo:v2
 //            findNearestDriver(trip);
         }
+    }
+
+    private void handleNotFoundDriver() {
+        //todo:v2
+        // if loop through all the objects but still not find matching HH request then use normal request
+//                                if( ! isDriverFound)
+//                                    findNearestDriver(trip);
+        if (! isDriverFound) {
+            // show suggestion
+            new MaterialDialog.Builder(this)
+                    .title(R.string.add_waiting_list_title)
+                    .content(R.string.add_waiting_list_content)
+                    .positiveText(R.string.ok)
+                    .negativeText(R.string.cancel)
+                    .titleColor(getResources().getColor(R.color.title_bar_background_color))
+                    .positiveColor(getResources().getColor(R.color.title_bar_background_color))
+                    .widgetColorRes(R.color.title_bar_background_color)
+                    .buttonRippleColorRes(R.color.title_bar_background_color)
+                    .onPositive((dialog, which) -> {
+                        addPassengerRequestToWaitingList();
+                    })
+                    .onNegative((dialog, which) -> {
+                        cancelRequest();
+                    })
+                    .show();
+
+        }
+
+
+    }
+
+    private void addPassengerRequestToWaitingList() {
+        // add request to waiting list
+        dbRefe.child(Define.DB_PASSENGER_REQUESTS)
+                .child(passengerRequest.getPassengerUId())
+                .child(passengerRequest.getPassengerRequestUId())
+                .setValue(passengerRequest);
+
+        // listen to trip catch
+        dbRefe.child(Define.DB_PASSENGER_REQUESTS)
+                .child(passengerRequest.getPassengerUId())
+                .child(passengerRequest.getPassengerRequestUId())
+                .child(Define.DB_PASSENGER_REQUESTS_NOTIFY_TRIP)
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        NotifyTrip notifyTrip = dataSnapshot.getValue(NotifyTrip.class);
+
+                        if(notifyTrip != null && !notifyTrip.isNotified()) {
+                            // update NotifyTrip value to notified
+                            notifyTrip.setNotified(true);
+                            dbRefe.child(Define.DB_PASSENGER_REQUESTS)
+                                    .child(passengerRequest.getPassengerUId())
+                                    .child(passengerRequest.getPassengerRequestUId())
+                                    .child(Define.DB_PASSENGER_REQUESTS_NOTIFY_TRIP)
+                                    .setValue(notifyTrip);
+
+                            // change Request state
+                            dbRefe.child(Define.DB_PASSENGER_REQUESTS)
+                                    .child(passengerRequest.getPassengerUId())
+                                    .child(passengerRequest.getPassengerRequestUId())
+                                    .child(Define.DB_ROUTE_REQUESTS_ROUTE_REQUEST_STATE)
+                                    .setValue(RouteRequestState.FOUND_PASSENGER);
+
+                            // notify driver
+                            //todo: notify Notification
+
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                });
+
+        Intent intent = new Intent(getApplicationContext(), PassengerRequestManagerActivity.class);
+        FindingDriverActivity.this.startActivity(intent);
     }
 
 

@@ -66,7 +66,7 @@ public class RouteRequestManagerActivity extends AppCompatActivity {
 
     private void Init() {
         //view
-        fab_add_route = findViewById(R.id.fab_add_route);
+        fab_add_route = findViewById(R.id.fab_add_request);
 
         titleBar = (BGATitleBar) findViewById(R.id.titlebar);
 
@@ -147,7 +147,7 @@ public class RouteRequestManagerActivity extends AppCompatActivity {
                                             .child(Define.DB_ROUTE_REQUESTS_ROUTE_REQUEST_STATE).setValue(RouteRequestState.FOUND_PASSENGER);
 
                                     // notify driver
-                                    //todo: change to notify
+                                    //todo: notify Notification
                                     Toast.makeText(getApplicationContext(),"Found your passenger",Toast.LENGTH_LONG).show();
                                     refreshList(false);
                                 }
@@ -250,7 +250,6 @@ public class RouteRequestManagerActivity extends AppCompatActivity {
 
     //endregion
 
-
     //region -------------- Notify ----------------
 
     private void showPassengerInfoActivityItem(int position) {
@@ -324,10 +323,9 @@ public class RouteRequestManagerActivity extends AppCompatActivity {
     }
     //endregion
 
-
     //region -------------- Recycle View ----------------
     private void initRecyclerView() {
-        rycv_route_request = findViewById(R.id.recycler_view_route_requests);
+        rycv_route_request = findViewById(R.id.recycler_view_requests);
         LinearLayoutManager llm = new LinearLayoutManager(getApplicationContext());
         llm.setOrientation(LinearLayoutManager.VERTICAL);
         rycv_route_request.setLayoutManager(llm);
