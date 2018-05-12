@@ -2,6 +2,7 @@ package com.example.huydaoduc.hieu.chi.hhapp.ActivitiesAuth;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.os.CountDownTimer;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -18,12 +19,15 @@ import android.view.animation.AnimationUtils;
 import android.widget.EditText;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.huydaoduc.hieu.chi.hhapp.Define;
 import com.example.huydaoduc.hieu.chi.hhapp.Main.MainActivity;
 import com.example.huydaoduc.hieu.chi.hhapp.R;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.FirebaseException;
+import com.google.firebase.FirebaseTooManyRequestsException;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
@@ -37,17 +41,21 @@ import com.google.firebase.database.ValueEventListener;
 import com.google.gson.internal.LinkedHashTreeMap;
 
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
+
 //todo: resent code
 public class VerifyPhoneActivity extends AppCompatActivity {
     private static final String TAG = "VerifyPhoneAct";
+    private static boolean isTimerRunning = false;
     FloatingActionButton fab;
-    private TextView tv_error, tv_phone_number;
+    private TextView tv_error, tv_phone_number, tv_resend_code;
     private Map<Integer,EditText> editTextMap;
     private RelativeLayout rootLayout;
     private FirebaseAuth firebaseAuth;
 
     private String verify_code;
     private String phone_number;
+    PhoneAuthProvider.ForceResendingToken forceResendingToken;
 
     private ProgressDialog dialog;
 
@@ -82,13 +90,129 @@ public class VerifyPhoneActivity extends AppCompatActivity {
         } else {
             verify_code = extras.getString("verify_code");
             phone_number = extras.getString("phone_number");
+            forceResendingToken = (PhoneAuthProvider.ForceResendingToken)extras.getParcelable("forceResendingToken");
         }
 
+        String user_number =  phone_number;
+        if (user_number.charAt(0) == '0') {
+            user_number = new StringBuilder(user_number).deleteCharAt(0).toString();
+        }
+
+        phone_number = "+84" + user_number;
         tv_phone_number.setText(phone_number);
 
-
         AnimationIn();
+
+        startTimer();
     }
+
+    // region -------------- Resend code
+    PhoneAuthProvider.OnVerificationStateChangedCallbacks mCallback;
+
+    private void startTimer() {
+        // Init callback
+        mCallback = new PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
+            @Override
+            public void onVerificationCompleted(PhoneAuthCredential phoneAuthCredential) {
+                Log.w(TAG, "onVerificationCompleted");
+                firebaseAuth.signInWithCredential(phoneAuthCredential)
+                        .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+                            @Override
+                            public void onComplete(@NonNull Task<AuthResult> task) {
+                                if(task.isSuccessful())
+                                {
+                                    final String uid = task.getResult().getUser().getUid();
+
+                                    DatabaseReference usersRef = FirebaseDatabase.getInstance().getReference().child(Define.DB_USERS_INFO);
+                                    usersRef.addListenerForSingleValueEvent(new ValueEventListener() {
+
+                                        @Override
+                                        public void onDataChange(DataSnapshot snapshot) {
+                                            if (snapshot.hasChild(uid)) {
+                                                Toast.makeText(getApplicationContext(), "Login successfully", Toast.LENGTH_SHORT).show();
+
+                                                Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+                                                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP|Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                                                VerifyPhoneActivity.this.startActivity(intent);
+                                            } else {
+                                                Intent intent = new Intent(getApplicationContext(), UpdateInfoActivity.class);
+                                                VerifyPhoneActivity.this.startActivity(intent);
+                                            }
+                                        }
+
+                                        @Override
+                                        public void onCancelled(DatabaseError databaseError) {
+                                            Log.e(TAG, databaseError.getMessage());
+                                        }
+                                    });
+                                }
+                            }
+                        });
+
+            }
+
+            @Override
+            public void onVerificationFailed(FirebaseException e)
+            {
+                Log.w(TAG, e.getMessage());
+
+                if (e.getMessage().toLowerCase().contains("network")) {
+                    tv_error.setText(R.string.cant_connect_network);
+                }
+                else if (e instanceof FirebaseAuthInvalidCredentialsException) {
+                    // Invalid request
+                    tv_error.setText(R.string.cant_send_sms);
+                }
+                else if (e instanceof FirebaseTooManyRequestsException) {
+                    // The SMS quota for the project has been exceeded
+                    tv_error.setText(R.string.server_storage_overload);
+                }
+                else
+                {
+                    tv_error.setText(e.getMessage());
+                }
+                hideLoading();
+            }
+
+            @Override
+            public void onCodeSent(String s, PhoneAuthProvider.ForceResendingToken forceResendingToken) {
+                super.onCodeSent(s, forceResendingToken);
+                Log.d(TAG, "onCodeSent:" + verify_code);
+
+                verify_code = s;
+            }
+        };
+
+        // start Timer
+        CountDownTimer countDownTimer;
+        countDownTimer = new CountDownTimer(20*1000, 1000 - 500) {
+            @Override
+            public void onTick(long millisUntilFinished) {
+                tv_resend_code.setText(String.format(getString(R.string.resend_code), millisUntilFinished/1000));
+            }
+
+            @Override
+            public void onFinish() {
+                tv_resend_code.setText(R.string.click_to_resend_code);
+                tv_resend_code.setOnClickListener( v ->{
+                    resendVerificationCode(phone_number);
+                    startTimer();
+                });
+            }
+        };
+        countDownTimer.start();
+    }
+
+    private void resendVerificationCode(String phoneNumber) {
+        PhoneAuthProvider.getInstance().verifyPhoneNumber(
+                phoneNumber,
+                2,
+                TimeUnit.MINUTES,
+                this,
+                mCallback,
+                forceResendingToken);
+    }
+    // endregion
 
 
     private void Init() {
@@ -100,6 +224,8 @@ public class VerifyPhoneActivity extends AppCompatActivity {
 
         tv_error = findViewById(R.id.tv_error);
         tv_error.setText("");
+
+        tv_resend_code = findViewById(R.id.tv_resend_code);
 
         tv_phone_number = findViewById(R.id.tv_phone_number);
 
@@ -220,7 +346,7 @@ public class VerifyPhoneActivity extends AppCompatActivity {
                                 public void onDataChange(DataSnapshot snapshot) {
                                     if (snapshot.hasChild(uid)) {
                                         Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-                                        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                                        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP|Intent.FLAG_ACTIVITY_SINGLE_TOP);
                                         VerifyPhoneActivity.this.startActivity(intent);
                                     } else {
                                         Intent intent = new Intent(getApplicationContext(), UpdateInfoActivity.class);

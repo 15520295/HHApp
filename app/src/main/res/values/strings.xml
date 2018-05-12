@@ -96,5 +96,10 @@
     <string name="add_waiting_list_content">Sorry now we can\'t find any driver matching your request. You can add your requests to waiting list so drivers can find your requests later</string>
     <string name="can_not_get_location">Sorry because of the slow network so we can\'t get the location please try again.</string>
     <string name="select_car_type">What type of vehicle are you driving?</string>
+    <string name="cant_connect_network">Can\'t connect to the network. Please check your connection</string>
+    <string name="cant_send_sms">Failed to send sms to your number. Please Try again!</string>
+    <string name="server_storage_overload">The server storage quota has been exceeded. Please go back other time.</string>
+    <string name="resend_code">Resend code in 00:%02d</string>
+    <string name="click_to_resend_code">Click to resend the code</string>
 
 </resources>

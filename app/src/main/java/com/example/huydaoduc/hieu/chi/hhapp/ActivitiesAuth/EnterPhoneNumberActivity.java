@@ -24,6 +24,7 @@ import android.view.animation.AnimationUtils;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.huydaoduc.hieu.chi.hhapp.Define;
 import com.example.huydaoduc.hieu.chi.hhapp.Main.MainActivity;
@@ -220,8 +221,10 @@ public class EnterPhoneNumberActivity extends AppCompatActivity {
                                         @Override
                                         public void onDataChange(DataSnapshot snapshot) {
                                             if (snapshot.hasChild(uid)) {
+                                                Toast.makeText(getApplicationContext(), "Login successfully", Toast.LENGTH_SHORT).show();
+
                                                 Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-                                                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                                                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP|Intent.FLAG_ACTIVITY_SINGLE_TOP);
                                                 EnterPhoneNumberActivity.this.startActivity(intent);
                                             } else {
                                                 Intent intent = new Intent(getApplicationContext(), UpdateInfoActivity.class);
@@ -277,7 +280,7 @@ public class EnterPhoneNumberActivity extends AppCompatActivity {
                 // Save verification ID and resending token so we can use them later
                 verification_code = s;
 
-                openVerifyActivity();
+                openVerifyActivity(forceResendingToken);
             }
         };
     }
@@ -322,11 +325,13 @@ public class EnterPhoneNumberActivity extends AppCompatActivity {
         );
     }
 
-    private void openVerifyActivity()
+    private void openVerifyActivity(PhoneAuthProvider.ForceResendingToken forceResendingToken)
     {
         Intent intent = new Intent(getApplicationContext(),VerifyPhoneActivity.class);
         intent.putExtra("verify_code", verification_code);
         intent.putExtra("phone_number", et_phone_number.getText().toString());
+        intent.putExtra("forceResendingToken", forceResendingToken);
+
         this.startActivity(intent);
     }
 
@@ -335,38 +340,4 @@ public class EnterPhoneNumberActivity extends AppCompatActivity {
         InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
         imm.showSoftInput(et_phone_number, InputMethodManager.SHOW_IMPLICIT);
     }
-
-
-
-    private void AnimationIn()
-    {
-        Animation animation = AnimationUtils.loadAnimation(this,R.anim.anim_fade_out);
-        animation.reset();
-        tv_connect_social.clearAnimation();
-        tv_connect_social.startAnimation(animation);
-    }
-
-    private void AnimationOut() {
-        Animation fab_out_anim = AnimationUtils.loadAnimation(this, R.anim.slide_out_left);
-        fab_out_anim.setAnimationListener(new Animation.AnimationListener() {
-            @Override
-            public void onAnimationStart(Animation animation) {
-
-            }
-
-            @Override
-            public void onAnimationEnd(Animation animation) {
-                openVerifyActivity();
-            }
-
-            @Override
-            public void onAnimationRepeat(Animation animation) {
-
-            }
-        });
-        fab_out_anim.reset();
-        fab.clearAnimation();
-        fab.startAnimation(fab_out_anim);
-    }
-
 }
