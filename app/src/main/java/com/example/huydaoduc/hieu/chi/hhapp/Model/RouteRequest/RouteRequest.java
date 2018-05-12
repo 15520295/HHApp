@@ -2,12 +2,15 @@ package com.example.huydaoduc.hieu.chi.hhapp.Model.RouteRequest;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.text.TextUtils;
 
 import com.example.huydaoduc.hieu.chi.hhapp.Define;
 import com.example.huydaoduc.hieu.chi.hhapp.Framework.Place.SavedPlace;
 import com.example.huydaoduc.hieu.chi.hhapp.Framework.TimeUtils;
 import com.example.huydaoduc.hieu.chi.hhapp.Model.Car.CarType;
 import com.example.huydaoduc.hieu.chi.hhapp.Model.Trip.NotifyTrip;
+
+import java.util.Date;
 
 public class RouteRequest implements Parcelable {
 
@@ -34,10 +37,17 @@ public class RouteRequest implements Parcelable {
         return percentDiscount * length * Define.VND_PER_M;
     }
 
-    public boolean func_isInTheFuture() {                   // mean time out
+    public boolean func_isInTheFuture() {                   // return false mean time out
         if(TimeUtils.compareWithNow(startTime) >= 0)
             return true;
         return false;
+    }
+
+    public Date func_getStartTimeAsDate() {
+        if (TextUtils.isEmpty(startTime)) {
+            return null;
+        }
+        return TimeUtils.strToDate(startTime);
     }
 
 //    public static RouteRequest func_createDriverRequestFromRoute(String routeRequestUId, String driverUId, SavedPlace startPlace, SavedPlace endPlace, Date startTime, Float percentDiscount) {

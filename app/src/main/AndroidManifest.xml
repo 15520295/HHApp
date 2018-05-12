@@ -97,7 +97,7 @@
         <activity android:name=".Main.Driver.RouteRequestManager.RouteRequestManagerActivity" />
         <activity android:name=".Main.Driver.RouteRequestManager.CreateRouteActivity" />
         <activity android:name=".Main.Driver.PassengerRequestInfoActivity" />
-        <activity android:name=".Main.Driver.DriverActivity"></activity>
+        <activity android:name=".Main.Driver.v2.DriverActivity"></activity>
     </application>
 
 </manifest>

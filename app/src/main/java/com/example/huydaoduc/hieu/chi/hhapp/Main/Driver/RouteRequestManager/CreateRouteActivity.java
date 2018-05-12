@@ -2,14 +2,19 @@ package com.example.huydaoduc.hieu.chi.hhapp.Main.Driver.RouteRequestManager;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
 import android.location.Geocoder;
 import android.os.Bundle;
 import android.support.v4.content.res.ResourcesCompat;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 
+import com.afollestad.materialdialogs.GravityEnum;
+import com.afollestad.materialdialogs.MaterialDialog;
 import com.example.huydaoduc.hieu.chi.hhapp.Define;
+import com.example.huydaoduc.hieu.chi.hhapp.DefineString;
 import com.example.huydaoduc.hieu.chi.hhapp.Framework.Direction.DirectionFinderListener;
 import com.example.huydaoduc.hieu.chi.hhapp.Framework.Direction.Route;
 import com.example.huydaoduc.hieu.chi.hhapp.Framework.LocationUtils;
@@ -30,6 +35,7 @@ import com.rilixtech.materialfancybutton.MaterialFancyButton;
 import com.wdullaer.materialdatetimepicker.date.DatePickerDialog;
 import com.wdullaer.materialdatetimepicker.time.TimePickerDialog;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
@@ -40,7 +46,7 @@ public class CreateRouteActivity extends SimpleMapActivity implements SimpleMapA
 
     BGATitleBar titleBar;
     private MaterialFancyButton btn_create_route;
-
+    private Button btn_select_car_type;
 
     Geocoder geocoder;
 
@@ -114,6 +120,8 @@ public class CreateRouteActivity extends SimpleMapActivity implements SimpleMapA
 
     private void Init() {
         // init view
+        btn_select_car_type = findViewById(R.id.btn_select_car_type);
+        btn_select_car_type.setText(DefineString.CAR_TYPE_MAP.get(selectedCarType));
         btn_create_route = findViewById(R.id.btn_create_route);
 
         btn_start_picker = findViewById(R.id.btn_start_place_picker);
@@ -152,6 +160,10 @@ public class CreateRouteActivity extends SimpleMapActivity implements SimpleMapA
             }
         });
 
+        btn_select_car_type.setOnClickListener(v ->{
+            showSelectCarTypeFragment();
+        });
+
         btn_create_route.setOnClickListener(v -> {
             createRouteRequest(autoCompleteRoute);
         });
@@ -178,18 +190,22 @@ public class CreateRouteActivity extends SimpleMapActivity implements SimpleMapA
     public void OnMapSetupDone() {
         if (mLastLocation != null) {
             String startAddress = LocationUtils.getLocationAddress(geocoder, mLastLocation);
+            if (! TextUtils.isEmpty(startAddress)) {
+                getStartPlace().setAddress(startAddress);
+                getStartPlace().setLocation(LocationUtils.locaToStr(mLastLocation));
+                getStartPlace().setPrimaryText(startAddress);
 
-            getStartPlace().setAddress(startAddress);
-            getStartPlace().setLocation(LocationUtils.locaToStr(mLastLocation));
-            getStartPlace().setPrimaryText(startAddress);
+                btn_start_picker.setText(getStartPlace().getPrimaryText());
 
-            btn_start_picker.setText(getStartPlace().getPrimaryText());
+                markerManager.draw_PickupPlaceMarker(getStartPlace());
 
-            markerManager.draw_PickupPlaceMarker(getStartPlace());
-
+                notifyBtnState();
+            }
             notifyBtnState();
+        } else {
+            btn_start_picker.setText(R.string.enter_pick_up);
+            btn_start_picker.setSelected(true);
         }
-
 
     }
 
@@ -230,12 +246,8 @@ public class CreateRouteActivity extends SimpleMapActivity implements SimpleMapA
      */
     private void createRouteRequest(Route route) {
         String driverUId = getCurUid();
-        //todo: handle Cartype
-        CarType carType = CarType.BIKE;
-
         // todo: price v2
         Float percentDiscount = 1f;
-
 
         String routeRequestUId = dbRefe.child(Define.DB_ROUTE_REQUESTS).child(driverUId).push().getKey();
 
@@ -248,14 +260,15 @@ public class CreateRouteActivity extends SimpleMapActivity implements SimpleMapA
                 .setStartPlace(getStartPlace())
                 .setEndPlace(getEndPlace())
                 .setStartTime(TimeUtils.dateToStr(selectedDateTime.getTime()))
-                .setCarType(carType)
+                .setCarType(selectedCarType)
                 .setPercentDiscount(percentDiscount)
-                .setSummary("sumary")
+                .setSummary("summary")
                 .build();
 
-        dbRefe.child(Define.DB_ROUTE_REQUESTS).child(driverUId)
-                .child(routeRequestUId).setValue(routeRequest);
-
+        dbRefe.child(Define.DB_ROUTE_REQUESTS)
+                .child(driverUId)
+                .child(routeRequestUId)
+                .setValue(routeRequest);
 
 //        //Listen to Trip Notify - asynchronous with service
 //        dbRefe.child(Define.DB_ROUTE_REQUESTS).child(driverUId)
@@ -290,10 +303,47 @@ public class CreateRouteActivity extends SimpleMapActivity implements SimpleMapA
 
         // close and add to list
         Intent returnIntent = new Intent();
-        returnIntent.putExtra("routeRequestUId", routeRequestUId);
+        returnIntent.putExtra("routeRequest", routeRequest);
         setResult(Activity.RESULT_OK, returnIntent);
         finish();
     }
+
+    //region ------ Select car type --------
+    CarType selectedCarType = CarType.BIKE;
+
+    private void showSelectCarTypeFragment() {
+        ArrayList<String> carTypeStr = new ArrayList<>();
+        ArrayList<CarType> carTypes = new ArrayList<>();
+        for (CarType carType : DefineString.CAR_TYPE_MAP.keySet()) {
+            carTypeStr.add(DefineString.CAR_TYPE_MAP.get(carType));
+            carTypes.add(carType);
+        }
+
+        new MaterialDialog.Builder(this)
+                .title(R.string.select_car_type)
+                .titleGravity(GravityEnum.START)
+                .items(carTypeStr)
+                .itemsGravity(GravityEnum.START)
+                .itemsCallback(new MaterialDialog.ListCallback() {
+                    @Override
+                    public void onSelection(MaterialDialog dialog, View view, int which, CharSequence text) {
+                        selectedCarType = carTypes.get(which);
+                        updateButtonView();
+                    }
+                })
+                .widgetColorRes(R.color.title_bar_background_color)
+                .titleColor(getResources().getColor(R.color.title_bar_background_color))
+                .show();
+    }
+
+    private void updateButtonView() {
+        btn_select_car_type.setText(DefineString.CAR_TYPE_MAP.get(selectedCarType));
+
+        Drawable img = getApplicationContext().getResources().getDrawable(Define.CAR_TYPE_ICON_MAP.get(selectedCarType));
+        btn_select_car_type.setCompoundDrawablesWithIntrinsicBounds( img, null, null, null);
+    }
+
+    //endregion
 
     //region ------ Date Time Picker  --------
     Calendar selectedDateTime;
@@ -396,6 +446,18 @@ public class CreateRouteActivity extends SimpleMapActivity implements SimpleMapA
                 final String placeLocation = data.getStringExtra("place_location");
                 final String placeAddress = data.getStringExtra("place_address");
 
+                // check get place return null
+                if (TextUtils.isEmpty(placePrimaryText)) {
+                    new MaterialDialog.Builder(this)
+                            .content(R.string.can_not_get_location)
+                            .positiveText(R.string.ok)
+                            .titleColor(getResources().getColor(R.color.title_bar_background_color))
+                            .positiveColor(getResources().getColor(R.color.title_bar_background_color))
+                            .widgetColorRes(R.color.title_bar_background_color)
+                            .buttonRippleColorRes(R.color.title_bar_background_color)
+                            .show();
+                    return;
+                }
 
                 if (requestCode == PICKUP_PLACE_AUTOCOMPLETE_REQUEST_CODE) {
                     getStartPlace().setId(placeId);

@@ -5,6 +5,7 @@ import android.text.TextUtils;
 import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.chad.library.adapter.base.BaseViewHolder;
 import com.example.huydaoduc.hieu.chi.hhapp.DefineString;
+import com.example.huydaoduc.hieu.chi.hhapp.Framework.LocationUtils;
 import com.example.huydaoduc.hieu.chi.hhapp.Framework.TimeUtils;
 import com.example.huydaoduc.hieu.chi.hhapp.Model.RouteRequest.RouteRequest;
 import com.example.huydaoduc.hieu.chi.hhapp.Model.RouteRequest.RouteRequestState;
@@ -26,11 +27,12 @@ public class RouteRequestAdapter extends BaseQuickAdapter<RouteRequest, com.chad
                 .setText(R.id.tv_pick_up_address, routeRequest.getStartPlace().getAddress())
                 .setText(R.id.tv_drop_off_address, routeRequest.getEndPlace().getAddress());
 
-        if (! TextUtils.isEmpty(routeRequest.getEndPlace().getPrimaryText())) {
-            helper.setText(R.id.tv_request_title, routeRequest.getEndPlace().getPrimaryText());
-        } else {
-            helper.setText(R.id.tv_request_title, routeRequest.getEndPlace().getAddress());
-        }
+        String title;
+        String startPlace, endPlace;
+        startPlace =  LocationUtils.getPrimaryTextFromAddress(routeRequest.getStartPlace().getAddress());
+        endPlace =  LocationUtils.getPrimaryTextFromAddress(routeRequest.getEndPlace().getAddress());
+        title = startPlace + " - " + endPlace;
+        helper.setText(R.id.tv_request_title, title);
 
         // State
         helper.setText(R.id.btn_request_state, DefineString.ROUTE_REQUEST_STATE_MAP.get(routeRequest.getRouteRequestState()));

@@ -90,6 +90,7 @@
             android:textStyle="normal"
             android:textAllCaps="false"
             android:drawablePadding="15dp"
+            android:padding="@dimen/margin_default_15"
             android:paddingLeft="10dp"
             android:drawableLeft="@drawable/mkr_map_pin_24px"
             android:gravity="left|center_vertical"/>
@@ -115,7 +116,7 @@
             android:layout_height="wrap_content"
             android:layout_centerHorizontal="true"
             android:layout_alignParentBottom="true"
-            android:padding="10dp"
+            android:padding="5dp"
             android:layout_marginBottom="10dp"
             android:src="@drawable/powered_by_google_light"/>
 

@@ -3,6 +3,7 @@ package com.example.huydaoduc.hieu.chi.hhapp.Framework;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
+import android.text.TextUtils;
 import android.util.Log;
 
 import com.example.huydaoduc.hieu.chi.hhapp.Framework.Direction.Leg;
@@ -71,6 +72,16 @@ public class LocationUtils {
         LatLng northeastCorner =
                 SphericalUtil.computeOffset(center, distanceFromCenterToCorner, 45.0);
         return new LatLngBounds(southwestCorner, northeastCorner);
+    }
+
+    public static String getPrimaryTextFromAddress(String address) {
+        if (! TextUtils.isEmpty(address)) {
+            String[] split = address.split(",");
+            if (split.length != 0) {
+                return split[0];
+            }
+        }
+        return null;
     }
 
     //endregion

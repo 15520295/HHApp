@@ -109,6 +109,10 @@ dependencies {
     implementation 'com.scwang.smartrefresh:SmartRefreshLayout:1.1.0-alpha-5'
     implementation 'com.scwang.smartrefresh:SmartRefreshHeader:1.1.0-alpha-5'
 
+    // Tab
+    implementation 'com.ogaclejapan.smarttablayout:library:1.6.1@aar'
+    implementation 'com.ogaclejapan.smarttablayout:utils-v4:1.6.1@aar'
+
     // Hieu
     implementation 'com.rilixtech:materialfancybuttons:1.8.7'
     implementation 'com.github.dimorinny:floating-text-button:0.0.4'

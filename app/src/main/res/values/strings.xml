@@ -94,5 +94,7 @@
     <string name="please_wait">Please wait...</string>
     <string name="add_waiting_list_title">Do you want to put your request to waiting list?</string>
     <string name="add_waiting_list_content">Sorry now we can\'t find any driver matching your request. You can add your requests to waiting list so drivers can find your requests later</string>
+    <string name="can_not_get_location">Sorry because of the slow network so we can\'t get the location please try again.</string>
+    <string name="select_car_type">What type of vehicle are you driving?</string>
 
 </resources>

@@ -17,12 +17,12 @@ public class Trip implements Parcelable {
     private String driverUId;
 
     private String passengerRequestUId;
-    private RouteRequest routeRequestUId;
+    private String routeRequestUId;
 
     public Trip() {
     }
 
-    public Trip(String tripUId, TripType tripType, TripState tripState, String passengerUId, String driverUId, String passengerRequestUId, RouteRequest routeRequestUId) {
+    public Trip(String tripUId, TripType tripType, TripState tripState, String passengerUId, String driverUId, String passengerRequestUId, String routeRequestUId) {
         this.tripUId = tripUId;
         this.tripType = tripType;
         this.tripState = tripState;
@@ -80,11 +80,11 @@ public class Trip implements Parcelable {
         this.passengerRequestUId = passengerRequestUId;
     }
 
-    public RouteRequest getRouteRequestUId() {
+    public String getRouteRequestUId() {
         return routeRequestUId;
     }
 
-    public void setRouteRequestUId(RouteRequest routeRequestUId) {
+    public void setRouteRequestUId(String routeRequestUId) {
         this.routeRequestUId = routeRequestUId;
     }
 
@@ -95,7 +95,7 @@ public class Trip implements Parcelable {
         private String passengerUId;
         private String driverUId;
         private String passengerRequestUId;
-        private RouteRequest routeRequestUId;
+        private String routeRequestUId;
 
         private Builder() {
         }
@@ -103,7 +103,6 @@ public class Trip implements Parcelable {
         public static Builder aTrip(String tripUId) {
             return new Builder().setTripUId(tripUId);
         }
-
 
         private Builder setTripUId(String tripUId) {
             this.tripUId = tripUId;
@@ -135,7 +134,7 @@ public class Trip implements Parcelable {
             return this;
         }
 
-        public Builder setRouteRequestUId(RouteRequest routeRequestUId) {
+        public Builder setRouteRequestUId(String routeRequestUId) {
             this.routeRequestUId = routeRequestUId;
             return this;
         }
@@ -166,7 +165,7 @@ public class Trip implements Parcelable {
         dest.writeString(this.passengerUId);
         dest.writeString(this.driverUId);
         dest.writeString(this.passengerRequestUId);
-        dest.writeParcelable(this.routeRequestUId, flags);
+        dest.writeString(this.routeRequestUId);
     }
 
     protected Trip(Parcel in) {
@@ -178,7 +177,7 @@ public class Trip implements Parcelable {
         this.passengerUId = in.readString();
         this.driverUId = in.readString();
         this.passengerRequestUId = in.readString();
-        this.routeRequestUId = in.readParcelable(RouteRequest.class.getClassLoader());
+        this.routeRequestUId = in.readString();
     }
 
     public static final Creator<Trip> CREATOR = new Creator<Trip>() {

@@ -27,6 +27,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.afollestad.materialdialogs.GravityEnum;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.example.huydaoduc.hieu.chi.hhapp.Define;
 import com.example.huydaoduc.hieu.chi.hhapp.DefineString;
@@ -108,16 +109,18 @@ public class PassengerActivity extends SimpleMapActivity
     public void OnMapSetupDone() {
         if (mLastLocation != null) {
             String startAddress = LocationUtils.getLocationAddress(geocoder, mLastLocation);
+            if (! TextUtils.isEmpty(startAddress)) {
+                getPickupPlaceInstance().setAddress(startAddress);
+                getPickupPlaceInstance().setLocation(LocationUtils.locaToStr(mLastLocation));
+                getPickupPlaceInstance().setPrimaryText(startAddress);
 
-            getPickupPlaceInstance().setAddress(startAddress);
-            getPickupPlaceInstance().setLocation(LocationUtils.locaToStr(mLastLocation));
-            getPickupPlaceInstance().setPrimaryText(startAddress);
+                btn_pickupLocation.setText(getPickupPlaceInstance().getPrimaryText());
+                btn_pickupLocation.setSelected(true);
 
-            btn_pickupLocation.setText(getPickupPlaceInstance().getPrimaryText());
-            btn_pickupLocation.setSelected(true);
+                markerManager.draw_PickupPlaceMarker(getPickupPlaceInstance());
 
-            markerManager.draw_PickupPlaceMarker(getPickupPlaceInstance());
-
+                notifyBtnState();
+            }
             notifyBtnState();
         } else {
             btn_pickupLocation.setText(R.string.enter_pick_up);
@@ -147,6 +150,7 @@ public class PassengerActivity extends SimpleMapActivity
     Float estimateFare;
 
     // new Start Booking
+
     private void startBooking() {
         //todo: put hhMode to screen
         hhMode = true;
@@ -185,9 +189,9 @@ public class PassengerActivity extends SimpleMapActivity
 
         Trip trip = Trip.Builder.aTrip(tripUId)
                 .setPassengerUId(getCurUid())
+                .setPassengerRequestUId(passengerRequest.getPassengerRequestUId())
                 .setTripState(TripState.WAITING_ACCEPT)
                 .setTripType(TripType.HH)
-                .setPassengerRequestUId(passengerRequest.getPassengerRequestUId())
                 .build();
 
         Intent intent = new Intent(getApplicationContext(), FindingDriverActivity.class);
@@ -195,77 +199,6 @@ public class PassengerActivity extends SimpleMapActivity
         intent.putExtra("passengerRequest", passengerRequest);
         PassengerActivity.this.startActivityForResult(intent,FIND_DRIVER_REQUEST_CODE);
     }
-
-    private void FoundDriverResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == FIND_DRIVER_REQUEST_CODE) {
-            if (resultCode == SearchActivity.RESULT_OK) {
-                String driverUId = data.getStringExtra("driverUId");
-                setUpFoundDriver(driverUId);
-            }
-        }
-    }
-
-    //region -------------- Show Driver Info --------------
-
-    Dialog dialogInfo;
-
-    /**
-     * If Online User is in "D_RECEIVING_BOOKING_HH state" and NOT "time out" then get User info as marker
-     */
-    private void setUpFoundDriver(String driverUId) {
-        DBManager.getUserById(driverUId, (userInfo) ->
-            {
-                setUpDialogInfo(userInfo);
-                dialogInfo.show();
-            }
-        );
-    }
-
-    private void setUpDialogInfo(final UserInfo driverInfo) {
-        MaterialFancyButton btnMessage, btnCall;
-        TextView tvName, tvPhone;
-
-        dialogInfo = new Dialog(PassengerActivity.this);
-        dialogInfo.setContentView(R.layout.info_user);
-
-        btnMessage = dialogInfo.findViewById(R.id.btn_messenger);
-        btnCall = dialogInfo.findViewById(R.id.btn_call);
-        tvName = dialogInfo.findViewById(R.id.tvName);
-        tvPhone = dialogInfo.findViewById(R.id.tvPhone);
-
-        tvName.setText(driverInfo.getName());
-        tvPhone.setText("SDT: " + driverInfo.getPhoneNumber());
-
-        btnMessage.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Toast.makeText(getApplicationContext(), "Open Messenger", Toast.LENGTH_LONG).show();
-                dialogInfo.dismiss();
-            }
-        });
-
-        btnCall.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(Intent.ACTION_CALL);
-                intent.setData(Uri.parse("tel:" + driverInfo.getPhoneNumber()));
-                if (Build.VERSION.SDK_INT >= 23) {
-                    if (checkSelfPermission(Manifest.permission.CALL_PHONE)
-                            == PackageManager.PERMISSION_GRANTED) {
-
-                        PassengerActivity.this.startActivity(intent);
-                        dialogInfo.dismiss();
-
-                    } else {
-                        ActivityCompat.requestPermissions(PassengerActivity.this, new String[]{Manifest.permission.CALL_PHONE}, 1001);
-                    }
-                }
-            }
-        });
-
-    }
-
-    //endregion
 
 //    //region ------ Start Booking --------
 //    private void startBooking() {
@@ -1081,6 +1014,18 @@ public class PassengerActivity extends SimpleMapActivity
                 final String placeLocation = data.getStringExtra("place_location");
                 final String placeAddress = data.getStringExtra("place_address");
 
+                // check get place return null
+                if (TextUtils.isEmpty(placePrimaryText)) {
+                    new MaterialDialog.Builder(this)
+                            .content(R.string.can_not_get_location)
+                            .positiveText(R.string.ok)
+                            .titleColor(getResources().getColor(R.color.title_bar_background_color))
+                            .positiveColor(getResources().getColor(R.color.title_bar_background_color))
+                            .widgetColorRes(R.color.title_bar_background_color)
+                            .buttonRippleColorRes(R.color.title_bar_background_color)
+                            .show();
+                    return;
+                }
 
                 if (requestCode == PICKUP_PLACE_AUTOCOMPLETE_REQUEST_CODE) {
 
@@ -1156,9 +1101,6 @@ public class PassengerActivity extends SimpleMapActivity
         super.onActivityResult(requestCode, resultCode, data);
 
         AutoCompleteIntentResultHandle(requestCode, resultCode, data);
-
-        FoundDriverResult(requestCode, resultCode, data);
-
     }
 
 
@@ -1298,6 +1240,7 @@ public class PassengerActivity extends SimpleMapActivity
             new MaterialDialog.Builder(this)
                     .title(DefineString.DEFAULT_WAIT_TIME.first)
                     .items(other)
+                    .itemsGravity(GravityEnum.CENTER)
                     .itemsCallback(new MaterialDialog.ListCallback() {
                         @Override
                         public void onSelection(MaterialDialog dialog, View view, int which, CharSequence text) {

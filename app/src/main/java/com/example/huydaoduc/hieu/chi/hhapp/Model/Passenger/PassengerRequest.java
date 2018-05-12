@@ -9,6 +9,8 @@ import com.example.huydaoduc.hieu.chi.hhapp.Framework.TimeUtils;
 import com.example.huydaoduc.hieu.chi.hhapp.Model.Trip.NotifyTrip;
 import com.example.huydaoduc.hieu.chi.hhapp.Model.Trip.TripFareInfo;
 
+import java.util.Date;
+
 public class PassengerRequest implements Parcelable {
 
     /**
@@ -38,6 +40,13 @@ public class PassengerRequest implements Parcelable {
         if(TimeUtils.compareWithNow(tripFareInfo.getStartTime()) >= 0)
             return true;
         return false;
+    }
+
+    public Date func_getStartTimeAsDate() {                   // mean time out
+        if (tripFareInfo == null) {
+            return null;
+        }
+        return tripFareInfo.func_getStartTimeAsDate();
     }
 
     public PassengerRequest(String passengerRequestUId, String passengerUId, PassengerRequestState passengerRequestState, SavedPlace pickUpSavePlace, SavedPlace dropOffSavePlace, TripFareInfo tripFareInfo, NotifyTrip notifyTrip, String note, Integer waitMinute, float percentOff) {

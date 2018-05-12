@@ -2,7 +2,6 @@ package com.example.huydaoduc.hieu.chi.hhapp.Main.Passenger.PassengerRequestMana
 
 import android.Manifest;
 import android.app.Dialog;
-import android.app.Fragment;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
@@ -10,12 +9,10 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.FragmentActivity;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
-import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -25,7 +22,7 @@ import com.example.huydaoduc.hieu.chi.hhapp.Framework.DBManager;
 import com.example.huydaoduc.hieu.chi.hhapp.Main.Passenger.PassengerActivity;
 import com.example.huydaoduc.hieu.chi.hhapp.Model.Passenger.PassengerRequest;
 import com.example.huydaoduc.hieu.chi.hhapp.Model.Passenger.PassengerRequestState;
-import com.example.huydaoduc.hieu.chi.hhapp.Model.RouteRequest.RouteRequestState;
+import com.example.huydaoduc.hieu.chi.hhapp.Model.RouteRequest.RouteRequest;
 import com.example.huydaoduc.hieu.chi.hhapp.Model.Trip.NotifyTrip;
 import com.example.huydaoduc.hieu.chi.hhapp.Model.User.UserInfo;
 import com.example.huydaoduc.hieu.chi.hhapp.R;
@@ -49,7 +46,7 @@ import java.util.List;
 import cn.bingoogolapple.titlebar.BGATitleBar;
 
 
-public class PassengerRequestManagerActivity extends FragmentActivity {
+public class PassengerRequestManagerActivity extends AppCompatActivity {
 
     private static final int CREATE_PASSENGER_REQUEST_CODE = 1;
     BGATitleBar titleBar;
@@ -72,6 +69,35 @@ public class PassengerRequestManagerActivity extends FragmentActivity {
         Init();
 
         Event();
+
+        PassengerRequest passengerRequest;
+        RouteRequest routeRequest;
+        if (savedInstanceState == null) {
+            Bundle extras = getIntent().getExtras();
+            if(extras == null) {
+                passengerRequest= null;
+                routeRequest = null;
+            } else {
+                passengerRequest= extras.getParcelable("passengerRequest");
+                routeRequest= extras.getParcelable("routeRequest");
+            }
+        } else {
+            passengerRequest= (PassengerRequest) savedInstanceState.getParcelable("passengerRequest");
+            routeRequest= (RouteRequest) savedInstanceState.getParcelable("routeRequest");
+        }
+
+        if (routeRequest != null) {
+            // show driver info
+            DBManager.getUserById(routeRequest.getDriverUId(), (userInfo) ->
+                    {
+                        setUpDialogInfo(userInfo);
+                        hideLoadingPassengerRequestInfo();
+                    }
+            );
+        }
+        if (passengerRequest != null) {
+            listenToPassengerRequestNotify(passengerRequest);
+        }
 
         refreshList(true);
     }
@@ -124,6 +150,41 @@ public class PassengerRequestManagerActivity extends FragmentActivity {
 
     }
 
+    public void listenToPassengerRequestNotify(PassengerRequest passengerRequest) {
+        //Listen to Trip Notify - asynchronous with service
+        dbRefe.child(Define.DB_PASSENGER_REQUESTS)
+                .child(passengerRequest.getPassengerUId())
+                .child(passengerRequest.getPassengerRequestUId())
+                .child(Define.DB_ROUTE_REQUESTS_NOTIFY_TRIP)
+                .addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        NotifyTrip notifyTrip = dataSnapshot.getValue(NotifyTrip.class);
+
+                        if(notifyTrip != null && !notifyTrip.isNotified())
+                        {
+                            notifyTrip.setNotified(true);
+                            dbRefe.child(Define.DB_PASSENGER_REQUESTS)
+                                    .child(passengerRequest.getPassengerUId())
+                                    .child(passengerRequest.getPassengerRequestUId())
+                                    .child(Define.DB_ROUTE_REQUESTS_NOTIFY_TRIP)
+                                    .setValue(notifyTrip);
+
+                            // notify driver
+                            //todo: notify Notification
+                            Toast.makeText(getApplicationContext(),"Found your driver",Toast.LENGTH_LONG).show();
+                            refreshList(false);
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                });
+    }
+
+
     //region -------------- Init Recycle View + Event ----------------
 
     private void initRecyclerView() {
@@ -135,7 +196,7 @@ public class PassengerRequestManagerActivity extends FragmentActivity {
 
     private void refreshList(boolean enableLoading) {
         if (enableLoading)
-            startLoading();
+            startLoadingRecycler();
 
         FirebaseDatabase.getInstance().getReference()
                 .child(Define.DB_PASSENGER_REQUESTS)
@@ -189,7 +250,7 @@ public class PassengerRequestManagerActivity extends FragmentActivity {
                         });
 
                         rycv_passenger_request.setAdapter(adapter);
-                        stopLoading();
+                        stopLoadingRecycler();
                     }
 
                     @Override
@@ -217,7 +278,7 @@ public class PassengerRequestManagerActivity extends FragmentActivity {
                 DBManager.getUserById(trip.getDriverUId(), (userInfo) ->
                         {
                             setUpDialogInfo(userInfo);
-                            dialogInfo.show();
+                            hideLoadingPassengerRequestInfo();
                         }
                 );
             });
@@ -409,10 +470,10 @@ public class PassengerRequestManagerActivity extends FragmentActivity {
             }
         });
 
+        dialogInfo.show();
     }
 
     //endregion
-
 
 
     //region -------------- Smart Refresh Layout ----------------
@@ -430,12 +491,12 @@ public class PassengerRequestManagerActivity extends FragmentActivity {
         });
     }
 
-    private void startLoading() {
+    private void startLoadingRecycler() {
         smartRefreshLayout.autoRefresh();
 
     }
 
-    private void stopLoading() {
+    private void stopLoadingRecycler() {
         smartRefreshLayout.finishRefresh(500);
     }
 

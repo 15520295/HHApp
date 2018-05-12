@@ -5,6 +5,7 @@ import android.text.TextUtils;
 import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.chad.library.adapter.base.BaseViewHolder;
 import com.example.huydaoduc.hieu.chi.hhapp.DefineString;
+import com.example.huydaoduc.hieu.chi.hhapp.Framework.LocationUtils;
 import com.example.huydaoduc.hieu.chi.hhapp.Model.Passenger.PassengerRequest;
 import com.example.huydaoduc.hieu.chi.hhapp.Model.Passenger.PassengerRequestState;
 import com.example.huydaoduc.hieu.chi.hhapp.Model.Trip.TripFareInfo;
@@ -27,12 +28,12 @@ public class PassengerRequestAdapter extends BaseQuickAdapter<PassengerRequest, 
                 .setText(R.id.tv_pick_up_address, passengerRequest.getPickUpSavePlace().getAddress())
                 .setText(R.id.tv_drop_off_address, passengerRequest.getDropOffSavePlace().getAddress());
 
-        //todo: change to 2 path
-        if (! TextUtils.isEmpty(passengerRequest.getDropOffSavePlace().getPrimaryText())) {
-            helper.setText(R.id.tv_request_title, passengerRequest.getDropOffSavePlace().getPrimaryText());
-        } else {
-            helper.setText(R.id.tv_request_title, passengerRequest.getDropOffSavePlace().getAddress());
-        }
+        String title;
+        String startPlace, endPlace;
+        startPlace =  LocationUtils.getPrimaryTextFromAddress(passengerRequest.getPickUpSavePlace().getAddress());
+        endPlace =  LocationUtils.getPrimaryTextFromAddress(passengerRequest.getDropOffSavePlace().getAddress());
+        title = startPlace + " - " + endPlace;
+        helper.setText(R.id.tv_request_title, title);
 
         // State
         PassengerRequestState state = passengerRequest.getPassengerRequestState();
