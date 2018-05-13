@@ -82,7 +82,6 @@ public class RouteRequestManagerActivity extends AppCompatActivity
 
     DatabaseReference dbRefe;
 
-
     private String getCurUid() {
         return FirebaseAuth.getInstance().getCurrentUser().getUid();
     }
@@ -160,7 +159,7 @@ public class RouteRequestManagerActivity extends AppCompatActivity
 
 
 
-    //region -------------- Route request ----------------
+    //region -------------- Route request & Change Route Request State ----------------
 
     private void handleResultCreateRoute(int requestCode, int resultCode, Intent data) {
         if (requestCode == CREATE_ROUTE_REQUEST_CODE) {
@@ -217,14 +216,25 @@ public class RouteRequestManagerActivity extends AppCompatActivity
         RouteRequestState state = routeRequest.getRouteRequestState();
 
         if (! routeRequest.func_isInTheFuture()) {      // time out
-            new MaterialDialog.Builder(this)
-                    .content(R.string.request_out_of_date)
-                    .positiveText(R.string.ok)
-                    .titleColor(getResources().getColor(R.color.title_bar_background_color))
-                    .positiveColor(getResources().getColor(R.color.title_bar_background_color))
-                    .widgetColorRes(R.color.title_bar_background_color)
-                    .buttonRippleColorRes(R.color.title_bar_background_color)
-                    .show();
+            if (command == "Delete") {
+                // change state on server
+                dbRefe.child(Define.DB_ROUTE_REQUESTS)
+                        .child(routeRequest.getDriverUId())
+                        .child(routeRequest.getRouteRequestUId())
+                        .removeValue();
+
+                refreshList(false);
+            } else {
+                new MaterialDialog.Builder(this)
+                        .content(R.string.request_out_of_date)
+                        .positiveText(R.string.ok)
+                        .titleColor(getResources().getColor(R.color.title_bar_background_color))
+                        .positiveColor(getResources().getColor(R.color.title_bar_background_color))
+                        .widgetColorRes(R.color.title_bar_background_color)
+                        .buttonRippleColorRes(R.color.title_bar_background_color)
+                        .show();
+            }
+
 
             return;
         }
@@ -550,6 +560,9 @@ public class RouteRequestManagerActivity extends AppCompatActivity
     //region -------------- Notify & show Passenger Request Info ----------------
 
     private void showPassengerInfoActivityItem(int position) {
+        if (routeRequests.get(position).getRouteRequestState() != RouteRequestState.FOUND_PASSENGER)
+            return;
+
         showLoadingPassengerRequestInfo("Loading passenger info");
 
         NotifyTrip notifyTrip = routeRequests.get(position).getNotifyTrip();
@@ -618,7 +631,7 @@ public class RouteRequestManagerActivity extends AppCompatActivity
     }
     //endregion
 
-    //region -------------- Recycle View ----------------
+    //region -------------- Recycle View & Route request Row click event----------------
     private void initRecyclerView() {
         rycv_route_request = findViewById(R.id.recycler_view_requests);
         LinearLayoutManager llm = new LinearLayoutManager(getApplicationContext());
@@ -805,7 +818,6 @@ public class RouteRequestManagerActivity extends AppCompatActivity
         if (requestCode == ABOUT_USER_REQUEST_CODE) {
             if (resultCode == Activity.RESULT_OK) {
                 updateNavUserInfo();
-
             }
         }
     }

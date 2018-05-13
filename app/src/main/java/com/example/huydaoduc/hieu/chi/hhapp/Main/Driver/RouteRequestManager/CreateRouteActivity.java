@@ -53,14 +53,13 @@ public class CreateRouteActivity extends SimpleMapActivity implements SimpleMapA
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_route_request_manager);
+        setContentView(R.layout.activity_create_route);
 
         // setup map
         setupCheckRealtime = false;
         simpleMapListener = this;
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(CreateRouteActivity.this);
-        mapFragment = (SupportMapFragment) getSupportFragmentManager()
-                .findFragmentById(R.id.map);
+        mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
         isFirstGetLocation = false;
 

@@ -24,7 +24,7 @@ public class ImageUtils {
     public static String bitmapToBase64(Bitmap bm)
     {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        bm.compress(Bitmap.CompressFormat.JPEG,50,baos);
+        bm.compress(Bitmap.CompressFormat.JPEG,30,baos);
         byte[] b = baos.toByteArray();
         String encImage = Base64.encodeToString(b, Base64.NO_WRAP);
 

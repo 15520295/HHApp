@@ -8,6 +8,8 @@ import com.example.huydaoduc.hieu.chi.hhapp.DefineString;
 import com.example.huydaoduc.hieu.chi.hhapp.Framework.LocationUtils;
 import com.example.huydaoduc.hieu.chi.hhapp.Model.Passenger.PassengerRequest;
 import com.example.huydaoduc.hieu.chi.hhapp.Model.Passenger.PassengerRequestState;
+import com.example.huydaoduc.hieu.chi.hhapp.Model.RouteRequest.RouteRequest;
+import com.example.huydaoduc.hieu.chi.hhapp.Model.RouteRequest.RouteRequestState;
 import com.example.huydaoduc.hieu.chi.hhapp.Model.Trip.TripFareInfo;
 import com.example.huydaoduc.hieu.chi.hhapp.R;
 
@@ -50,10 +52,12 @@ public class PassengerRequestAdapter extends BaseQuickAdapter<PassengerRequest, 
             helper.setVisible(R.id.prb_finding_passenger, false);
             helper.setVisible(R.id.iv_check, false);
             helper.setVisible(R.id.iv_pause, true);
-        } else if (! passengerRequest.func_isInTheFuture()) {
+        }
+
+        if (! passengerRequest.func_isInTheFuture()) {
             helper.setVisible(R.id.prb_finding_passenger, false);
-            helper.setVisible(R.id.iv_check, false);
             helper.setVisible(R.id.iv_pause, false);
+            helper.setText(R.id.btn_request_state, DefineString.PASSENGER_REQUEST_STATE_MAP.get(PassengerRequestState.DONE));
         }
 
 

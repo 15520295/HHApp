@@ -16,6 +16,7 @@ public class DefineString {
         put(RouteRequestState.FINDING_PASSENGER,"Finding passenger...");
         put(RouteRequestState.PAUSE,"Pause finding");
         put(RouteRequestState.FOUND_PASSENGER,"Found your passenger");
+        put(RouteRequestState.DONE,"Done");
     }};
 
     // Passenger Request State
@@ -23,6 +24,7 @@ public class DefineString {
         put(PassengerRequestState.FINDING_DRIVER,"Finding driver ...");
         put(PassengerRequestState.PAUSE,"Pause");
         put(PassengerRequestState.FOUND_DRIVER,"Found your driver");
+        put(PassengerRequestState.DONE,"Done");
     }};
 
     // Wait time

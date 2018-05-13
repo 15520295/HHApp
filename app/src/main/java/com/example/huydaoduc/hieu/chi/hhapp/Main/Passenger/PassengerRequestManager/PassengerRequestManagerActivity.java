@@ -386,15 +386,25 @@ public class PassengerRequestManagerActivity extends AppCompatActivity
         PassengerRequestState state = request.getPassengerRequestState();
 
         if (request.func_isInTheFuture()) {
-            new MaterialDialog.Builder(this)
-                    .content(R.string.request_out_of_date)
-                    .positiveText(R.string.ok)
-                    .titleColor(getResources().getColor(R.color.title_bar_background_color))
-                    .positiveColor(getResources().getColor(R.color.title_bar_background_color))
-                    .widgetColorRes(R.color.title_bar_background_color)
-                    .buttonRippleColorRes(R.color.title_bar_background_color)
-                    .show();
+            if (command == "Delete") {
+                // change state on server
+                dbRefe.child(Define.DB_PASSENGER_REQUESTS)
+                        .child(request.getPassengerUId())
+                        .child(request.getPassengerRequestUId())
+                        .removeValue();
 
+                refreshList(false);
+            } else {
+                new MaterialDialog.Builder(this)
+                        .content(R.string.request_out_of_date)
+                        .positiveText(R.string.ok)
+                        .titleColor(getResources().getColor(R.color.title_bar_background_color))
+                        .positiveColor(getResources().getColor(R.color.title_bar_background_color))
+                        .widgetColorRes(R.color.title_bar_background_color)
+                        .buttonRippleColorRes(R.color.title_bar_background_color)
+                        .show();
+            }
+            
             return;
         }
         else if (state == PassengerRequestState.FOUND_DRIVER) {
@@ -643,7 +653,6 @@ public class PassengerRequestManagerActivity extends AppCompatActivity
         if (requestCode == ABOUT_USER_REQUEST_CODE) {
             if (resultCode == Activity.RESULT_OK) {
                 updateNavUserInfo();
-
             }
         }
     }

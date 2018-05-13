@@ -98,39 +98,6 @@ public class SplashActivity extends AppCompatActivity {
                 } else {
                     showAlertDialog();
                 }
-
-            /*    int[] type = {ConnectivityManager.TYPE_MOBILE, ConnectivityManager.TYPE_WIFI};
-                if (CheckInternetBroadcastReceiver.isNetworkAvailable(context, type)) {
-
-                    FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-                    if (user != null) {
-                        // User is signed in
-                        new Handler().postDelayed(new Runnable() {
-                            @Override
-                            public void run() {
-                                Intent startIntent = new Intent(SplashActivity.this, MainActivity.class);
-                                SplashActivity.this.startActivity(startIntent);
-                                SplashActivity.this.finish();
-                            }
-                        }, SPLASH_DISPLAY_LENGTH);
-                    } else {
-                        // No user is signed in
-                        *//* New Handler to start the Menu-Activity
-                 * and close this Splash-Screen after some seconds.*//*
-                        new Handler().postDelayed(new Runnable() {
-                            @Override
-                            public void run() {
-                                Intent startIntent = new Intent(SplashActivity.this, PhoneAuthActivity.class);
-                                SplashActivity.this.startActivity(startIntent);
-                                SplashActivity.this.finish();
-                            }
-                        }, SPLASH_DISPLAY_LENGTH);
-                    }
-
-                    return;
-                } else {
-                    showAlertDialog();
-                }*/
             }
         };
         registerReceiver(broadcastReceiver, intentFilter);

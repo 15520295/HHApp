@@ -177,7 +177,7 @@ public class PassengerActivity extends SimpleMapActivity
             waitMinute = DefineString.WAIT_TIME_MAP.get(waitMinuteStr);
 
         String notes = btn_cd_note.getText().toString();
-        if(notes.equals(DefineString.NOTES_TO_DRIVER_HINT))
+        if(notes.equals(DefineString.NOTES_TO_DRIVER_TITLE))
             notes = null;
 
         // create a trip
@@ -1187,7 +1187,6 @@ public class PassengerActivity extends SimpleMapActivity
         // Init firebase
         dbRefe = FirebaseDatabase.getInstance().getReference();
 
-
 //        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
 //        setSupportActionBar(toolbar);
 
@@ -1209,11 +1208,9 @@ public class PassengerActivity extends SimpleMapActivity
         Init();
         addEven();
         notifyBtnState();
-
     }
 
     private void Init() {
-
         // Init View
         titlebar = findViewById(R.id.titlebar);
 
@@ -1408,7 +1405,6 @@ public class PassengerActivity extends SimpleMapActivity
         if (requestCode == ABOUT_USER_REQUEST_CODE) {
             if (resultCode == Activity.RESULT_OK) {
                 updateNavUserInfo();
-
             }
         }
     }

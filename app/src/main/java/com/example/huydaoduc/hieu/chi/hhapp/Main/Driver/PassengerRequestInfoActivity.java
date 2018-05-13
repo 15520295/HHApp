@@ -22,7 +22,6 @@ import java.util.Date;
 
 
 public class PassengerRequestInfoActivity extends SimpleMapActivity implements SimpleMapActivity.SimpleMapListener {
-    String tripUId;
     Trip trip;
     UserInfo userInfo = null;
     PassengerRequest passengerRequest = null;

@@ -7,6 +7,7 @@ import com.chad.library.adapter.base.BaseViewHolder;
 import com.example.huydaoduc.hieu.chi.hhapp.DefineString;
 import com.example.huydaoduc.hieu.chi.hhapp.Framework.LocationUtils;
 import com.example.huydaoduc.hieu.chi.hhapp.Framework.TimeUtils;
+import com.example.huydaoduc.hieu.chi.hhapp.Model.Passenger.PassengerRequestState;
 import com.example.huydaoduc.hieu.chi.hhapp.Model.RouteRequest.RouteRequest;
 import com.example.huydaoduc.hieu.chi.hhapp.Model.RouteRequest.RouteRequestState;
 import com.example.huydaoduc.hieu.chi.hhapp.R;
@@ -48,10 +49,12 @@ public class RouteRequestAdapter extends BaseQuickAdapter<RouteRequest, com.chad
             helper.setVisible(R.id.prb_finding_passenger, false);
             helper.setVisible(R.id.iv_check, false);
             helper.setVisible(R.id.iv_pause, true);
-        } else if (! routeRequest.func_isInTheFuture()) {
+        }
+
+        if (! routeRequest.func_isInTheFuture()) {
             helper.setVisible(R.id.prb_finding_passenger, false);
-            helper.setVisible(R.id.iv_check, false);
             helper.setVisible(R.id.iv_pause, false);
+            helper.setText(R.id.btn_request_state, DefineString.ROUTE_REQUEST_STATE_MAP.get(RouteRequestState.DONE));
         }
 
 

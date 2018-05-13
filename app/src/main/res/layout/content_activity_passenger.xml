@@ -24,7 +24,8 @@
         style="@style/CusTitleBar"
         app:bgatitlebar_leftDrawablePadding="15dp"
         app:bgatitlebar_leftDrawable="@drawable/ic_menu_white"
-        app:bgatitlebar_leftText="Find your driver"
         app:bgatitlebar_leftMaxWidth="500dp"
+        app:bgatitlebar_rightText="Your Requests"
+        app:bgatitlebar_rightMaxWidth="500dp"
         />
 </RelativeLayout>
