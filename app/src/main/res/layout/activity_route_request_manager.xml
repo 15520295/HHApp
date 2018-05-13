@@ -1,61 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.v4.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/drawer_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".Main.Driver.RouteRequestManager.RouteRequestManagerActivity"
-    xmlns:fancy="http://schemas.android.com/apk/res-auto"
-    >
+    android:fitsSystemWindows="true"
+    tools:openDrawer="start">
 
-    <cn.bingoogolapple.titlebar.BGATitleBar
-        android:id="@+id/titlebar"
-        style="@style/CusTitleBar"
-        app:bgatitlebar_leftDrawablePadding="15dp"
-        app:bgatitlebar_leftDrawable="@drawable/ic_menu_white"
-        app:bgatitlebar_leftText="Route Request"
-        app:bgatitlebar_leftMaxWidth="500dp"
-        app:bgatitlebar_leftAndRightTextSize="19sp"
-        />
+    <include layout="@layout/content_activity_route_request_manager" />
 
-    <com.scwang.smartrefresh.layout.SmartRefreshLayout
-        xmlns:app="http://schemas.android.com/apk/res-auto"
-        android:id="@+id/refreshLayout"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_below="@+id/titlebar"
-        android:background="#ffffff"
-        app:srlAccentColor="#000000"
-        app:srlEnablePreviewInEditMode="true"
-        app:srlPrimaryColor="#eaffffff">
-        <!--srlAccentColor and srlPrimaryColor, Will change the Header and Footer theme colors-->
-        <!--srlEnablePreviewInEditMode, Can open and close the preview function-->
-        <com.scwang.smartrefresh.layout.header.ClassicsHeader
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
 
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-
-            <android.support.v7.widget.RecyclerView
-                android:id="@+id/recycler_view_requests"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-
-            </android.support.v7.widget.RecyclerView>
-
-        </RelativeLayout>
-    </com.scwang.smartrefresh.layout.SmartRefreshLayout>
-
-    <android.support.design.widget.FloatingActionButton
-        android:id="@+id/fab_add_request"
+    <android.support.design.widget.NavigationView
+        android:id="@+id/nav_view"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:src="@drawable/ic_add_white"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentRight="true"
-        android:layout_margin="20dp"
-        android:layout_marginBottom="@dimen/margin_default_20"
-        app:backgroundTint="@color/title_bar_background_color"/>
-</RelativeLayout>
+        android:layout_height="match_parent"
+        android:layout_gravity="start"
+        android:fitsSystemWindows="true"
+        app:headerLayout="@layout/nav_header_home"
+        app:menu="@menu/activity_home_drawer" />
+
+</android.support.v4.widget.DrawerLayout>

@@ -1,6 +1,7 @@
 package com.example.huydaoduc.hieu.chi.hhapp.Main.Passenger.PassengerRequestManager;
 
 import android.Manifest;
+import android.app.Activity;
 import android.app.Dialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -8,17 +9,29 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.NavigationView;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.view.GravityCompat;
+import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
+import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.afollestad.materialdialogs.MaterialDialog;
+import com.example.huydaoduc.hieu.chi.hhapp.ActivitiesAuth.PhoneAuthActivity;
+import com.example.huydaoduc.hieu.chi.hhapp.ActivitiesAuth.UpdateInfoActivity;
 import com.example.huydaoduc.hieu.chi.hhapp.Define;
 import com.example.huydaoduc.hieu.chi.hhapp.Framework.DBManager;
+import com.example.huydaoduc.hieu.chi.hhapp.Framework.ImageUtils;
+import com.example.huydaoduc.hieu.chi.hhapp.Main.AboutApp;
+import com.example.huydaoduc.hieu.chi.hhapp.Main.AboutUser;
+import com.example.huydaoduc.hieu.chi.hhapp.Main.CurUserInfo;
+import com.example.huydaoduc.hieu.chi.hhapp.Main.Driver.RouteRequestManager.RouteRequestManagerActivity;
 import com.example.huydaoduc.hieu.chi.hhapp.Main.Passenger.PassengerActivity;
 import com.example.huydaoduc.hieu.chi.hhapp.Model.Passenger.PassengerRequest;
 import com.example.huydaoduc.hieu.chi.hhapp.Model.Passenger.PassengerRequestState;
@@ -46,7 +59,8 @@ import java.util.List;
 import cn.bingoogolapple.titlebar.BGATitleBar;
 
 
-public class PassengerRequestManagerActivity extends AppCompatActivity {
+public class PassengerRequestManagerActivity extends AppCompatActivity
+        implements NavigationView.OnNavigationItemSelectedListener{
 
     private static final int CREATE_PASSENGER_REQUEST_CODE = 1;
     BGATitleBar titleBar;
@@ -57,6 +71,8 @@ public class PassengerRequestManagerActivity extends AppCompatActivity {
 
     DatabaseReference dbRefe;
 
+    UserInfo userInfo;
+
     private String getCurUid() {
         return FirebaseAuth.getInstance().getCurrentUser().getUid();
     }
@@ -65,6 +81,38 @@ public class PassengerRequestManagerActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_passenger_request_manager);
+        dbRefe = FirebaseDatabase.getInstance().getReference();
+
+        if (savedInstanceState == null) {
+            Bundle extras = getIntent().getExtras();
+            if(extras == null) {
+                userInfo = null;
+            } else {
+                userInfo = extras.getParcelable("userInfo");
+            }
+        } else {
+            userInfo = (UserInfo) savedInstanceState.getParcelable("userInfo");
+        }
+        if (userInfo == null) {
+            dbRefe.child(Define.DB_USERS_INFO)
+                    .child(getCurUid())
+                    .addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(DataSnapshot dataSnapshot) {
+                            userInfo = dataSnapshot.getValue(UserInfo.class);
+                            if (userInfo == null) {
+                                Intent startIntent = new Intent(getApplicationContext(), UpdateInfoActivity.class);
+                                PassengerRequestManagerActivity.this.startActivity(startIntent);
+                                PassengerRequestManagerActivity.this.finish();
+                            }
+                        }
+
+                        @Override
+                        public void onCancelled(DatabaseError databaseError) {
+
+                        }
+                    });
+        }
 
         Init();
 
@@ -111,10 +159,11 @@ public class PassengerRequestManagerActivity extends AppCompatActivity {
         // recycler
         initRecyclerView();
 
+        initNavigation();
+
         passengerRequests = new ArrayList<>();
 
         // init database
-        dbRefe = FirebaseDatabase.getInstance().getReference();
 
         initRefeshLayout();
 
@@ -124,7 +173,7 @@ public class PassengerRequestManagerActivity extends AppCompatActivity {
         titleBar.setDelegate(new BGATitleBar.Delegate() {
             @Override
             public void onClickLeftCtv() {
-
+                drawer_layout.openDrawer(GravityCompat.START);
             }
 
             @Override
@@ -418,6 +467,7 @@ public class PassengerRequestManagerActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
+        NavigationResultHandle(requestCode, resultCode, data);
     }
 
     //region -------------- Show Driver Info --------------
@@ -502,7 +552,6 @@ public class PassengerRequestManagerActivity extends AppCompatActivity {
 
     //endregion
 
-
     // Animation
 
     MaterialDialog loadingPassengerInfo;
@@ -520,4 +569,84 @@ public class PassengerRequestManagerActivity extends AppCompatActivity {
         if (loadingPassengerInfo != null)
             loadingPassengerInfo.dismiss();
     }
+
+    //region Navigation Bar
+
+    private static final int ABOUT_USER_REQUEST_CODE = 70;
+
+    NavigationView navigationView;
+    DrawerLayout drawer_layout;
+    View headerLayout;
+
+    private void initNavigation() {
+        // Navigation bar
+        drawer_layout = findViewById(R.id.drawer_layout);
+        navigationView = findViewById(R.id.nav_view);
+        navigationView.setNavigationItemSelectedListener(this);
+        headerLayout = navigationView.getHeaderView(0);
+
+        updateNavUserInfo();
+
+        RelativeLayout group_Avatar = headerLayout.findViewById(R.id.group_Avatar);
+        group_Avatar.setOnClickListener(v ->{
+            Intent i = new Intent(PassengerRequestManagerActivity.this, AboutUser.class);
+            PassengerRequestManagerActivity.this.startActivityForResult(i, ABOUT_USER_REQUEST_CODE);
+        });
+    }
+
+    public void updateNavUserInfo() {
+        UserInfo userInfo = CurUserInfo.getInstance().getUserInfo();
+
+        ImageView iv_Avatar = headerLayout.findViewById(R.id.iv_Avatar);
+        TextView txtName = headerLayout.findViewById(R.id.txtName);
+        TextView txtPhone = headerLayout.findViewById(R.id.txtPhone);
+
+        if (userInfo.getPhoto() != null) {
+            iv_Avatar.setImageBitmap(ImageUtils.base64ToBitmap(userInfo.getPhoto()));
+        }
+        txtName.setText(userInfo.getName());
+        txtPhone.setText(userInfo.getPhoneNumber());
+    }
+
+    @SuppressWarnings("StatementWithEmptyBody")
+    @Override
+    public boolean onNavigationItemSelected(android.view.MenuItem item) {
+        int id = item.getItemId();
+
+        if (id == R.id.nav_about) {
+            Intent i = new Intent(PassengerRequestManagerActivity.this, AboutApp.class);
+            PassengerRequestManagerActivity.this.startActivity(i);
+        } else if (id == R.id.nav_logout) {
+            FirebaseAuth.getInstance().signOut();
+            Intent intent = new Intent(PassengerRequestManagerActivity.this, PhoneAuthActivity.class);
+            startActivity(intent);
+        }
+        else if(id==R.id.nav_share){
+
+            Intent i = new Intent(Intent.ACTION_SEND);
+
+            i.setType("text/plain");
+            String shareBody = "link";
+            String shareName = "SBike";
+            i.putExtra(Intent.EXTRA_TEXT,shareBody);
+            i.putExtra(Intent.EXTRA_SUBJECT,shareName);
+
+            startActivity(Intent.createChooser(i, "Sharing"));
+        }
+
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        drawer.closeDrawer(GravityCompat.START);
+        return true;
+    }
+
+    private void NavigationResultHandle(int requestCode, int resultCode, Intent data) {
+        if (requestCode == ABOUT_USER_REQUEST_CODE) {
+            if (resultCode == Activity.RESULT_OK) {
+                updateNavUserInfo();
+
+            }
+        }
+    }
+
+    //endregion
 }

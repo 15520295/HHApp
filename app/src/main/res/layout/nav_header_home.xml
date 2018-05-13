@@ -23,8 +23,7 @@
             android:src="@drawable/null_avatar"
             app:civ_border_color="#dedede"
             android:background="@color/nav_header"
-            app:civ_border_width="2dp"
-            android:padding="2dp"/>
+            app:civ_border_width="2dp"/>
     </RelativeLayout>
 
     <TextView

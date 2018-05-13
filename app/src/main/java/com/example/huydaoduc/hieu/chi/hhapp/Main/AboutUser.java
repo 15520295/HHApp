@@ -1,6 +1,7 @@
 package com.example.huydaoduc.hieu.chi.hhapp.Main;
 
 import android.Manifest;
+import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -29,6 +30,7 @@ import android.widget.Toast;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.example.huydaoduc.hieu.chi.hhapp.BuildConfig;
 import com.example.huydaoduc.hieu.chi.hhapp.Define;
+import com.example.huydaoduc.hieu.chi.hhapp.Framework.ImageUtils;
 import com.example.huydaoduc.hieu.chi.hhapp.Model.User.UserInfo;
 import com.example.huydaoduc.hieu.chi.hhapp.R;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -43,6 +45,7 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
+import java.util.Objects;
 
 import cn.bingoogolapple.titlebar.BGATitleBar;
 import de.hdodenhof.circleimageview.CircleImageView;
@@ -76,22 +79,7 @@ public class AboutUser extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_about_user);
 
-        if (savedInstanceState == null) {
-            Bundle extras = getIntent().getExtras();
-            if(extras == null) {
-                userInfo= null;
-            } else {
-                userInfo= extras.getParcelable("userInfo");
-            }
-        } else {
-            userInfo = (UserInfo) savedInstanceState.getParcelable("userInfo");
-        }
-
-        if (userInfo != null) {
-
-        } else {
-            finish();
-        }
+        userInfo = CurUserInfo.getInstance().getUserInfo();
 
         Init();
 
@@ -124,6 +112,8 @@ public class AboutUser extends AppCompatActivity {
                             public void onComplete(@NonNull Task<Void> task) {
                                 if (task.isSuccessful()) {
                                     hideLoadingDialog();
+                                    CurUserInfo.getInstance().setUserInfo(userInfo);
+                                    AboutUser.this.setResult(Activity.RESULT_OK);
                                     AboutUser.this.finish();
                                 }
                                 else {
@@ -144,7 +134,7 @@ public class AboutUser extends AppCompatActivity {
 
         // avatar
         if (userInfo.getPhoto() != null) {
-            Bitmap bitmap = base64ToBitmap(userInfo.getPhoto());
+            Bitmap bitmap = ImageUtils.base64ToBitmap(userInfo.getPhoto());
             circleImageView.setImageBitmap(bitmap);
         }
 
@@ -214,7 +204,7 @@ public class AboutUser extends AppCompatActivity {
                 if (resultCode == RESULT_OK) {
                     Uri uri = data.getData();
                     circleImageView.setImageURI(uri);
-                    String base64Photo = bitmapToBase64(uriToBitmap(getApplicationContext(), uri));
+                    String base64Photo = ImageUtils.bitmapToBase64(Objects.requireNonNull(ImageUtils.uriToBitmap(getApplicationContext(), uri)));
                     userInfo.setPhoto(base64Photo);
                 }
                 break;
@@ -224,7 +214,7 @@ public class AboutUser extends AppCompatActivity {
                 if (resultCode == RESULT_OK) {
                     Bitmap bitmap = (Bitmap) data.getExtras().get("data");
                     circleImageView.setImageBitmap(bitmap);
-                    String base64Photo = bitmapToBase64(bitmap);
+                    String base64Photo = ImageUtils.bitmapToBase64(bitmap);
                     userInfo.setPhoto(base64Photo);
                 }
                 break;
@@ -251,29 +241,4 @@ public class AboutUser extends AppCompatActivity {
     }
     //endregion
 
-    // region Convert
-    public Bitmap uriToBitmap(Context context, Uri imageUri) {
-        try {
-            return MediaStore.Images.Media.getBitmap(context.getContentResolver(), imageUri);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
-    private String bitmapToBase64(Bitmap bm)
-    {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        bm.compress(Bitmap.CompressFormat.JPEG,50,baos);
-        byte[] b = baos.toByteArray();
-        String encImage = Base64.encodeToString(b, Base64.NO_WRAP);
-
-        return encImage;
-    }
-
-    private Bitmap base64ToBitmap(String encodedImage) {
-        byte[] decodedString = Base64.decode(encodedImage, Base64.NO_WRAP);
-        return BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
-    }
-    //endregion
 }

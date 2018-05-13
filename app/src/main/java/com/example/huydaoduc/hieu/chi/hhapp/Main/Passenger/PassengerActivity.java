@@ -1,6 +1,7 @@
 package com.example.huydaoduc.hieu.chi.hhapp.Main.Passenger;
 
 import android.Manifest;
+import android.app.Activity;
 import android.app.Dialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -30,18 +31,22 @@ import android.widget.Toast;
 
 import com.afollestad.materialdialogs.GravityEnum;
 import com.afollestad.materialdialogs.MaterialDialog;
+import com.example.huydaoduc.hieu.chi.hhapp.ActivitiesAuth.UpdateInfoActivity;
 import com.example.huydaoduc.hieu.chi.hhapp.Define;
 import com.example.huydaoduc.hieu.chi.hhapp.DefineString;
 import com.example.huydaoduc.hieu.chi.hhapp.Framework.DBManager;
 import com.example.huydaoduc.hieu.chi.hhapp.Framework.Direction.DirectionFinderListener;
 import com.example.huydaoduc.hieu.chi.hhapp.Framework.Direction.Leg;
 import com.example.huydaoduc.hieu.chi.hhapp.Framework.Direction.Route;
+import com.example.huydaoduc.hieu.chi.hhapp.Framework.ImageUtils;
 import com.example.huydaoduc.hieu.chi.hhapp.Framework.LocationUtils;
 import com.example.huydaoduc.hieu.chi.hhapp.Framework.Place.SavedPlace;
 import com.example.huydaoduc.hieu.chi.hhapp.Framework.Place.SearchActivity;
 import com.example.huydaoduc.hieu.chi.hhapp.Framework.SimpleMapActivity;
 import com.example.huydaoduc.hieu.chi.hhapp.Main.AboutApp;
 import com.example.huydaoduc.hieu.chi.hhapp.Main.AboutUser;
+import com.example.huydaoduc.hieu.chi.hhapp.Main.CurUserInfo;
+import com.example.huydaoduc.hieu.chi.hhapp.Main.Driver.RouteRequestManager.RouteRequestManagerActivity;
 import com.example.huydaoduc.hieu.chi.hhapp.Model.Passenger.PassengerRequest;
 import com.example.huydaoduc.hieu.chi.hhapp.Framework.TimeUtils;
 import com.example.huydaoduc.hieu.chi.hhapp.Model.Passenger.PassengerRequestState;
@@ -72,6 +77,8 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
 
+import cn.bingoogolapple.titlebar.BGATitleBar;
+
 import static com.google.android.gms.location.LocationServices.getFusedLocationProviderClient;
 
 //todo: check 1 tai khoan dang nhap 2 may
@@ -86,6 +93,8 @@ public class PassengerActivity extends SimpleMapActivity
     private static final int FIND_DRIVER_REQUEST_CODE = 80;
     private static final int SELECT_CAR_TYPE_REQUEST_CODE = 81;
 
+    BGATitleBar titlebar;
+
     Button btn_cd_note, btn_cd_wait_time;
 
     private TextView tv_fare, tv_duration, tv_car_type;
@@ -97,8 +106,6 @@ public class PassengerActivity extends SimpleMapActivity
 
     // Activity Property
     Geocoder geocoder;
-
-    UserInfo userInfo;
 
     private UserState userState;
 
@@ -1105,6 +1112,8 @@ public class PassengerActivity extends SimpleMapActivity
         super.onActivityResult(requestCode, resultCode, data);
 
         AutoCompleteIntentResultHandle(requestCode, resultCode, data);
+
+        NavigationResultHandle(requestCode, resultCode, data);
     }
 
 
@@ -1175,17 +1184,9 @@ public class PassengerActivity extends SimpleMapActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_passenger);
+        // Init firebase
+        dbRefe = FirebaseDatabase.getInstance().getReference();
 
-        if (savedInstanceState == null) {
-            Bundle extras = getIntent().getExtras();
-            if(extras == null) {
-                userInfo = null;
-            } else {
-                userInfo = extras.getParcelable("userInfo");
-            }
-        } else {
-            userInfo = (UserInfo) savedInstanceState.getParcelable("userInfo");
-        }
 
 //        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
 //        setSupportActionBar(toolbar);
@@ -1204,18 +1205,6 @@ public class PassengerActivity extends SimpleMapActivity
         // default value
         isDriverFound = false;
 
-        // Navigation bar
-        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
-        navigationView.setNavigationItemSelectedListener(this);
-
-        View headerLayout = navigationView.getHeaderView(0);
-        RelativeLayout group_Avatar = headerLayout.findViewById(R.id.group_Avatar);
-        group_Avatar.setOnClickListener(v ->{
-            Intent i = new Intent(PassengerActivity.this, AboutUser.class);
-            i.putExtra("userInfo", userInfo);
-            PassengerActivity.this.startActivity(i);
-        });
-
         //
         Init();
         addEven();
@@ -1224,10 +1213,12 @@ public class PassengerActivity extends SimpleMapActivity
     }
 
     private void Init() {
-        // Init firebase
-        dbRefe = FirebaseDatabase.getInstance().getReference();
 
         // Init View
+        titlebar = findViewById(R.id.titlebar);
+
+        initNavigation();
+
         btn_findDriver = findViewById(R.id.btn_cancel);
 
         btn_cd_wait_time = findViewById(R.id.btn_cd_wait_time);
@@ -1248,10 +1239,31 @@ public class PassengerActivity extends SimpleMapActivity
         // search view
         btn_pickupLocation = findViewById(R.id.btn_pick_up_location);
         btn_dropLocation = findViewById(R.id.btn_end_location);
-
     }
 
     private void addEven() {
+        titlebar.setDelegate(new BGATitleBar.Delegate() {
+            @Override
+            public void onClickLeftCtv() {
+                drawer_layout.openDrawer(GravityCompat.START);
+            }
+
+            @Override
+            public void onClickTitleCtv() {
+
+            }
+
+            @Override
+            public void onClickRightCtv() {
+
+            }
+
+            @Override
+            public void onClickRightSecondaryCtv() {
+
+            }
+        });
+
         btn_findDriver.setOnClickListener(v -> startBooking());
 
         btn_cd_wait_time.setOnClickListener(e ->{
@@ -1310,7 +1322,6 @@ public class PassengerActivity extends SimpleMapActivity
         });
 
         searViewEvent();
-
     }
 
     @Override
@@ -1324,17 +1335,52 @@ public class PassengerActivity extends SimpleMapActivity
     }
 
 
+    //region Navigation Bar
+
+    private static final int ABOUT_USER_REQUEST_CODE = 70;
+
+    NavigationView navigationView;
+    DrawerLayout drawer_layout;
+    View headerLayout;
+
+    private void initNavigation() {
+        // Navigation bar
+        drawer_layout = findViewById(R.id.drawer_layout);
+        navigationView = findViewById(R.id.nav_view);
+        navigationView.setNavigationItemSelectedListener(this);
+        headerLayout = navigationView.getHeaderView(0);
+
+        updateNavUserInfo();
+
+        RelativeLayout group_Avatar = headerLayout.findViewById(R.id.group_Avatar);
+        group_Avatar.setOnClickListener(v ->{
+            Intent i = new Intent(PassengerActivity.this, AboutUser.class);
+            PassengerActivity.this.startActivityForResult(i, ABOUT_USER_REQUEST_CODE);
+        });
+    }
+
+    public void updateNavUserInfo() {
+        UserInfo userInfo = CurUserInfo.getInstance().getUserInfo();
+
+        ImageView iv_Avatar = headerLayout.findViewById(R.id.iv_Avatar);
+        TextView txtName = headerLayout.findViewById(R.id.txtName);
+        TextView txtPhone = headerLayout.findViewById(R.id.txtPhone);
+
+        if (userInfo.getPhoto() != null) {
+            iv_Avatar.setImageBitmap(ImageUtils.base64ToBitmap(userInfo.getPhoto()));
+        }
+        txtName.setText(userInfo.getName());
+        txtPhone.setText(userInfo.getPhoneNumber());
+    }
+
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
-    public boolean onNavigationItemSelected(MenuItem item) {
+    public boolean onNavigationItemSelected(android.view.MenuItem item) {
         int id = item.getItemId();
 
         if (id == R.id.nav_about) {
-
             Intent i = new Intent(PassengerActivity.this, AboutApp.class);
             PassengerActivity.this.startActivity(i);
-
-
         } else if (id == R.id.nav_logout) {
             FirebaseAuth.getInstance().signOut();
             Intent intent = new Intent(PassengerActivity.this, PhoneAuthActivity.class);
@@ -1351,12 +1397,22 @@ public class PassengerActivity extends SimpleMapActivity
             i.putExtra(Intent.EXTRA_SUBJECT,shareName);
 
             startActivity(Intent.createChooser(i, "Sharing"));
-
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
+
+    private void NavigationResultHandle(int requestCode, int resultCode, Intent data) {
+        if (requestCode == ABOUT_USER_REQUEST_CODE) {
+            if (resultCode == Activity.RESULT_OK) {
+                updateNavUserInfo();
+
+            }
+        }
+    }
+
+    //endregion
 
 }

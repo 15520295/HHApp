@@ -53,7 +53,7 @@ public class CreateRouteActivity extends SimpleMapActivity implements SimpleMapA
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_create_route);
+        setContentView(R.layout.activity_route_request_manager);
 
         // setup map
         setupCheckRealtime = false;

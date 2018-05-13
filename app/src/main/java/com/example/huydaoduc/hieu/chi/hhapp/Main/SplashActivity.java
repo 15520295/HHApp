@@ -38,8 +38,6 @@ public class SplashActivity extends AppCompatActivity {
         setContentView(R.layout.activity_splash);
 
         checkInternet();
-
-
     }
 
 
@@ -63,13 +61,15 @@ public class SplashActivity extends AppCompatActivity {
                                     public void onDataChange(DataSnapshot dataSnapshot) {
                                         UserInfo userInfo = dataSnapshot.getValue(UserInfo.class);
                                         if (userInfo == null) {
+                                            // signed in but don't have info
                                             Intent startIntent = new Intent(SplashActivity.this, UpdateInfoActivity.class);
                                             SplashActivity.this.startActivity(startIntent);
                                             SplashActivity.this.finish();
                                         } else {
                                             // User is signed in
+                                            CurUserInfo.getInstance().setUserInfo(userInfo);
+
                                             Intent startIntent = new Intent(SplashActivity.this, MainActivity.class);
-                                            startIntent.putExtra("userInfo", userInfo);
                                             SplashActivity.this.startActivity(startIntent);
                                             SplashActivity.this.finish();
                                         }
