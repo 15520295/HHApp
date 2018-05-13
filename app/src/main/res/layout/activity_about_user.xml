@@ -7,42 +7,16 @@
     tools:context="com.example.huydaoduc.hieu.chi.hhapp.Main.AboutUser">
 
 
-    <android.support.constraint.ConstraintLayout
-        android:id="@+id/constraintLayout"
-        android:layout_width="0dp"
-        android:layout_height="50dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        android:background="#000000">
-
-        <ImageButton
-            android:id="@+id/imageButton"
-            android:layout_width="38dp"
-            android:layout_height="25dp"
-            android:layout_marginBottom="8dp"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="8dp"
-            android:background="#0000"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:srcCompat="@drawable/ic_back" />
-
-        <TextView
-            android:id="@+id/textView2"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="8dp"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="8dp"
-            android:text="Edit Account"
-            android:textColor="#ffff"
-            android:textSize="25dp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/imageButton"
-            app:layout_constraintTop_toTopOf="parent" />
-    </android.support.constraint.ConstraintLayout>
+    <cn.bingoogolapple.titlebar.BGATitleBar
+        android:id="@+id/titlebar"
+        style="@style/CusTitleBar"
+        app:bgatitlebar_leftDrawablePadding="15dp"
+        app:bgatitlebar_leftDrawable="@drawable/ic_back_v2_white_26px"
+        app:bgatitlebar_leftText="Edit account"
+        app:bgatitlebar_leftMaxWidth="500dp"
+        app:bgatitlebar_leftAndRightTextSize="19sp"
+        app:bgatitlebar_rightText="Save"
+        />
 
     <android.support.constraint.ConstraintLayout
         android:layout_width="0dp"
@@ -52,62 +26,89 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/constraintLayout"
+        android:layout_marginStart="@dimen/margin_default_25"
+        android:layout_marginEnd="@dimen/margin_default_25"
+        app:layout_constraintTop_toBottomOf="@+id/titlebar"
         app:layout_constraintVertical_bias="1.0">
 
-        <de.hdodenhof.circleimageview.CircleImageView xmlns:app="http://schemas.android.com/apk/res-auto"
-            android:id="@+id/profile_image"
-            android:layout_width="80dp"
-            android:layout_height="80dp"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="16dp"
-            android:src="@drawable/done"
-            app:civ_border_color="#ffffff"
-            app:civ_border_width="2dp"
+        <RelativeLayout
+            android:id="@+id/group_profile_image"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/margin_default_15"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent">
 
-        <de.hdodenhof.circleimageview.CircleImageView xmlns:app="http://schemas.android.com/apk/res-auto"
-            android:id="@+id/profile_edit"
-            android:layout_width="25dp"
-            android:layout_height="25dp"
-            android:src="@drawable/images"
-            app:civ_border_color="#ffffff"
-            app:civ_border_width="2dp"
-            app:layout_constraintBottom_toBottomOf="@+id/profile_image"
-            app:layout_constraintStart_toStartOf="@+id/profile_image" />
+            <de.hdodenhof.circleimageview.CircleImageView
+                android:id="@+id/profile_image"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:src="@drawable/null_avatar" />
+
+            <de.hdodenhof.circleimageview.CircleImageView
+                android:id="@+id/profile_edit"
+                android:layout_width="25dp"
+                android:layout_height="25dp"
+                android:layout_alignBottom="@+id/profile_image"
+                android:src="@drawable/images" />
+        </RelativeLayout>
 
         <TextView
             android:id="@+id/textView3"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
             android:layout_marginTop="24dp"
-            android:text="Name"
+            android:text="@string/full_name"
+            android:textColor="@color/text_label"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/profile_image" />
+            app:layout_constraintTop_toBottomOf="@+id/group_profile_image" />
 
-        <TextView
-            android:id="@+id/txtNameUser"
-            android:layout_width="wrap_content"
+        <EditText
+            android:id="@+id/et_NameUser"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="4dp"
-            android:text="Phúc Hiếu"
-            android:textSize="20dp"
+            android:layout_marginTop="8dp"
+            android:text="John Cena"
+            android:textColor="@color/light_black"
+            android:backgroundTint="@color/title_bar_background_color"
+            android:textSize="20sp"
             android:textStyle="bold"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/textView3" />
+            app:layout_constraintTop_toBottomOf="@+id/textView3"
+            />
+
+        <TextView
+            android:id="@+id/tv_yob"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/margin_default_20"
+            android:text="@string/year_of_birth"
+            android:textColor="@color/text_label"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/et_NameUser" />
+
+        <EditText
+            android:id="@+id/et_Yob"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="1990"
+            android:textColor="@color/light_black"
+            android:backgroundTint="@color/title_bar_background_color"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tv_yob" />
 
         <TextView
             android:id="@+id/textView5"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="24dp"
-            android:text="Phone number"
+            android:layout_marginTop="@dimen/margin_default_20"
+            android:text="@string/phone_number"
+            android:textColor="@color/text_label"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/txtNameUser" />
+            app:layout_constraintTop_toBottomOf="@+id/et_Yob" />
 
         <ImageView
             android:id="@+id/iv_flag2"
@@ -116,7 +117,6 @@
             android:layout_alignBottom="@id/tv_country_code"
             android:layout_alignParentStart="true"
             android:layout_alignTop="@id/tv_country_code"
-            android:layout_marginStart="16dp"
             android:layout_marginTop="8dp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/textView5"
@@ -126,24 +126,44 @@
             android:id="@+id/txtPhoneEditAcc"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="16dp"
+            android:layout_marginBottom="8dp"
+            android:layout_marginStart="@dimen/margin_default_15"
+            android:layout_marginTop="8dp"
             android:text="+84 123456789"
-            android:textSize="20dp"
+            android:textColor="@color/light_black"
+            android:textSize="20sp"
             android:textStyle="bold"
+            app:layout_constraintBottom_toBottomOf="@+id/iv_flag2"
             app:layout_constraintStart_toEndOf="@+id/iv_flag2"
-            app:layout_constraintTop_toBottomOf="@+id/textView5" />
+            app:layout_constraintTop_toTopOf="@+id/iv_flag2" />
 
         <TextView
             android:id="@+id/textView7"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
             android:layout_marginEnd="8dp"
-            android:text="Verified"
+            android:text="@string/verified"
             android:textColor="#0e832e"
             android:textSize="12dp"
+            app:layout_constraintBottom_toBottomOf="@+id/txtPhoneEditAcc"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="@+id/txtPhoneEditAcc" />
+
+        <TextView
+            android:id="@+id/tv_error"
+            android:layout_width="244dp"
+            android:layout_height="wrap_content"
+            android:layout_alignEnd="@id/group_code"
+            android:layout_alignStart="@id/tv_phone_number"
+            android:layout_below="@+id/group_code"
+            android:layout_marginStart="0dp"
+            android:text="Error"
+            android:visibility="invisible"
+            android:textColor="@color/color_error"
+            android:textSize="16sp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/iv_flag2" />
 
 
     </android.support.constraint.ConstraintLayout>

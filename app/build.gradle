@@ -4,7 +4,7 @@ android {
     compileSdkVersion 26
     defaultConfig {
         applicationId "com.example.huydaoduc.hieu.chi.hhapp"
-        minSdkVersion 19
+        minSdkVersion 21
         targetSdkVersion 26
         multiDexEnabled = true
         versionCode 1

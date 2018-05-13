@@ -50,7 +50,7 @@ public class PassengerRequestAdapter extends BaseQuickAdapter<PassengerRequest, 
             helper.setVisible(R.id.prb_finding_passenger, false);
             helper.setVisible(R.id.iv_check, false);
             helper.setVisible(R.id.iv_pause, true);
-        } else if (passengerRequest.func_isInTheFuture()) {
+        } else if (! passengerRequest.func_isInTheFuture()) {
             helper.setVisible(R.id.prb_finding_passenger, false);
             helper.setVisible(R.id.iv_check, false);
             helper.setVisible(R.id.iv_pause, false);

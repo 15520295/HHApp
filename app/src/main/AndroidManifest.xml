@@ -3,6 +3,9 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.example.huydaoduc.hieu.chi.hhapp">
 
+    <uses-feature android:name="android.hardware.camera"
+        android:required="true" />
+
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
@@ -33,7 +36,15 @@
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="@string/map_api_key" />
-
+        <provider
+            android:name="android.support.v4.content.FileProvider"
+            android:authorities="${applicationId}.provider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/provider_paths"/>
+        </provider>
         <receiver android:name=".CheckInternetBroadcastReceiver">
             <intent-filter>
                 <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
@@ -83,9 +94,6 @@
             android:name=".Main.AboutApp"
             android:theme="@style/AppTheme.PopMe" />
         <activity android:name=".Main.AboutUser" />
-        <activity
-            android:name=".Main.ChangeName"
-            android:theme="@style/AppTheme.PopMe" />
         <activity android:name=".Main.InfoCar" />
 
         <!-- Passenger -->

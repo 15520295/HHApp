@@ -13,10 +13,17 @@ import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.widget.Toast;
 
+import com.example.huydaoduc.hieu.chi.hhapp.ActivitiesAuth.UpdateInfoActivity;
+import com.example.huydaoduc.hieu.chi.hhapp.Define;
+import com.example.huydaoduc.hieu.chi.hhapp.Model.User.UserInfo;
 import com.example.huydaoduc.hieu.chi.hhapp.R;
 import com.example.huydaoduc.hieu.chi.hhapp.ActivitiesAuth.PhoneAuthActivity;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 
 public class SplashActivity extends AppCompatActivity {
@@ -47,15 +54,33 @@ public class SplashActivity extends AppCompatActivity {
                 if (netInfo != null && netInfo.isConnectedOrConnecting()) {
                     FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
                     if (user != null) {
-                        // User is signed in
-                        new Handler().postDelayed(new Runnable() {
-                            @Override
-                            public void run() {
-                                Intent startIntent = new Intent(SplashActivity.this, MainActivity.class);
-                                SplashActivity.this.startActivity(startIntent);
-                                SplashActivity.this.finish();
-                            }
-                        }, SPLASH_DISPLAY_LENGTH);
+                        // check if user input their info
+                        FirebaseDatabase.getInstance().getReference()
+                                .child(Define.DB_USERS_INFO)
+                                .child(user.getUid())
+                                .addListenerForSingleValueEvent(new ValueEventListener() {
+                                    @Override
+                                    public void onDataChange(DataSnapshot dataSnapshot) {
+                                        UserInfo userInfo = dataSnapshot.getValue(UserInfo.class);
+                                        if (userInfo == null) {
+                                            Intent startIntent = new Intent(SplashActivity.this, UpdateInfoActivity.class);
+                                            SplashActivity.this.startActivity(startIntent);
+                                            SplashActivity.this.finish();
+                                        } else {
+                                            // User is signed in
+                                            Intent startIntent = new Intent(SplashActivity.this, MainActivity.class);
+                                            startIntent.putExtra("userInfo", userInfo);
+                                            SplashActivity.this.startActivity(startIntent);
+                                            SplashActivity.this.finish();
+                                        }
+                                    }
+
+                                    @Override
+                                    public void onCancelled(DatabaseError databaseError) {
+
+                                    }
+                                });
+
                     } else {
                         // No user is signed in
                         /* New Handler to start the Menu-Activity

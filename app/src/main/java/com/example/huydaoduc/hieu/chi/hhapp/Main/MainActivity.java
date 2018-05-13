@@ -13,10 +13,14 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.Toast;
 
 import com.example.huydaoduc.hieu.chi.hhapp.Main.Driver.RouteRequestManager.RouteRequestManagerActivity;
 import com.example.huydaoduc.hieu.chi.hhapp.Main.Driver.v2.DriverActivity;
 import com.example.huydaoduc.hieu.chi.hhapp.Main.Passenger.PassengerActivity;
+import com.example.huydaoduc.hieu.chi.hhapp.Model.Passenger.PassengerRequest;
+import com.example.huydaoduc.hieu.chi.hhapp.Model.RouteRequest.RouteRequest;
+import com.example.huydaoduc.hieu.chi.hhapp.Model.User.UserInfo;
 import com.example.huydaoduc.hieu.chi.hhapp.R;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
@@ -34,11 +38,23 @@ public class MainActivity extends AppCompatActivity {
     FirebaseDatabase db;
     DatabaseReference users;
 
+    UserInfo userInfo;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        if (savedInstanceState == null) {
+            Bundle extras = getIntent().getExtras();
+            if(extras == null) {
+                userInfo = null;
+            } else {
+                userInfo = extras.getParcelable("userInfo");
+            }
+        } else {
+            userInfo = (UserInfo) savedInstanceState.getParcelable("userInfo");
+        }
 
         initView();
 
@@ -54,6 +70,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(MainActivity.this, RouteRequestManagerActivity.class);
+                intent.putExtra("userInfo", userInfo);
                 MainActivity.this.startActivity(intent);
             }
         });
@@ -71,10 +88,6 @@ public class MainActivity extends AppCompatActivity {
 
                 Intent resultIntent = new Intent(getApplicationContext(), MainActivity.class);
 
-                /*resultIntent.putExtra(DBSQL.WORD_ID_KEY_PUT_EXTRA, dsWords.get(a).getId());
-                resultIntent.putExtra(DBSQL.WORD_TEN_KEY_PUT_EXTRA, dsWords.get(a).getTen());
-                resultIntent.putExtra(DBSQL.WORD_MOTA_KEY_PUT_EXTRA, dsWords.get(a).getMota());*/
-
                 PendingIntent resultPendingIntent =
                         PendingIntent.getActivity(
                                 getApplicationContext(),
@@ -88,10 +101,6 @@ public class MainActivity extends AppCompatActivity {
                 Uri uri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
                 mBuilder.setSound(uri);
 
-//                        Uri newSound= Uri.parse("android.resource://"
-//                                + getPackageName() + "/" + R.raw.gaugau);
-//                        mBuilder.setSound(newSound);
-
                 int mNotificationId = 155;
                 // Gets an instance of the NotificationManager service
                 NotificationManager mNotifyMgr =
@@ -100,6 +109,7 @@ public class MainActivity extends AppCompatActivity {
                 mNotifyMgr.notify(mNotificationId, mBuilder.build());
 
                 Intent intent = new Intent(MainActivity.this, PassengerActivity.class);
+                intent.putExtra("userInfo", userInfo);
                 MainActivity.this.startActivity(intent);
             }
         });
@@ -151,8 +161,10 @@ public class MainActivity extends AppCompatActivity {
                 GoogleApiAvailability.getInstance().getErrorDialog(MainActivity.this, resultCode, PLAY_SERVICE_RES_REQUEST).show();
             else {
                 Log.e(TAG, "This device is not supported");
+                Toast.makeText(getApplicationContext(), "Sorry, this device is not supported", Toast.LENGTH_LONG).show();
+                finish();
             }
-            // todo : handle this "This device is not supported
+
         }
     }
 

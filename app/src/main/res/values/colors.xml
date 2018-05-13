@@ -70,6 +70,10 @@
     <color name="condition_text">#9497a1</color>
     <color name="condition_focus">#d9ddde</color>
     <color name="condition_default">#f8fbfc</color>
+    <color name="text_label">#A4A4AC</color>
+    <color name="light_black">#565d6b</color>
+    <color name="nav_header">#f7f9fb</color>
+    <color name="white">#ffffff</color>
 
 
 </resources>

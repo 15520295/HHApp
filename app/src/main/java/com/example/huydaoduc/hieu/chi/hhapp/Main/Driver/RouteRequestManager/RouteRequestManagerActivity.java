@@ -519,12 +519,9 @@ public class RouteRequestManagerActivity extends AppCompatActivity {
     }
 
 
-
-
-
     //endregion
 
-    //region -------------- Notify ----------------
+    //region -------------- Notify & show Passenger Request Info ----------------
 
     private void showPassengerInfoActivityItem(int position) {
         showLoadingPassengerRequestInfo("Loading passenger info");
@@ -579,7 +576,6 @@ public class RouteRequestManagerActivity extends AppCompatActivity {
     }
 
     MaterialDialog loadingPassengerInfo;
-
     private void showLoadingPassengerRequestInfo(String title) {
         loadingPassengerInfo = new MaterialDialog.Builder(this)
                 .title(title)

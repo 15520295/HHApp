@@ -101,5 +101,14 @@
     <string name="server_storage_overload">The server storage quota has been exceeded. Please go back other time.</string>
     <string name="resend_code">Resend code in 00:%02d</string>
     <string name="click_to_resend_code">Click to resend the code</string>
+    <string name="year_of_birth">Year of birth</string>
+    <string name="full_name">Full name</string>
+    <string name="phone_number">Phone number</string>
+    <string name="verified">Verified</string>
+    <string name="input_info_request">Please input your information</string>
+    <string name="loading_saving">Saving your information</string>
+    <string name="share">Share</string>
+    <string name="about">About</string>
+    <string name="logout">Logout</string>
 
 </resources>
