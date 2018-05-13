@@ -19,6 +19,7 @@ import android.widget.Button;
 
 import com.example.huydaoduc.hieu.chi.hhapp.Main.Driver.RouteManager.RouteRequestManagerActivity;
 import com.example.huydaoduc.hieu.chi.hhapp.Main.Passenger.PassengerActivity;
+import com.example.huydaoduc.hieu.chi.hhapp.NotifyService;
 import com.example.huydaoduc.hieu.chi.hhapp.R;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
@@ -41,7 +42,6 @@ public class MainActivity extends AppCompatActivity {
     FirebaseDatabase db;
     DatabaseReference users;
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -57,6 +57,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void addEven() {
 
+
         btn_driver.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -69,42 +70,6 @@ public class MainActivity extends AppCompatActivity {
         btn_passenger.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
-                NotificationCompat.Builder mBuilder =
-                        new NotificationCompat.Builder(getApplicationContext())
-                                .setSmallIcon(R.drawable.ic_location_on)
-                                .setContentTitle("Test notification")
-                                .setContentText("Hi, This is Android Notification Detail!");
-
-                Intent resultIntent = new Intent(getApplicationContext(), MainActivity.class);
-
-                /*resultIntent.putExtra(DBSQL.WORD_ID_KEY_PUT_EXTRA, dsWords.get(a).getId());
-                resultIntent.putExtra(DBSQL.WORD_TEN_KEY_PUT_EXTRA, dsWords.get(a).getTen());
-                resultIntent.putExtra(DBSQL.WORD_MOTA_KEY_PUT_EXTRA, dsWords.get(a).getMota());*/
-
-                PendingIntent resultPendingIntent =
-                        PendingIntent.getActivity(
-                                getApplicationContext(),
-                                0,
-                                resultIntent,
-                                PendingIntent.FLAG_UPDATE_CURRENT
-                        );
-
-                mBuilder.setContentIntent(resultPendingIntent);
-
-                Uri uri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
-                mBuilder.setSound(uri);
-
-//                        Uri newSound= Uri.parse("android.resource://"
-//                                + getPackageName() + "/" + R.raw.gaugau);
-//                        mBuilder.setSound(newSound);
-
-                int mNotificationId = 155;
-                // Gets an instance of the NotificationManager service
-                NotificationManager mNotifyMgr =
-                        (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-                // Builds the notification and issues it.
-                mNotifyMgr.notify(mNotificationId, mBuilder.build());
 
                 Intent intent = new Intent(MainActivity.this, PassengerActivity.class);
                 MainActivity.this.startActivity(intent);

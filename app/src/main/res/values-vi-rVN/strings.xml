@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">HHApp</string>
+    <string name="action_settings">Cài Đặt</string>
+    <string name="login_title">Đăng Nhập</string>
+    <string name="signup_title">Đăng Ký</string>
+    <string name="login_welcome_txt">Chào bạn! Chào mừng bạn quay đã quay lại</string>
+    <string name="signup_welcome_txt">Chào bạn</string>
+    <string name="login_btn_label">Đăng Nhập</string>
+    <string name="signup_btn_label">Đăng Ký</string>
+    <string name="login_label">Đăng Nhập</string>
+    <string name="signup_label">Đăng Ký</string>
+    <string name="login_fb_btn_label">Đăng Nhập bằng Facebook</string>
+    <string name="signup_fb_btn_label">Đăng Ký bằng Facebook</string>
+    <string name="get_started_btn_label">Bắt Đầu</string>
+    <string name="email_address_hint">Địa chỉ Email</string>
+    <string name="full_name_hint">Họ và Tên</string>
+    <string name="password_hint">Mật khẩu</string>
+    <string name="forgot_password">Quên mật khẩu?</string>
+    <string name="no_account">Bạn không có tài khoản?</string>
+    <string name="have_account">Bạn có tài khoản?</string>
+    <string name="enter_pick_up">Chọn địa điểm muốn đến</string>
+    <string name="resume">Tiếp tục</string>
+    <string name="delete">Xóa</string>
+    <string name="pause">Dừng lại</string>
+    <string name="cancel_request_warning">Chuyến đi của bạn đã được xác nhận, Nếu bạn muốn xóa chuyến đi hãy liên hệ người đi cùng để được chấp thuận</string>
+    <string name="cancel">Hủy bỏ</string>
+    <string name="pause_request_content">Không thể tìm người đi chung khi Tạm Dừng</string>
+    <string name="pause_request_title">Bạn có muốn tạm dừng?</string>
+    <string name="can_find_driver">Không tìm được người cùng chuyến đi với bạn</string>
+    <string name="error_invalid_email">Email không đúng</string>
+</resources>

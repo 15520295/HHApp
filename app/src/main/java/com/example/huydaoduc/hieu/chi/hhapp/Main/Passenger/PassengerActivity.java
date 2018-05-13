@@ -2,13 +2,18 @@ package com.example.huydaoduc.hieu.chi.hhapp.Main.Passenger;
 
 import android.Manifest;
 import android.app.Dialog;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Geocoder;
+import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.widget.CardView;
 import android.text.InputType;
@@ -40,6 +45,7 @@ import com.example.huydaoduc.hieu.chi.hhapp.Framework.Place.SearchActivity;
 import com.example.huydaoduc.hieu.chi.hhapp.Framework.SimpleMapActivity;
 import com.example.huydaoduc.hieu.chi.hhapp.Main.AboutApp;
 import com.example.huydaoduc.hieu.chi.hhapp.Main.AboutUser;
+import com.example.huydaoduc.hieu.chi.hhapp.Main.Driver.PassengerRequestInfoActivity;
 import com.example.huydaoduc.hieu.chi.hhapp.Model.PassengerRequest;
 import com.example.huydaoduc.hieu.chi.hhapp.Framework.TimeUtils;
 import com.example.huydaoduc.hieu.chi.hhapp.Model.Trip.Trip;
@@ -50,6 +56,7 @@ import com.example.huydaoduc.hieu.chi.hhapp.Model.Trip.TripFareInfo;
 import com.example.huydaoduc.hieu.chi.hhapp.Model.User.OnlineUser;
 import com.example.huydaoduc.hieu.chi.hhapp.Model.User.UserInfo;
 import com.example.huydaoduc.hieu.chi.hhapp.Model.User.UserState;
+import com.example.huydaoduc.hieu.chi.hhapp.NotifyService;
 import com.example.huydaoduc.hieu.chi.hhapp.R;
 import com.example.huydaoduc.hieu.chi.hhapp.ActivitiesAuth.PhoneAuthActivity;
 import com.google.android.gms.location.LocationServices;
@@ -74,8 +81,7 @@ public class PassengerActivity extends SimpleMapActivity
         implements
         SimpleMapActivity.SimpleMapListener,
         NavigationView.OnNavigationItemSelectedListener,
-        SelectCarTypeFragment.SelectCarTypeFragmentListener
-{
+        SelectCarTypeFragment.SelectCarTypeFragmentListener {
     private static final String TAG = "PassengerActivity";
     private static final int FIND_DRIVER_REQUEST_CODE = 80;
     private static final int SELECT_CAR_TYPE_REQUEST_CODE = 81;
@@ -102,6 +108,8 @@ public class PassengerActivity extends SimpleMapActivity
 
     Dialog dialogInfo;
     DatabaseReference dbRefe;
+
+    NotifyService notifyService = new NotifyService();
 
     @Override
     public void OnRealTimeLocationUpdate() {
@@ -168,7 +176,7 @@ public class PassengerActivity extends SimpleMapActivity
             waitMinute = DefineString.WAIT_TIME_MAP.get(waitMinuteStr);
 
         String notes = btn_cd_note.getText().toString();
-        if(notes.equals(DefineString.NOTES_TO_DRIVER_HINT))
+        if (notes.equals(DefineString.NOTES_TO_DRIVER_HINT))
             notes = null;
 
         // create a trip
@@ -195,7 +203,7 @@ public class PassengerActivity extends SimpleMapActivity
 
         Intent intent = new Intent(getApplicationContext(), FindingDriverActivity.class);
         intent.putExtra("trip", trip);
-        PassengerActivity.this.startActivityForResult(intent,FIND_DRIVER_REQUEST_CODE);
+        PassengerActivity.this.startActivityForResult(intent, FIND_DRIVER_REQUEST_CODE);
     }
 
 
@@ -216,11 +224,53 @@ public class PassengerActivity extends SimpleMapActivity
     //todo: add Driver end location
     private void setUpFoundDriver(String driverUId) {
         DBManager.getUserById(driverUId, (userInfo) ->
-            {
-                setUpDialogInfo(userInfo);
-                dialogInfo.show();
-            }
+                {
+
+                    showNotificationforPassenger(getApplicationContext(), userInfo);
+
+                    setUpDialogInfo(userInfo);
+                    dialogInfo.show();
+                }
         );
+    }
+
+    public void showNotificationforPassenger(Context context, UserInfo driverInfo) {
+
+        NotificationCompat.Builder mBuilder =
+                new NotificationCompat.Builder(context)
+                        .setSmallIcon(R.drawable.ic_location_on)
+                        .setContentTitle(driverInfo.getName())
+                        .setContentText(driverInfo.getPhoneNumber())
+                        .setPriority(2);
+
+        Intent resultIntent = new Intent(context, PassengerRequestInfoActivity.class);
+
+        resultIntent.putExtra("userInfo", driverInfo);
+
+        PendingIntent resultPendingIntent =
+                PendingIntent.getActivity(
+                        context,
+                        0,
+                        resultIntent,
+                        PendingIntent.FLAG_UPDATE_CURRENT
+                );
+
+        mBuilder.setContentIntent(resultPendingIntent);
+
+        Uri uri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+        mBuilder.setSound(uri);
+
+//                        Uri newSound= Uri.parse("android.resource://"
+//                                + getPackageName() + "/" + R.raw.gaugau);
+//                        mBuilder.setSound(newSound);
+
+        int mNotificationId = 1;
+        // Gets an instance of the NotificationManager service
+        Log.d(TAG, driverInfo.getName());
+        NotificationManager mNotificationManager =
+                (NotificationManager) getSystemService(context.NOTIFICATION_SERVICE);
+        // Builds the notification and issues it.
+        mNotificationManager.notify(mNotificationId, mBuilder.build());
     }
 
     private void setUpDialogInfo(final UserInfo driverInfo) {
@@ -992,19 +1042,19 @@ public class PassengerActivity extends SimpleMapActivity
 
         // Date
         DatePickerDialog.OnDateSetListener dateSetListener = (view, year, monthOfYear, dayOfMonth) -> {
-            btn_cd_date_picker.setText(TimeUtils.dateToUserDateStr(dayOfMonth,monthOfYear,year));
+            btn_cd_date_picker.setText(TimeUtils.dateToUserDateStr(dayOfMonth, monthOfYear, year));
 
-            selectedDateTime.set(year,monthOfYear,dayOfMonth);
+            selectedDateTime.set(year, monthOfYear, dayOfMonth);
 
             getCurTripFareInfoInstance().setStartTime(TimeUtils.dateToStr(selectedDateTime.getTime()));
             updateTripFareInfoView();
         };
 
         btn_cd_date_picker.setOnClickListener(view -> {
-            if(datePickerDialog.isAdded())
+            if (datePickerDialog.isAdded())
                 return;
 
-            datePickerDialog.show(getFragmentManager(),"datePickerDialog");
+            datePickerDialog.show(getFragmentManager(), "datePickerDialog");
         });
 
         datePickerDialog = DatePickerDialog.newInstance(dateSetListener, Calendar.getInstance());
@@ -1013,12 +1063,12 @@ public class PassengerActivity extends SimpleMapActivity
 
         // Time
         TimePickerDialog.OnTimeSetListener timeSetListener = (view, hourOfDay, minute, second) -> {
-            btn_cd_time_picker.setText(TimeUtils.timeToUserTimeStr(hourOfDay,minute));
+            btn_cd_time_picker.setText(TimeUtils.timeToUserTimeStr(hourOfDay, minute));
 
-            selectedDateTime.set(Calendar.HOUR_OF_DAY,hourOfDay);
-            selectedDateTime.set(Calendar.MINUTE,minute);
-            selectedDateTime.set(Calendar.SECOND,0);
-            selectedDateTime.set(Calendar.MILLISECOND,0);
+            selectedDateTime.set(Calendar.HOUR_OF_DAY, hourOfDay);
+            selectedDateTime.set(Calendar.MINUTE, minute);
+            selectedDateTime.set(Calendar.SECOND, 0);
+            selectedDateTime.set(Calendar.MILLISECOND, 0);
 
             getCurTripFareInfoInstance().setStartTime(TimeUtils.dateToStr(selectedDateTime.getTime()));
             updateTripFareInfoView();
@@ -1027,11 +1077,11 @@ public class PassengerActivity extends SimpleMapActivity
         timePickerDialog = TimePickerDialog.newInstance(timeSetListener, true);
         timePickerDialog.setAccentColor(ResourcesCompat.getColor(getResources(), R.color.date_picker_bar, null));
 
-        btn_cd_time_picker.setOnClickListener(v ->{
-            if(timePickerDialog.isAdded())
+        btn_cd_time_picker.setOnClickListener(v -> {
+            if (timePickerDialog.isAdded())
                 return;
 
-            timePickerDialog.show(getFragmentManager(),"timePickerDialog");
+            timePickerDialog.show(getFragmentManager(), "timePickerDialog");
         });
     }
 
@@ -1123,8 +1173,7 @@ public class PassengerActivity extends SimpleMapActivity
                 if (pickupPlace != null && dropPlace != null) {
                     cameraManager.moveCam(pickupPlace.func_getLatLngLocation(), dropPlace.func_getLatLngLocation());
                     updateDistanceAndDuration();
-                }
-                else if (pickupPlace != null) {
+                } else if (pickupPlace != null) {
                     cameraManager.moveCam(pickupPlace.func_getLatLngLocation());
                 } else if (dropPlace != null) {
                     cameraManager.moveCam(dropPlace.func_getLatLngLocation());
@@ -1136,7 +1185,7 @@ public class PassengerActivity extends SimpleMapActivity
     }
 
     private void StartAutoCompleteIntent(int requestCode) {
-        Intent intent = new Intent(PassengerActivity. this,SearchActivity.class);
+        Intent intent = new Intent(PassengerActivity.this, SearchActivity.class);
         if (mLastLocation != null) {
             intent.putExtra("cur_lat", mLastLocation.getLatitude());
             intent.putExtra("cur_lng", mLastLocation.getLongitude());
@@ -1159,7 +1208,6 @@ public class PassengerActivity extends SimpleMapActivity
         FoundDriverResult(requestCode, resultCode, data);
 
     }
-
 
 
     private String getCurUid() {
@@ -1289,7 +1337,7 @@ public class PassengerActivity extends SimpleMapActivity
     private void addEven() {
         btn_findDriver.setOnClickListener(v -> startBooking());
 
-        btn_cd_wait_time.setOnClickListener(e ->{
+        btn_cd_wait_time.setOnClickListener(e -> {
             ArrayList<String> other = new ArrayList<>();
 
             for (String key : DefineString.WAIT_TIME_MAP.keySet()) {
@@ -1310,9 +1358,9 @@ public class PassengerActivity extends SimpleMapActivity
                     .show();
         });
 
-        btn_cd_note.setOnClickListener(e ->{
+        btn_cd_note.setOnClickListener(e -> {
             String prefill = null;
-            if (! btn_cd_note.getText().toString().equals(DefineString.NOTES_TO_DRIVER_TITLE)) {
+            if (!btn_cd_note.getText().toString().equals(DefineString.NOTES_TO_DRIVER_TITLE)) {
                 prefill = btn_cd_note.getText().toString();
             }
 
@@ -1391,7 +1439,6 @@ public class PassengerActivity extends SimpleMapActivity
             PassengerActivity.this.startActivity(i);
 
 
-
             // Handle the camera action
         } else if (id == R.id.nav_about) {
 
@@ -1403,16 +1450,15 @@ public class PassengerActivity extends SimpleMapActivity
             FirebaseAuth.getInstance().signOut();
             Intent intent = new Intent(PassengerActivity.this, PhoneAuthActivity.class);
             startActivity(intent);
-        }
-        else if(id==R.id.nav_share){
+        } else if (id == R.id.nav_share) {
 
             Intent i = new Intent(Intent.ACTION_SEND);
 
             i.setType("text/plain");
             String shareBody = "link";
             String shareName = "SBike";
-            i.putExtra(Intent.EXTRA_TEXT,shareBody);
-            i.putExtra(Intent.EXTRA_SUBJECT,shareName);
+            i.putExtra(Intent.EXTRA_TEXT, shareBody);
+            i.putExtra(Intent.EXTRA_SUBJECT, shareName);
 
             startActivity(Intent.createChooser(i, "Sharing"));
 

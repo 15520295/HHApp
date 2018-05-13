@@ -1,8 +1,13 @@
 package com.example.huydaoduc.hieu.chi.hhapp.Main.Driver.RouteManager;
 
 import android.app.Activity;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Intent;
+import android.media.RingtoneManager;
+import android.net.Uri;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.app.NotificationCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -18,6 +23,9 @@ import com.example.huydaoduc.hieu.chi.hhapp.Main.Driver.PassengerRequestInfoActi
 import com.example.huydaoduc.hieu.chi.hhapp.Model.Trip.NotifyTrip;
 import com.example.huydaoduc.hieu.chi.hhapp.Model.RouteRequest.RouteRequest;
 import com.example.huydaoduc.hieu.chi.hhapp.Model.RouteRequest.RouteRequestState;
+import com.example.huydaoduc.hieu.chi.hhapp.Model.Trip.Trip;
+import com.example.huydaoduc.hieu.chi.hhapp.Model.User.UserInfo;
+import com.example.huydaoduc.hieu.chi.hhapp.NotifyService;
 import com.example.huydaoduc.hieu.chi.hhapp.R;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
@@ -284,6 +292,44 @@ public class RouteRequestManagerActivity extends AppCompatActivity {
         }
     }
 
+    public void showNotificationforDriver(UserInfo userInfo, Trip trip) {
+
+        NotificationCompat.Builder mBuilder =
+                new NotificationCompat.Builder(getApplicationContext())
+                        .setSmallIcon(R.drawable.ic_location_on)
+                        .setContentTitle(userInfo.getName())
+                        .setContentText(userInfo.getPhoneNumber());
+
+        Intent resultIntent = new Intent(getApplicationContext(), PassengerRequestInfoActivity.class);
+
+        resultIntent.putExtra("trip", trip);
+        resultIntent.putExtra("userInfo", userInfo);
+
+        PendingIntent resultPendingIntent =
+                PendingIntent.getActivity(
+                        getApplicationContext(),
+                        0,
+                        resultIntent,
+                        PendingIntent.FLAG_UPDATE_CURRENT
+                );
+
+        mBuilder.setContentIntent(resultPendingIntent);
+
+        Uri uri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+        mBuilder.setSound(uri);
+
+//                        Uri newSound= Uri.parse("android.resource://"
+//                                + getPackageName() + "/" + R.raw.gaugau);
+//                        mBuilder.setSound(newSound);
+
+        int mNotificationId = 0;
+        // Gets an instance of the NotificationManager service
+        NotificationManager mNotifyMgr =
+                (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+        // Builds the notification and issues it.
+        mNotifyMgr.notify(mNotificationId, mBuilder.build());
+    }
+
     private void notifyTripAndUpdateRequest(RouteRequest request) {
         NotifyTrip notifyTrip = request.getNotifyTrip();
         if(notifyTrip != null && !notifyTrip.isNotified())
@@ -407,7 +453,7 @@ public class RouteRequestManagerActivity extends AppCompatActivity {
                         changeRouteRequestState(position, command);
                     }
                 })
-                .showAsDropDown(view, -250, 0);	//带偏移量
+                .showAsDropDown(view, -250, 0);
     }
     
     //endregion

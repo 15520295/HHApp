@@ -3,6 +3,7 @@ package com.example.huydaoduc.hieu.chi.hhapp.Framework;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
+import android.text.TextUtils;
 import android.util.Log;
 
 import com.example.huydaoduc.hieu.chi.hhapp.Framework.Direction.Leg;
@@ -24,17 +25,17 @@ public class LocationUtils {
     private static String TAG = "LocationUtils";
 
     //region ------- Converter --------------
+
     /**
      * @param string ex:"-34.8799074,174.7565664"
      */
     public static LatLng strToLatLng(String string) {
-        String[] latlong =  string.split(",");
-        return new LatLng(Double.parseDouble(latlong[0]),Double.parseDouble(latlong[1]) );
+        String[] latlong = string.split(",");
+        return new LatLng(Double.parseDouble(latlong[0]), Double.parseDouble(latlong[1]));
     }
 
     public static String latLngToStr(LatLng latLng) {
-        if(latLng == null)
-        {
+        if (latLng == null) {
             Log.e(TAG, "Location is null");
             return "0,0";
         }
@@ -42,17 +43,15 @@ public class LocationUtils {
     }
 
     public static LatLng locaToLatLng(Location location) {
-        if(location == null)
-        {
+        if (location == null) {
             Log.e(TAG, "Location is null");
-            return new LatLng(0, 0 );
+            return new LatLng(0, 0);
         }
-        return new LatLng(location.getLatitude(), location.getLongitude() );
+        return new LatLng(location.getLatitude(), location.getLongitude());
     }
 
     public static String locaToStr(Location location) {
-        if(location == null)
-        {
+        if (location == null) {
             Log.e(TAG, "Location is null");
             return "0,0";
         }
@@ -76,8 +75,9 @@ public class LocationUtils {
     //endregion
 
     public static String getLocationAddress(Geocoder geocoder, Location location) {
-        return getLocationAddress(geocoder,LocationUtils.locaToLatLng(location));
+        return getLocationAddress(geocoder, LocationUtils.locaToLatLng(location));
     }
+
     public static String getLocationAddress(Geocoder geocoder, LatLng latLng) {
 
         StringBuilder result = new StringBuilder();
@@ -98,18 +98,21 @@ public class LocationUtils {
      * @return meter
      */
     public static float calcDistance(LatLng startLatLng, LatLng endLatLng) {
-        float[] result = new float[1] ;
+        float[] result = new float[1];
         Location.distanceBetween(startLatLng.latitude, startLatLng.longitude, endLatLng.latitude, endLatLng.longitude, result);
         return result[0];
     }
+
     public static float calcDistance(LatLng startLatLng, Location endLoca) {
-        return calcDistance(startLatLng,locaToLatLng(endLoca));
+        return calcDistance(startLatLng, locaToLatLng(endLoca));
     }
+
     public static float calcDistance(String startLocaStr, String endLocaStr) {
-        return calcDistance(strToLatLng(startLocaStr),strToLatLng(endLocaStr));
+        return calcDistance(strToLatLng(startLocaStr), strToLatLng(endLocaStr));
     }
+
     public static float calcDistance(String startLocaStr, Location endLoca) {
-        return calcDistance(strToLatLng(startLocaStr),locaToLatLng(endLoca));
+        return calcDistance(strToLatLng(startLocaStr), locaToLatLng(endLoca));
     }
 
     /**
@@ -146,5 +149,20 @@ public class LocationUtils {
             points.addAll(step.getPoints());
         }
         return points;
+    }
+
+    public static String getPrimaryFromAddress(String address) {
+        if (TextUtils.isEmpty(address)) {
+            return null;
+        } else {
+            String string = address;
+            String[] parts = string.split(",");
+            String part1 = parts[0];
+            if (part1 != null) {
+                return part1;
+            } else {
+                return null;
+            }
+        }
     }
 }
