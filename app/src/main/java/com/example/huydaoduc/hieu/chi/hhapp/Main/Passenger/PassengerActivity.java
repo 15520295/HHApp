@@ -1258,6 +1258,7 @@ public class PassengerActivity extends SimpleMapActivity
             public void onClickRightCtv() {
                 Intent intent = new Intent(getApplicationContext(), PassengerRequestManagerActivity.class);
                 PassengerActivity.this.startActivity(intent);
+                finish();
             }
 
             @Override
@@ -1387,6 +1388,7 @@ public class PassengerActivity extends SimpleMapActivity
             FirebaseAuth.getInstance().signOut();
             Intent intent = new Intent(PassengerActivity.this, PhoneAuthActivity.class);
             startActivity(intent);
+            finish();
         }
         else if(id==R.id.nav_share){
 

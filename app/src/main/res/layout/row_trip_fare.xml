@@ -50,6 +50,7 @@
             android:layout_alignParentRight="true"
             android:textStyle="bold"
             android:gravity="left"
+            android:visibility="gone"
             />
 
         <TextView
