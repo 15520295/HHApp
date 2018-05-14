@@ -50,10 +50,8 @@ import com.example.huydaoduc.hieu.chi.hhapp.Framework.Place.SearchActivity;
 import com.example.huydaoduc.hieu.chi.hhapp.Framework.SimpleMapActivity;
 import com.example.huydaoduc.hieu.chi.hhapp.Main.AboutApp;
 import com.example.huydaoduc.hieu.chi.hhapp.Main.AboutUser;
-import com.example.huydaoduc.hieu.chi.hhapp.Main.Driver.PassengerRequestInfoActivity;
-import com.example.huydaoduc.hieu.chi.hhapp.Model.PassengerRequest;
 import com.example.huydaoduc.hieu.chi.hhapp.Main.CurUserInfo;
-import com.example.huydaoduc.hieu.chi.hhapp.Main.Driver.RouteRequestManager.RouteRequestManagerActivity;
+import com.example.huydaoduc.hieu.chi.hhapp.Main.Driver.PassengerRequestInfoActivity;
 import com.example.huydaoduc.hieu.chi.hhapp.Main.Passenger.PassengerRequestManager.PassengerRequestManagerActivity;
 import com.example.huydaoduc.hieu.chi.hhapp.Model.Passenger.PassengerRequest;
 import com.example.huydaoduc.hieu.chi.hhapp.Framework.TimeUtils;
@@ -105,6 +103,7 @@ public class PassengerActivity extends SimpleMapActivity
 
     Button btn_cd_note, btn_cd_wait_time;
 
+
     private TextView tv_fare, tv_duration, tv_car_type;
     private ImageView iv_car_type;
 
@@ -118,6 +117,8 @@ public class PassengerActivity extends SimpleMapActivity
     private UserState userState;
 
     DatabaseReference dbRefe;
+
+    Dialog dialogInfo;
 
     NotifyService notifyService = new NotifyService();
 
@@ -241,9 +242,9 @@ public class PassengerActivity extends SimpleMapActivity
         DBManager.getUserById(driverUId, (userInfo) ->
                 {
 
-                    showNotificationforPassenger(getApplicationContext(), userInfo);
+                    //showNotificationforPassenger(getApplicationContext(), userInfo);
 
-                    setUpDialogInfo(userInfo);
+                    //setUpDialogInfo(userInfo);
                     dialogInfo.show();
                 }
         );
@@ -288,6 +289,7 @@ public class PassengerActivity extends SimpleMapActivity
         mNotificationManager.notify(mNotificationId, mBuilder.build());
     }
 
+/*
     private void setUpDialogInfo(final UserInfo driverInfo) {
         dialogInfo = new Dialog(PassengerActivity.this);
         dialogInfo.setContentView(R.layout.info_user);
@@ -328,6 +330,7 @@ public class PassengerActivity extends SimpleMapActivity
         });
 
     }
+*/
 
     //endregion
 

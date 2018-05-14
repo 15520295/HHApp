@@ -101,7 +101,7 @@ public class PassengerRequestInfoActivity extends SimpleMapActivity implements S
     }
 
     private void Event() {
-        btn_call.setOnClickListener(v ->{
+        btn_call.setOnClickListener(v -> {
             Intent intent = new Intent(Intent.ACTION_CALL);
             intent.setData(Uri.parse("tel:" + passengerUserInfo.getPhoneNumber()));
             if (Build.VERSION.SDK_INT >= 23) {
@@ -153,13 +153,13 @@ public class PassengerRequestInfoActivity extends SimpleMapActivity implements S
         tv_end_address.setText(passengerRequest.getDropOffSavePlace().getPrimaryText());
 
         findViewById(R.id.tv_pick_up_address).setOnClickListener(v -> {
-            if(v.isSelected())
+            if (v.isSelected())
                 v.setSelected(false);
             else
                 v.setSelected(true);
         });
         findViewById(R.id.tv_drop_off_address).setOnClickListener(v -> {
-            if(v.isSelected())
+            if (v.isSelected())
                 v.setSelected(false);
             else
                 v.setSelected(true);

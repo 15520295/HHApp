@@ -1,12 +1,17 @@
 package com.example.huydaoduc.hieu.chi.hhapp.Main.Driver.RouteRequestManager;
 
 import android.app.Activity;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.media.RingtoneManager;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
+import android.support.v4.app.NotificationCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
@@ -35,6 +40,7 @@ import com.example.huydaoduc.hieu.chi.hhapp.Main.AboutApp;
 import com.example.huydaoduc.hieu.chi.hhapp.Main.AboutUser;
 import com.example.huydaoduc.hieu.chi.hhapp.Main.CurUserInfo;
 import com.example.huydaoduc.hieu.chi.hhapp.Main.Driver.PassengerRequestInfoActivity;
+import com.example.huydaoduc.hieu.chi.hhapp.Main.MainActivity;
 import com.example.huydaoduc.hieu.chi.hhapp.Main.Passenger.PassengerActivity;
 import com.example.huydaoduc.hieu.chi.hhapp.Main.SplashActivity;
 import com.example.huydaoduc.hieu.chi.hhapp.Model.Passenger.PassengerRequest;
@@ -67,6 +73,8 @@ import java.util.Date;
 import java.util.List;
 
 import cn.bingoogolapple.titlebar.BGATitleBar;
+
+import static com.facebook.FacebookSdk.getApplicationContext;
 
 
 public class RouteRequestManagerActivity extends AppCompatActivity
@@ -205,6 +213,44 @@ public class RouteRequestManagerActivity extends AppCompatActivity
         }
     }
 
+    public void showNotificationforDriver(UserInfo userInfo, Trip trip) {
+        NotificationCompat.Builder mBuilder =
+                new NotificationCompat.Builder(getApplicationContext())
+                        .setSmallIcon(R.drawable.ic_location_on)
+                        .setContentTitle(userInfo.getName())
+                        .setContentText(userInfo.getPhoneNumber())
+                        .setPriority(2);
+
+        Intent resultIntent = new Intent(getApplicationContext(), MainActivity.class);
+
+        resultIntent.putExtra("trip", trip);
+        resultIntent.putExtra("userInfo", userInfo);
+
+        PendingIntent resultPendingIntent =
+                PendingIntent.getActivity(
+                        getApplicationContext(),
+                        0,
+                        resultIntent,
+                        PendingIntent.FLAG_UPDATE_CURRENT
+                );
+
+        mBuilder.setContentIntent(resultPendingIntent);
+
+        Uri uri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+        mBuilder.setSound(uri);
+
+//                        Uri newSound= Uri.parse("android.resource://"
+//                                + getPackageName() + "/" + R.raw.gaugau);
+//                        mBuilder.setSound(newSound);
+
+        int mNotificationId = 1;
+        // Gets an instance of the NotificationManager service
+        NotificationManager mNotifyMgr =
+                (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+        // Builds the notification and issues it.
+        mNotifyMgr.notify(mNotificationId, mBuilder.build());
+
+    }
 
     private void changeRouteRequestState(int position, String command) {
         if (command == null) {
