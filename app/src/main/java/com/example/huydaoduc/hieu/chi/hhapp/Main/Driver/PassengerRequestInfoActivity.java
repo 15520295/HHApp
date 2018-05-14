@@ -10,9 +10,11 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.text.TextUtils;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.huydaoduc.hieu.chi.hhapp.Framework.ImageUtils;
 import com.example.huydaoduc.hieu.chi.hhapp.Framework.Place.SavedPlace;
 import com.example.huydaoduc.hieu.chi.hhapp.Framework.SimpleMapActivity;
 import com.example.huydaoduc.hieu.chi.hhapp.Framework.TimeUtils;
@@ -165,6 +167,9 @@ public class PassengerRequestInfoActivity extends SimpleMapActivity implements S
                 v.setSelected(true);
         });
 
+        if (userInfo.getPhoto() != null) {
+            ((ImageView)findViewById(R.id.iv_passenger_avatar)).setImageBitmap(ImageUtils.base64ToBitmap(userInfo.getPhoto()));
+        }
 
         if (TextUtils.isEmpty(passengerRequest.getNote())) {
             findViewById(R.id.group_note).setVisibility(View.GONE);

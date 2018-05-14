@@ -389,7 +389,7 @@ public class PassengerRequestManagerActivity extends AppCompatActivity
         PassengerRequestState state = request.getPassengerRequestState();
 
         if (! request.func_isInTheFuture()) {
-            if (command == "Delete") {
+            if (command == "Delete" && request.getPassengerRequestState() != PassengerRequestState.FOUND_DRIVER) {
                 // change state on server
                 dbRefe.child(Define.DB_PASSENGER_REQUESTS)
                         .child(request.getPassengerUId())
@@ -509,7 +509,8 @@ public class PassengerRequestManagerActivity extends AppCompatActivity
         tvName.setText(driverInfo.getName());
         tvPhone.setText(driverInfo.getPhoneNumber());
         tv_yob.setText(driverInfo.getYearOfBirth());
-        civProfilePic.setImageBitmap(ImageUtils.base64ToBitmap(driverInfo.getPhoto()));
+        if (driverInfo.getPhoto() != null)
+            civProfilePic.setImageBitmap(ImageUtils.base64ToBitmap(driverInfo.getPhoto()));
 
         btnMessage.setOnClickListener(new View.OnClickListener() {
             @Override

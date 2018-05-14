@@ -261,7 +261,7 @@ public class RouteRequestManagerActivity extends AppCompatActivity
         RouteRequestState state = routeRequest.getRouteRequestState();
 
         if (! routeRequest.func_isInTheFuture()) {      // time out
-            if (command == "Delete") {
+            if (command == "Delete" && routeRequest.getRouteRequestState() != RouteRequestState.FOUND_PASSENGER) {
                 // change state on server
                 dbRefe.child(Define.DB_ROUTE_REQUESTS)
                         .child(routeRequest.getDriverUId())

@@ -75,36 +75,41 @@
         <activity android:name=".Main.MainActivity" />
 
         <!-- login Activity -->
-        <activity android:name=".ActivitiesAuth.PhoneAuthActivity" />
+        <activity android:name=".ActivitiesAuth.PhoneAuthActivity"/>
         <activity
             android:name=".ActivitiesAuth.EnterPhoneNumberActivity"
             android:label="@string/title_activity_enter_phone_number"
-            android:windowSoftInputMode="adjustResize" />
+            android:windowSoftInputMode="adjustResize"/>
         <activity
             android:name=".ActivitiesAuth.VerifyPhoneActivity"
             android:label="@string/title_activity_enter_phone_number"
-            android:windowSoftInputMode="stateVisible|adjustResize" />
-        <activity android:name=".ActivitiesAuth.EnterPassActivity" />
+            android:windowSoftInputMode="stateVisible|adjustResize"/>
+        <activity android:name=".ActivitiesAuth.EnterPassActivity"/>
         <activity
             android:name=".ActivitiesAuth.UpdateInfoActivity"
-            android:windowSoftInputMode="stateVisible|adjustResize" />
+            android:windowSoftInputMode="stateVisible|adjustResize"/>
 
         <!-- Framework -->
         <activity
             android:name=".Framework.Place.SearchActivity"
-            android:theme="@style/AppTheme.NoActionBar" />
+            android:theme="@style/AppTheme.NoActionBar"
+            android:launchMode= "singleInstance"/>
 
         <!-- User -->
         <activity
             android:name=".Main.AboutApp"
-            android:theme="@style/AppTheme.PopMe" />
+            android:theme="@style/AppTheme.PopMe"
+            android:launchMode= "singleInstance"/>
         <activity android:name=".Main.AboutUser" />
         <activity android:name=".Main.InfoCar" />
 
         <!-- Passenger -->
-        <activity android:name=".Main.Passenger.PassengerActivity" />
-        <activity android:name=".Main.Passenger.FindingDriverActivity" />
-        <activity android:name=".Main.Passenger.PassengerRequestManager.PassengerRequestManagerActivity" />
+        <activity android:name=".Main.Passenger.PassengerActivity"
+            android:launchMode="singleTask"/>
+        <activity android:name=".Main.Passenger.FindingDriverActivity"
+            android:launchMode="singleTask"/>
+        <activity android:name=".Main.Passenger.PassengerRequestManager.PassengerRequestManagerActivity"
+            android:launchMode="singleTask"/>
 
         <!-- Driver -->
         <activity android:name=".Main.Driver.RouteRequestManager.RouteRequestManagerActivity" />

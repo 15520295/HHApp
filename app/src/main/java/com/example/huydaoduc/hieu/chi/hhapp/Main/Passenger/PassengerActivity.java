@@ -3,18 +3,13 @@ package com.example.huydaoduc.hieu.chi.hhapp.Main.Passenger;
 import android.Manifest;
 import android.app.Activity;
 import android.app.Dialog;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
-import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Geocoder;
-import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.widget.CardView;
 import android.text.InputType;
@@ -51,7 +46,7 @@ import com.example.huydaoduc.hieu.chi.hhapp.Framework.SimpleMapActivity;
 import com.example.huydaoduc.hieu.chi.hhapp.Main.AboutApp;
 import com.example.huydaoduc.hieu.chi.hhapp.Main.AboutUser;
 import com.example.huydaoduc.hieu.chi.hhapp.Main.CurUserInfo;
-import com.example.huydaoduc.hieu.chi.hhapp.Main.Driver.PassengerRequestInfoActivity;
+import com.example.huydaoduc.hieu.chi.hhapp.Main.Driver.RouteRequestManager.RouteRequestManagerActivity;
 import com.example.huydaoduc.hieu.chi.hhapp.Main.Passenger.PassengerRequestManager.PassengerRequestManagerActivity;
 import com.example.huydaoduc.hieu.chi.hhapp.Model.Passenger.PassengerRequest;
 import com.example.huydaoduc.hieu.chi.hhapp.Framework.TimeUtils;
@@ -64,7 +59,6 @@ import com.example.huydaoduc.hieu.chi.hhapp.Model.Trip.TripFareInfo;
 import com.example.huydaoduc.hieu.chi.hhapp.Model.User.OnlineUser;
 import com.example.huydaoduc.hieu.chi.hhapp.Model.User.UserInfo;
 import com.example.huydaoduc.hieu.chi.hhapp.Model.User.UserState;
-import com.example.huydaoduc.hieu.chi.hhapp.NotifyService;
 import com.example.huydaoduc.hieu.chi.hhapp.R;
 import com.example.huydaoduc.hieu.chi.hhapp.ActivitiesAuth.PhoneAuthActivity;
 import com.google.android.gms.location.LocationServices;
@@ -117,10 +111,6 @@ public class PassengerActivity extends SimpleMapActivity
     private UserState userState;
 
     DatabaseReference dbRefe;
-
-    Dialog dialogInfo;
-
-    NotifyService notifyService = new NotifyService();
 
     @Override
     public void OnRealTimeLocationUpdate() {
@@ -221,118 +211,6 @@ public class PassengerActivity extends SimpleMapActivity
         intent.putExtra("passengerRequest", passengerRequest);
         PassengerActivity.this.startActivityForResult(intent,FIND_DRIVER_REQUEST_CODE);
     }
-
-
-    private void FoundDriverResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == FIND_DRIVER_REQUEST_CODE) {
-            if (resultCode == SearchActivity.RESULT_OK) {
-                String driverUId = data.getStringExtra("driverUId");
-                setUpFoundDriver(driverUId);
-            }
-        }
-    }
-
-    //region -------------- Show Driver Info
-
-    /**
-     * If Online User is in "D_RECEIVING_BOOKING_HH state" and NOT "time out" then get User info as marker
-     */
-    //todo: add Driver end location
-    private void setUpFoundDriver(String driverUId) {
-        DBManager.getUserById(driverUId, (userInfo) ->
-                {
-
-                    //showNotificationforPassenger(getApplicationContext(), userInfo);
-
-                    //setUpDialogInfo(userInfo);
-                    dialogInfo.show();
-                }
-        );
-    }
-
-    public void showNotificationforPassenger(Context context, UserInfo driverInfo) {
-
-        NotificationCompat.Builder mBuilder =
-                new NotificationCompat.Builder(context)
-                        .setSmallIcon(R.drawable.ic_location_on)
-                        .setContentTitle(driverInfo.getName())
-                        .setContentText(driverInfo.getPhoneNumber())
-                        .setPriority(2);
-
-        Intent resultIntent = new Intent(context, PassengerRequestInfoActivity.class);
-
-        resultIntent.putExtra("userInfo", driverInfo);
-
-        PendingIntent resultPendingIntent =
-                PendingIntent.getActivity(
-                        context,
-                        0,
-                        resultIntent,
-                        PendingIntent.FLAG_UPDATE_CURRENT
-                );
-
-        mBuilder.setContentIntent(resultPendingIntent);
-
-        Uri uri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
-        mBuilder.setSound(uri);
-
-//                        Uri newSound= Uri.parse("android.resource://"
-//                                + getPackageName() + "/" + R.raw.gaugau);
-//                        mBuilder.setSound(newSound);
-
-        int mNotificationId = 1;
-        // Gets an instance of the NotificationManager service
-        Log.d(TAG, driverInfo.getName());
-        NotificationManager mNotificationManager =
-                (NotificationManager) getSystemService(context.NOTIFICATION_SERVICE);
-        // Builds the notification and issues it.
-        mNotificationManager.notify(mNotificationId, mBuilder.build());
-    }
-
-/*
-    private void setUpDialogInfo(final UserInfo driverInfo) {
-        dialogInfo = new Dialog(PassengerActivity.this);
-        dialogInfo.setContentView(R.layout.info_user);
-
-        btnMessage = dialogInfo.findViewById(R.id.btnMessage);
-        btnCall = dialogInfo.findViewById(R.id.btnCall);
-        tvName = dialogInfo.findViewById(R.id.tvName);
-        tvPhone = dialogInfo.findViewById(R.id.tvPhone);
-
-        tvName.setText(driverInfo.getName());
-        tvPhone.setText("SDT: " + driverInfo.getPhoneNumber());
-
-        btnMessage.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Toast.makeText(getApplicationContext(), "Open Messenger", Toast.LENGTH_LONG).show();
-                dialogInfo.dismiss();
-            }
-        });
-
-        btnCall.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(Intent.ACTION_CALL);
-                intent.setData(Uri.parse("tel:" + driverInfo.getPhoneNumber()));
-                if (Build.VERSION.SDK_INT >= 23) {
-                    if (checkSelfPermission(Manifest.permission.CALL_PHONE)
-                            == PackageManager.PERMISSION_GRANTED) {
-
-                        PassengerActivity.this.startActivity(intent);
-                        dialogInfo.dismiss();
-
-                    } else {
-                        ActivityCompat.requestPermissions(PassengerActivity.this, new String[]{Manifest.permission.CALL_PHONE}, 1001);
-                    }
-                }
-            }
-        });
-
-    }
-*/
-
-    //endregion
 
 //    //region ------ Start Booking --------
 //    private void startBooking() {
@@ -1239,6 +1117,7 @@ public class PassengerActivity extends SimpleMapActivity
     }
 
 
+
     private String getCurUid() {
         return FirebaseAuth.getInstance().getCurrentUser().getUid();
     }
@@ -1378,6 +1257,7 @@ public class PassengerActivity extends SimpleMapActivity
             public void onClickRightCtv() {
                 Intent intent = new Intent(getApplicationContext(), PassengerRequestManagerActivity.class);
                 PassengerActivity.this.startActivity(intent);
+                finish();
             }
 
             @Override
@@ -1388,7 +1268,7 @@ public class PassengerActivity extends SimpleMapActivity
 
         btn_findDriver.setOnClickListener(v -> startBooking());
 
-        btn_cd_wait_time.setOnClickListener(e -> {
+        btn_cd_wait_time.setOnClickListener(e ->{
             ArrayList<String> other = new ArrayList<>();
 
             for (String key : DefineString.WAIT_TIME_MAP.keySet()) {
@@ -1507,7 +1387,9 @@ public class PassengerActivity extends SimpleMapActivity
             FirebaseAuth.getInstance().signOut();
             Intent intent = new Intent(PassengerActivity.this, PhoneAuthActivity.class);
             startActivity(intent);
-        } else if (id == R.id.nav_share) {
+            finish();
+        }
+        else if(id==R.id.nav_share){
 
             Intent i = new Intent(Intent.ACTION_SEND);
 
