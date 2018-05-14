@@ -57,6 +57,7 @@ public class SelectCarTypeFragment extends DialogFragment {
         super.onDetach();
         mListener.OnCancel();
         mListener = null;
+
     }
 
     /**

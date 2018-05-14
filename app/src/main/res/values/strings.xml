@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">HHApp</string>
+    <string name="app_name">SBike</string>
     <string name="map_api_key">AIzaSyDdrNdC2sIbOYQirRIHthf1_VIcgYEDuk0</string>
     <string name="title_activity_driver_in_map">Map</string>
     <string name="title_activity_home">Home</string>

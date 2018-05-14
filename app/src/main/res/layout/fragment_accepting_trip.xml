@@ -12,11 +12,7 @@
         android:id="@+id/group_passenger_request"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
-        android:layout_marginEnd="25dp"
-        android:layout_marginStart="25dp"
-        android:layout_marginTop="8dp"
-        android:layout_centerVertical="true">
+        android:layout_centerInParent="true">
 
         <TextView
             android:id="@+id/tv_fare"
@@ -26,9 +22,8 @@
             android:layout_centerHorizontal="true"
             android:gravity="center"
             android:padding="10dp"
-            android:textColor="#ffffff"
             android:text="tv_fare"
-            />
+            android:textColor="#ffffff" />
 
         <LinearLayout
             android:id="@+id/group_payment_info"
@@ -45,10 +40,9 @@
                 android:layout_height="match_parent"
                 android:layout_alignParentEnd="true"
                 android:layout_weight="1"
-                android:gravity="center"
-                android:text="tv_cash"
                 android:background="@color/dialog_gray_line"
-                />
+                android:gravity="center"
+                android:text="tv_cash" />
 
             <TextView
                 android:id="@+id/tv_distance"
@@ -57,11 +51,10 @@
                 android:layout_alignParentTop="true"
                 android:layout_toStartOf="@+id/button3"
                 android:layout_weight="1"
+                android:background="@color/dialog_gray_line"
                 android:gravity="center"
                 android:padding="10dp"
-                android:text="tv_distance"
-                android:background="@color/dialog_gray_line"
-                />
+                android:text="tv_distance" />
         </LinearLayout>
 
         <TextView
@@ -70,11 +63,10 @@
             android:layout_height="wrap_content"
             android:layout_below="@+id/group_payment_info"
             android:layout_centerHorizontal="true"
+            android:background="@color/dialog_white_line"
             android:gravity="center"
             android:padding="10dp"
-            android:text="tv_pick_up_address"
-            android:background="@color/dialog_white_line"
-            />
+            android:text="tv_pick_up_address" />
 
         <TextView
             android:id="@+id/tv_drop_off_address"
@@ -82,11 +74,10 @@
             android:layout_height="wrap_content"
             android:layout_below="@+id/tv_pick_up_address"
             android:layout_centerHorizontal="true"
+            android:background="@color/dialog_gray_line"
             android:gravity="center"
             android:padding="10dp"
-            android:text="tv_drop_off_address"
-            android:background="@color/dialog_gray_line"
-            />
+            android:text="tv_drop_off_address" />
 
         <TextView
             android:id="@+id/tv_note"
@@ -94,11 +85,10 @@
             android:layout_height="wrap_content"
             android:layout_below="@+id/tv_drop_off_address"
             android:layout_centerHorizontal="true"
+            android:background="@color/dialog_white_line"
             android:gravity="center"
             android:padding="10dp"
-            android:text="tv_note"
-            android:background="@color/dialog_white_line"
-            />
+            android:text="tv_note" />
 
     </RelativeLayout>
 

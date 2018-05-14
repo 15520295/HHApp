@@ -53,7 +53,6 @@ public class EnterPhoneNumberActivity extends AppCompatActivity {
     private TextView tv_connect_social, tv_error;
     private EditText et_phone_number;
     private ProgressDialog dialog;
-
     private FirebaseAuth firebaseAuth;
     private PhoneAuthProvider.OnVerificationStateChangedCallbacks mCallback;
     private String verification_code;
@@ -161,14 +160,7 @@ public class EnterPhoneNumberActivity extends AppCompatActivity {
 
 
     private void Init() {
-        ((TextView) findViewById(R.id.tv_connect_social))
-                .setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        ConstrainAnimation();
 
-                    }
-                });
         // Init Firebase
         firebaseAuth = FirebaseAuth.getInstance();
 
@@ -179,6 +171,14 @@ public class EnterPhoneNumberActivity extends AppCompatActivity {
         et_phone_number = findViewById(R.id.et_phone_number);
 
         // Events
+
+        tv_connect_social.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(EnterPhoneNumberActivity.this, "Currently Not Supported", Toast.LENGTH_LONG).show();
+
+            }
+        });
         fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override

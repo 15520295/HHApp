@@ -14,8 +14,10 @@
         android:scaleType="fitXY"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="1.0"
         app:srcCompat="@drawable/sbike1" />
 
 
@@ -24,8 +26,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="40dp"
-        android:layout_marginTop="40dp"
-        app:floating_background_color="#4ec5e3"
+        android:layout_marginTop="20dp"
+        app:floating_background_color="#02aef0"
         app:floating_left_icon="@drawable/iconmap"
         app:floating_title="PASSENGER"
         app:floating_title_color="@android:color/white"
@@ -39,7 +41,7 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="128dp"
         android:layout_marginEnd="32dp"
-        app:floating_background_color="#31c674"
+        app:floating_background_color="#21d82a"
         app:floating_left_icon="@drawable/iconcar"
         app:floating_title="DRIVER"
         app:floating_title_color="@android:color/white"
@@ -47,7 +49,36 @@
         app:layout_constraintEnd_toEndOf="parent"
         tools:ignore="MissingConstraints" />
 
+    <TextView
+        android:id="@+id/txtpassenger"
+        android:layout_width="284dp"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="16dp"
+        android:text=" You want to find someone with the same route to save money"
+        android:textColor="#ffffff"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.095"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/btn_passenger" />
 
+    <TextView
+        android:id="@+id/txtdriver"
+        android:layout_width="261dp"
+        android:layout_height="50dp"
+        android:layout_marginBottom="24dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:text="You have a car and want to find a companion"
+        android:textColor="#ffffff"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toTopOf="@+id/btn_driver"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 
 
 </android.support.constraint.ConstraintLayout>
