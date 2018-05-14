@@ -11,6 +11,11 @@ import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
+import android.widget.ImageView;
+import android.widget.Toast;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.example.huydaoduc.hieu.chi.hhapp.ActivitiesAuth.UpdateInfoActivity;
@@ -31,16 +36,21 @@ public class SplashActivity extends AppCompatActivity {
     private final int SPLASH_DISPLAY_LENGTH = 1000;
 
     private BroadcastReceiver broadcastReceiver;
+    private ImageView ivSplash;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash);
+        ivSplash = findViewById(R.id.imageView);
+        Animation animation = AnimationUtils.loadAnimation(this,R.anim.anim_acitivity_splash);
+        ivSplash.setAnimation(animation);
+        animation.setAnimationListener((Animation.AnimationListener) this);
+
+
 
         checkInternet();
     }
-
-
     private void checkInternet() {
         IntentFilter intentFilter = new IntentFilter("android.net.conn.CONNECTIVITY_CHANGE");
         broadcastReceiver = new BroadcastReceiver() {
@@ -130,5 +140,4 @@ public class SplashActivity extends AppCompatActivity {
         super.onDestroy();
         unregisterReceiver(broadcastReceiver);
     }
-
 }
