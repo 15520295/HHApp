@@ -14,6 +14,8 @@ public class MarkerManager {
     private GoogleMap mMap;
 
     public Marker pickupPlaceMarker, dropPlaceMarker, driverMarker;
+    public Marker passengerPickupPlaceMarker, passengerDropPlaceMarker;
+
 
     public MarkerManager(GoogleMap mMap, GoogleMap.OnMarkerClickListener listener) {
         this.mMap = mMap;
@@ -40,6 +42,7 @@ public class MarkerManager {
             pickupPlaceMarker.remove();
 
         pickupPlaceMarker = mMap.addMarker(new MarkerOptions().position(pickupPlace.func_getLatLngLocation())
+                .anchor(0.5f,1f)
                 .icon(BitmapDescriptorFactory.fromResource(R.drawable.mkr_pick_up_place_40px)));
     }
 
@@ -48,6 +51,7 @@ public class MarkerManager {
             dropPlaceMarker.remove();
 
         dropPlaceMarker = mMap.addMarker(new MarkerOptions().position(endPlace.func_getLatLngLocation())
+                .anchor(0.5f,1f)
                 .icon(BitmapDescriptorFactory.fromResource(R.drawable.mkr_marker_40px)));
     }
 
@@ -56,7 +60,26 @@ public class MarkerManager {
             dropPlaceMarker.remove();
 
         dropPlaceMarker = mMap.addMarker(new MarkerOptions().position(endLoation)
+                .anchor(0.5f,1f)
                 .icon(BitmapDescriptorFactory.fromResource(R.drawable.mkr_marker_40px)));
+    }
+
+    public void draw_PassengerDropPlaceMarker(SavedPlace endPlace) {
+        if(passengerDropPlaceMarker != null)
+            passengerDropPlaceMarker.remove();
+
+        passengerDropPlaceMarker = mMap.addMarker(new MarkerOptions().position(endPlace.func_getLatLngLocation())
+                .anchor(0.5f,1f)
+                .icon(BitmapDescriptorFactory.fromResource(R.drawable.mkr_finish_flag_40)));
+    }
+
+    public void draw_PassengerPickPlaceMarker(SavedPlace endPlace) {
+        if(passengerPickupPlaceMarker != null)
+            passengerPickupPlaceMarker.remove();
+
+        passengerPickupPlaceMarker = mMap.addMarker(new MarkerOptions().position(endPlace.func_getLatLngLocation())
+                .anchor(0.5f,1f)
+                .icon(BitmapDescriptorFactory.fromResource(R.drawable.mkr_passenger_stand_40)));
     }
 
 }

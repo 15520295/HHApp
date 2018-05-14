@@ -1,9 +1,17 @@
 package com.example.huydaoduc.hieu.chi.hhapp.Main.Driver;
 
+import android.Manifest;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.huydaoduc.hieu.chi.hhapp.Framework.Place.SavedPlace;
 import com.example.huydaoduc.hieu.chi.hhapp.Framework.SimpleMapActivity;
@@ -22,8 +30,10 @@ import java.util.Date;
 
 
 public class PassengerRequestInfoActivity extends SimpleMapActivity implements SimpleMapActivity.SimpleMapListener {
+    private static final int CALL_PERMISSION_REQUEST_CODE = 9000;
+
     Trip trip;
-    UserInfo userInfo = null;
+    UserInfo passengerUserInfo = null;
     PassengerRequest passengerRequest = null;
 
     MaterialFancyButton btn_call, btn_messenger, btn_back;
@@ -42,24 +52,24 @@ public class PassengerRequestInfoActivity extends SimpleMapActivity implements S
             Bundle extras = getIntent().getExtras();
             if (extras == null) {
                 trip = null;
-                userInfo = null;
+                passengerUserInfo = null;
                 passengerRequest = null;
             } else {
                 trip = extras.getParcelable("trip");
-                userInfo = extras.getParcelable("userInfo");
+                passengerUserInfo = extras.getParcelable("userInfo");
                 passengerRequest = extras.getParcelable("passengerRequest");
 
             }
         } else {
             trip = (Trip) savedInstanceState.getParcelable("trip");
-            userInfo = (UserInfo) savedInstanceState.getParcelable("userInfo");
+            passengerUserInfo = (UserInfo) savedInstanceState.getParcelable("userInfo");
             passengerRequest = (PassengerRequest) savedInstanceState.getParcelable("passengerRequest");
         }
 
-        if (trip == null || userInfo == null || passengerRequest == null) {
+        if (trip == null || passengerUserInfo == null || passengerRequest == null) {
             finish();
         } else {
-            loadInfo(trip, userInfo, passengerRequest);
+            loadInfo(trip, passengerUserInfo, passengerRequest);
         }
 
         // setup map
@@ -92,14 +102,41 @@ public class PassengerRequestInfoActivity extends SimpleMapActivity implements S
 
     private void Event() {
         btn_call.setOnClickListener(v ->{
-            // todo: btn_call
+            Intent intent = new Intent(Intent.ACTION_CALL);
+            intent.setData(Uri.parse("tel:" + passengerUserInfo.getPhoneNumber()));
+            if (Build.VERSION.SDK_INT >= 23) {
+                if (checkSelfPermission(Manifest.permission.CALL_PHONE)
+                        == PackageManager.PERMISSION_GRANTED) {
+
+                    PassengerRequestInfoActivity.this.startActivity(intent);
+                } else {
+                    ActivityCompat.requestPermissions(PassengerRequestInfoActivity.this, new String[]{Manifest.permission.CALL_PHONE}, CALL_PERMISSION_REQUEST_CODE);
+                }
+            }
         });
 
         btn_messenger.setOnClickListener(v -> {
-            // todo: btn_messenger
+            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("sms:" + passengerUserInfo.getPhoneNumber()));
+            intent.putExtra("sms_body", "");
+            startActivity(intent);
         });
 
         btn_back.setOnClickListener(v -> finish());
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        switch (requestCode) {
+            case CALL_PERMISSION_REQUEST_CODE:
+                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    Toast.makeText(this, R.string.call_permission_granted, Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(this, R.string.call_permission_not_granted, Toast.LENGTH_SHORT).show();
+                }
+                break;
+            default:
+                super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        }
     }
 
 
@@ -150,8 +187,8 @@ public class PassengerRequestInfoActivity extends SimpleMapActivity implements S
             SavedPlace pickUpSavePlace = passengerRequest.getPickUpSavePlace();
             SavedPlace dropOffSavePlace = passengerRequest.getDropOffSavePlace();
 
-            markerManager.draw_PickupPlaceMarker(pickUpSavePlace);
-            markerManager.draw_DropPlaceMarker(dropOffSavePlace);
+            markerManager.draw_PassengerPickPlaceMarker(pickUpSavePlace);
+            markerManager.draw_PassengerDropPlaceMarker(dropOffSavePlace);
 
             if (passengerRequest.getPickUpSavePlace() != null && passengerRequest.getDropOffSavePlace() != null) {
                 cameraManager.moveCam(pickUpSavePlace.func_getLatLngLocation(), dropOffSavePlace.func_getLatLngLocation());

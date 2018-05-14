@@ -1078,7 +1078,7 @@ public class PassengerActivity extends SimpleMapActivity
 
                 // Move Camera
                 if (pickupPlace != null && dropPlace != null) {
-                    cameraManager.moveCam(pickupPlace.func_getLatLngLocation(), dropPlace.func_getLatLngLocation());
+                    cameraManager.moveCam(50,530,50,300 ,pickupPlace.func_getLatLngLocation(), dropPlace.func_getLatLngLocation());
                     updateDistanceAndDuration();
                 }
                 else if (pickupPlace != null) {
@@ -1198,6 +1198,9 @@ public class PassengerActivity extends SimpleMapActivity
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);      // set Callback listener
         isFirstGetLocation = false;
+
+        myLocationButton_padBot = 380;
+        myLocationButton_padRight = 50;
 
         geocoder = new Geocoder(this, Locale.getDefault());
 

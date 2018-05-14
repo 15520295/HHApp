@@ -8,9 +8,11 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
@@ -57,12 +59,14 @@ import java.util.Collections;
 import java.util.List;
 
 import cn.bingoogolapple.titlebar.BGATitleBar;
+import de.hdodenhof.circleimageview.CircleImageView;
 
 
 public class PassengerRequestManagerActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener{
 
     private static final int CREATE_PASSENGER_REQUEST_CODE = 1;
+    private static final int CALL_PERMISSION_REQUEST_CODE = 5;
     BGATitleBar titleBar;
     RecyclerView rycv_passenger_request;
     FloatingActionButton fab_add_request;
@@ -385,7 +389,7 @@ public class PassengerRequestManagerActivity extends AppCompatActivity
         PassengerRequest request = passengerRequests.get(position);
         PassengerRequestState state = request.getPassengerRequestState();
 
-        if (request.func_isInTheFuture()) {
+        if (! request.func_isInTheFuture()) {
             if (command == "Delete") {
                 // change state on server
                 dbRefe.child(Define.DB_PASSENGER_REQUESTS)
@@ -404,7 +408,7 @@ public class PassengerRequestManagerActivity extends AppCompatActivity
                         .buttonRippleColorRes(R.color.title_bar_background_color)
                         .show();
             }
-            
+
             return;
         }
         else if (state == PassengerRequestState.FOUND_DRIVER) {
@@ -490,7 +494,8 @@ public class PassengerRequestManagerActivity extends AppCompatActivity
 
     private void setUpDialogInfo(final UserInfo driverInfo) {
         MaterialFancyButton btnMessage, btnCall;
-        TextView tvName, tvPhone;
+        TextView tvName, tvPhone, tv_yob;
+        CircleImageView civProfilePic;
 
         dialogInfo = new Dialog(PassengerRequestManagerActivity.this);
         dialogInfo.setContentView(R.layout.info_user);
@@ -499,14 +504,20 @@ public class PassengerRequestManagerActivity extends AppCompatActivity
         btnCall = dialogInfo.findViewById(R.id.btn_call);
         tvName = dialogInfo.findViewById(R.id.tvName);
         tvPhone = dialogInfo.findViewById(R.id.tvPhone);
+        tv_yob = dialogInfo.findViewById(R.id.tv_yob);
+        civProfilePic = dialogInfo.findViewById(R.id.civProfilePic);
 
         tvName.setText(driverInfo.getName());
-        tvPhone.setText("SDT: " + driverInfo.getPhoneNumber());
+        tvPhone.setText(driverInfo.getPhoneNumber());
+        tv_yob.setText(driverInfo.getYearOfBirth());
+        civProfilePic.setImageBitmap(ImageUtils.base64ToBitmap(driverInfo.getPhoto()));
 
         btnMessage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(getApplicationContext(), "Open Messenger", Toast.LENGTH_LONG).show();
+                Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("sms:" + driverInfo.getPhoneNumber()));
+                intent.putExtra("sms_body", "");
+                startActivity(intent);
                 dialogInfo.dismiss();
             }
         });
@@ -524,13 +535,28 @@ public class PassengerRequestManagerActivity extends AppCompatActivity
                         dialogInfo.dismiss();
 
                     } else {
-                        ActivityCompat.requestPermissions(PassengerRequestManagerActivity.this, new String[]{Manifest.permission.CALL_PHONE}, 1001);
+                        ActivityCompat.requestPermissions(PassengerRequestManagerActivity.this, new String[]{Manifest.permission.CALL_PHONE}, CALL_PERMISSION_REQUEST_CODE);
                     }
                 }
             }
         });
 
         dialogInfo.show();
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        switch (requestCode) {
+            case CALL_PERMISSION_REQUEST_CODE:
+                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    Toast.makeText(this, R.string.call_permission_granted, Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(this, R.string.call_permission_not_granted, Toast.LENGTH_SHORT).show();
+                }
+                break;
+            default:
+                super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        }
     }
 
     //endregion

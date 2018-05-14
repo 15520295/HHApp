@@ -158,7 +158,6 @@ public class RouteRequestManagerActivity extends AppCompatActivity
     }
 
 
-
     //region -------------- Route request & Change Route Request State ----------------
 
     private void handleResultCreateRoute(int requestCode, int resultCode, Intent data) {
@@ -234,7 +233,6 @@ public class RouteRequestManagerActivity extends AppCompatActivity
                         .buttonRippleColorRes(R.color.title_bar_background_color)
                         .show();
             }
-
 
             return;
         }
@@ -353,8 +351,6 @@ public class RouteRequestManagerActivity extends AppCompatActivity
         }).execute("");
     }
 
-
-
     private static class FindPassengerRequestAsynchronous extends AsyncTask<String, Void, String> {
 
         RouteRequest routeRequest;
@@ -430,7 +426,8 @@ public class RouteRequestManagerActivity extends AppCompatActivity
                     // check all the condition
                     if (passengerRequest.getPassengerRequestState() == PassengerRequestState.FINDING_DRIVER
                             && passengerRequest.getTripFareInfo().getCarType() == routeRequest.getCarType()
-                            && passengerRequest.func_isInTheFuture())
+                            && passengerRequest.func_isInTheFuture()
+                            && ! passengerRequest.getPassengerUId().equals(FirebaseAuth.getInstance().getCurrentUser().getUid()))
                     {
                         Date passengerRequestStartTime = passengerRequest.func_getStartTimeAsDate();
                         Date driverRequestStartTime = routeRequest.func_getStartTimeAsDate();

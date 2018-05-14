@@ -304,7 +304,8 @@ public class FindingDriverActivity extends AppCompatActivity {
 
                 if (routeRequest.getRouteRequestState() == RouteRequestState.FINDING_PASSENGER
                         && routeRequest.getCarType() == carType
-                        && routeRequest.func_isInTheFuture()) {
+                        && routeRequest.func_isInTheFuture()
+                        && ! routeRequest.getDriverUId().equals(getCurUid())) {
 //                    LatLng latLng_startLocation = request.getStartPlace().func_getLatLngLocation();
 //                    // check validate HH request before add to list
 //                    if ((LocationUtils.calcDistance(latLng_startLocation, mLastLocation) < limitHHRadius)
