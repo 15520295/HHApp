@@ -223,8 +223,7 @@ public class PassengerRequestManagerActivity extends AppCompatActivity
                                     .child(Define.DB_ROUTE_REQUESTS_NOTIFY_TRIP)
                                     .setValue(notifyTrip);
 
-                            // notify driver
-                            //todo: notify Notification
+                            // todo: notification
                             Toast.makeText(getApplicationContext(),"Found your driver",Toast.LENGTH_LONG).show();
                             refreshList(false);
                         }
