@@ -47,6 +47,7 @@ import com.example.huydaoduc.hieu.chi.hhapp.Main.AboutApp;
 import com.example.huydaoduc.hieu.chi.hhapp.Main.AboutUser;
 import com.example.huydaoduc.hieu.chi.hhapp.Main.CurUserInfo;
 import com.example.huydaoduc.hieu.chi.hhapp.Main.Driver.RouteRequestManager.RouteRequestManagerActivity;
+import com.example.huydaoduc.hieu.chi.hhapp.Main.Passenger.PassengerRequestManager.PassengerRequestManagerActivity;
 import com.example.huydaoduc.hieu.chi.hhapp.Model.Passenger.PassengerRequest;
 import com.example.huydaoduc.hieu.chi.hhapp.Framework.TimeUtils;
 import com.example.huydaoduc.hieu.chi.hhapp.Model.Passenger.PassengerRequestState;
@@ -1255,7 +1256,8 @@ public class PassengerActivity extends SimpleMapActivity
 
             @Override
             public void onClickRightCtv() {
-
+                Intent intent = new Intent(getApplicationContext(), PassengerRequestManagerActivity.class);
+                PassengerActivity.this.startActivity(intent);
             }
 
             @Override

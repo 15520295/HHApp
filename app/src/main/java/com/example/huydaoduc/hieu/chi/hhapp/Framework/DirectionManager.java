@@ -100,9 +100,7 @@ public class DirectionManager {
         for (Route route : routes) {
 
             for (Leg leg : route.getLegs()) {
-                //todo: show Duration + Distance
-                Toast.makeText(context, "Duration + Distance: " + leg.getDuration().getValue() + ", " + leg.getDistance().getValue(), Toast.LENGTH_LONG)
-                        .show();
+                Log.i(TAG, "Duration + Distance: " + leg.getDuration().getValue() + ", " + leg.getDistance().getValue());
 
                 PolylineOptions polylineOptions = new PolylineOptions().
                         geodesic(true).

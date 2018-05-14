@@ -85,6 +85,8 @@ public class VerifyPhoneActivity extends AppCompatActivity {
                         public void onClick(View v) {
                             Intent intent = new Intent(getApplicationContext(),EnterPhoneNumberActivity.class);
                             VerifyPhoneActivity.this.startActivity(intent);
+                            hideLoading();
+                            finish();
                         }
                     }).show();
         } else {
@@ -134,9 +136,12 @@ public class VerifyPhoneActivity extends AppCompatActivity {
                                                 Intent intent = new Intent(getApplicationContext(), MainActivity.class);
                                                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP|Intent.FLAG_ACTIVITY_SINGLE_TOP);
                                                 VerifyPhoneActivity.this.startActivity(intent);
+                                                hideLoading();
+                                                finish();
                                             } else {
                                                 Intent intent = new Intent(getApplicationContext(), UpdateInfoActivity.class);
                                                 VerifyPhoneActivity.this.startActivity(intent);
+                                                hideLoading();
                                             }
                                         }
 
@@ -348,9 +353,12 @@ public class VerifyPhoneActivity extends AppCompatActivity {
                                         Intent intent = new Intent(getApplicationContext(), MainActivity.class);
                                         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP|Intent.FLAG_ACTIVITY_SINGLE_TOP);
                                         VerifyPhoneActivity.this.startActivity(intent);
+                                        hideLoading();
+                                        finish();
                                     } else {
                                         Intent intent = new Intent(getApplicationContext(), UpdateInfoActivity.class);
                                         VerifyPhoneActivity.this.startActivity(intent);
+                                        hideLoading();
                                     }
                                 }
 

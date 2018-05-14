@@ -7,6 +7,7 @@ import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.huydaoduc.hieu.chi.hhapp.R;
 import com.google.firebase.auth.FirebaseAuth;
@@ -60,6 +61,10 @@ public class PhoneAuthActivity extends AppCompatActivity {
         firebaseAuth = FirebaseAuth.getInstance();
 
         // Events
+        tv_connect_social.setOnClickListener(v ->{
+            Toast.makeText(getApplicationContext(), "Login With Social Feature Is Coming Soon!", Toast.LENGTH_LONG).show();
+        });
+
         tv_request.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

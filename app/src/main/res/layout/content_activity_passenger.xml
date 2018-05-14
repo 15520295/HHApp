@@ -25,7 +25,9 @@
         app:bgatitlebar_leftDrawablePadding="15dp"
         app:bgatitlebar_leftDrawable="@drawable/ic_menu_white"
         app:bgatitlebar_leftMaxWidth="500dp"
-        app:bgatitlebar_rightText="Your Requests"
+        app:bgatitlebar_titleText="Book your trip"
+        app:bgatitlebar_rightDrawable="@drawable/ic_list_white"
+        app:bgatitlebar_rightDrawablePadding="15dp"
         app:bgatitlebar_rightMaxWidth="500dp"
         />
 </RelativeLayout>

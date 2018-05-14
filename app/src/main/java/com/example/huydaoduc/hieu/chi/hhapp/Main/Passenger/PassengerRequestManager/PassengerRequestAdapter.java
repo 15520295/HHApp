@@ -57,7 +57,7 @@ public class PassengerRequestAdapter extends BaseQuickAdapter<PassengerRequest, 
         if (! passengerRequest.func_isInTheFuture()) {
             helper.setVisible(R.id.prb_finding_passenger, false);
             helper.setVisible(R.id.iv_pause, false);
-            helper.setText(R.id.btn_request_state, DefineString.PASSENGER_REQUEST_STATE_MAP.get(PassengerRequestState.DONE));
+//            helper.setText(R.id.btn_request_state, DefineString.PASSENGER_REQUEST_STATE_MAP.get(PassengerRequestState.DONE));
         }
 
 

@@ -45,7 +45,22 @@ public class SplashActivity extends AppCompatActivity {
         ivSplash = findViewById(R.id.imageView);
         Animation animation = AnimationUtils.loadAnimation(this,R.anim.anim_acitivity_splash);
         ivSplash.setAnimation(animation);
-        animation.setAnimationListener((Animation.AnimationListener) this);
+        animation.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
+                
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {
+
+            }
+        });
 
 
 
