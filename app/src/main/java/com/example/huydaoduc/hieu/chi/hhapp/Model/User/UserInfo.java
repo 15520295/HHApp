@@ -1,10 +1,7 @@
 package com.example.huydaoduc.hieu.chi.hhapp.Model.User;
 
-import android.net.Uri;
 import android.os.Parcel;
 import android.os.Parcelable;
-
-import com.example.huydaoduc.hieu.chi.hhapp.Model.Car.CarInfo;
 
 import java.util.List;
 
@@ -14,7 +11,7 @@ public class UserInfo implements Parcelable {
     private String phoneNumber;
     private String name;
     private String yearOfBirth;
-    private Uri photoUri;
+    private String photo;
     //todo : private Integer cancelPercent;
 
     private List<String> trips;
@@ -23,12 +20,12 @@ public class UserInfo implements Parcelable {
 
     }
 
-    public UserInfo(String uid, String phoneNumber, String name, String yearOfBirth, Uri photoUri, List<String> trips) {
+    public UserInfo(String uid, String phoneNumber, String name, String yearOfBirth, String photo, List<String> trips) {
         this.uid = uid;
         this.phoneNumber = phoneNumber;
         this.name = name;
         this.yearOfBirth = yearOfBirth;
-        this.photoUri = photoUri;
+        this.photo = photo;
         this.trips = trips;
     }
 
@@ -64,12 +61,12 @@ public class UserInfo implements Parcelable {
         this.yearOfBirth = yearOfBirth;
     }
 
-    public Uri getPhotoUri() {
-        return photoUri;
+    public String getPhoto() {
+        return photo;
     }
 
-    public void setPhotoUri(Uri photoUri) {
-        this.photoUri = photoUri;
+    public void setPhoto(String photo) {
+        this.photo = photo;
     }
 
     public List<String> getTrips() {
@@ -85,7 +82,7 @@ public class UserInfo implements Parcelable {
         private String phoneNumber;
         private String name;
         private String yearOfBirth;
-        private Uri photoUri;
+        private String photo;
         private List<String> trips;
 
         private Builder() {
@@ -94,7 +91,6 @@ public class UserInfo implements Parcelable {
         public static Builder anUserInfo(String uid) {
             return new Builder().setUid(uid);
         }
-
 
         private Builder setUid(String uid) {
             this.uid = uid;
@@ -116,8 +112,8 @@ public class UserInfo implements Parcelable {
             return this;
         }
 
-        public Builder setPhotoUri(Uri photoUri) {
-            this.photoUri = photoUri;
+        public Builder setPhoto(String photo) {
+            this.photo = photo;
             return this;
         }
 
@@ -132,7 +128,7 @@ public class UserInfo implements Parcelable {
             userInfo.setPhoneNumber(phoneNumber);
             userInfo.setName(name);
             userInfo.setYearOfBirth(yearOfBirth);
-            userInfo.setPhotoUri(photoUri);
+            userInfo.setPhoto(photo);
             userInfo.setTrips(trips);
             return userInfo;
         }
@@ -149,7 +145,7 @@ public class UserInfo implements Parcelable {
         dest.writeString(this.phoneNumber);
         dest.writeString(this.name);
         dest.writeString(this.yearOfBirth);
-        dest.writeParcelable(this.photoUri, flags);
+        dest.writeString(this.photo);
         dest.writeStringList(this.trips);
     }
 
@@ -158,7 +154,7 @@ public class UserInfo implements Parcelable {
         this.phoneNumber = in.readString();
         this.name = in.readString();
         this.yearOfBirth = in.readString();
-        this.photoUri = in.readParcelable(Uri.class.getClassLoader());
+        this.photo = in.readString();
         this.trips = in.createStringArrayList();
     }
 

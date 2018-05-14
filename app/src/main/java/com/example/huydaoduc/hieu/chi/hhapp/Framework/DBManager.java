@@ -1,6 +1,7 @@
 package com.example.huydaoduc.hieu.chi.hhapp.Framework;
 
 import com.example.huydaoduc.hieu.chi.hhapp.Define;
+import com.example.huydaoduc.hieu.chi.hhapp.Model.Passenger.PassengerRequest;
 import com.example.huydaoduc.hieu.chi.hhapp.Model.Trip.Trip;
 import com.example.huydaoduc.hieu.chi.hhapp.Model.User.OnlineUser;
 import com.example.huydaoduc.hieu.chi.hhapp.Model.User.UserInfo;
@@ -80,6 +81,31 @@ public class DBManager {
 
     public interface GetTripListener {
         void OnGetDataDone(Trip trip);
+    }
+
+    public static void getPassengerRequestById(String passengerRequestUId, String passengerUId, final GetPassengerRequestListener listener) {
+        DatabaseReference db = FirebaseDatabase.getInstance().getReference(Define.DB_PASSENGER_REQUESTS);
+
+        db
+                .child(passengerUId)
+                .child(passengerRequestUId)
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        PassengerRequest passengerRequest = dataSnapshot.getValue(PassengerRequest.class);
+                        assert passengerRequest != null;
+                        listener.OnGetDataDone(passengerRequest);
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                });
+    }
+
+    public interface GetPassengerRequestListener {
+        void OnGetDataDone(PassengerRequest passengerRequest);
     }
 
 }

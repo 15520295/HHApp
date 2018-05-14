@@ -55,8 +55,11 @@ public class SimpleMapActivity extends AppCompatActivity implements
 
     protected SupportMapFragment mapFragment;
 
+
+
     public SimpleMapListener simpleMapListener;
     protected boolean setupCheckRealtime;
+
 
     public interface SimpleMapListener {
         void OnRealTimeLocationUpdate();
@@ -247,6 +250,9 @@ public class SimpleMapActivity extends AppCompatActivity implements
 
     //region ------ My Location Button --------
 
+    protected int myLocationButton_padBot = 30;
+    protected int myLocationButton_padRight = 30;
+
     @SuppressLint("MissingPermission")
     protected void initMyLocationButton() {
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -264,7 +270,7 @@ public class SimpleMapActivity extends AppCompatActivity implements
         // position on right bottom
         rlp.addRule(RelativeLayout.ALIGN_PARENT_TOP, 0);
         rlp.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM, RelativeLayout.TRUE);
-        rlp.setMargins(0, 0, 30, 30);
+        rlp.setMargins(0, 0, myLocationButton_padRight, myLocationButton_padBot);
     }
 
     @Override
@@ -318,7 +324,7 @@ public class SimpleMapActivity extends AppCompatActivity implements
     protected MapCameraManager cameraManager;
 
     protected void initCameraManager() {
-        cameraManager = new MapCameraManager(mMap);
+        cameraManager = new MapCameraManager(getApplicationContext(),mMap);
     }
 
     //endregion

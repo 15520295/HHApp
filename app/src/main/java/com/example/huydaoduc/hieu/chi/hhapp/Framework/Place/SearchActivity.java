@@ -44,20 +44,19 @@ import java.util.TimerTask;
 /**
  * Created by anuj.sharma on 4/6/2016.
  * Customize by Phan Huu Chi on 4/2018 : ALTERNATIVE search with bound = "current_location + radius"  -- use GeoDataClient instead of GeoDataAPI changes made in PlaceAutocompleteAdapter( getAutocomplete )
- *                                       result will depend on the "bound" ( not STRICT to the bound ) see more: https://developers.google.com/android/reference/com/google/android/gms/location/places/GeoDataClient.BoundsMode
- *
- *                                       result also depend on the country by using AutocompleteFilter
- *
- *                                      note: result only return up to 5 place ( Google doc )
- *                                      if want more place use web service backend search: -- load file Json and parse to object
- *                                      https://stackoverflow.com/questions/7255523/google-places-api-number-of-results
- *                                      https://developers.google.com/places/web-service/search
- *
- *                                      View Update:
- *                                      Primary text, Secondary text split
- *
- *                                      add Saved Place
- *
+ * result will depend on the "bound" ( not STRICT to the bound ) see more: https://developers.google.com/android/reference/com/google/android/gms/location/places/GeoDataClient.BoundsMode
+ * <p>
+ * result also depend on the country by using AutocompleteFilter
+ * <p>
+ * note: result only return up to 5 place ( Google doc )
+ * if want more place use web service backend search: -- load file Json and parse to object
+ * https://stackoverflow.com/questions/7255523/google-places-api-number-of-results
+ * https://developers.google.com/places/web-service/search
+ * <p>
+ * View Update:
+ * Primary text, Secondary text split
+ * <p>
+ * add Saved Place
  */
 //todo: change to dynamic country + add saved place
 //todo: sap xep dua tren khoan cach( xem grab )
@@ -77,7 +76,7 @@ public class SearchActivity extends AppCompatActivity implements
     LinearLayoutManager llm;
     PlaceAutocompleteAdapter mAdapter;
     List<SavedAddress> mSavedAddressList;
-//    PlaceSavedAdapter mSavedAdapter;
+    //    PlaceSavedAdapter mSavedAdapter;
     LatLngBounds bounds;
 
     ProgressBar loadingBar;
@@ -122,7 +121,7 @@ public class SearchActivity extends AppCompatActivity implements
         Double radius;
         if (savedInstanceState == null) {
             Bundle extras = getIntent().getExtras();
-            if(extras == null) {
+            if (extras == null) {
                 cur_lat = 0.0;
                 cur_lng = 0.0;
                 radius = 0.0;
@@ -140,9 +139,8 @@ public class SearchActivity extends AppCompatActivity implements
         // Handle null
         if (cur_lat == 0.0 && cur_lng == 0.0) {
             bounds = new LatLngBounds(new LatLng(-0, 0), new LatLng(0, 0));
-        }
-        else
-            bounds = LocationUtils.pointToBounds(new LatLng(cur_lat, cur_lng),radius);
+        } else
+            bounds = LocationUtils.pointToBounds(new LatLng(cur_lat, cur_lng), radius);
 
         initViews();
     }
@@ -150,17 +148,17 @@ public class SearchActivity extends AppCompatActivity implements
     /*
         Initialize Views
     */
-    private void initViews(){
+    private void initViews() {
         loadingBar = findViewById(R.id.prb_loading);
-        mRecyclerView = (RecyclerView)findViewById(R.id.list_search);
+        mRecyclerView = (RecyclerView) findViewById(R.id.list_search);
 
         mRecyclerView.setHasFixedSize(true);
         llm = new FixRecyclerViewManager(mContext);
         mRecyclerView.setLayoutManager(llm);
 
 
-        mSearchEdittext = (EditText)findViewById(R.id.search_et);
-        mClear = (ImageView)findViewById(R.id.clear);
+        mSearchEdittext = (EditText) findViewById(R.id.search_et);
+        mClear = (ImageView) findViewById(R.id.clear);
 
         btn_place_picker = findViewById(R.id.btn_place_picker);
 
@@ -212,15 +210,15 @@ public class SearchActivity extends AppCompatActivity implements
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == PLACE_PICKER_REQUEST) {
             if (resultCode == RESULT_OK) {
-                Place place = PlacePicker.getPlace(getApplicationContext(),data);
+                Place place = PlacePicker.getPlace(getApplicationContext(), data);
                 // Return result
-                Intent returnIntent  = new Intent();
+                Intent returnIntent = new Intent();
                 returnIntent.putExtra("place_id", place.getId());
-                returnIntent.putExtra("place_primary_text", place.getAddress());
+                returnIntent.putExtra("place_primary_text", LocationUtils.getPrimaryTextFromAddress(place.getAddress().toString()));
                 returnIntent.putExtra("place_location", LocationUtils.latLngToStr(place.getLatLng()));
                 returnIntent.putExtra("place_address", place.getAddress());
 
-                setResult(SearchActivity.RESULT_OK, returnIntent );
+                setResult(SearchActivity.RESULT_OK, returnIntent);
 
                 SearchActivity.this.finish();
             }
@@ -247,7 +245,7 @@ public class SearchActivity extends AppCompatActivity implements
                 }
             }
 
-            private Timer timer=new Timer();
+            private Timer timer = new Timer();
             private final long DELAY = 700; // milliseconds -- waiting 1s after text change to filter list
 
             @Override
@@ -268,12 +266,12 @@ public class SearchActivity extends AppCompatActivity implements
                 timer.cancel();
                 timer = new Timer();
                 timer.schedule(new TimerTask() {
-                            @Override
-                            public void run() {
-                                Message message = mHandler.obtainMessage();
-                                message.sendToTarget();
-                            }
-                        },
+                                   @Override
+                                   public void run() {
+                                       Message message = mHandler.obtainMessage();
+                                       message.sendToTarget();
+                                   }
+                               },
                         DELAY
                 );
 
@@ -297,12 +295,13 @@ public class SearchActivity extends AppCompatActivity implements
 
     /**
      * On Place Click
+     *
      * @param mResultList
      * @param position
      */
     @Override
     public void onPlaceClick(ArrayList<PlaceAutocompleteAdapter.CusPlaceAutocomplete> mResultList, int position) {
-        if(mResultList!=null){
+        if (mResultList != null) {
             try {
                 final PlaceAutocompleteAdapter.CusPlaceAutocomplete place = mResultList.get(position);
                 String placeId = String.valueOf(place.placeId);
@@ -318,13 +317,13 @@ public class SearchActivity extends AppCompatActivity implements
                                     placeLocation = places.get(0).getLatLng();
 
                                     // Return result
-                                    Intent returnIntent  = new Intent();
+                                    Intent returnIntent = new Intent();
                                     returnIntent.putExtra("place_id", placeId);
                                     returnIntent.putExtra("place_primary_text", placePrimaryText);
                                     returnIntent.putExtra("place_location", LocationUtils.latLngToStr(placeLocation));
                                     returnIntent.putExtra("place_address", placeFullText);
 
-                                    setResult(SearchActivity.RESULT_OK, returnIntent );
+                                    setResult(SearchActivity.RESULT_OK, returnIntent);
 
                                     SearchActivity.this.finish();
                                 }
@@ -333,9 +332,7 @@ public class SearchActivity extends AppCompatActivity implements
                         });
 
 
-
-            }
-            catch (Exception e){
+            } catch (Exception e) {
 
             }
 
@@ -344,31 +341,29 @@ public class SearchActivity extends AppCompatActivity implements
 
     @Override
     public void onSavedPlaceClick(ArrayList<SavedAddress> mResultList, int position) {
-        if(mResultList!=null){
+        if (mResultList != null) {
             try {
                 Intent data = new Intent();
-                data.putExtra("lat",String.valueOf(mResultList.get(position).getLatitude()));
+                data.putExtra("lat", String.valueOf(mResultList.get(position).getLatitude()));
                 data.putExtra("lng", String.valueOf(mResultList.get(position).getLongitude()));
                 setResult(SearchActivity.RESULT_OK, data);
                 finish();
-            }
-            catch (Exception e){
-                Log.e(TAG,e.getMessage());
+            } catch (Exception e) {
+                Log.e(TAG, e.getMessage());
             }
         }
     }
 
 
-
     private void runLoadingProcess() {
-        if(loadingBar.getVisibility() == View.INVISIBLE)
+        if (loadingBar.getVisibility() == View.INVISIBLE)
             loadingBar.setVisibility(View.VISIBLE);
 
     }
 
     private void stopLoadingProcess() {
         // todo: not done
-        if(loadingBar.getVisibility() == View.VISIBLE)
+        if (loadingBar.getVisibility() == View.VISIBLE)
             loadingBar.setVisibility(View.INVISIBLE);
     }
 

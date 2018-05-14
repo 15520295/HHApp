@@ -137,11 +137,11 @@
         android:layout_width="244dp"
         android:layout_height="wrap_content"
         android:layout_alignEnd="@id/group_code"
-        android:layout_alignStart="@id/group_code"
+        android:layout_alignStart="@id/tv_phone_number"
         android:layout_below="@+id/group_code"
         android:layout_marginEnd="6dp"
         android:layout_marginStart="6dp"
-        android:layout_marginTop="6dp"
+        android:layout_marginTop="@dimen/margin_default_25"
         android:text="Please input the code"
         android:textColor="@color/color_error"
         android:textSize="16sp"/>
@@ -162,11 +162,15 @@
         tools:ignore="OnClick" />
 
     <TextView
-        android:id="@+id/tv_connect_social"
+        android:id="@+id/tv_resend_code"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
         android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginBottom="13dp"
-        android:text="TextView" />
+        android:layout_marginStart="@dimen/margin_default_25"
+        android:layout_marginTop="@dimen/margin_default_25"
+        android:layout_marginBottom="@dimen/margin_default_25"
+        android:text="Resend code"
+        android:textColor="@color/text_link"
+        android:textSize="@dimen/text_size_small" />
 </RelativeLayout>

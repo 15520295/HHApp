@@ -1,6 +1,7 @@
 package com.example.huydaoduc.hieu.chi.hhapp.Main.Passenger;
 
 import android.Manifest;
+import android.app.Activity;
 import android.app.Dialog;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -29,16 +30,20 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.afollestad.materialdialogs.GravityEnum;
 import com.afollestad.materialdialogs.MaterialDialog;
+import com.example.huydaoduc.hieu.chi.hhapp.ActivitiesAuth.UpdateInfoActivity;
 import com.example.huydaoduc.hieu.chi.hhapp.Define;
 import com.example.huydaoduc.hieu.chi.hhapp.DefineString;
 import com.example.huydaoduc.hieu.chi.hhapp.Framework.DBManager;
 import com.example.huydaoduc.hieu.chi.hhapp.Framework.Direction.DirectionFinderListener;
 import com.example.huydaoduc.hieu.chi.hhapp.Framework.Direction.Leg;
 import com.example.huydaoduc.hieu.chi.hhapp.Framework.Direction.Route;
+import com.example.huydaoduc.hieu.chi.hhapp.Framework.ImageUtils;
 import com.example.huydaoduc.hieu.chi.hhapp.Framework.LocationUtils;
 import com.example.huydaoduc.hieu.chi.hhapp.Framework.Place.SavedPlace;
 import com.example.huydaoduc.hieu.chi.hhapp.Framework.Place.SearchActivity;
@@ -47,7 +52,12 @@ import com.example.huydaoduc.hieu.chi.hhapp.Main.AboutApp;
 import com.example.huydaoduc.hieu.chi.hhapp.Main.AboutUser;
 import com.example.huydaoduc.hieu.chi.hhapp.Main.Driver.PassengerRequestInfoActivity;
 import com.example.huydaoduc.hieu.chi.hhapp.Model.PassengerRequest;
+import com.example.huydaoduc.hieu.chi.hhapp.Main.CurUserInfo;
+import com.example.huydaoduc.hieu.chi.hhapp.Main.Driver.RouteRequestManager.RouteRequestManagerActivity;
+import com.example.huydaoduc.hieu.chi.hhapp.Main.Passenger.PassengerRequestManager.PassengerRequestManagerActivity;
+import com.example.huydaoduc.hieu.chi.hhapp.Model.Passenger.PassengerRequest;
 import com.example.huydaoduc.hieu.chi.hhapp.Framework.TimeUtils;
+import com.example.huydaoduc.hieu.chi.hhapp.Model.Passenger.PassengerRequestState;
 import com.example.huydaoduc.hieu.chi.hhapp.Model.Trip.Trip;
 import com.example.huydaoduc.hieu.chi.hhapp.Model.Trip.TripState;
 import com.example.huydaoduc.hieu.chi.hhapp.Model.Trip.TripType;
@@ -62,8 +72,11 @@ import com.example.huydaoduc.hieu.chi.hhapp.ActivitiesAuth.PhoneAuthActivity;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.rilixtech.materialfancybutton.MaterialFancyButton;
 import com.wdullaer.materialdatetimepicker.date.DatePickerDialog;
 import com.wdullaer.materialdatetimepicker.time.TimePickerDialog;
@@ -72,6 +85,8 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
+
+import cn.bingoogolapple.titlebar.BGATitleBar;
 
 import static com.google.android.gms.location.LocationServices.getFusedLocationProviderClient;
 
@@ -86,8 +101,7 @@ public class PassengerActivity extends SimpleMapActivity
     private static final int FIND_DRIVER_REQUEST_CODE = 80;
     private static final int SELECT_CAR_TYPE_REQUEST_CODE = 81;
 
-    private Button btnMessage, btnCall;
-    private TextView tvName, tvPhone;
+    BGATitleBar titlebar;
 
     Button btn_cd_note, btn_cd_wait_time;
 
@@ -98,15 +112,11 @@ public class PassengerActivity extends SimpleMapActivity
 
     private CardView group_trip_info;
 
-    //------------------------------------ Chi :
-
     // Activity Property
     Geocoder geocoder;
 
-
     private UserState userState;
 
-    Dialog dialogInfo;
     DatabaseReference dbRefe;
 
     NotifyService notifyService = new NotifyService();
@@ -120,23 +130,24 @@ public class PassengerActivity extends SimpleMapActivity
     public void OnMapSetupDone() {
         if (mLastLocation != null) {
             String startAddress = LocationUtils.getLocationAddress(geocoder, mLastLocation);
+            if (! TextUtils.isEmpty(startAddress)) {
+                getPickupPlaceInstance().setAddress(startAddress);
+                getPickupPlaceInstance().setLocation(LocationUtils.locaToStr(mLastLocation));
+                getPickupPlaceInstance().setPrimaryText(startAddress);
 
-            getPickupPlaceInstance().setAddress(startAddress);
-            getPickupPlaceInstance().setLocation(LocationUtils.locaToStr(mLastLocation));
-            getPickupPlaceInstance().setPrimaryText(startAddress);
+                btn_pickupLocation.setText(getPickupPlaceInstance().getPrimaryText());
+                btn_pickupLocation.setSelected(true);
 
-            btn_pickupLocation.setText(getPickupPlaceInstance().getPrimaryText());
-            btn_pickupLocation.setSelected(true);
+                markerManager.draw_PickupPlaceMarker(getPickupPlaceInstance());
 
-            markerManager.draw_PickupPlaceMarker(getPickupPlaceInstance());
-
+                notifyBtnState();
+            }
             notifyBtnState();
         } else {
             btn_pickupLocation.setText(R.string.enter_pick_up);
             btn_pickupLocation.setSelected(true);
         }
     }
-
 
     //region ------ Real time checking --------
 
@@ -153,7 +164,6 @@ public class PassengerActivity extends SimpleMapActivity
 
     //endregion
 
-
     Boolean isDriverFound;      // --> use for synchronous purpose
     boolean notFoundHH;      // --> use for synchronous purpose
     boolean hhMode;
@@ -161,6 +171,7 @@ public class PassengerActivity extends SimpleMapActivity
     Float estimateFare;
 
     // new Start Booking
+
     private void startBooking() {
         //todo: put hhMode to screen
         hhMode = true;
@@ -176,34 +187,38 @@ public class PassengerActivity extends SimpleMapActivity
             waitMinute = DefineString.WAIT_TIME_MAP.get(waitMinuteStr);
 
         String notes = btn_cd_note.getText().toString();
-        if (notes.equals(DefineString.NOTES_TO_DRIVER_HINT))
+        if(notes.equals(DefineString.NOTES_TO_DRIVER_TITLE))
             notes = null;
 
         // create a trip
         String tripUId = dbRefe.child(Define.DB_TRIPS).push().getKey();
+        String passengerRequestUId = dbRefe.child(Define.DB_PASSENGER_REQUESTS).child(getCurUid()).push().getKey();
 
-        Trip trip = Trip.Builder.aTrip(tripUId)
-                .setPassengerUId(getCurUid())
-                .setTripFareInfo(getCurTripFareInfoInstance())
-                .build();
 
         // Set up Trip
         // todo: handle car type, notes
         // create Passenger Request
-        PassengerRequest passengerRequest = PassengerRequest.Builder.aPassengerRequest(getCurUid())
+        PassengerRequest passengerRequest = PassengerRequest.Builder.aPassengerRequest(passengerRequestUId)
+                .setPassengerUId(getCurUid())
                 .setPickUpSavePlace(getPickupPlaceInstance())
                 .setDropOffSavePlace(getDropPlaceInstance())
                 .setNote(notes)
                 .setWaitMinute(waitMinute)
+                .setTripFareInfo(getCurTripFareInfoInstance())
+                .setPassengerRequestState(PassengerRequestState.FINDING_DRIVER)
                 .build();
 
-        trip.setTripState(TripState.WAITING_ACCEPT);
-        trip.setTripType(TripType.HH);
-        trip.setPassengerRequest(passengerRequest);
+        Trip trip = Trip.Builder.aTrip(tripUId)
+                .setPassengerUId(getCurUid())
+                .setPassengerRequestUId(passengerRequest.getPassengerRequestUId())
+                .setTripState(TripState.WAITING_ACCEPT)
+                .setTripType(TripType.HH)
+                .build();
 
         Intent intent = new Intent(getApplicationContext(), FindingDriverActivity.class);
         intent.putExtra("trip", trip);
-        PassengerActivity.this.startActivityForResult(intent, FIND_DRIVER_REQUEST_CODE);
+        intent.putExtra("passengerRequest", passengerRequest);
+        PassengerActivity.this.startActivityForResult(intent,FIND_DRIVER_REQUEST_CODE);
     }
 
 
@@ -367,7 +382,7 @@ public class PassengerActivity extends SimpleMapActivity
 //        if (hhMode) {
 //            findMatchingHH(trip, TimeUtils.getCurrentTimeAsDate(), waitMinute, new FindHHCompleteListener() {
 //                        @Override
-//                        public void OnLoopThoughAllRequestHH() {
+//                        public void OnLoopThroughAllRequestHH() {
 //                            synchronized (isDriverFound)
 //                            {
 //                                //todo:v2
@@ -420,7 +435,7 @@ public class PassengerActivity extends SimpleMapActivity
 //    //region ------------ Find matching Active Driver
 //
 //    interface FindActiveDriverListener {
-//        void OnLoopThoughAllRequestHH();
+//        void OnLoopThroughAllRequestHH();
 //        void OnFoundDriverRequest(RouteRequest request);
 //    }
 //
@@ -438,7 +453,7 @@ public class PassengerActivity extends SimpleMapActivity
 //    // interface for raise loop thought all list event
 //    // synchronized keyword for locking the Boolean variable
 //    interface FindHHCompleteListener {
-//        void OnLoopThoughAllRequestHH();
+//        void OnLoopThroughAllRequestHH();
 //        void OnFoundDriverRequest(RouteRequest request);
 //    }
 //
@@ -459,7 +474,7 @@ public class PassengerActivity extends SimpleMapActivity
 //
 //                // if list null raise event
 //                if (routeRequestsFiltered.size() == 0) {
-//                    listener.OnLoopThoughAllRequestHH();
+//                    listener.OnLoopThroughAllRequestHH();
 //                }
 //            }
 //
@@ -592,7 +607,7 @@ public class PassengerActivity extends SimpleMapActivity
 //
 //                                                // raise event loop thought all request if last element
 //                                                if (routeRequestsFiltered.size() == itemIndex + 1) {
-//                                                    listener.OnLoopThoughAllRequestHH();
+//                                                    listener.OnLoopThroughAllRequestHH();
 //                                                    Log.i(TAG, "Loop thought all HH request");
 //                                                }
 //                                            }
@@ -721,7 +736,7 @@ public class PassengerActivity extends SimpleMapActivity
 //        if (hhMode) {
 //            findMatchingHH(trip, limitHHRadius, new FindHHCompleteListener() {
 //                        @Override
-//                        public void OnLoopThoughAllRequestHH() {
+//                        public void OnLoopThroughAllRequestHH() {
 //                            synchronized (isDriverFound)
 //                            {
 //                                // if loop through all the objects but still not find matching HH request then use normal request
@@ -778,7 +793,7 @@ public class PassengerActivity extends SimpleMapActivity
 //    //region ------------ Find matching Active Driver
 //
 //    interface FindActiveDriverListener {
-//        void OnLoopThoughAllRequestHH();
+//        void OnLoopThroughAllRequestHH();
 //        void OnFoundDriverRequest(RouteRequest request);
 //    }
 //
@@ -795,7 +810,7 @@ public class PassengerActivity extends SimpleMapActivity
 //    // interface for raise loop thought all list event
 //    // synchronized keyword for locking the Boolean variable
 //    interface FindHHCompleteListener{
-//        void OnLoopThoughAllRequestHH();
+//        void OnLoopThroughAllRequestHH();
 //        void OnFoundDriverRequest(RouteRequest request);
 //    }
 //
@@ -825,7 +840,7 @@ public class PassengerActivity extends SimpleMapActivity
 //
 //                // if list null raise event
 //                if (routeRequests.size() == 0) {
-//                    listener.OnLoopThoughAllRequestHH();
+//                    listener.OnLoopThroughAllRequestHH();
 //                }
 //            }
 //
@@ -921,7 +936,7 @@ public class PassengerActivity extends SimpleMapActivity
 //
 //                        // raise event loop thought all request if last element
 //                        if (listSize == itemIndex + 1) {
-//                            listener.OnLoopThoughAllRequestHH();
+//                            listener.OnLoopThroughAllRequestHH();
 //                            Log.i(TAG, "Loop thought all HH request");
 //                        }
 //                    }
@@ -1130,6 +1145,18 @@ public class PassengerActivity extends SimpleMapActivity
                 final String placeLocation = data.getStringExtra("place_location");
                 final String placeAddress = data.getStringExtra("place_address");
 
+                // check get place return null
+                if (TextUtils.isEmpty(placePrimaryText)) {
+                    new MaterialDialog.Builder(this)
+                            .content(R.string.can_not_get_location)
+                            .positiveText(R.string.ok)
+                            .titleColor(getResources().getColor(R.color.title_bar_background_color))
+                            .positiveColor(getResources().getColor(R.color.title_bar_background_color))
+                            .widgetColorRes(R.color.title_bar_background_color)
+                            .buttonRippleColorRes(R.color.title_bar_background_color)
+                            .show();
+                    return;
+                }
 
                 if (requestCode == PICKUP_PLACE_AUTOCOMPLETE_REQUEST_CODE) {
 
@@ -1171,7 +1198,7 @@ public class PassengerActivity extends SimpleMapActivity
 
                 // Move Camera
                 if (pickupPlace != null && dropPlace != null) {
-                    cameraManager.moveCam(pickupPlace.func_getLatLngLocation(), dropPlace.func_getLatLngLocation());
+                    cameraManager.moveCam(50,530,50,300 ,pickupPlace.func_getLatLngLocation(), dropPlace.func_getLatLngLocation());
                     updateDistanceAndDuration();
                 } else if (pickupPlace != null) {
                     cameraManager.moveCam(pickupPlace.func_getLatLngLocation());
@@ -1205,8 +1232,7 @@ public class PassengerActivity extends SimpleMapActivity
 
         AutoCompleteIntentResultHandle(requestCode, resultCode, data);
 
-        FoundDriverResult(requestCode, resultCode, data);
-
+        NavigationResultHandle(requestCode, resultCode, data);
     }
 
 
@@ -1266,7 +1292,6 @@ public class PassengerActivity extends SimpleMapActivity
 
     //------------------------------------
 
-
     @Override
     protected void onDestroy() {
         super.onDestroy();
@@ -1277,6 +1302,8 @@ public class PassengerActivity extends SimpleMapActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_passenger);
+        // Init firebase
+        dbRefe = FirebaseDatabase.getInstance().getReference();
 
 //        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
 //        setSupportActionBar(toolbar);
@@ -1290,27 +1317,26 @@ public class PassengerActivity extends SimpleMapActivity
         mapFragment.getMapAsync(this);      // set Callback listener
         isFirstGetLocation = false;
 
+        myLocationButton_padBot = 380;
+        myLocationButton_padRight = 50;
+
         geocoder = new Geocoder(this, Locale.getDefault());
 
         // default value
         isDriverFound = false;
 
-        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
-        navigationView.setNavigationItemSelectedListener(this);
-
         //
         Init();
         addEven();
         notifyBtnState();
-
     }
 
-
     private void Init() {
-        // Init firebase
-        dbRefe = FirebaseDatabase.getInstance().getReference();
-
         // Init View
+        titlebar = findViewById(R.id.titlebar);
+
+        initNavigation();
+
         btn_findDriver = findViewById(R.id.btn_cancel);
 
         btn_cd_wait_time = findViewById(R.id.btn_cd_wait_time);
@@ -1331,10 +1357,32 @@ public class PassengerActivity extends SimpleMapActivity
         // search view
         btn_pickupLocation = findViewById(R.id.btn_pick_up_location);
         btn_dropLocation = findViewById(R.id.btn_end_location);
-
     }
 
     private void addEven() {
+        titlebar.setDelegate(new BGATitleBar.Delegate() {
+            @Override
+            public void onClickLeftCtv() {
+                drawer_layout.openDrawer(GravityCompat.START);
+            }
+
+            @Override
+            public void onClickTitleCtv() {
+
+            }
+
+            @Override
+            public void onClickRightCtv() {
+                Intent intent = new Intent(getApplicationContext(), PassengerRequestManagerActivity.class);
+                PassengerActivity.this.startActivity(intent);
+            }
+
+            @Override
+            public void onClickRightSecondaryCtv() {
+
+            }
+        });
+
         btn_findDriver.setOnClickListener(v -> startBooking());
 
         btn_cd_wait_time.setOnClickListener(e -> {
@@ -1347,6 +1395,7 @@ public class PassengerActivity extends SimpleMapActivity
             new MaterialDialog.Builder(this)
                     .title(DefineString.DEFAULT_WAIT_TIME.first)
                     .items(other)
+                    .itemsGravity(GravityEnum.CENTER)
                     .itemsCallback(new MaterialDialog.ListCallback() {
                         @Override
                         public void onSelection(MaterialDialog dialog, View view, int which, CharSequence text) {
@@ -1392,7 +1441,6 @@ public class PassengerActivity extends SimpleMapActivity
         });
 
         searViewEvent();
-
     }
 
     @Override
@@ -1405,47 +1453,53 @@ public class PassengerActivity extends SimpleMapActivity
         }
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.home, menu);
-        return true;
+
+    //region Navigation Bar
+
+    private static final int ABOUT_USER_REQUEST_CODE = 70;
+
+    NavigationView navigationView;
+    DrawerLayout drawer_layout;
+    View headerLayout;
+
+    private void initNavigation() {
+        // Navigation bar
+        drawer_layout = findViewById(R.id.drawer_layout);
+        navigationView = findViewById(R.id.nav_view);
+        navigationView.setNavigationItemSelectedListener(this);
+        headerLayout = navigationView.getHeaderView(0);
+
+        updateNavUserInfo();
+
+        RelativeLayout group_Avatar = headerLayout.findViewById(R.id.group_Avatar);
+        group_Avatar.setOnClickListener(v ->{
+            Intent i = new Intent(PassengerActivity.this, AboutUser.class);
+            PassengerActivity.this.startActivityForResult(i, ABOUT_USER_REQUEST_CODE);
+        });
     }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the PassengerActivity/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
+    public void updateNavUserInfo() {
+        UserInfo userInfo = CurUserInfo.getInstance().getUserInfo();
 
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
+        ImageView iv_Avatar = headerLayout.findViewById(R.id.iv_Avatar);
+        TextView txtName = headerLayout.findViewById(R.id.txtName);
+        TextView txtPhone = headerLayout.findViewById(R.id.txtPhone);
+
+        if (userInfo.getPhoto() != null) {
+            iv_Avatar.setImageBitmap(ImageUtils.base64ToBitmap(userInfo.getPhoto()));
         }
-
-        return super.onOptionsItemSelected(item);
+        txtName.setText(userInfo.getName());
+        txtPhone.setText(userInfo.getPhoneNumber());
     }
 
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
-    public boolean onNavigationItemSelected(MenuItem item) {
-        // Handle navigation view item clicks here.
+    public boolean onNavigationItemSelected(android.view.MenuItem item) {
         int id = item.getItemId();
 
-        if (id == R.id.nav_user_info) {
-
-            Intent i = new Intent(PassengerActivity.this, AboutUser.class);
-            PassengerActivity.this.startActivity(i);
-
-
-            // Handle the camera action
-        } else if (id == R.id.nav_about) {
-
+        if (id == R.id.nav_about) {
             Intent i = new Intent(PassengerActivity.this, AboutApp.class);
             PassengerActivity.this.startActivity(i);
-
-
         } else if (id == R.id.nav_logout) {
             FirebaseAuth.getInstance().signOut();
             Intent intent = new Intent(PassengerActivity.this, PhoneAuthActivity.class);
@@ -1461,12 +1515,21 @@ public class PassengerActivity extends SimpleMapActivity
             i.putExtra(Intent.EXTRA_SUBJECT, shareName);
 
             startActivity(Intent.createChooser(i, "Sharing"));
-
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
+
+    private void NavigationResultHandle(int requestCode, int resultCode, Intent data) {
+        if (requestCode == ABOUT_USER_REQUEST_CODE) {
+            if (resultCode == Activity.RESULT_OK) {
+                updateNavUserInfo();
+            }
+        }
+    }
+
+    //endregion
 
 }

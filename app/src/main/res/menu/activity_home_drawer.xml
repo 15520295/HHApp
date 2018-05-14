@@ -2,29 +2,19 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     tools:showIn="navigation_view">
-
     <group android:checkableBehavior="none">
         <item
-            android:id="@+id/nav_user_info"
-            android:icon="@drawable/ic_menu_camera"
-            android:title="User Info" />
+            android:id="@+id/nav_share"
+            android:icon="@drawable/ic_share_black"
+            android:title="@string/share" />
+        <item
+            android:id="@+id/nav_about"
+            android:icon="@drawable/ic_about_black"
+            android:title="@string/about" />
+        <item
+            android:id="@+id/nav_logout"
+            android:icon="@drawable/ic_logout_black"
+            android:title="@string/logout"/>
     </group>
-
-    <item android:title="Communicate">
-        <menu>
-            <item
-                android:id="@+id/nav_share"
-                android:icon="@drawable/ic_menu_share"
-                android:title="Share" />
-            <item
-                android:id="@+id/nav_about"
-                android:icon="@drawable/ic_menu_send"
-                android:title="about" />
-            <item
-                android:id="@+id/nav_logout"
-                android:icon="@drawable/ic_menu_send"
-                android:title="Logout"/>
-        </menu>
-    </item>
 
 </menu>

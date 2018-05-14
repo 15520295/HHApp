@@ -109,4 +109,16 @@
     </style>
 
 
+    <style name="NavigationNormalStyle">
+        <item name="android:layout_width">260dp</item>
+        <item name="android:background">@color/white</item>
+        <item name="android:textSize">18sp</item>
+        <item name="android:paddingLeft">5dp</item>
+        <item name="android:drawablePadding">2dp</item>
+        <item name="android:listPreferredItemHeightSmall">60dp</item>
+        <item name="itemTextColor">#363a45</item>
+
+    </style>
+
+
 </resources>

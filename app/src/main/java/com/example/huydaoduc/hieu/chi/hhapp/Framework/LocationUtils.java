@@ -72,6 +72,16 @@ public class LocationUtils {
         return new LatLngBounds(southwestCorner, northeastCorner);
     }
 
+    public static String getPrimaryTextFromAddress(String address) {
+        if (! TextUtils.isEmpty(address)) {
+            String[] split = address.split(",");
+            if (split.length != 0) {
+                return split[0];
+            }
+        }
+        return null;
+    }
+
     //endregion
 
     public static String getLocationAddress(Geocoder geocoder, Location location) {

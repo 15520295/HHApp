@@ -1,28 +1,35 @@
-package com.example.huydaoduc.hieu.chi.hhapp.Main.Driver.RouteManager;
+package com.example.huydaoduc.hieu.chi.hhapp.Main.Driver.v2;
 
 import android.app.Activity;
+import android.content.Context;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Intent;
+import android.net.Uri;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.NotificationCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
+import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewTreeObserver;
+import android.view.ViewGroup;
 import android.widget.Toast;
 
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.example.huydaoduc.hieu.chi.hhapp.Define;
 import com.example.huydaoduc.hieu.chi.hhapp.Framework.DBManager;
 import com.example.huydaoduc.hieu.chi.hhapp.Main.Driver.PassengerRequestInfoActivity;
-import com.example.huydaoduc.hieu.chi.hhapp.Model.Trip.NotifyTrip;
+import com.example.huydaoduc.hieu.chi.hhapp.Main.Driver.RouteRequestManager.CreateRouteActivity;
+import com.example.huydaoduc.hieu.chi.hhapp.Main.Driver.RouteRequestManager.RouteRequestAdapter;
 import com.example.huydaoduc.hieu.chi.hhapp.Model.RouteRequest.RouteRequest;
 import com.example.huydaoduc.hieu.chi.hhapp.Model.RouteRequest.RouteRequestState;
+import com.example.huydaoduc.hieu.chi.hhapp.Model.Trip.NotifyTrip;
 import com.example.huydaoduc.hieu.chi.hhapp.Model.Trip.Trip;
 import com.example.huydaoduc.hieu.chi.hhapp.Model.User.UserInfo;
 import com.example.huydaoduc.hieu.chi.hhapp.NotifyService;
@@ -35,7 +42,6 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.scwang.smartrefresh.layout.SmartRefreshLayout;
 import com.scwang.smartrefresh.layout.api.RefreshLayout;
-import com.scwang.smartrefresh.layout.listener.OnLoadMoreListener;
 import com.scwang.smartrefresh.layout.listener.OnRefreshListener;
 import com.zaaach.toprightmenu.MenuItem;
 import com.zaaach.toprightmenu.TopRightMenu;
@@ -44,97 +50,113 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import cn.bingoogolapple.titlebar.BGATitleBar;
+public class RouteRequestManagerFragment extends Fragment {
+    private OnRouteRequestManagerFragmentListener mListener;
+    public interface OnRouteRequestManagerFragmentListener {
+        void onFragmentInteraction(Uri uri);
+    }
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        if (context instanceof OnRouteRequestManagerFragmentListener) {
+            mListener = (OnRouteRequestManagerFragmentListener) context;
+        } else {
+            throw new RuntimeException(context.toString()
+                    + " must implement OnRouteRequestManagerFragmentListener");
+        }
+    }
 
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        mListener = null;
+    }
 
-public class RouteRequestManagerActivity extends AppCompatActivity {
+    public RouteRequestManagerFragment() {
+    }
+
+    public static RouteRequestManagerFragment newInstance(String param1, String param2) {
+        RouteRequestManagerFragment fragment = new RouteRequestManagerFragment();
+        Bundle args = new Bundle();
+
+//        args.putString(ARG_PARAM1, param1);
+
+        fragment.setArguments(args);
+        return fragment;
+    }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        if (getArguments() != null) {
+//            mParam1 = getArguments().getString(ARG_PARAM1);
+        }
+
+    }
 
     private static final int CREATE_ROUTE_REQUEST_CODE = 1;
-    BGATitleBar titleBar;
-    RecyclerView rycv_route_request;
     FloatingActionButton fab_add_route;
 
+    RecyclerView rycv_route_request;
     List<RouteRequest> routeRequests;
 
     DatabaseReference dbRefe;
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        // Inflate the layout for this fragment
+        View view = inflater.inflate(R.layout.fragment_route_request_manager, container, false);
+
+        Init(view);
+
+        Event(view);
+
+        refreshList(true);
+
+        return view;
+    }
 
     private String getCurUid() {
         return FirebaseAuth.getInstance().getCurrentUser().getUid();
     }
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_route_request_manager);
-
-        Init();
-
-        Event();
-
-        refreshList(true);
-    }
-
-    private void Init() {
+    private void Init(View view) {
         //view
-        fab_add_route = findViewById(R.id.fab_add_route);
-
-        titleBar = (BGATitleBar) findViewById(R.id.titlebar);
+        fab_add_route = view.findViewById(R.id.fab_add_request);
 
         // recycler
-        initRecyclerView();
+        initRecyclerView(view);
 
         routeRequests = new ArrayList<>();
 
         // init database
         dbRefe = FirebaseDatabase.getInstance().getReference();
 
-        initRefeshLayout();
+        initRefeshLayout(view);
 
     }
 
-    private void Event() {
-        titleBar.setDelegate(new BGATitleBar.Delegate() {
-            @Override
-            public void onClickLeftCtv() {
-
-            }
-
-            @Override
-            public void onClickTitleCtv() {
-
-            }
-
-            @Override
-            public void onClickRightCtv() {
-
-            }
-
-            @Override
-            public void onClickRightSecondaryCtv() {
-
-            }
-        });
-
+    private void Event(View view) {
         fab_add_route.setOnClickListener(e ->{
-            Intent intent = new Intent(getApplicationContext(), CreateRouteActivity.class);
-            RouteRequestManagerActivity.this.startActivityForResult(intent,CREATE_ROUTE_REQUEST_CODE);
+            Intent intent = new Intent(getContext(), CreateRouteActivity.class);
+            startActivityForResult(intent,CREATE_ROUTE_REQUEST_CODE);
         });
-
     }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
         handleResultCreateRoute(requestCode, resultCode, data);
     }
+
 
     //region -------------- Route request ----------------
 
     private void handleResultCreateRoute(int requestCode, int resultCode, Intent data) {
         if (requestCode == CREATE_ROUTE_REQUEST_CODE) {
             if (resultCode == Activity.RESULT_OK) {
-                // add listener//todo: redo
                 String routeRequestUId = data.getStringExtra("routeRequestUId");
                 //Listen to Trip Notify - asynchronous with service
                 dbRefe.child(Define.DB_ROUTE_REQUESTS).child(getCurUid())
@@ -158,7 +180,8 @@ public class RouteRequestManagerActivity extends AppCompatActivity {
                                             .child(Define.DB_ROUTE_REQUESTS_ROUTE_REQUEST_STATE).setValue(RouteRequestState.FOUND_PASSENGER);
 
                                     // notify driver
-                                    Toast.makeText(getApplicationContext(),"Found your driver",Toast.LENGTH_LONG).show();
+                                    //todo: notify Notification
+                                    Toast.makeText(getContext(),"Found your passenger",Toast.LENGTH_LONG).show();
                                     refreshList(false);
                                 }
                             }
@@ -182,8 +205,8 @@ public class RouteRequestManagerActivity extends AppCompatActivity {
         RouteRequest routeRequest = routeRequests.get(position);
         RouteRequestState state = routeRequest.getRouteRequestState();
 
-        if (state == RouteRequestState.TIME_OUT) {
-            new MaterialDialog.Builder(this)
+        if (! routeRequest.func_isInTheFuture()) {      // time out
+            new MaterialDialog.Builder(getContext())
                     .content(R.string.request_out_of_date)
                     .positiveText(R.string.ok)
                     .titleColor(getResources().getColor(R.color.title_bar_background_color))
@@ -196,8 +219,8 @@ public class RouteRequestManagerActivity extends AppCompatActivity {
         }
         else if (state == RouteRequestState.FOUND_PASSENGER) {
             if (command.equals("Pause") || command.equals("Delete")) {
-                new MaterialDialog.Builder(this)
-                        .content(R.string.cancel_request_warning)
+                new MaterialDialog.Builder(getContext())
+                        .content(R.string.cancel_request_warning_driver)
                         .positiveText(R.string.ok)
                         .titleColor(getResources().getColor(R.color.title_bar_background_color))
                         .positiveColor(getResources().getColor(R.color.title_bar_background_color))
@@ -216,16 +239,14 @@ public class RouteRequestManagerActivity extends AppCompatActivity {
                     .removeValue();
 
             refreshList(false);
-
             return;
         }
 
-
         if (state == RouteRequestState.FINDING_PASSENGER) {
             if (command.equals("Pause")) {
-                new MaterialDialog.Builder(this)
+                new MaterialDialog.Builder(getContext())
                         .title(R.string.pause_request_title)
-                        .content(R.string.pause_request_content)
+                        .content(R.string.pause_request_content_driver)
                         .positiveText(R.string.ok)
                         .negativeText(R.string.cancel)
                         .titleColor(getResources().getColor(R.color.title_bar_background_color))
@@ -255,12 +276,12 @@ public class RouteRequestManagerActivity extends AppCompatActivity {
                         .setValue(RouteRequestState.FINDING_PASSENGER);
 
                 refreshList(false);
+                return;
             }
         }
     }
 
     //endregion
-
 
     //region -------------- Notify ----------------
 
@@ -278,17 +299,21 @@ public class RouteRequestManagerActivity extends AppCompatActivity {
             DBManager.getTripById( tripUId, trip -> {
                 // get Passenger Info
                 DBManager.getUserById( trip.getPassengerUId(), userInfo -> {
+                    // get Passenger Request
+                    DBManager.getPassengerRequestById(trip.getPassengerRequestUId(), trip.getPassengerUId(), passengerRequest -> {
 
-                    Intent intent = new Intent(RouteRequestManagerActivity.this, PassengerRequestInfoActivity.class);
-                    intent.putExtra("trip", trip);
-                    intent.putExtra("userInfo", userInfo);
-                    RouteRequestManagerActivity.this.startActivity(intent);
+                        Intent intent = new Intent(getContext(), PassengerRequestInfoActivity.class);
+                        intent.putExtra("trip", trip);
+                        intent.putExtra("userInfo", userInfo);
+                        intent.putExtra("passengerRequest", passengerRequest);
 
-                    hideLoadingPassengerRequestInfo();
+                        startActivity(intent);
+
+                        hideLoadingPassengerRequestInfo();
+                    });
                 });
+
             });
-
-
         }
     }
 
@@ -354,7 +379,7 @@ public class RouteRequestManagerActivity extends AppCompatActivity {
     MaterialDialog loadingPassengerInfo;
 
     private void showLoadingPassengerRequestInfo(String title) {
-        loadingPassengerInfo = new MaterialDialog.Builder(this)
+        loadingPassengerInfo = new MaterialDialog.Builder(getContext())
                 .title(title)
                 .content("Please wait...")
                 .progress(true, 0)
@@ -369,11 +394,10 @@ public class RouteRequestManagerActivity extends AppCompatActivity {
     }
     //endregion
 
-
     //region -------------- Recycle View ----------------
-    private void initRecyclerView() {
-        rycv_route_request = findViewById(R.id.recycler_view_route_requests);
-        LinearLayoutManager llm = new LinearLayoutManager(getApplicationContext());
+    private void initRecyclerView(View view) {
+        rycv_route_request = view.findViewById(R.id.recycler_view_requests);
+        LinearLayoutManager llm = new LinearLayoutManager(getContext());
         llm.setOrientation(LinearLayoutManager.VERTICAL);
         rycv_route_request.setLayoutManager(llm);
     }
@@ -422,7 +446,7 @@ public class RouteRequestManagerActivity extends AppCompatActivity {
 
     private void showTopRightMenuItem(int position, View view) {
         TopRightMenu topRightMenu;
-        topRightMenu = new TopRightMenu(RouteRequestManagerActivity.this);
+        topRightMenu = new TopRightMenu(getActivity());
 
         List<MenuItem> menuItems = new ArrayList<>();
         menuItems.add( new MenuItem(R.drawable.ic_pause_20, getString(R.string.pause)));
@@ -455,15 +479,15 @@ public class RouteRequestManagerActivity extends AppCompatActivity {
                 })
                 .showAsDropDown(view, -250, 0);
     }
-    
+
     //endregion
 
     //region -------------- Smart Refresh Layout ----------------
 
     SmartRefreshLayout smartRefreshLayout;
 
-    private void initRefeshLayout() {
-        smartRefreshLayout = (SmartRefreshLayout) findViewById(R.id.refreshLayout);
+    private void initRefeshLayout(View view) {
+        smartRefreshLayout = (SmartRefreshLayout) view.findViewById(R.id.refreshLayout);
         smartRefreshLayout.setEnableLoadMore(false);
         smartRefreshLayout.setOnRefreshListener(new OnRefreshListener() {
             @Override

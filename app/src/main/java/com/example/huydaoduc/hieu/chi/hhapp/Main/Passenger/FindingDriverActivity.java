@@ -6,22 +6,29 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.afollestad.materialdialogs.DialogAction;
+import com.afollestad.materialdialogs.MaterialDialog;
 import com.example.huydaoduc.hieu.chi.hhapp.Define;
 import com.example.huydaoduc.hieu.chi.hhapp.Framework.Direction.DirectionFinderListener;
 import com.example.huydaoduc.hieu.chi.hhapp.Framework.Direction.Route;
 import com.example.huydaoduc.hieu.chi.hhapp.Framework.DirectionManager;
 import com.example.huydaoduc.hieu.chi.hhapp.Framework.LocationUtils;
 import com.example.huydaoduc.hieu.chi.hhapp.Framework.TimeUtils;
+import com.example.huydaoduc.hieu.chi.hhapp.Main.Passenger.PassengerRequestManager.PassengerRequestManagerActivity;
+import com.example.huydaoduc.hieu.chi.hhapp.Model.Car.CarType;
+import com.example.huydaoduc.hieu.chi.hhapp.Model.Passenger.PassengerRequestState;
 import com.example.huydaoduc.hieu.chi.hhapp.Model.Trip.NotifyTrip;
-import com.example.huydaoduc.hieu.chi.hhapp.Model.PassengerRequest;
+import com.example.huydaoduc.hieu.chi.hhapp.Model.Passenger.PassengerRequest;
 import com.example.huydaoduc.hieu.chi.hhapp.Model.RouteRequest.RouteRequest;
 import com.example.huydaoduc.hieu.chi.hhapp.Model.RouteRequest.RouteRequestState;
 import com.example.huydaoduc.hieu.chi.hhapp.Model.Trip.Trip;
+import com.example.huydaoduc.hieu.chi.hhapp.Model.Trip.TripState;
 import com.example.huydaoduc.hieu.chi.hhapp.R;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.firebase.auth.FirebaseAuth;
@@ -43,7 +50,7 @@ public class FindingDriverActivity extends AppCompatActivity {
     private DatabaseReference dbRefe;
     private DirectionManager directionManager;
 
-    private TextView tv_start_address, tv_end_address;
+    private TextView tv_start_address, tv_end_address, tv_estimate_fare;
     private MaterialFancyButton btn_cancel;
 
     @SuppressLint("ResourceType")
@@ -52,40 +59,33 @@ public class FindingDriverActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_finding_driver);
 
-//        Fragment cancelFragment = getFragmentManager().findFragmentById(R.id.cancel_fragment);
-//
-//        findViewById(R.id.avi).setOnClickListener(view -> {
-//
-//            FindingDriverActivity.this.getFragmentManager().beginTransaction()
-//                    .setCustomAnimations(R.anim.anim_cancel_fragment_fade_in, R.anim.anim_cancel_fragment_fade_out)
-//                    .hide(cancelFragment)
-//                    .commit();
-//        });
-
         GetBundle(savedInstanceState);
         Init();
         Event();
-
 
         startBooking();
     }
 
 
     Trip trip;
+    PassengerRequest passengerRequest;
 
     private void GetBundle(Bundle savedInstanceState) {
         if (savedInstanceState == null) {
             Bundle extras = getIntent().getExtras();
             if (extras == null) {
                 trip = null;
+                passengerRequest = null;
             } else {
                 trip = (Trip) getIntent().getParcelableExtra("trip");
+                passengerRequest = (PassengerRequest) getIntent().getParcelableExtra("passengerRequest");
             }
         } else {
             trip = (Trip) savedInstanceState.getParcelable("trip");
+            passengerRequest = (PassengerRequest) savedInstanceState.getParcelable("passengerRequest");
         }
 
-        if (trip == null) {
+        if (trip == null || passengerRequest == null) {
             finish();
         }
     }
@@ -96,11 +96,12 @@ public class FindingDriverActivity extends AppCompatActivity {
         tv_start_address = findViewById(R.id.tv_pick_up_address);
         tv_end_address = findViewById(R.id.tv_drop_off_address);
         btn_cancel = findViewById(R.id.btn_cancel);
+        tv_estimate_fare = findViewById(R.id.tv_estimate_fare);
 
         // init value
-        PassengerRequest passengerRequest = trip.getPassengerRequest();
         tv_start_address.setText(passengerRequest.getPickUpSavePlace().getPrimaryText());
         tv_end_address.setText(passengerRequest.getDropOffSavePlace().getPrimaryText());
+        tv_estimate_fare.setText(passengerRequest.getTripFareInfo().func_getEstimateFareText());
 
         directionManager = new DirectionManager(getApplicationContext());
 
@@ -109,7 +110,15 @@ public class FindingDriverActivity extends AppCompatActivity {
     }
 
     private void Event() {
+        btn_cancel.setOnClickListener(v ->{
+            cancelRequest();
+        });
+    }
 
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        cancelRequest();
     }
 
     private String getCurUid() {
@@ -122,77 +131,59 @@ public class FindingDriverActivity extends AppCompatActivity {
     Boolean isDriverFound;      // --> use for synchronous purpose
     boolean hhMode;
 
-    Float estimateFare;
-
+    // NOTE: only put trip when found driver
     private void startBooking() {
-
         hhMode = true;
         isDriverFound = false;
 
-        String tripUId = trip.getTripUId();
-        PassengerRequest passengerRequest = trip.getPassengerRequest();
-
-        dbRefe.child(Define.DB_TRIPS)
-                .child(tripUId).setValue(trip);
-
-
         // Find Driver todo: add car type
         if (hhMode) {
-            findMatchingHH(trip, TimeUtils.getCurrentTimeAsDate(), passengerRequest.getWaitMinute(), passengerRequest.getPickUpSavePlace().func_getLatLngLocation()
-                    ,new FindHHCompleteListener() {
+            findMatchingHH(passengerRequest,new FindHHCompleteListener() {
                         @Override
-                        public void OnLoopThoughAllRequestHH() {
+                        public void OnLoopThroughAllRequestHH() {
                             synchronized (isDriverFound)
                             {
-                                //todo:v2
-                                // if loop through all the objects but still not find matching HH request then use normal request
-//                                if( ! isDriverFound)
-//                                    findNearestDriver(trip);
-                                if (! isDriverFound) {
-                                    Toast.makeText(getApplicationContext(),"Can't find your driver",Toast.LENGTH_LONG).show();
-                                }
-
                                 new Handler().postDelayed(new Runnable() {
                                     @Override
                                     public void run() {
-                                        FindingDriverActivity.this.finish();
+                                        handleNotFoundDriver();
                                     }
                                 }, 2000);
                             }
                         }
 
                         @Override
-                        public void OnFoundDriverRequest(RouteRequest request) {
-                            isDriverFound = true;
-                            String driverUId = request.getDriverUId();
+                        public void OnFoundDriverRequest(RouteRequest routeRequest) {
+                            Log.i(TAG, "Found HH request" + routeRequest.getDriverUId());
 
-                            NotifyTrip notifyTrip = new NotifyTrip(tripUId, false);
-                            // notify driver thought database
-                            dbRefe.child(Define.DB_ROUTE_REQUESTS).child(driverUId)
-                                    .child(request.getRouteRequestUId()).child(Define.DB_ROUTE_REQUESTS_NOTIFY_TRIP)
-                                    .setValue(notifyTrip);
-
-                            //listen to trip state
+                            // up trip and passenger request to sever
+                            trip.setRouteRequestUId(routeRequest.getRouteRequestUId());
+                            trip.setDriverUId(routeRequest.getDriverUId());
+                            trip.setTripState(TripState.ACCEPTED);
                             dbRefe.child(Define.DB_TRIPS)
-                                    .child(tripUId).child(Define.DB_TRIPS_TRIP_STATE)
-                                    .addValueEventListener(new ValueEventListener() {
-                                        @Override
-                                        public void onDataChange(DataSnapshot dataSnapshot) {
+                                    .child(trip.getTripUId())
+                                    .setValue(trip);
 
-                                        }
+                            // change passenger Request state and notify passenger
+                            passengerRequest.setPassengerRequestState(PassengerRequestState.FOUND_DRIVER);
+                            passengerRequest.setNotifyTrip(new NotifyTrip(trip.getTripUId(),true));
+                            dbRefe.child(Define.DB_PASSENGER_REQUESTS)
+                                    .child(passengerRequest.getPassengerUId())
+                                    .child(passengerRequest.getPassengerRequestUId())
+                                    .setValue(passengerRequest);
 
-                                        @Override
-                                        public void onCancelled(DatabaseError databaseError) {
+                            // change driver Request state and notify driver
+                            routeRequest.setRouteRequestState(RouteRequestState.FOUND_PASSENGER);
+                            routeRequest.setNotifyTrip(new NotifyTrip(trip.getTripUId(),false));
+                            dbRefe.child(Define.DB_ROUTE_REQUESTS)
+                                    .child(routeRequest.getDriverUId())
+                                    .child(routeRequest.getRouteRequestUId())
+                                    .setValue(routeRequest);
 
-                                        }
-                                    });
-
-                            Log.i(TAG, "Found HH request" + request.getDriverUId());
-
-                            // show driver info
-                            Intent returIntent = new Intent();
-                            returIntent.putExtra("driverUId",request.getDriverUId());
-                            setResult(Activity.RESULT_OK, returIntent);
+                            Intent intent = new Intent(getApplicationContext(), PassengerRequestManagerActivity.class);
+                            intent.putExtra("routeRequest",routeRequest);
+                            intent.putExtra("passengerRequest",passengerRequest);
+                            FindingDriverActivity.this.startActivity(intent);
                             finish();
                         }
                     }
@@ -203,19 +194,58 @@ public class FindingDriverActivity extends AppCompatActivity {
         }
     }
 
+    private void handleNotFoundDriver() {
+        //todo:v2
+        // if loop through all the objects but still not find matching HH request then use normal request
+//                                if( ! isDriverFound)
+//                                    findNearestDriver(trip);
+        if (! isDriverFound) {
+            // show suggestion
+            if(! this.isFinishing())
+                new MaterialDialog.Builder(FindingDriverActivity.this)
+                        .title(R.string.add_waiting_list_title)
+                        .content(R.string.add_waiting_list_content)
+                        .positiveText(R.string.ok)
+                        .negativeText(R.string.cancel)
+                        .titleColor(getResources().getColor(R.color.title_bar_background_color))
+                        .positiveColor(getResources().getColor(R.color.title_bar_background_color))
+                        .widgetColorRes(R.color.title_bar_background_color)
+                        .buttonRippleColorRes(R.color.title_bar_background_color)
+                        .onPositive((dialog, which) -> {
+                            addPassengerRequestToWaitingList();
+                        })
+                        .onNegative((dialog, which) -> {
+                            cancelRequest();
+                        })
+                        .show();
+        }
+    }
+
+    private void addPassengerRequestToWaitingList() {
+        // add request to waiting list
+        dbRefe.child(Define.DB_PASSENGER_REQUESTS)
+                .child(passengerRequest.getPassengerUId())
+                .child(passengerRequest.getPassengerRequestUId())
+                .setValue(passengerRequest);
+
+        Intent intent = new Intent(getApplicationContext(), PassengerRequestManagerActivity.class);
+        intent.putExtra("passengerRequest", passengerRequest);
+        FindingDriverActivity.this.startActivity(intent);
+        finish();
+    }
+
 
     //region ------------ Find matching Active Driver
-
-    interface FindActiveDriverListener {
-        void OnLoopThoughAllRequestHH();
-        void OnFoundDriverRequest(RouteRequest request);
-    }
-
-
-    private void findNearestDriver(Trip trip) {
-
+//    interface FindActiveDriverListener {
+//        void OnLoopThroughAllRequestHH();
+//        void OnFoundDriverRequest(RouteRequest request);
+//    }
+//
+//
+//    private void findNearestDriver(Trip trip) {
+//
 //        startFindActiveDriver();
-    }
+//    }
     //endregion
 
 
@@ -225,11 +255,12 @@ public class FindingDriverActivity extends AppCompatActivity {
     // interface for raise loop thought all list event
     // synchronized keyword for locking the Boolean variable
     interface FindHHCompleteListener {
-        void OnLoopThoughAllRequestHH();
+        void OnLoopThroughAllRequestHH();
         void OnFoundDriverRequest(RouteRequest request);
     }
 
-    private void findMatchingHH(Trip trip, Date passengerStartTime, int waitMinute, LatLng nearLocation, FindHHCompleteListener listener) {
+    private void findMatchingHH(PassengerRequest passengerRequest, FindHHCompleteListener listener) {
+
         DatabaseReference dbRequest = dbRefe.child(Define.DB_ROUTE_REQUESTS);
 
         dbRequest.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -240,13 +271,13 @@ public class FindingDriverActivity extends AppCompatActivity {
                 // we need to sort all HH driver request in nearest other then we can check from that
 
                 // get List from DataSnapshot after filtered and ordered
-                List<RouteRequest> routeRequestsFiltered = filterAndOrderingRequestList(dataSnapshot, passengerStartTime, waitMinute, nearLocation);
+                List<RouteRequest> routeRequestsFiltered = filterAndOrderingRequestList(dataSnapshot, passengerRequest);
 
-                checkListDriverRequest(routeRequestsFiltered, passengerStartTime, waitMinute, listener);
+                checkListDriverRequest(routeRequestsFiltered, passengerRequest, listener);
 
                 // if list null raise event
                 if (routeRequestsFiltered.size() == 0) {
-                    listener.OnLoopThoughAllRequestHH();
+                    listener.OnLoopThroughAllRequestHH();
                 }
             }
 
@@ -258,19 +289,23 @@ public class FindingDriverActivity extends AppCompatActivity {
         });
     }
 
-    private List<RouteRequest> filterAndOrderingRequestList(DataSnapshot listDriverRequestDS,
-                                                            Date passengerStartTime,
-                                                            int waitMinute,
-                                                            LatLng nearLocation) {
+    private List<RouteRequest> filterAndOrderingRequestList(DataSnapshot listDriverRequestDS, PassengerRequest passengerRequest) {
+        Date passengerStartTime = passengerRequest.getTripFareInfo().func_getStartTimeAsDate();
+        int waitMinute = passengerRequest.getWaitMinute();
+        LatLng nearLocation = passengerRequest.getPickUpSavePlace().func_getLatLngLocation();
+        CarType carType = passengerRequest.getTripFareInfo().getCarType();
+
         List<RouteRequest> requestList = new ArrayList();
 
         // get list from database
         for (DataSnapshot postSnapshot: listDriverRequestDS.getChildren()) {
             for (DataSnapshot requestSnapshot : postSnapshot.getChildren()) {
-                RouteRequest request = requestSnapshot.getValue(RouteRequest.class);
+                RouteRequest routeRequest = requestSnapshot.getValue(RouteRequest.class);
 
-                if (request.getRouteRequestState() == RouteRequestState.FINDING_PASSENGER
-                        && request.func_isInTheFuture()) {
+                if (routeRequest.getRouteRequestState() == RouteRequestState.FINDING_PASSENGER
+                        && routeRequest.getCarType() == carType
+                        && routeRequest.func_isInTheFuture()
+                        && ! routeRequest.getDriverUId().equals(getCurUid())) {
 //                    LatLng latLng_startLocation = request.getStartPlace().func_getLatLngLocation();
 //                    // check validate HH request before add to list
 //                    if ((LocationUtils.calcDistance(latLng_startLocation, mLastLocation) < limitHHRadius)
@@ -279,16 +314,15 @@ public class FindingDriverActivity extends AppCompatActivity {
 //                    }
 
                     // estimate check the request start time to the passenger start time is in the waitMinute
-                    // (this also check passengerStartTime > requestStartTime) todo: is it?
-                    Date requestStartTime = TimeUtils.strToDate(request.getStartTime());
+                    Date requestStartTime = routeRequest.func_getStartTimeAsDate();
                     if(TimeUtils.getPassTime(passengerStartTime, requestStartTime) < waitMinute*60)
-                        requestList.add(request);
+                        requestList.add(routeRequest);
 
                 }
             }
         }
 
-        // sort list
+        // sort list to nearest to passenger current location
         Collections.sort(requestList, (dq1, dq2) ->{
             double distance1 = LocationUtils.calcDistance(dq1.getStartPlace().func_getLatLngLocation(), nearLocation);
             double distance2 = LocationUtils.calcDistance(dq2.getStartPlace().func_getLatLngLocation(), nearLocation);
@@ -311,8 +345,10 @@ public class FindingDriverActivity extends AppCompatActivity {
      * check if Pickup Place and End Place match to the Request Polyline
      * isDriverFound --> use for synchronous purpose
      */
-    private void checkListDriverRequest(List<RouteRequest> routeRequestsFiltered, Date passengerStartTime, int waitMinute, FindHHCompleteListener listener) {
-        PassengerRequest passengerRequest = trip.getPassengerRequest();
+    private void checkListDriverRequest(List<RouteRequest> routeRequestsFiltered,PassengerRequest passengerRequest , FindHHCompleteListener listener) {
+
+        Date passengerStartTime = passengerRequest.getTripFareInfo().func_getStartTimeAsDate();
+        int waitMinute = passengerRequest.getWaitMinute();
 
         // loop the the list and find matching request if not found raise the loop thought listener
         // if found run foundDriver method
@@ -373,6 +409,7 @@ public class FindingDriverActivity extends AppCompatActivity {
 
                                                         synchronized (isDriverFound) {
                                                             if (isMatch && !isDriverFound) {
+                                                                isDriverFound = true;
                                                                 listener.OnFoundDriverRequest(request);
                                                             }
                                                         }
@@ -381,7 +418,7 @@ public class FindingDriverActivity extends AppCompatActivity {
 
                                                 // raise event loop thought all request if last element
                                                 if (routeRequestsFiltered.size() == itemIndex + 1) {
-                                                    listener.OnLoopThoughAllRequestHH();
+                                                    listener.OnLoopThroughAllRequestHH();
                                                     Log.i(TAG, "Loop thought all HH request");
                                                 }
                                             }
@@ -395,6 +432,21 @@ public class FindingDriverActivity extends AppCompatActivity {
     //endrigon
 
 
+
+    //endregion
+
+
+    //region ------------ Cancel Request
+
+    private void cancelRequest() {
+        dbRefe.child(Define.DB_TRIPS)
+                .child(trip.getTripUId())
+                .removeValue();
+
+        Intent returnIntent = new Intent();
+        setResult(Activity.RESULT_CANCELED, returnIntent);
+        finish();
+    }
 
     //endregion
 

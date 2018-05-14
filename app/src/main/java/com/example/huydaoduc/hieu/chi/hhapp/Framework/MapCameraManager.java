@@ -1,5 +1,7 @@
 package com.example.huydaoduc.hieu.chi.hhapp.Framework;
 
+import android.content.Context;
+
 import com.example.huydaoduc.hieu.chi.hhapp.Define;
 import com.example.huydaoduc.hieu.chi.hhapp.Framework.Direction.Route;
 import com.google.android.gms.maps.CameraUpdate;
@@ -14,9 +16,10 @@ import java.util.List;
 
 public class MapCameraManager {
     private GoogleMap mMap;
+    private Context context;
 
-
-    public MapCameraManager(GoogleMap mMap) {
+    public MapCameraManager(Context applicationContext, GoogleMap mMap) {
+        this.context = applicationContext;
         this.mMap = mMap;
     }
 
@@ -40,7 +43,9 @@ public class MapCameraManager {
         }
 
         LatLngBounds bounds = builder.build();
-        CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(bounds, Define.MAP_BOUND_ROUTE_PADDING);
+        int width = context.getResources().getDisplayMetrics().widthPixels;
+        int height = context.getResources().getDisplayMetrics().heightPixels;
+        CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(bounds, width, height, Define.MAP_BOUND_ROUTE_PADDING);
         mMap.animateCamera(cu);
     }
 
@@ -54,7 +59,26 @@ public class MapCameraManager {
         }
 
         LatLngBounds bounds = builder.build();
-        CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(bounds, Define.MAP_BOUND_ROUTE_PADDING);
+        int width = context.getResources().getDisplayMetrics().widthPixels;
+        int height = context.getResources().getDisplayMetrics().heightPixels;
+        CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(bounds,width, height, Define.MAP_BOUND_ROUTE_PADDING);
+        mMap.animateCamera(cu);
+    }
+
+    public void moveCam(int left,int top, int right, int bottom, LatLng... points) {
+        // Move the map to Surround the route
+        LatLngBounds.Builder builder = new LatLngBounds.Builder();
+        for (LatLng point :
+                points) {
+            if(point!= null)
+                builder.include(point);
+        }
+
+        LatLngBounds bounds = builder.build();
+        int width = context.getResources().getDisplayMetrics().widthPixels;
+        int height = context.getResources().getDisplayMetrics().heightPixels;
+        CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(bounds, width, height, Define.MAP_BOUND_ROUTE_PADDING);
+        mMap.setPadding(left,top,right,bottom);
         mMap.animateCamera(cu);
     }
 

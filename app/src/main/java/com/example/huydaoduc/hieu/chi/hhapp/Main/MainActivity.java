@@ -1,9 +1,8 @@
 package com.example.huydaoduc.hieu.chi.hhapp.Main;
 
-import android.app.Notification;
+import android.app.Activity;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
-import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.media.RingtoneManager;
@@ -15,27 +14,27 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
+import android.widget.Toast;
 
-import com.example.huydaoduc.hieu.chi.hhapp.Main.Driver.RouteManager.RouteRequestManagerActivity;
+import com.example.huydaoduc.hieu.chi.hhapp.Main.Driver.RouteRequestManager.RouteRequestManagerActivity;
+import com.example.huydaoduc.hieu.chi.hhapp.Main.Driver.v2.DriverActivity;
 import com.example.huydaoduc.hieu.chi.hhapp.Main.Passenger.PassengerActivity;
-import com.example.huydaoduc.hieu.chi.hhapp.NotifyService;
+import com.example.huydaoduc.hieu.chi.hhapp.Model.Passenger.PassengerRequest;
+import com.example.huydaoduc.hieu.chi.hhapp.Model.RouteRequest.RouteRequest;
+import com.example.huydaoduc.hieu.chi.hhapp.Model.User.UserInfo;
 import com.example.huydaoduc.hieu.chi.hhapp.R;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
-
-import java.sql.Driver;
 
 import ru.dimorinny.floatingtextbutton.FloatingTextButton;
 
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
+    private static final int ROUTE_REQUEST_MANAGER_REQUEST_CODE = 1;
+    private static final int PASSENGER_ACTIVITY_MANAGER_REQUEST_CODE = 2;
     FloatingTextButton btn_passenger, btn_driver;
 
     FirebaseAuth auth;
@@ -56,23 +55,56 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void addEven() {
-
-
         btn_driver.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(MainActivity.this, RouteRequestManagerActivity.class);
-                MainActivity.this.startActivity(intent);
+                MainActivity.this.startActivityForResult(intent, ROUTE_REQUEST_MANAGER_REQUEST_CODE);
             }
         });
-
 
         btn_passenger.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
+                NotificationCompat.Builder mBuilder =
+                        new NotificationCompat.Builder(getApplicationContext())
+                                .setSmallIcon(R.drawable.ic_location_on)
+                                .setContentTitle("Test notification")
+                                .setContentText("Hi, This is Android Notification Detail!");
+
+                Intent resultIntent = new Intent(getApplicationContext(), MainActivity.class);
+
+                /*resultIntent.putExtra(DBSQL.WORD_ID_KEY_PUT_EXTRA, dsWords.get(a).getId());
+                resultIntent.putExtra(DBSQL.WORD_TEN_KEY_PUT_EXTRA, dsWords.get(a).getTen());
+                resultIntent.putExtra(DBSQL.WORD_MOTA_KEY_PUT_EXTRA, dsWords.get(a).getMota());*/
+
+                PendingIntent resultPendingIntent =
+                        PendingIntent.getActivity(
+                                getApplicationContext(),
+                                0,
+                                resultIntent,
+                                PendingIntent.FLAG_UPDATE_CURRENT
+                        );
+
+                mBuilder.setContentIntent(resultPendingIntent);
+
+                Uri uri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+                mBuilder.setSound(uri);
+
+//                        Uri newSound= Uri.parse("android.resource://"
+//                                + getPackageName() + "/" + R.raw.gaugau);
+//                        mBuilder.setSound(newSound);
+
+                int mNotificationId = 155;
+                // Gets an instance of the NotificationManager service
+                NotificationManager mNotifyMgr =
+                        (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+                // Builds the notification and issues it.
+                mNotifyMgr.notify(mNotificationId, mBuilder.build());
+
                 Intent intent = new Intent(MainActivity.this, PassengerActivity.class);
-                MainActivity.this.startActivity(intent);
+                MainActivity.this.startActivityForResult(intent, PASSENGER_ACTIVITY_MANAGER_REQUEST_CODE);
             }
         });
     }
@@ -82,9 +114,13 @@ public class MainActivity extends AppCompatActivity {
         btn_driver = findViewById(R.id.btn_driver);
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+    }
+
     private static final int MY_PERMISSION_REQUEST_CODE = 7000;
     private static final int PLAY_SERVICE_RES_REQUEST = 7001;
-
 
     private void checkPermissions() {
         if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
@@ -123,10 +159,13 @@ public class MainActivity extends AppCompatActivity {
                 GoogleApiAvailability.getInstance().getErrorDialog(MainActivity.this, resultCode, PLAY_SERVICE_RES_REQUEST).show();
             else {
                 Log.e(TAG, "This device is not supported");
+                Toast.makeText(getApplicationContext(), "Sorry, this device is not supported", Toast.LENGTH_LONG).show();
+                finish();
             }
-            // todo : handle this "This device is not supported
+
         }
     }
+
 
 }
 

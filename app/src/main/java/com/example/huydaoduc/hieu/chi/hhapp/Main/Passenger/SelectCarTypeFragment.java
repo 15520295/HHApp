@@ -48,13 +48,14 @@ public class SelectCarTypeFragment extends DialogFragment {
             mListener = (SelectCarTypeFragmentListener) context;
         } else {
             throw new RuntimeException(context.toString()
-                    + " must implement OnFragmentInteractionListener");
+                    + " must implement OnRouteRequestManagerFragmentListener");
         }
     }
 
     @Override
     public void onDetach() {
         super.onDetach();
+        mListener.OnCancel();
         mListener = null;
     }
 

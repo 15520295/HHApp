@@ -76,16 +76,41 @@
 
     <!--Request Menu Item-->
     <string name="pause_request_title">Do you want to pause your request?</string>
-    <string name="pause_request_content">If you pause this request, we can not find passenger for this request.</string>
-    <string name="ok" translatable="false">OK</string>
+    <string name="pause_request_content_driver">If you pause this request, we can not find passenger for this request.</string>
+    <string name="pause_request_content_passenger">If you pause this request, we can not find driver for this request.</string>
+    <string name="ok">OK</string>
     <string name="cancel">CANCEL</string>
-    <string name="cancel_request_warning">We have found passenger for this request, if you want to cancel you can call the passenger to confirm.</string>
+    <string name="cancel_request_warning_driver">We have found passenger for this request, if you want to cancel you can call the passenger to confirm.</string>
+    <string name="cancel_request_warning_passenger">We have found driver for this request, if you want to cancel you can call the driver to confirm.</string>
     <string name="pause">Pause</string>
     <string name="delete">Delete</string>
     <string name="resume">Resume</string>
     <string name="request_out_of_date">Your request is out of date</string>
     <string name="confirm">CONFIRM</string>
     <string name="enter_pick_up">Choose your pick up location</string>
-    <string name="login_welcome_txt">H</string>
+    <string name="estimate_fare">Estimate fare:</string>
+    <string name="loading_driver_info">Loading driver info</string>
+    <string name="loading_passenger_info">Loading passenger info</string>
+    <string name="please_wait">Please wait...</string>
+    <string name="add_waiting_list_title">Do you want to put your request to waiting list?</string>
+    <string name="add_waiting_list_content">Sorry now we can\'t find any driver matching your request. You can add your requests to waiting list so drivers can find your requests later</string>
+    <string name="can_not_get_location">Sorry because of the slow network so we can\'t get the location please try again.</string>
+    <string name="select_car_type">What type of vehicle are you driving?</string>
+    <string name="cant_connect_network">Can\'t connect to the network. Please check your connection</string>
+    <string name="cant_send_sms">Failed to send sms to your number. Please Try again!</string>
+    <string name="server_storage_overload">The server storage quota has been exceeded. Please go back other time.</string>
+    <string name="resend_code">Resend code in 00:%02d</string>
+    <string name="click_to_resend_code">Click to resend the code</string>
+    <string name="year_of_birth">Year of birth</string>
+    <string name="full_name">Full name</string>
+    <string name="phone_number">Phone number</string>
+    <string name="verified">Verified</string>
+    <string name="input_info_request">Please input your information</string>
+    <string name="loading_saving">Saving your information</string>
+    <string name="share">Share</string>
+    <string name="about">About</string>
+    <string name="logout">Logout</string>
+    <string name="call_permission_granted">Call Permission Granted..Please dial again.</string>
+    <string name="call_permission_not_granted">Call permission not granted</string>
 
 </resources>

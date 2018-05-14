@@ -44,7 +44,7 @@
         />
 
     <TextView
-        android:id="@+id/tv_age"
+        android:id="@+id/tv_yob"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@+id/et_name"
@@ -58,7 +58,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentEnd="true"
-        android:layout_below="@+id/tv_age"
+        android:layout_below="@+id/tv_yob"
         android:layout_marginEnd="@dimen/margin_default_25"
         android:layout_marginStart="@dimen/margin_default_25"
         android:layout_marginTop="@dimen/margin_default_15"
@@ -101,14 +101,5 @@
         app:elevation="2dp"
         app:fabSize="normal"
         app:srcCompat="@drawable/ic_forward" />
-
-    <TextView
-        android:id="@+id/tv_connect_social"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginBottom="13dp"
-        android:text="TextView" />
 
 </RelativeLayout>
