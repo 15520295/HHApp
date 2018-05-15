@@ -36,14 +36,14 @@ public class AboutApp extends Activity {
 
         //Bản v1
         AboutView view = AboutBuilder.with(this)
-                .setPhoto(R.drawable.logo111)
+                .setPhoto(R.drawable.logo112)
                 .setCover(R.mipmap.profile_cover)
                 .setName("Thank You")
                 .setSubTitle("I really appreciate your help with my project!")
                 .setBrief("I'm warmed of mobile technologies. Ideas maker, curious and nature lover.")
-                .setAppIcon(R.mipmap.ic_launcher)
+                .setAppIcon(R.drawable.logo112)
                 .setAppName(R.string.app_name)
-                .addGooglePlayStoreLink("636619135028131355")
+                .addGooglePlayStoreLink("https://play.google.com/store/apps/details?id=com.example.huydaoduc.hieu.chi.hhapp")
                 .addGitHubLink("15520295")
                 .addFacebookLink("huydd.1997")
                 .addFiveStarsAction()
