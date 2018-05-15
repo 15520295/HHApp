@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.app.Dialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Typeface;
 import android.location.Geocoder;
 import android.net.Uri;
 import android.os.Build;
@@ -565,7 +566,7 @@ public class PassengerActivity extends SimpleMapActivity
 //
 //    //endregion
 
-//    //region ------ Start Booking v1--------
+    //region ------ Start Booking v1--------
 //
 //    Boolean isDriverFound;      // --> use for synchronous purpose
 //    boolean notFoundHH;      // --> use for synchronous purpose
@@ -671,7 +672,7 @@ public class PassengerActivity extends SimpleMapActivity
 //
 //
 //
-//    //region ------------ Find matching Active Driver
+    //region ------------ Find matching Active Driver
 //
 //    interface FindActiveDriverListener {
 //        void OnLoopThroughAllRequestHH();
@@ -685,7 +686,7 @@ public class PassengerActivity extends SimpleMapActivity
 //    }
 //    //endregion
 //
-//    //region ------------ Find matching HH request
+    //region ------------ Find matching HH request
 //
 //    // for synchronous purpose use interface and synchronized keyword
 //    // interface for raise loop thought all list event
@@ -868,6 +869,9 @@ public class PassengerActivity extends SimpleMapActivity
     }
 
     private void updateTripFareInfoView() {
+
+        Typeface face = Typeface.createFromAsset(getAssets(), "fonts/Font Grab Bike.ttf");
+
         getCurTripFareInfoInstance().func_RecalculateEstimateFare();
 
         tv_fare.setText(getCurTripFareInfoInstance().func_getEstimateFareText());
@@ -877,6 +881,10 @@ public class PassengerActivity extends SimpleMapActivity
         tv_car_type.setText(getCurTripFareInfoInstance().func_getCarTypeText());
 
         iv_car_type.setImageResource(Define.CAR_TYPE_ICON_MAP.get(getCurTripFareInfoInstance().getCarType()));
+
+        tv_fare.setTypeface(face);
+        tv_duration.setTypeface(face);
+        tv_car_type.setTypeface(face);
     }
 
     private void showSelectCarTypeFragment() {

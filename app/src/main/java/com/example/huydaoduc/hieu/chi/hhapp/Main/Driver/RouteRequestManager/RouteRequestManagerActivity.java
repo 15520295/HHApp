@@ -78,7 +78,7 @@ import static com.facebook.FacebookSdk.getApplicationContext;
 
 
 public class RouteRequestManagerActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener{
+        implements NavigationView.OnNavigationItemSelectedListener {
 
     private static final int CREATE_ROUTE_REQUEST_CODE = 1;
     private static final String TAG = "RouteRequestManagerAct";
@@ -149,9 +149,9 @@ public class RouteRequestManagerActivity extends AppCompatActivity
             }
         });
 
-        fab_add_route.setOnClickListener(e ->{
+        fab_add_route.setOnClickListener(e -> {
             Intent intent = new Intent(getApplicationContext(), CreateRouteActivity.class);
-            RouteRequestManagerActivity.this.startActivityForResult(intent,CREATE_ROUTE_REQUEST_CODE);
+            RouteRequestManagerActivity.this.startActivityForResult(intent, CREATE_ROUTE_REQUEST_CODE);
         });
 
     }
@@ -183,8 +183,7 @@ public class RouteRequestManagerActivity extends AppCompatActivity
                             public void onDataChange(DataSnapshot dataSnapshot) {
                                 NotifyTrip notifyTrip = dataSnapshot.getValue(NotifyTrip.class);
 
-                                if(notifyTrip != null && !notifyTrip.isNotified())
-                                {
+                                if (notifyTrip != null && !notifyTrip.isNotified()) {
                                     notifyTrip.setNotified(true);
                                     dbRefe.child(Define.DB_ROUTE_REQUESTS)
                                             .child(routeRequest.getDriverUId())
@@ -194,7 +193,15 @@ public class RouteRequestManagerActivity extends AppCompatActivity
 
                                     // notify driver
                                     //todo: notify Notification
-                                    Toast.makeText(getApplicationContext(),"Found your passenger",Toast.LENGTH_LONG).show();
+                                    String tripUId = notifyTrip.getTripUId();
+                                    DBManager.getTripById(tripUId, trip -> {
+                                        // get Passenger Info
+                                        DBManager.getUserById(trip.getPassengerUId(), userInfo -> {
+                                            showNotificationforDriver(userInfo, trip);
+                                        });
+
+                                    });
+                                    Toast.makeText(getApplicationContext(), "Found your passenger", Toast.LENGTH_LONG).show();
                                     refreshList(false);
                                 }
                             }
@@ -221,7 +228,7 @@ public class RouteRequestManagerActivity extends AppCompatActivity
                         .setContentText(userInfo.getPhoneNumber())
                         .setPriority(2);
 
-        Intent resultIntent = new Intent(getApplicationContext(), MainActivity.class);
+        Intent resultIntent = new Intent(getApplicationContext(), PassengerRequestInfoActivity.class);
 
         resultIntent.putExtra("trip", trip);
         resultIntent.putExtra("userInfo", userInfo);
@@ -260,7 +267,7 @@ public class RouteRequestManagerActivity extends AppCompatActivity
         RouteRequest routeRequest = routeRequests.get(position);
         RouteRequestState state = routeRequest.getRouteRequestState();
 
-        if (! routeRequest.func_isInTheFuture()) {      // time out
+        if (!routeRequest.func_isInTheFuture()) {      // time out
             if (command == "Delete" && routeRequest.getRouteRequestState() != RouteRequestState.FOUND_PASSENGER) {
                 // change state on server
                 dbRefe.child(Define.DB_ROUTE_REQUESTS)
@@ -281,8 +288,7 @@ public class RouteRequestManagerActivity extends AppCompatActivity
             }
 
             return;
-        }
-        else if (state == RouteRequestState.FOUND_PASSENGER) {
+        } else if (state == RouteRequestState.FOUND_PASSENGER) {
             if (command.equals("Pause") || command.equals("Delete")) {
                 new MaterialDialog.Builder(this)
                         .content(R.string.cancel_request_warning_driver)
@@ -295,8 +301,7 @@ public class RouteRequestManagerActivity extends AppCompatActivity
 
                 return;
             }
-        }
-        else if (command.equals("Delete")) {
+        } else if (command.equals("Delete")) {
             // change state on server
             dbRefe.child(Define.DB_ROUTE_REQUESTS)
                     .child(routeRequest.getDriverUId())
@@ -380,7 +385,7 @@ public class RouteRequestManagerActivity extends AppCompatActivity
 
                 // notify passenger and change passenger state
                 passengerRequest.setPassengerRequestState(PassengerRequestState.FOUND_DRIVER);
-                passengerRequest.setNotifyTrip(new NotifyTrip(trip.getTripUId(),false));
+                passengerRequest.setNotifyTrip(new NotifyTrip(trip.getTripUId(), false));
                 dbRefe.child(Define.DB_PASSENGER_REQUESTS)
                         .child(passengerRequest.getPassengerUId())
                         .child(passengerRequest.getPassengerRequestUId())
@@ -388,7 +393,7 @@ public class RouteRequestManagerActivity extends AppCompatActivity
 
                 // notify driver and change passenger state
                 routeRequest.setRouteRequestState(RouteRequestState.FOUND_PASSENGER);
-                routeRequest.setNotifyTrip(new NotifyTrip(trip.getTripUId(),false));
+                routeRequest.setNotifyTrip(new NotifyTrip(trip.getTripUId(), false));
                 dbRefe.child(Define.DB_ROUTE_REQUESTS)
                         .child(routeRequest.getDriverUId())
                         .child(routeRequest.getRouteRequestUId())
@@ -413,12 +418,13 @@ public class RouteRequestManagerActivity extends AppCompatActivity
 
         interface FindHHCompleteListener {
             void OnLoopThroughAllRequestHH();
+
             void OnFoundDriverRequest(PassengerRequest request);
         }
 
         @Override
         protected String doInBackground(String... params) {
-            findMatchingHH(routeRequest,listener);
+            findMatchingHH(routeRequest, listener);
             return "Executed";
         }
 
@@ -465,7 +471,7 @@ public class RouteRequestManagerActivity extends AppCompatActivity
             List<PassengerRequest> requestList = new ArrayList();
 
             // get list from database
-            for (DataSnapshot postSnapshot: listDriverRequestDS.getChildren()) {
+            for (DataSnapshot postSnapshot : listDriverRequestDS.getChildren()) {
                 for (DataSnapshot requestSnapshot : postSnapshot.getChildren()) {
                     PassengerRequest passengerRequest = requestSnapshot.getValue(PassengerRequest.class);
 
@@ -473,8 +479,7 @@ public class RouteRequestManagerActivity extends AppCompatActivity
                     if (passengerRequest.getPassengerRequestState() == PassengerRequestState.FINDING_DRIVER
                             && passengerRequest.getTripFareInfo().getCarType() == routeRequest.getCarType()
                             && passengerRequest.func_isInTheFuture()
-                            && ! passengerRequest.getPassengerUId().equals(FirebaseAuth.getInstance().getCurrentUser().getUid()))
-                    {
+                            && !passengerRequest.getPassengerUId().equals(FirebaseAuth.getInstance().getCurrentUser().getUid())) {
                         Date passengerRequestStartTime = passengerRequest.func_getStartTimeAsDate();
                         Date driverRequestStartTime = routeRequest.func_getStartTimeAsDate();
                         int waitMinute = passengerRequest.getWaitMinute();
@@ -488,17 +493,17 @@ public class RouteRequestManagerActivity extends AppCompatActivity
             }
 
             // sort list to nearest to passenger current location
-            Collections.sort(requestList, (dq1, dq2) ->{
+            Collections.sort(requestList, (dq1, dq2) -> {
                 double distance1 = LocationUtils.calcDistance(dq1.getPickUpSavePlace().func_getLatLngLocation(), nearLocation);
                 double distance2 = LocationUtils.calcDistance(dq2.getPickUpSavePlace().func_getLatLngLocation(), nearLocation);
 
-                if(distance1 < distance2)
+                if (distance1 < distance2)
                     return -1;
                 else if (distance1 == distance2)
                     return 0;
                 else
                     return 1;
-            } );
+            });
 
             return requestList;
         }
@@ -514,7 +519,7 @@ public class RouteRequestManagerActivity extends AppCompatActivity
             for (int i = 0; i < routeRequestsFiltered.size(); i++) {
                 // if driver found break the check loop
                 synchronized (isDriverFound) {
-                    if(isDriverFound)
+                    if (isDriverFound)
                         break;
                 }
                 final PassengerRequest passengerRequest = routeRequestsFiltered.get(i);
@@ -540,6 +545,7 @@ public class RouteRequestManagerActivity extends AppCompatActivity
                             public void onDirectionFinderStart() {
 
                             }
+
                             @Override
                             public void onDirectionFinderSuccess(List<Route> routes) {
                                 // routeDurationSec = time depend on route from "driver Start point" to "passenger Pickup point"
@@ -549,8 +555,7 @@ public class RouteRequestManagerActivity extends AppCompatActivity
                                 long startTimeInterval = TimeUtils.getPassTime(passengerStartTime, routeRequest.func_getStartTimeAsDate());
                                 long timeToWaitSec = routeDurationSec + startTimeInterval;
 
-                                if(timeToWaitSec < waitMinute*60)
-                                {
+                                if (timeToWaitSec < waitMinute * 60) {
                                     // check limit radius --> if out off range will not check
                                     // find the Direction depend on Request
                                     directionManager.findPath(latLng_startLocation, latLng_endLocation,
@@ -611,14 +616,12 @@ public class RouteRequestManagerActivity extends AppCompatActivity
         NotifyTrip notifyTrip = routeRequests.get(position).getNotifyTrip();
         if (notifyTrip == null) {
 
-        }
-        else
-        {
+        } else {
             String tripUId = notifyTrip.getTripUId();
 
-            DBManager.getTripById( tripUId, trip -> {
+            DBManager.getTripById(tripUId, trip -> {
                 // get Passenger Info
-                DBManager.getUserById( trip.getPassengerUId(), userInfo -> {
+                DBManager.getUserById(trip.getPassengerUId(), userInfo -> {
                     // get Passenger Request
                     DBManager.getPassengerRequestById(trip.getPassengerRequestUId(), trip.getPassengerUId(), passengerRequest -> {
 
@@ -628,6 +631,8 @@ public class RouteRequestManagerActivity extends AppCompatActivity
                         intent.putExtra("passengerRequest", passengerRequest);
 
                         RouteRequestManagerActivity.this.startActivity(intent);
+
+                        showNotificationforDriver(userInfo, trip);
 
                         hideLoadingPassengerRequestInfo();
                     });
@@ -639,8 +644,7 @@ public class RouteRequestManagerActivity extends AppCompatActivity
 
     private void checkRequestNotify(RouteRequest request) {
         NotifyTrip notifyTrip = request.getNotifyTrip();
-        if(notifyTrip != null && !notifyTrip.isNotified())
-        {
+        if (notifyTrip != null && !notifyTrip.isNotified()) {
             // update NotifyTrip value to notified
             notifyTrip.setNotified(true);
             dbRefe.child(Define.DB_ROUTE_REQUESTS)
@@ -650,6 +654,14 @@ public class RouteRequestManagerActivity extends AppCompatActivity
                     .setValue(notifyTrip);
 
             // todo: notification
+            String tripUId = notifyTrip.getTripUId();
+            DBManager.getTripById(tripUId, trip -> {
+                // get Passenger Info
+                DBManager.getUserById(trip.getPassengerUId(), userInfo -> {
+                    showNotificationforDriver(userInfo, trip);
+                });
+
+            });
             Toast.makeText(getApplicationContext(), "found driver", Toast.LENGTH_LONG).show();
             refreshList(false);
         }
@@ -658,6 +670,7 @@ public class RouteRequestManagerActivity extends AppCompatActivity
     }
 
     MaterialDialog loadingPassengerInfo;
+
     private void showLoadingPassengerRequestInfo(String title) {
         loadingPassengerInfo = new MaterialDialog.Builder(this)
                 .title(title)
@@ -691,7 +704,7 @@ public class RouteRequestManagerActivity extends AppCompatActivity
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 routeRequests.clear();
-                for (DataSnapshot postSnapshot: dataSnapshot.getChildren()) {
+                for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
                     RouteRequest request = postSnapshot.getValue(RouteRequest.class);
 
                     checkRequestNotify(request);
@@ -729,9 +742,9 @@ public class RouteRequestManagerActivity extends AppCompatActivity
         topRightMenu = new TopRightMenu(RouteRequestManagerActivity.this);
 
         List<MenuItem> menuItems = new ArrayList<>();
-        menuItems.add( new MenuItem(R.drawable.ic_pause_20, getString(R.string.pause)));
-        menuItems.add( new MenuItem(R.drawable.ic_delete_20, getString(R.string.delete)));
-        menuItems.add( new MenuItem(R.drawable.ic_resume_20, getString(R.string.resume)));
+        menuItems.add(new MenuItem(R.drawable.ic_pause_20, getString(R.string.pause)));
+        menuItems.add(new MenuItem(R.drawable.ic_delete_20, getString(R.string.delete)));
+        menuItems.add(new MenuItem(R.drawable.ic_resume_20, getString(R.string.resume)));
 
         topRightMenu
                 .setHeight(340)
@@ -757,7 +770,7 @@ public class RouteRequestManagerActivity extends AppCompatActivity
                         changeRouteRequestState(position, command);
                     }
                 })
-                .showAsDropDown(view, -250, 0);	//带偏移量
+                .showAsDropDown(view, -250, 0);    //带偏移量
     }
 
     //endregion
@@ -806,7 +819,7 @@ public class RouteRequestManagerActivity extends AppCompatActivity
         updateNavUserInfo();
 
         RelativeLayout group_Avatar = headerLayout.findViewById(R.id.group_Avatar);
-        group_Avatar.setOnClickListener(v ->{
+        group_Avatar.setOnClickListener(v -> {
             Intent i = new Intent(RouteRequestManagerActivity.this, AboutUser.class);
             RouteRequestManagerActivity.this.startActivityForResult(i, ABOUT_USER_REQUEST_CODE);
         });
@@ -838,16 +851,15 @@ public class RouteRequestManagerActivity extends AppCompatActivity
             FirebaseAuth.getInstance().signOut();
             Intent intent = new Intent(RouteRequestManagerActivity.this, PhoneAuthActivity.class);
             startActivity(intent);
-        }
-        else if(id==R.id.nav_share){
+        } else if (id == R.id.nav_share) {
 
             Intent i = new Intent(Intent.ACTION_SEND);
 
             i.setType("text/plain");
             String shareBody = "link";
             String shareName = "SBike";
-            i.putExtra(Intent.EXTRA_TEXT,shareBody);
-            i.putExtra(Intent.EXTRA_SUBJECT,shareName);
+            i.putExtra(Intent.EXTRA_TEXT, shareBody);
+            i.putExtra(Intent.EXTRA_SUBJECT, shareName);
 
             startActivity(Intent.createChooser(i, "Sharing"));
         }

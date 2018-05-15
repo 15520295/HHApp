@@ -3,8 +3,13 @@ package com.example.huydaoduc.hieu.chi.hhapp.Main.Passenger.PassengerRequestMana
 import android.Manifest;
 import android.app.Activity;
 import android.app.Dialog;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Typeface;
+import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -12,12 +17,14 @@ import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
@@ -142,6 +149,7 @@ public class PassengerRequestManagerActivity extends AppCompatActivity
             // show driver info
             DBManager.getUserById(routeRequest.getDriverUId(), (userInfo) ->
                     {
+                        showNotificationforPassenger(getApplicationContext(), userInfo);
                         setUpDialogInfo(userInfo);
                         hideLoadingPassengerRequestInfo();
                     }
@@ -152,6 +160,45 @@ public class PassengerRequestManagerActivity extends AppCompatActivity
         }
 
         refreshList(true);
+    }
+
+    public void showNotificationforPassenger(Context context, UserInfo driverInfo) {
+
+        NotificationCompat.Builder mBuilder =
+                new NotificationCompat.Builder(context)
+                        .setSmallIcon(R.drawable.ic_location_on)
+                        .setContentTitle(driverInfo.getName())
+                        .setContentText(driverInfo.getPhoneNumber())
+                        .setPriority(2);
+
+        Intent resultIntent = new Intent(context, PassengerRequestManagerActivity.class);
+
+        resultIntent.putExtra("userInfo", driverInfo);
+
+        PendingIntent resultPendingIntent =
+                PendingIntent.getActivity(
+                        context,
+                        0,
+                        resultIntent,
+                        PendingIntent.FLAG_UPDATE_CURRENT
+                );
+
+        mBuilder.setContentIntent(resultPendingIntent);
+
+        Uri uri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+        mBuilder.setSound(uri);
+
+//                        Uri newSound= Uri.parse("android.resource://"
+//                                + getPackageName() + "/" + R.raw.gaugau);
+//                        mBuilder.setSound(newSound);
+
+        int mNotificationId = 1;
+        // Gets an instance of the NotificationManager service
+        //Log.d(TAG, driverInfo.getName());
+        NotificationManager mNotificationManager =
+                (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+        // Builds the notification and issues it.
+        mNotificationManager.notify(mNotificationId, mBuilder.build());
     }
 
     private void Init() {
@@ -224,6 +271,7 @@ public class PassengerRequestManagerActivity extends AppCompatActivity
                                     .setValue(notifyTrip);
 
                             // todo: notification
+                            showNotificationforPassenger(getApplicationContext(), userInfo);
                             Toast.makeText(getApplicationContext(),"Found your driver",Toast.LENGTH_LONG).show();
                             refreshList(false);
                         }
@@ -282,6 +330,7 @@ public class PassengerRequestManagerActivity extends AppCompatActivity
 
                                 // notify passenger
                                 //todo : notify Notification
+                                showNotificationforPassenger(getApplicationContext(), userInfo);
                             }
                             request.setNotifyTrip(notifyTrip);
 
@@ -495,6 +544,7 @@ public class PassengerRequestManagerActivity extends AppCompatActivity
         MaterialFancyButton btnMessage, btnCall;
         TextView tvName, tvPhone, tv_yob;
         CircleImageView civProfilePic;
+        Typeface face = Typeface.createFromAsset(getAssets(), "fonts/Font Grab Bike.ttf");
 
         dialogInfo = new Dialog(PassengerRequestManagerActivity.this);
         dialogInfo.setContentView(R.layout.info_user);
@@ -505,6 +555,10 @@ public class PassengerRequestManagerActivity extends AppCompatActivity
         tvPhone = dialogInfo.findViewById(R.id.tvPhone);
         tv_yob = dialogInfo.findViewById(R.id.tv_yob);
         civProfilePic = dialogInfo.findViewById(R.id.civProfilePic);
+
+        tvName.setTypeface(face);
+        tvPhone.setTypeface(face);
+        tv_yob.setTypeface(face);
 
         tvName.setText(driverInfo.getName());
         tvPhone.setText(driverInfo.getPhoneNumber());
