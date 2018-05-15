@@ -43,6 +43,8 @@ public class SplashActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        overridePendingTransition(R.anim.anim_fade_in, R.anim.anim_fade_out);
+
 
         setContentView(R.layout.activity_splash);
         ivSplash = findViewById(R.id.imageView);
@@ -64,6 +66,7 @@ public class SplashActivity extends AppCompatActivity {
                 if (startIntent != null) {
                     ivSplash.clearAnimation();
                     SplashActivity.this.startActivity(startIntent);
+                    overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
                     SplashActivity.this.finish();
                 }
             }
