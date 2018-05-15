@@ -1,15 +1,12 @@
 package com.uit.huydaoduc.hieu.chi.hhapp.Main.Passenger.PassengerRequestManager;
 
-import android.text.TextUtils;
-
 import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.chad.library.adapter.base.BaseViewHolder;
 import com.uit.huydaoduc.hieu.chi.hhapp.DefineString;
 import com.uit.huydaoduc.hieu.chi.hhapp.Framework.LocationUtils;
+import com.uit.huydaoduc.hieu.chi.hhapp.Framework.TimeUtils;
 import com.uit.huydaoduc.hieu.chi.hhapp.Model.Passenger.PassengerRequest;
 import com.uit.huydaoduc.hieu.chi.hhapp.Model.Passenger.PassengerRequestState;
-import com.uit.huydaoduc.hieu.chi.hhapp.Model.RouteRequest.RouteRequest;
-import com.uit.huydaoduc.hieu.chi.hhapp.Model.RouteRequest.RouteRequestState;
 import com.uit.huydaoduc.hieu.chi.hhapp.Model.Trip.TripFareInfo;
 import com.uit.huydaoduc.hieu.chi.hhapp.R;
 
@@ -54,10 +51,12 @@ public class PassengerRequestAdapter extends BaseQuickAdapter<PassengerRequest, 
             helper.setVisible(R.id.iv_pause, true);
         }
 
-        if (! passengerRequest.func_isInTheFuture()) {
+        long passTime = TimeUtils.getPassTime(passengerRequest.getTripFareInfo().getStartTime())/60;
+        int waitMin = passengerRequest.getWaitMinute();
+        if (passTime > waitMin) {
             helper.setVisible(R.id.prb_finding_passenger, false);
             helper.setVisible(R.id.iv_pause, false);
-//            helper.setText(R.id.btn_request_state, DefineString.PASSENGER_REQUEST_STATE_MAP.get(PassengerRequestState.DONE));
+            helper.setText(R.id.btn_request_state, DefineString.PASSENGER_REQUEST_STATE_MAP.get(PassengerRequestState.TIME_OUT));
         }
 
 

@@ -200,7 +200,6 @@ public class FindingDriverActivity extends AppCompatActivity {
             // show suggestion
             if(! this.isFinishing())
                 new MaterialDialog.Builder(FindingDriverActivity.this)
-                        .title(R.string.add_waiting_list_title)
                         .content(R.string.add_waiting_list_content)
                         .positiveText(R.string.ok)
                         .negativeText(R.string.cancel)

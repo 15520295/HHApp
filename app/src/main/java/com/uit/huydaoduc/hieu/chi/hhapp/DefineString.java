@@ -3,7 +3,6 @@ package com.uit.huydaoduc.hieu.chi.hhapp;
 import android.util.Pair;
 
 import com.uit.huydaoduc.hieu.chi.hhapp.Model.Car.CarType;
-import com.uit.huydaoduc.hieu.chi.hhapp.Model.Passenger.PassengerRequest;
 import com.uit.huydaoduc.hieu.chi.hhapp.Model.Passenger.PassengerRequestState;
 import com.uit.huydaoduc.hieu.chi.hhapp.Model.RouteRequest.RouteRequestState;
 
@@ -16,7 +15,7 @@ public class DefineString {
         put(RouteRequestState.FINDING_PASSENGER,"Finding passenger...");
         put(RouteRequestState.PAUSE,"Pause finding");
         put(RouteRequestState.FOUND_PASSENGER,"Found your passenger");
-        put(RouteRequestState.DONE,"Done");
+        put(RouteRequestState.TIME_OUT,"Time out");
     }};
 
     // Passenger Request State
@@ -24,7 +23,7 @@ public class DefineString {
         put(PassengerRequestState.FINDING_DRIVER,"Finding driver ...");
         put(PassengerRequestState.PAUSE,"Pause");
         put(PassengerRequestState.FOUND_DRIVER,"Found your driver");
-        put(PassengerRequestState.DONE,"Done");
+        put(PassengerRequestState.TIME_OUT,"Time out");
     }};
 
     // Wait time

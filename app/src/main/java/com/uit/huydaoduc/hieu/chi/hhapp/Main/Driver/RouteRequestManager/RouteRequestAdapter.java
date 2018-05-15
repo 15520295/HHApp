@@ -1,13 +1,10 @@
 package com.uit.huydaoduc.hieu.chi.hhapp.Main.Driver.RouteRequestManager;
 
-import android.text.TextUtils;
-
 import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.chad.library.adapter.base.BaseViewHolder;
 import com.uit.huydaoduc.hieu.chi.hhapp.DefineString;
 import com.uit.huydaoduc.hieu.chi.hhapp.Framework.LocationUtils;
 import com.uit.huydaoduc.hieu.chi.hhapp.Framework.TimeUtils;
-import com.uit.huydaoduc.hieu.chi.hhapp.Model.Passenger.PassengerRequestState;
 import com.uit.huydaoduc.hieu.chi.hhapp.Model.RouteRequest.RouteRequest;
 import com.uit.huydaoduc.hieu.chi.hhapp.Model.RouteRequest.RouteRequestState;
 import com.uit.huydaoduc.hieu.chi.hhapp.R;
@@ -54,7 +51,7 @@ public class RouteRequestAdapter extends BaseQuickAdapter<RouteRequest, com.chad
         if (! routeRequest.func_isInTheFuture()) {
             helper.setVisible(R.id.prb_finding_passenger, false);
             helper.setVisible(R.id.iv_pause, false);
-            helper.setText(R.id.btn_request_state, DefineString.ROUTE_REQUEST_STATE_MAP.get(RouteRequestState.DONE));
+            helper.setText(R.id.btn_request_state, DefineString.ROUTE_REQUEST_STATE_MAP.get(RouteRequestState.TIME_OUT));
         }
 
 

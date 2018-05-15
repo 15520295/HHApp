@@ -35,6 +35,7 @@ import com.uit.huydaoduc.hieu.chi.hhapp.ActivitiesAuth.UpdateInfoActivity;
 import com.uit.huydaoduc.hieu.chi.hhapp.Define;
 import com.uit.huydaoduc.hieu.chi.hhapp.Framework.DBManager;
 import com.uit.huydaoduc.hieu.chi.hhapp.Framework.ImageUtils;
+import com.uit.huydaoduc.hieu.chi.hhapp.Framework.TimeUtils;
 import com.uit.huydaoduc.hieu.chi.hhapp.Main.AboutApp;
 import com.uit.huydaoduc.hieu.chi.hhapp.Main.AboutUser;
 import com.uit.huydaoduc.hieu.chi.hhapp.Main.CurUserInfo;
@@ -83,6 +84,12 @@ public class PassengerRequestManagerActivity extends AppCompatActivity
 
     private String getCurUid() {
         return FirebaseAuth.getInstance().getCurrentUser().getUid();
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        refreshList(false);
     }
 
     @Override
@@ -154,6 +161,7 @@ public class PassengerRequestManagerActivity extends AppCompatActivity
         }
         if (passengerRequest != null) {
             listenToPassengerRequestNotify(passengerRequest);
+            refreshList(true);
         }
 
         refreshList(true);
@@ -434,7 +442,9 @@ public class PassengerRequestManagerActivity extends AppCompatActivity
         PassengerRequest request = passengerRequests.get(position);
         PassengerRequestState state = request.getPassengerRequestState();
 
-        if (! request.func_isInTheFuture()) {
+        long passTime = TimeUtils.getPassTime(request.getTripFareInfo().getStartTime())/60;
+        int waitMin = request.getWaitMinute();
+        if (passTime > waitMin) {
             if (command == "Delete" && request.getPassengerRequestState() != PassengerRequestState.FOUND_DRIVER) {
                 // change state on server
                 dbRefe.child(Define.DB_PASSENGER_REQUESTS)

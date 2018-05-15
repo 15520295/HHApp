@@ -4,5 +4,5 @@ public enum  PassengerRequestState {
     FINDING_DRIVER,
     FOUND_DRIVER,
     PAUSE,
-    DONE
+    TIME_OUT
 }
