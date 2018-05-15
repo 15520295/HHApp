@@ -46,12 +46,15 @@
     <color name="flat_disabled_text">#40000000</color>
 
     // Title Bar
-    <color name="title_bar_background_color">#02aef0</color>
+    <color name="title_bar_background_color">#02f051</color>
+    <color name="title_bar_background_color_blue">#02aef0</color>
     <color name="title_bar_text_color">#eaffffff</color>
 
     // Radius Button
-    <color name="btn_unpressed">#21d82a</color>
-    <color name="btn_pressed">#21d82a</color>
+    <color name="btn_unpressed">#02f051</color>
+    <color name="btn_pressed">#0dca4c</color>
+    <color name="btn_unpressed_blue">#02aef0</color>
+    <color name="btn_pressed_blue">#049bd5</color>
 
     // Date Time picker
     <color name="date_picker_bar">#02aef0</color>

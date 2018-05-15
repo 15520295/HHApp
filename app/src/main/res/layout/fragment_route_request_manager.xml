@@ -49,7 +49,7 @@
             android:layout_alignParentRight="true"
             android:layout_margin="20dp"
             android:layout_marginBottom="@dimen/margin_default_20"
-            app:backgroundTint="@color/title_bar_background_color"/>
+            app:backgroundTint="@color/title_bar_background_color_blue"/>
     </RelativeLayout>
 
 </FrameLayout>

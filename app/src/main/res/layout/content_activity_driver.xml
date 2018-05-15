@@ -10,7 +10,7 @@
 
     <cn.bingoogolapple.titlebar.BGATitleBar
         android:id="@+id/titlebar"
-        style="@style/CusTitleBar"
+        style="@style/CusTitleBarBlue"
         app:bgatitlebar_leftDrawablePadding="15dp"
         app:bgatitlebar_leftDrawable="@drawable/ic_menu_white"
         app:bgatitlebar_leftText="Driver Activity"

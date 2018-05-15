@@ -4,12 +4,12 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.example.huydaoduc.hieu.chi.hhapp.Main.AboutUser">
+    tools:context="com.uit.huydaoduc.hieu.chi.hhapp.Main.AboutUser">
 
 
     <cn.bingoogolapple.titlebar.BGATitleBar
         android:id="@+id/titlebar"
-        style="@style/CusTitleBar"
+        style="@style/CusTitleBarBlue"
         app:bgatitlebar_leftDrawablePadding="15dp"
         app:bgatitlebar_leftDrawable="@drawable/ic_back_v2_white_26px"
         app:bgatitlebar_leftText="Edit account"
@@ -43,7 +43,7 @@
                 android:id="@+id/profile_image"
                 android:layout_width="100dp"
                 android:layout_height="100dp"
-                android:src="@drawable/null_avatar" />
+                android:src="@drawable/admin_avatar" />
 
             <de.hdodenhof.circleimageview.CircleImageView
                 android:id="@+id/profile_edit"
@@ -70,7 +70,7 @@
             android:layout_marginTop="8dp"
             android:text="John Cena"
             android:textColor="@color/light_black"
-            android:backgroundTint="@color/title_bar_background_color"
+            android:backgroundTint="@color/title_bar_background_color_blue"
             android:textSize="20sp"
             android:textStyle="bold"
             app:layout_constraintStart_toStartOf="parent"
@@ -94,7 +94,7 @@
             android:layout_marginTop="8dp"
             android:text="1990"
             android:textColor="@color/light_black"
-            android:backgroundTint="@color/title_bar_background_color"
+            android:backgroundTint="@color/title_bar_background_color_blue"
             android:textSize="20sp"
             android:textStyle="bold"
             app:layout_constraintStart_toStartOf="parent"

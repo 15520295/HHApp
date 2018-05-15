@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     tools:context=".Main.Passenger.FindingDriverActivity"
-    android:background="@color/title_bar_background_color"
+    android:background="@color/title_bar_background_color_blue"
     xmlns:fancy="http://schemas.android.com/apk/res-auto"
     >
 

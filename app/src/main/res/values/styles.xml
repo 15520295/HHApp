@@ -103,6 +103,17 @@
         <item name="bgatitlebar_titleTextColor">@color/title_bar_text_color</item>
         <item name="bgatitlebar_leftAndRightTextSize">18sp</item>
     </style>
+    <style name="CusTitleBarBlue">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">58dp</item>
+        <item name="android:background">@color/title_bar_background_color_blue</item>
+        <item name="bgatitlebar_leftAndRightPadding">20dp</item>
+        <item name="bgatitlebar_leftAndRightTextColor">@color/title_bar_text_color</item>
+        <item name="bgatitlebar_titleTextColor">@color/title_bar_text_color</item>
+        <item name="bgatitlebar_leftAndRightTextSize">18sp</item>
+    </style>
+
+
     <style name="AppTheme.PopMe">
         <item name="android:windowIsTranslucent">true</item>
         <item name="android:windowCloseOnTouchOutside">true</item>
