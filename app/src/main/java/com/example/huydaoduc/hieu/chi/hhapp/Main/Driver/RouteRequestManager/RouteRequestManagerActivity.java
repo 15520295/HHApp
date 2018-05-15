@@ -856,7 +856,7 @@ public class RouteRequestManagerActivity extends AppCompatActivity
             Intent i = new Intent(Intent.ACTION_SEND);
 
             i.setType("text/plain");
-            String shareBody = "link";
+            String shareBody = "https://play.google.com/store/apps/details?id=com.example.huydaoduc.hieu.chi.hhapp";
             String shareName = "SBike";
             i.putExtra(Intent.EXTRA_TEXT, shareBody);
             i.putExtra(Intent.EXTRA_SUBJECT, shareName);

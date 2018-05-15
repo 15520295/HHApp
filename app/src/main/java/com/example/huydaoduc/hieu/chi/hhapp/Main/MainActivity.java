@@ -15,6 +15,9 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.huydaoduc.hieu.chi.hhapp.Main.Driver.RouteRequestManager.RouteRequestManagerActivity;
@@ -37,6 +40,7 @@ public class MainActivity extends AppCompatActivity {
     private static final int ROUTE_REQUEST_MANAGER_REQUEST_CODE = 1;
     private static final int PASSENGER_ACTIVITY_MANAGER_REQUEST_CODE = 2;
     FloatingTextButton btn_passenger, btn_driver;
+    private TextView txtdriver, txtpassenger;
 
     FirebaseAuth auth;
     FirebaseDatabase db;
@@ -48,6 +52,11 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         initView();
+
+        Animation animation = AnimationUtils.loadAnimation(this,R.anim.anim_driver);
+        Animation animation1 = AnimationUtils.loadAnimation(this,R.anim.anim_pass);
+        txtdriver.startAnimation(animation);
+        txtpassenger.startAnimation(animation1);
 
         addEven();
 
@@ -76,6 +85,8 @@ public class MainActivity extends AppCompatActivity {
     private void initView() {
         btn_passenger = findViewById(R.id.btn_passenger);
         btn_driver = findViewById(R.id.btn_driver);
+        txtdriver = findViewById(R.id.txtdriver);
+        txtpassenger = findViewById(R.id.txtpassenger);
     }
 
     @Override

@@ -122,7 +122,7 @@
                 android:layout_marginStart="@dimen/margin_default_25"
                 fancy:mfb_defaultColor="#ffffff"
                 fancy:mfb_focusColor="#ffffff"
-                fancy:mfb_borderColor="@color/title_bar_background_color"
+                fancy:mfb_borderColor="#21d82a"
                 fancy:mfb_borderWidth="2dp"
                 android:padding="8dp"
                 fancy:mfb_iconResource="@drawable/ic_message_primary_color"
@@ -139,7 +139,7 @@
                 android:padding="8dp"
                 android:layout_centerVertical="true"
                 fancy:mfb_iconPosition="top"
-                fancy:mfb_defaultColor="@color/title_bar_background_color"
+                fancy:mfb_defaultColor="#21d82a"
                 fancy:mfb_focusColor="#7b989898"
                 fancy:mfb_iconResource="@drawable/ic_call_white"
                 fancy:mfb_radius="5dp" />

@@ -26,7 +26,7 @@
     <color name="baseReleaseColor">#212121</color>
     <color name="basePressColor">#FAFAFA</color>
     <color name="ballReleaseColor">#9E9E9E</color>
-    <color name="colorCancelButton">#247100</color>
+    <color name="colorCancelButton">#02aef0</color>
 
     <color name="dividerColor">#1f747474</color>
 
@@ -46,15 +46,15 @@
     <color name="flat_disabled_text">#40000000</color>
 
     // Title Bar
-    <color name="title_bar_background_color">#39be47</color>
+    <color name="title_bar_background_color">#02aef0</color>
     <color name="title_bar_text_color">#eaffffff</color>
 
     // Radius Button
-    <color name="btn_unpressed">#39be47</color>
-    <color name="btn_pressed">#309d3b</color>
+    <color name="btn_unpressed">#21d82a</color>
+    <color name="btn_pressed">#21d82a</color>
 
     // Date Time picker
-    <color name="date_picker_bar">#309d3b</color>
+    <color name="date_picker_bar">#02aef0</color>
 
     // Route Request Row
     <color name="route_request_back_ground">#ffffff</color>
@@ -64,7 +64,7 @@
     // Car type row
     <color name="deep_blue_gray">#9497a1</color>
     <color name="light_blue_gray">#eaeff2</color>
-    <color name="selected_car_type_row">#33c066</color>
+    <color name="selected_car_type_row">#02aef0</color>
 
     // Condition Button
     <color name="condition_text">#9497a1</color>
