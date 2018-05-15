@@ -34,6 +34,7 @@ public class AboutApp extends Activity {
 
         getWindow().setAttributes(params);
 
+        //Bản v1
         AboutView view = AboutBuilder.with(this)
                 .setPhoto(R.drawable.logo111)
                 .setCover(R.mipmap.profile_cover)
