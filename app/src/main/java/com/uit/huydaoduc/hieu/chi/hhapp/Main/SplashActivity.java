@@ -11,12 +11,11 @@ import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
+import android.view.animation.RotateAnimation;
 import android.widget.ImageView;
 import android.widget.Toast;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
-import android.widget.ImageView;
-import android.widget.Toast;
 
 import com.uit.huydaoduc.hieu.chi.hhapp.ActivitiesAuth.UpdateInfoActivity;
 import com.uit.huydaoduc.hieu.chi.hhapp.Define;
@@ -30,6 +29,8 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 
 public class SplashActivity extends AppCompatActivity {
 
@@ -38,34 +39,47 @@ public class SplashActivity extends AppCompatActivity {
     private BroadcastReceiver broadcastReceiver;
     private ImageView ivSplash;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_splash);
         ivSplash = findViewById(R.id.imageView);
-        Animation animation = AnimationUtils.loadAnimation(this,R.anim.anim_acitivity_splash);
-        ivSplash.setAnimation(animation);
+        Animation animation = new RotateAnimation(0,360,
+                Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
         animation.setAnimationListener(new Animation.AnimationListener() {
             @Override
             public void onAnimationStart(Animation animation) {
+                int i = 1;
             }
 
             @Override
             public void onAnimationEnd(Animation animation) {
-
+                this.onAnimationStart(animation);
             }
 
             @Override
             public void onAnimationRepeat(Animation animation) {
-
+                if (startIntent != null) {
+                    ivSplash.clearAnimation();
+                    SplashActivity.this.startActivity(startIntent);
+                    SplashActivity.this.finish();
+                }
             }
         });
+        animation.setDuration(1000);
+        animation.setRepeatCount(Animation.INFINITE);
+        animation.setFillEnabled(true);
+        ivSplash.startAnimation(animation);
 
 
-
-        checkInternet();
+        checkInternetAndGetUserInfo();
     }
-    private void checkInternet() {
+
+    Intent startIntent;
+
+    private void checkInternetAndGetUserInfo() {
         IntentFilter intentFilter = new IntentFilter("android.net.conn.CONNECTIVITY_CHANGE");
         broadcastReceiver = new BroadcastReceiver() {
             @Override
@@ -86,16 +100,12 @@ public class SplashActivity extends AppCompatActivity {
                                         UserInfo userInfo = dataSnapshot.getValue(UserInfo.class);
                                         if (userInfo == null) {
                                             // signed in but don't have info
-                                            Intent startIntent = new Intent(SplashActivity.this, UpdateInfoActivity.class);
-                                            SplashActivity.this.startActivity(startIntent);
-                                            SplashActivity.this.finish();
+                                            startIntent = new Intent(SplashActivity.this, UpdateInfoActivity.class);
+
                                         } else {
                                             // User is signed in
                                             CurUserInfo.getInstance().setUserInfo(userInfo);
-
-                                            Intent startIntent = new Intent(SplashActivity.this, MainActivity.class);
-                                            SplashActivity.this.startActivity(startIntent);
-                                            SplashActivity.this.finish();
+                                            startIntent = new Intent(SplashActivity.this, MainActivity.class);
                                         }
                                     }
 
@@ -112,9 +122,7 @@ public class SplashActivity extends AppCompatActivity {
                         new Handler().postDelayed(new Runnable() {
                             @Override
                             public void run() {
-                                Intent startIntent = new Intent(SplashActivity.this, PhoneAuthActivity.class);
-                                SplashActivity.this.startActivity(startIntent);
-                                SplashActivity.this.finish();
+                                startIntent = new Intent(SplashActivity.this, PhoneAuthActivity.class);
                             }
                         }, SPLASH_DISPLAY_LENGTH);
                     }
@@ -135,14 +143,14 @@ public class SplashActivity extends AppCompatActivity {
         builder.setPositiveButton("Retry", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-                checkInternet();
+                checkInternetAndGetUserInfo();
             }
         });
-        builder.setNegativeButton("Thoát", new DialogInterface.OnClickListener() {
+        builder.setNegativeButton("Exit", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
                 dialogInterface.dismiss();
-                finish();
+                SplashActivity.this.finish();
             }
         });
         AlertDialog alertDialog = builder.create();
