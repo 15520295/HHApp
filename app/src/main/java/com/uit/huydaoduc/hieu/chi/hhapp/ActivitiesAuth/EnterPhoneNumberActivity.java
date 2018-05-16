@@ -265,9 +265,10 @@ public class EnterPhoneNumberActivity extends AppCompatActivity {
                 }
                 else
                 {
-                    Log.e(TAG,e.getMessage());
                     tv_error.setText("Sorry we can't sent OTP to this phone number right now, please try later.");
                 }
+                Log.e(TAG,e.getMessage());
+
                 hideLoading();
             }
 

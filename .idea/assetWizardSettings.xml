@@ -33,6 +33,7 @@
                                   </option>
                                   <option name="values">
                                     <map>
+                                      <entry key="backgroundAssetType" value="COLOR" />
                                       <entry key="backgroundLayerName" value="ic_launcher_background_logo_sbike2" />
                                       <entry key="foregroundImage" value="D:\Hieu\UIT\Cong nghe phan mem CS\pic\logosbike6.png" />
                                       <entry key="foregroundLayerName" value="ic_launcher_foreground_logo_sbike2" />
@@ -48,14 +49,19 @@
                                   <option name="values">
                                     <map>
                                       <entry key="assetType" value="IMAGE" />
-                                      <entry key="iconShape" value="CIRCLE" />
+                                      <entry key="iconShape" value="NONE" />
                                       <entry key="imageAsset" value="D:\Hieu\UIT\Cong nghe phan mem CS\pic\logosbike6.png" />
-                                      <entry key="outputName" value="ic_launcher_circle" />
+                                      <entry key="outputName" value="ic_launcher_circle_sbike" />
                                     </map>
                                   </option>
                                 </PersistentState>
                               </value>
                             </entry>
+                          </map>
+                        </option>
+                        <option name="values">
+                          <map>
+                            <entry key="outputIconType" value="LAUNCHER_LEGACY" />
                           </map>
                         </option>
                       </PersistentState>
