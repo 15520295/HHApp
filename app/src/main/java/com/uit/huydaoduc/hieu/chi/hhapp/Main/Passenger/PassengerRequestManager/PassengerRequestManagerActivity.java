@@ -73,7 +73,6 @@ public class PassengerRequestManagerActivity extends AppCompatActivity
     private static final int CREATE_PASSENGER_REQUEST_CODE = 1;
     private static final int CALL_PERMISSION_REQUEST_CODE = 5;
     BGATitleBar titleBar;
-    RecyclerView rycv_passenger_request;
     FloatingActionButton fab_add_request;
 
     List<PassengerRequest> passengerRequests;
@@ -90,6 +89,16 @@ public class PassengerRequestManagerActivity extends AppCompatActivity
     protected void onStart() {
         super.onStart();
         refreshList(false);
+    }
+
+
+    @Override
+    public void onBackPressed() {
+        if(! drawer_layout.isDrawerOpen(GravityCompat.START))
+            super.onBackPressed();
+        else {
+            drawer_layout.closeDrawer(GravityCompat.START);
+        }
     }
 
     @Override
@@ -291,6 +300,7 @@ public class PassengerRequestManagerActivity extends AppCompatActivity
 
 
     //region -------------- Init Recycle View + Event ----------------
+    RecyclerView rycv_passenger_request;
 
     private void initRecyclerView() {
         rycv_passenger_request = findViewById(R.id.recycler_view_requests);

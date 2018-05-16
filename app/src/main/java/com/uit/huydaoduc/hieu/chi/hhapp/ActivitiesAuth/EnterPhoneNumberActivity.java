@@ -160,6 +160,7 @@ public class EnterPhoneNumberActivity extends AppCompatActivity {
 
 
     private void Init() {
+        initDialog();
 
         // Init Firebase
         firebaseAuth = FirebaseAuth.getInstance();
@@ -286,12 +287,17 @@ public class EnterPhoneNumberActivity extends AppCompatActivity {
         };
     }
 
-    private void showLoading() {
-        dialog = new ProgressDialog(this);
+    private void initDialog() {
+        dialog = new ProgressDialog(EnterPhoneNumberActivity.this);
         dialog.setMessage("Loading...");
         dialog.setCancelable(false);
         dialog.setInverseBackgroundForced(false);
-        dialog.show();
+    }
+
+    private void showLoading() {
+        if (dialog != null && !dialog.isShowing()) {
+            dialog.show();
+        }
     }
 
     private void hideLoading() {

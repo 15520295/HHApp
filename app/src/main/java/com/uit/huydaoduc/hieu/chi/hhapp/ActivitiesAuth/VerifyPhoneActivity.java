@@ -49,7 +49,7 @@ public class VerifyPhoneActivity extends AppCompatActivity {
     private static boolean isTimerRunning = false;
     FloatingActionButton fab;
     private TextView tv_error, tv_phone_number, tv_resend_code;
-    private Map<Integer,EditText> editTextMap;
+    private Map<Integer, EditText> editTextMap;
     private RelativeLayout rootLayout;
     private FirebaseAuth firebaseAuth;
 
@@ -83,7 +83,7 @@ public class VerifyPhoneActivity extends AppCompatActivity {
                     .setAction("Ok", new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
-                            Intent intent = new Intent(getApplicationContext(),EnterPhoneNumberActivity.class);
+                            Intent intent = new Intent(getApplicationContext(), EnterPhoneNumberActivity.class);
                             VerifyPhoneActivity.this.startActivity(intent);
                             hideLoading();
                             finish();
@@ -92,10 +92,10 @@ public class VerifyPhoneActivity extends AppCompatActivity {
         } else {
             verify_code = extras.getString("verify_code");
             phone_number = extras.getString("phone_number");
-            forceResendingToken = (PhoneAuthProvider.ForceResendingToken)extras.getParcelable("forceResendingToken");
+            forceResendingToken = (PhoneAuthProvider.ForceResendingToken) extras.getParcelable("forceResendingToken");
         }
 
-        String user_number =  phone_number;
+        String user_number = phone_number;
         if (user_number.charAt(0) == '0') {
             user_number = new StringBuilder(user_number).deleteCharAt(0).toString();
         }
@@ -121,8 +121,7 @@ public class VerifyPhoneActivity extends AppCompatActivity {
                         .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                             @Override
                             public void onComplete(@NonNull Task<AuthResult> task) {
-                                if(task.isSuccessful())
-                                {
+                                if (task.isSuccessful()) {
                                     final String uid = task.getResult().getUser().getUid();
 
                                     DatabaseReference usersRef = FirebaseDatabase.getInstance().getReference().child(Define.DB_USERS_INFO);
@@ -134,7 +133,7 @@ public class VerifyPhoneActivity extends AppCompatActivity {
                                                 Toast.makeText(getApplicationContext(), "Login successfully", Toast.LENGTH_SHORT).show();
 
                                                 Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-                                                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP|Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                                                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
                                                 VerifyPhoneActivity.this.startActivity(intent);
                                                 hideLoading();
                                                 finish();
@@ -157,23 +156,18 @@ public class VerifyPhoneActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onVerificationFailed(FirebaseException e)
-            {
+            public void onVerificationFailed(FirebaseException e) {
                 Log.w(TAG, e.getMessage());
 
                 if (e.getMessage().toLowerCase().contains("network")) {
                     tv_error.setText(R.string.cant_connect_network);
-                }
-                else if (e instanceof FirebaseAuthInvalidCredentialsException) {
+                } else if (e instanceof FirebaseAuthInvalidCredentialsException) {
                     // Invalid request
                     tv_error.setText(R.string.cant_send_sms);
-                }
-                else if (e instanceof FirebaseTooManyRequestsException) {
+                } else if (e instanceof FirebaseTooManyRequestsException) {
                     // The SMS quota for the project has been exceeded
                     tv_error.setText(R.string.server_storage_overload);
-                }
-                else
-                {
+                } else {
                     tv_error.setText(e.getMessage());
                 }
                 hideLoading();
@@ -190,16 +184,16 @@ public class VerifyPhoneActivity extends AppCompatActivity {
 
         // start Timer
         CountDownTimer countDownTimer;
-        countDownTimer = new CountDownTimer(20*1000, 1000 - 500) {
+        countDownTimer = new CountDownTimer(45 * 1000, 1000 - 500) {
             @Override
             public void onTick(long millisUntilFinished) {
-                tv_resend_code.setText(String.format(getString(R.string.resend_code), millisUntilFinished/1000));
+                tv_resend_code.setText(String.format(getString(R.string.resend_code), millisUntilFinished / 1000));
             }
 
             @Override
             public void onFinish() {
                 tv_resend_code.setText(R.string.click_to_resend_code);
-                tv_resend_code.setOnClickListener( v ->{
+                tv_resend_code.setOnClickListener(v -> {
                     resendVerificationCode(phone_number);
                     startTimer();
                 });
@@ -221,11 +215,13 @@ public class VerifyPhoneActivity extends AppCompatActivity {
 
 
     private void Init() {
+        initDialog();
+
         // Init Firebase
         firebaseAuth = FirebaseAuth.getInstance();
 
         // Init views
-        fab = (FloatingActionButton)findViewById (R.id.fab);
+        fab = (FloatingActionButton) findViewById(R.id.fab);
 
         tv_error = findViewById(R.id.tv_error);
         tv_error.setText("");
@@ -235,12 +231,12 @@ public class VerifyPhoneActivity extends AppCompatActivity {
         tv_phone_number = findViewById(R.id.tv_phone_number);
 
         editTextMap = new LinkedHashTreeMap<>();
-        editTextMap.put(1,(EditText) findViewById(R.id.et_number1));
-        editTextMap.put(2,(EditText) findViewById(R.id.et_number2));
-        editTextMap.put(3,(EditText) findViewById(R.id.et_number3));
-        editTextMap.put(4,(EditText) findViewById(R.id.et_number4));
-        editTextMap.put(5,(EditText) findViewById(R.id.et_number5));
-        editTextMap.put(6,(EditText) findViewById(R.id.et_number6));
+        editTextMap.put(1, (EditText) findViewById(R.id.et_number1));
+        editTextMap.put(2, (EditText) findViewById(R.id.et_number2));
+        editTextMap.put(3, (EditText) findViewById(R.id.et_number3));
+        editTextMap.put(4, (EditText) findViewById(R.id.et_number4));
+        editTextMap.put(5, (EditText) findViewById(R.id.et_number5));
+        editTextMap.put(6, (EditText) findViewById(R.id.et_number6));
         rootLayout = findViewById(R.id.root);
 
         // Events
@@ -251,8 +247,7 @@ public class VerifyPhoneActivity extends AppCompatActivity {
             }
         });
 
-        for (final Map.Entry<Integer,EditText> pair : editTextMap.entrySet())
-        {
+        for (final Map.Entry<Integer, EditText> pair : editTextMap.entrySet()) {
             pair.getValue().addTextChangedListener(new TextWatcher() {
                 @Override
                 public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -260,10 +255,8 @@ public class VerifyPhoneActivity extends AppCompatActivity {
 
                 @Override
                 public void onTextChanged(CharSequence s, int start, int before, int count) {
-                    if(start == 0 && count == 0)
-                    {
-                        if(pair.getKey() != 1)
-                        {
+                    if (start == 0 && count == 0) {
+                        if (pair.getKey() != 1) {
                             int i = pair.getKey() - 1;
                             editTextMap.get(i).requestFocus();
                         }
@@ -272,13 +265,11 @@ public class VerifyPhoneActivity extends AppCompatActivity {
 
                 @Override
                 public void afterTextChanged(Editable s) {
-                    if(!TextUtils.isEmpty(s.toString()))
-                    {
+                    if (!TextUtils.isEmpty(s.toString())) {
                         if (pair.getKey() == 6) {
                             // If done for last digit then go and check
                             verifyPhoneNumber();
-                        }
-                        else
+                        } else
                             editTextMap.get(pair.getKey() + 1).requestFocus();
                     }
                 }
@@ -287,8 +278,7 @@ public class VerifyPhoneActivity extends AppCompatActivity {
             pair.getValue().setOnFocusChangeListener(new View.OnFocusChangeListener() {
                 @Override
                 public void onFocusChange(View v, boolean hasFocus) {
-                    if(hasFocus)
-                    {
+                    if (hasFocus) {
                         // Select all when focus
                         EditText et = (EditText) v;
                         et.setSelectAllOnFocus(true);
@@ -296,8 +286,7 @@ public class VerifyPhoneActivity extends AppCompatActivity {
                 }
             });
 
-            pair.getValue().setOnKeyListener(new View.OnKeyListener()
-            {
+            pair.getValue().setOnKeyListener(new View.OnKeyListener() {
                 @Override
                 public boolean onKey(View v, int keyCode, KeyEvent event) {
                     if (event.getAction() == KeyEvent.ACTION_DOWN) {
@@ -308,25 +297,31 @@ public class VerifyPhoneActivity extends AppCompatActivity {
         }
     }
 
+
+
     private void AnimationIn() {
         Animation fab_button_anim = AnimationUtils.loadAnimation(this, R.anim.slide_in_right);
         fab_button_anim.reset();
         fab.clearAnimation();
         fab.startAnimation(fab_button_anim);
     }
-
-    private void showLoading() {
-        dialog = new ProgressDialog(this);
+    private void initDialog() {
+        dialog = new ProgressDialog(VerifyPhoneActivity.this);
         dialog.setMessage("Loading...");
         dialog.setCancelable(false);
         dialog.setInverseBackgroundForced(false);
-        dialog.show();
+    }
+    private void showLoading() {
+
+        if (dialog != null && !dialog.isShowing()) {
+            dialog.show();
+        }
     }
 
     private void hideLoading() {
         // hide showLoading dialog
         if (dialog != null) {
-            if(dialog.isShowing())
+            if (dialog.isShowing())
                 dialog.hide();
         }
     }
@@ -351,7 +346,7 @@ public class VerifyPhoneActivity extends AppCompatActivity {
                                 public void onDataChange(DataSnapshot snapshot) {
                                     if (snapshot.hasChild(uid)) {
                                         Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-                                        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP|Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                                        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
                                         VerifyPhoneActivity.this.startActivity(intent);
                                         hideLoading();
                                         finish();
@@ -391,14 +386,12 @@ public class VerifyPhoneActivity extends AppCompatActivity {
         if (TextUtils.isEmpty(verify_code)) {
             // When verify code is null go back to EnterPhoneNumberActivity to sent the code again
             cannotVerify();
-        }
-        else {
+        } else {
             // check if put all the input code
 
             StringBuilder input_code = new StringBuilder();
 
-            for (final Map.Entry<Integer,EditText> pair : editTextMap.entrySet())
-            {
+            for (final Map.Entry<Integer, EditText> pair : editTextMap.entrySet()) {
                 //check not input
                 if (TextUtils.isEmpty(pair.getValue().getText().toString())) {
                     tv_error.setText("Please enter the code");
@@ -415,8 +408,7 @@ public class VerifyPhoneActivity extends AppCompatActivity {
 
     }
 
-    private void cannotVerify()
-    {
+    private void cannotVerify() {
         Snackbar.make(rootLayout, "Can't verify the code.Please try again!", Snackbar.LENGTH_LONG)
                 .setAction("Ok", new View.OnClickListener() {
                     @Override

@@ -15,6 +15,38 @@
       },
       "oauth_client": [
         {
+          "client_id": "885841931802-afkbi5achorgsgoou6982i5sopp9rnhb.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.uit.huydaoduc.hieu.chi.hhapp",
+            "certificate_hash": "f49887cb9e7180c6479dbea8729074dee8791208"
+          }
+        },
+        {
+          "client_id": "885841931802-stqn1v3ij0s9f27dn4pdeoghbg5e23nf.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.uit.huydaoduc.hieu.chi.hhapp",
+            "certificate_hash": "8b1d8e396b5510736413cc6e3d36c453d3b49170"
+          }
+        },
+        {
+          "client_id": "885841931802-2jgsfktltqe9ipgd3nmla5kgntr7gub5.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.uit.huydaoduc.hieu.chi.hhapp",
+            "certificate_hash": "60d4bebe1c1be09b6936bceca9251bb8f73112da"
+          }
+        },
+        {
+          "client_id": "885841931802-nie2vs2hmv4j744fmrp1m3jpe2o85r78.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.uit.huydaoduc.hieu.chi.hhapp",
+            "certificate_hash": "9f371085f0811c0d2333ab4c81a920b75fe09d0a"
+          }
+        },
+        {
           "client_id": "885841931802-b8i92i6bjkm5v6cce0qn8gl08jp8t9r0.apps.googleusercontent.com",
           "client_type": 3
         }
@@ -35,8 +67,13 @@
           "status": 1
         },
         "appinvite_service": {
-          "status": 1,
-          "other_platform_oauth_client": []
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "885841931802-b8i92i6bjkm5v6cce0qn8gl08jp8t9r0.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         },
         "ads_service": {
           "status": 2

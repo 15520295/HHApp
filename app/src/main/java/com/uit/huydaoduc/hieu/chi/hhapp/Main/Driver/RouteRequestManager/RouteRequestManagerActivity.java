@@ -88,6 +88,15 @@ public class RouteRequestManagerActivity extends AppCompatActivity
     }
 
     @Override
+    public void onBackPressed() {
+        if(! drawer_layout.isDrawerOpen(GravityCompat.START))
+            super.onBackPressed();
+        else {
+            drawer_layout.closeDrawer(GravityCompat.START);
+        }
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_route_request_manager);
