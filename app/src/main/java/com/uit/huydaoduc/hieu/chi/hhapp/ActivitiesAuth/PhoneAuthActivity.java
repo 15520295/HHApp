@@ -55,7 +55,7 @@ public class PhoneAuthActivity extends AppCompatActivity {
         // Init Views
         tv_request = findViewById(R.id.tv_request);
         tv_connect_social = findViewById(R.id.tv_connect_social);
-        tv_connect_social.setEnabled(false);
+       // tv_connect_social.setEnabled(false);
 
         // init firebase
         firebaseAuth = FirebaseAuth.getInstance();
