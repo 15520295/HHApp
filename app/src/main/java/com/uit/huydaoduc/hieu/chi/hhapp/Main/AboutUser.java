@@ -28,6 +28,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
+import java.io.IOException;
 import java.util.Objects;
 
 import cn.bingoogolapple.titlebar.BGATitleBar;
@@ -187,7 +188,8 @@ public class AboutUser extends AppCompatActivity {
                 if (resultCode == RESULT_OK) {
                     Uri uri = data.getData();
                     circleImageView.setImageURI(uri);
-                    String base64Photo = ImageUtils.bitmapToBase64(Objects.requireNonNull(ImageUtils.uriToBitmap(getApplicationContext(), uri)));
+                    String base64Photo = null;
+                    base64Photo = ImageUtils.bitmapToBase64(ImageUtils.compressImage(AboutUser.this.getContentResolver(), uri.toString()));
                     userInfo.setPhoto(base64Photo);
                 }
                 break;

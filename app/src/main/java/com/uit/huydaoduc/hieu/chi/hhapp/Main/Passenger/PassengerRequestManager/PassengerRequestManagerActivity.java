@@ -3,6 +3,7 @@ package com.uit.huydaoduc.hieu.chi.hhapp.Main.Passenger.PassengerRequestManager;
 import android.Manifest;
 import android.app.Activity;
 import android.app.Dialog;
+import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
@@ -39,6 +40,7 @@ import com.uit.huydaoduc.hieu.chi.hhapp.Framework.TimeUtils;
 import com.uit.huydaoduc.hieu.chi.hhapp.Main.AboutApp;
 import com.uit.huydaoduc.hieu.chi.hhapp.Main.AboutUser;
 import com.uit.huydaoduc.hieu.chi.hhapp.Main.CurUserInfo;
+import com.uit.huydaoduc.hieu.chi.hhapp.Main.Driver.RouteRequestManager.RouteRequestManagerActivity;
 import com.uit.huydaoduc.hieu.chi.hhapp.Main.Passenger.PassengerActivity;
 import com.uit.huydaoduc.hieu.chi.hhapp.Model.Passenger.PassengerRequest;
 import com.uit.huydaoduc.hieu.chi.hhapp.Model.Passenger.PassengerRequestState;
@@ -68,7 +70,7 @@ import de.hdodenhof.circleimageview.CircleImageView;
 
 
 public class PassengerRequestManagerActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener{
+        implements NavigationView.OnNavigationItemSelectedListener {
 
     private static final int CREATE_PASSENGER_REQUEST_CODE = 1;
     private static final int CALL_PERMISSION_REQUEST_CODE = 5;
@@ -94,7 +96,7 @@ public class PassengerRequestManagerActivity extends AppCompatActivity
 
     @Override
     public void onBackPressed() {
-        if(! drawer_layout.isDrawerOpen(GravityCompat.START))
+        if (!drawer_layout.isDrawerOpen(GravityCompat.START))
             super.onBackPressed();
         else {
             drawer_layout.closeDrawer(GravityCompat.START);
@@ -109,7 +111,7 @@ public class PassengerRequestManagerActivity extends AppCompatActivity
 
         if (savedInstanceState == null) {
             Bundle extras = getIntent().getExtras();
-            if(extras == null) {
+            if (extras == null) {
                 userInfo = null;
             } else {
                 userInfo = extras.getParcelable("userInfo");
@@ -146,23 +148,22 @@ public class PassengerRequestManagerActivity extends AppCompatActivity
         RouteRequest routeRequest;
         if (savedInstanceState == null) {
             Bundle extras = getIntent().getExtras();
-            if(extras == null) {
-                passengerRequest= null;
+            if (extras == null) {
+                passengerRequest = null;
                 routeRequest = null;
             } else {
-                passengerRequest= extras.getParcelable("passengerRequest");
-                routeRequest= extras.getParcelable("routeRequest");
+                passengerRequest = extras.getParcelable("passengerRequest");
+                routeRequest = extras.getParcelable("routeRequest");
             }
         } else {
-            passengerRequest= (PassengerRequest) savedInstanceState.getParcelable("passengerRequest");
-            routeRequest= (RouteRequest) savedInstanceState.getParcelable("routeRequest");
+            passengerRequest = (PassengerRequest) savedInstanceState.getParcelable("passengerRequest");
+            routeRequest = (RouteRequest) savedInstanceState.getParcelable("routeRequest");
         }
 
         if (routeRequest != null) {
             // show driver info
             DBManager.getUserById(routeRequest.getDriverUId(), (userInfo) ->
                     {
-                        showNotificationforPassenger(getApplicationContext(), userInfo);
                         setUpDialogInfo(userInfo);
                         hideLoadingPassengerRequestInfo();
                     }
@@ -176,43 +177,68 @@ public class PassengerRequestManagerActivity extends AppCompatActivity
         refreshList(true);
     }
 
-    public void showNotificationforPassenger(Context context, UserInfo driverInfo) {
+    public void showNotificationforPassenger(String tripUId) {
+        DBManager.getTripById(tripUId, trip -> {
+            // get driverInfo
+            DBManager.getUserById(trip.getPassengerUId(), driverInfo -> {
+                NotificationCompat.Builder mBuilder;
 
-        NotificationCompat.Builder mBuilder =
-                new NotificationCompat.Builder(context)
-                        .setSmallIcon(R.drawable.ic_location_on)
-                        .setContentTitle(driverInfo.getName())
-                        .setContentText(driverInfo.getPhoneNumber())
-                        .setPriority(2);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    mBuilder = new NotificationCompat.Builder(getApplicationContext(), "my_channel_01");
 
-        Intent resultIntent = new Intent(context, PassengerRequestManagerActivity.class);
+                    mBuilder.setAutoCancel(true)
+                            .setDefaults(Notification.DEFAULT_ALL)
+                            .setWhen(System.currentTimeMillis())
+                            .setSmallIcon(R.drawable.ic_location_on)
+                            .setTicker("Found your Driver")
+                            .setPriority(2) // this is deprecated in API 26 but you can still use for below 26. check below update for 26 API
+                            .setContentTitle(userInfo.getName())
+                            .setContentText(userInfo.getPhoneNumber())
+                            .setContentInfo("Info");
 
-        resultIntent.putExtra("userInfo", driverInfo);
+                } else {
 
-        PendingIntent resultPendingIntent =
-                PendingIntent.getActivity(
-                        context,
-                        0,
-                        resultIntent,
-                        PendingIntent.FLAG_UPDATE_CURRENT
-                );
+                    mBuilder = new NotificationCompat.Builder(getApplicationContext())
+                            .setSmallIcon(R.drawable.ic_location_on)
+                            .setContentTitle(driverInfo.getName())
+                            .setContentText(driverInfo.getPhoneNumber())
+                            .setPriority(2);
 
-        mBuilder.setContentIntent(resultPendingIntent);
+                }
 
-        Uri uri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
-        mBuilder.setSound(uri);
+                Intent resultIntent = new Intent(getApplicationContext(), PassengerRequestManagerActivity.class);
+
+                resultIntent.putExtra("userInfo", driverInfo);
+
+                PendingIntent resultPendingIntent =
+                        PendingIntent.getActivity(
+                                getApplicationContext(),
+                                0,
+                                resultIntent,
+                                PendingIntent.FLAG_UPDATE_CURRENT
+                        );
+
+                mBuilder.setContentIntent(resultPendingIntent);
+
+                Uri uri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+                mBuilder.setSound(uri);
 
 //                        Uri newSound= Uri.parse("android.resource://"
 //                                + getPackageName() + "/" + R.raw.gaugau);
 //                        mBuilder.setSound(newSound);
 
-        int mNotificationId = 1;
-        // Gets an instance of the NotificationManager service
-        //Log.d(TAG, driverInfo.getName());
-        NotificationManager mNotificationManager =
-                (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-        // Builds the notification and issues it.
-        mNotificationManager.notify(mNotificationId, mBuilder.build());
+                int mNotificationId = 1;
+                // Gets an instance of the NotificationManager service
+                //Log.d(TAG, driverInfo.getName());
+                NotificationManager mNotificationManager =
+                        (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+                // Builds the notification and issues it.
+                mNotificationManager.notify(mNotificationId, mBuilder.build());
+            });
+        });
+
+
+
     }
 
     private void Init() {
@@ -257,9 +283,9 @@ public class PassengerRequestManagerActivity extends AppCompatActivity
             }
         });
 
-        fab_add_request.setOnClickListener(e ->{
+        fab_add_request.setOnClickListener(e -> {
             Intent intent = new Intent(getApplicationContext(), PassengerActivity.class);
-            PassengerRequestManagerActivity.this.startActivityForResult(intent,CREATE_PASSENGER_REQUEST_CODE);
+            PassengerRequestManagerActivity.this.startActivityForResult(intent, CREATE_PASSENGER_REQUEST_CODE);
         });
 
     }
@@ -275,8 +301,7 @@ public class PassengerRequestManagerActivity extends AppCompatActivity
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         NotifyTrip notifyTrip = dataSnapshot.getValue(NotifyTrip.class);
 
-                        if(notifyTrip != null && !notifyTrip.isNotified())
-                        {
+                        if (notifyTrip != null && !notifyTrip.isNotified()) {
                             notifyTrip.setNotified(true);
                             dbRefe.child(Define.DB_PASSENGER_REQUESTS)
                                     .child(passengerRequest.getPassengerUId())
@@ -285,8 +310,8 @@ public class PassengerRequestManagerActivity extends AppCompatActivity
                                     .setValue(notifyTrip);
 
                             // todo: notification
-                            showNotificationforPassenger(getApplicationContext(), userInfo);
-                            Toast.makeText(getApplicationContext(),"Found your driver",Toast.LENGTH_LONG).show();
+                            showNotificationforPassenger(notifyTrip.getTripUId());
+                            Toast.makeText(getApplicationContext(), "Found your driver", Toast.LENGTH_LONG).show();
                             refreshList(false);
                         }
                     }
@@ -320,14 +345,13 @@ public class PassengerRequestManagerActivity extends AppCompatActivity
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         passengerRequests.clear();
-                        for (DataSnapshot postSnapshot: dataSnapshot.getChildren()) {
+                        for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
                             PassengerRequest request = postSnapshot.getValue(PassengerRequest.class);
 
                             // notify Trip And Update Request State On Server;
                             NotifyTrip notifyTrip = request.getNotifyTrip();
                             // if trip is not notify then notify and update data on server
-                            if(notifyTrip != null && ! notifyTrip.isNotified())
-                            {
+                            if (notifyTrip != null && !notifyTrip.isNotified()) {
                                 // update NotifyTrip value to notified
                                 notifyTrip.setNotified(true);
                                 dbRefe.child(Define.DB_PASSENGER_REQUESTS)
@@ -345,7 +369,7 @@ public class PassengerRequestManagerActivity extends AppCompatActivity
 
                                 // notify passenger
                                 //todo : notify Notification
-                                showNotificationforPassenger(getApplicationContext(), userInfo);
+                                showNotificationforPassenger(notifyTrip.getTripUId());
                             }
                             request.setNotifyTrip(notifyTrip);
 
@@ -380,6 +404,7 @@ public class PassengerRequestManagerActivity extends AppCompatActivity
 
     /**
      * Show driver info if found when click state button
+     *
      * @param position item in passengerRequests list
      */
     private void btnRequestStateClick(int position) {
@@ -406,9 +431,9 @@ public class PassengerRequestManagerActivity extends AppCompatActivity
         topRightMenu = new TopRightMenu(PassengerRequestManagerActivity.this);
 
         List<MenuItem> menuItems = new ArrayList<>();
-        menuItems.add( new MenuItem(R.drawable.ic_pause_20, getString(R.string.pause)));
-        menuItems.add( new MenuItem(R.drawable.ic_delete_20, getString(R.string.delete)));
-        menuItems.add( new MenuItem(R.drawable.ic_resume_20, getString(R.string.resume)));
+        menuItems.add(new MenuItem(R.drawable.ic_pause_20, getString(R.string.pause)));
+        menuItems.add(new MenuItem(R.drawable.ic_delete_20, getString(R.string.delete)));
+        menuItems.add(new MenuItem(R.drawable.ic_resume_20, getString(R.string.resume)));
 
         topRightMenu
                 .setHeight(340)
@@ -434,7 +459,7 @@ public class PassengerRequestManagerActivity extends AppCompatActivity
                         changeRequestState(position, command);
                     }
                 })
-                .showAsDropDown(view, -250, 0);	//带偏移量
+                .showAsDropDown(view, -250, 0);    //带偏移量
     }
 
     //endregion
@@ -452,10 +477,10 @@ public class PassengerRequestManagerActivity extends AppCompatActivity
         PassengerRequest request = passengerRequests.get(position);
         PassengerRequestState state = request.getPassengerRequestState();
 
-        long passTime = TimeUtils.getPassTime(request.getTripFareInfo().getStartTime())/60;
+        long passTime = TimeUtils.getPassTime(request.getTripFareInfo().getStartTime()) / 60;
         int waitMin = request.getWaitMinute();
-        if (passTime > waitMin) {
-            if (command == "Delete" && request.getPassengerRequestState() != PassengerRequestState.FOUND_DRIVER) {
+        if (passTime > waitMin && request.getPassengerRequestState() != PassengerRequestState.FOUND_DRIVER) {
+            if (command == "Delete") {
                 // change state on server
                 dbRefe.child(Define.DB_PASSENGER_REQUESTS)
                         .child(request.getPassengerUId())
@@ -475,8 +500,7 @@ public class PassengerRequestManagerActivity extends AppCompatActivity
             }
 
             return;
-        }
-        else if (state == PassengerRequestState.FOUND_DRIVER) {
+        } else if (state == PassengerRequestState.FOUND_DRIVER) {
             if (command.equals("Pause") || command.equals("Delete")) {
                 new MaterialDialog.Builder(this)
                         .content(R.string.cancel_request_warning_passenger)
@@ -489,8 +513,7 @@ public class PassengerRequestManagerActivity extends AppCompatActivity
 
                 return;
             }
-        }
-        else if (command.equals("Delete")) {
+        } else if (command.equals("Delete")) {
             // change state on server
             dbRefe.child(Define.DB_PASSENGER_REQUESTS)
                     .child(request.getPassengerUId())
@@ -561,7 +584,6 @@ public class PassengerRequestManagerActivity extends AppCompatActivity
         MaterialFancyButton btnMessage, btnCall;
         TextView tvName, tvPhone, tv_yob;
         CircleImageView civProfilePic;
-        Typeface face = Typeface.createFromAsset(getAssets(), "fonts/Font Grab Bike.ttf");
 
         dialogInfo = new Dialog(PassengerRequestManagerActivity.this);
         dialogInfo.setContentView(R.layout.info_user);
@@ -572,10 +594,6 @@ public class PassengerRequestManagerActivity extends AppCompatActivity
         tvPhone = dialogInfo.findViewById(R.id.tvPhone);
         tv_yob = dialogInfo.findViewById(R.id.tv_yob);
         civProfilePic = dialogInfo.findViewById(R.id.civProfilePic);
-
-        tvName.setTypeface(face);
-        tvPhone.setTypeface(face);
-        tv_yob.setTypeface(face);
 
         tvName.setText(driverInfo.getName());
         tvPhone.setText(driverInfo.getPhoneNumber());
@@ -662,6 +680,7 @@ public class PassengerRequestManagerActivity extends AppCompatActivity
     // Animation
 
     MaterialDialog loadingPassengerInfo;
+
     private void showLoadingPassengerRequestInfo(String title) {
         loadingPassengerInfo = new MaterialDialog.Builder(this)
                 .title(title)
@@ -695,7 +714,7 @@ public class PassengerRequestManagerActivity extends AppCompatActivity
         updateNavUserInfo();
 
         RelativeLayout group_Avatar = headerLayout.findViewById(R.id.group_Avatar);
-        group_Avatar.setOnClickListener(v ->{
+        group_Avatar.setOnClickListener(v -> {
             Intent i = new Intent(PassengerRequestManagerActivity.this, AboutUser.class);
             PassengerRequestManagerActivity.this.startActivityForResult(i, ABOUT_USER_REQUEST_CODE);
         });
@@ -722,21 +741,21 @@ public class PassengerRequestManagerActivity extends AppCompatActivity
 
         if (id == R.id.nav_about) {
             Intent i = new Intent(PassengerRequestManagerActivity.this, AboutApp.class);
+            overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
             PassengerRequestManagerActivity.this.startActivity(i);
         } else if (id == R.id.nav_logout) {
             FirebaseAuth.getInstance().signOut();
             Intent intent = new Intent(PassengerRequestManagerActivity.this, PhoneAuthActivity.class);
             startActivity(intent);
-        }
-        else if(id==R.id.nav_share){
+        } else if (id == R.id.nav_share) {
 
             Intent i = new Intent(Intent.ACTION_SEND);
 
             i.setType("text/plain");
             String shareBody = "https://play.google.com/store/apps/details?id=com.example.huydaoduc.hieu.chi.hhapp";
             String shareName = "SBike";
-            i.putExtra(Intent.EXTRA_TEXT,shareBody);
-            i.putExtra(Intent.EXTRA_SUBJECT,shareName);
+            i.putExtra(Intent.EXTRA_TEXT, shareBody);
+            i.putExtra(Intent.EXTRA_SUBJECT, shareName);
 
             startActivity(Intent.createChooser(i, "Sharing"));
         }

@@ -753,6 +753,7 @@ public class PassengerActivity extends SimpleMapActivity
 
         if (id == R.id.nav_about) {
             Intent i = new Intent(PassengerActivity.this, AboutApp.class);
+            overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
             PassengerActivity.this.startActivity(i);
         } else if (id == R.id.nav_logout) {
             FirebaseAuth.getInstance().signOut();

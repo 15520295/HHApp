@@ -1,6 +1,9 @@
 package com.uit.huydaoduc.hieu.chi.hhapp.Main.Driver.RouteRequestManager;
 
 import android.app.Activity;
+import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationChannelGroup;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
@@ -8,6 +11,7 @@ import android.content.Intent;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.NotificationCompat;
@@ -89,7 +93,7 @@ public class RouteRequestManagerActivity extends AppCompatActivity
 
     @Override
     public void onBackPressed() {
-        if(! drawer_layout.isDrawerOpen(GravityCompat.START))
+        if (!drawer_layout.isDrawerOpen(GravityCompat.START))
             super.onBackPressed();
         else {
             drawer_layout.closeDrawer(GravityCompat.START);
@@ -196,13 +200,9 @@ public class RouteRequestManagerActivity extends AppCompatActivity
                                     // notify driver
                                     //todo: notify Notification
                                     String tripUId = notifyTrip.getTripUId();
-                                    DBManager.getTripById(tripUId, trip -> {
-                                        // get Passenger Info
-                                        DBManager.getUserById(trip.getPassengerUId(), userInfo -> {
-                                            showNotificationforDriver(userInfo, trip);
-                                        });
+                                    showNotificationforDriver(tripUId);
 
-                                    });
+
                                     Toast.makeText(getApplicationContext(), "Found your passenger", Toast.LENGTH_LONG).show();
                                     refreshList(false);
                                 }
@@ -222,42 +222,87 @@ public class RouteRequestManagerActivity extends AppCompatActivity
         }
     }
 
-    public void showNotificationforDriver(UserInfo userInfo, Trip trip) {
-        NotificationCompat.Builder mBuilder =
-                new NotificationCompat.Builder(getApplicationContext())
-                        .setSmallIcon(R.drawable.ic_location_on)
-                        .setContentTitle(userInfo.getName())
-                        .setContentText(userInfo.getPhoneNumber())
-                        .setPriority(2);
+    public void showNotificationforDriver(String tripUId) {
+        DBManager.getTripById(tripUId, trip -> {
+            // get Passenger Info
+            DBManager.getUserById(trip.getPassengerUId(), userInfo -> {
 
-        Intent resultIntent = new Intent(getApplicationContext(), PassengerRequestInfoActivity.class);
 
-        resultIntent.putExtra("trip", trip);
-        resultIntent.putExtra("userInfo", userInfo);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(getApplicationContext(), "my_channel_01");
 
-        PendingIntent resultPendingIntent =
-                PendingIntent.getActivity(
-                        getApplicationContext(),
-                        0,
-                        resultIntent,
-                        PendingIntent.FLAG_UPDATE_CURRENT
-                );
+                    notificationBuilder.setAutoCancel(true)
+                            .setDefaults(Notification.DEFAULT_ALL)
+                            .setWhen(System.currentTimeMillis())
+                            .setSmallIcon(R.drawable.ic_location_on)
+                            .setTicker("Found your Passenger")
+                            .setPriority(2) // this is deprecated in API 26 but you can still use for below 26. check below update for 26 API
+                            .setContentTitle(userInfo.getName())
+                            .setContentText(userInfo.getPhoneNumber())
+                            .setContentInfo("Info");
 
-        mBuilder.setContentIntent(resultPendingIntent);
+                    Intent resultIntent = new Intent(getApplicationContext(), RouteRequestManagerActivity.class);
 
-        Uri uri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
-        mBuilder.setSound(uri);
+                    resultIntent.putExtra("trip", trip);
+                    resultIntent.putExtra("userInfo", userInfo);
+
+                    PendingIntent resultPendingIntent =
+                            PendingIntent.getActivity(
+                                    getApplicationContext(),
+                                    0,
+                                    resultIntent,
+                                    PendingIntent.FLAG_UPDATE_CURRENT
+                            );
+
+                    notificationBuilder.setContentIntent(resultPendingIntent);
+
+                    Uri uri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+                    notificationBuilder.setSound(uri);
+
+                    NotificationManager notificationManager = (NotificationManager) getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
+                    notificationManager.notify(2, notificationBuilder.build());
+                } else {
+                    NotificationCompat.Builder mBuilder =
+                            new NotificationCompat.Builder(getApplicationContext())
+                                    .setSmallIcon(R.drawable.ic_location_on)
+                                    .setContentTitle(userInfo.getName())
+                                    .setContentText(userInfo.getPhoneNumber())
+                                    .setPriority(2);
+
+                    Intent resultIntent = new Intent(getApplicationContext(), RouteRequestManagerActivity.class);
+
+                    resultIntent.putExtra("trip", trip);
+                    resultIntent.putExtra("userInfo", userInfo);
+
+                    PendingIntent resultPendingIntent =
+                            PendingIntent.getActivity(
+                                    getApplicationContext(),
+                                    0,
+                                    resultIntent,
+                                    PendingIntent.FLAG_UPDATE_CURRENT
+                            );
+
+                    mBuilder.setContentIntent(resultPendingIntent);
+
+                    Uri uri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+                    mBuilder.setSound(uri);
 
 //                        Uri newSound= Uri.parse("android.resource://"
 //                                + getPackageName() + "/" + R.raw.gaugau);
 //                        mBuilder.setSound(newSound);
 
-        int mNotificationId = 1;
-        // Gets an instance of the NotificationManager service
-        NotificationManager mNotifyMgr =
-                (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-        // Builds the notification and issues it.
-        mNotifyMgr.notify(mNotificationId, mBuilder.build());
+                    int mNotificationId = 1;
+                    // Gets an instance of the NotificationManager service
+                    NotificationManager mNotifyMgr =
+                            (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+                    // Builds the notification and issues it.
+                    mNotifyMgr.notify(mNotificationId, mBuilder.build());
+                }
+
+            });
+
+        });
+
 
     }
 
@@ -269,8 +314,8 @@ public class RouteRequestManagerActivity extends AppCompatActivity
         RouteRequest routeRequest = routeRequests.get(position);
         RouteRequestState state = routeRequest.getRouteRequestState();
 
-        if (!routeRequest.func_isInTheFuture()) {      // time out
-            if (command == "Delete" && routeRequest.getRouteRequestState() != RouteRequestState.FOUND_PASSENGER) {
+        if (!routeRequest.func_isInTheFuture() && routeRequest.getRouteRequestState() != RouteRequestState.FOUND_PASSENGER) {      // time out
+            if (command == "Delete") {
                 // change state on server
                 dbRefe.child(Define.DB_ROUTE_REQUESTS)
                         .child(routeRequest.getDriverUId())
@@ -633,8 +678,6 @@ public class RouteRequestManagerActivity extends AppCompatActivity
 
                         RouteRequestManagerActivity.this.startActivity(intent);
 
-                        showNotificationforDriver(userInfo, trip);
-
                         hideLoadingPassengerRequestInfo();
                     });
                 });
@@ -656,13 +699,7 @@ public class RouteRequestManagerActivity extends AppCompatActivity
 
             // todo: notification
             String tripUId = notifyTrip.getTripUId();
-            DBManager.getTripById(tripUId, trip -> {
-                // get Passenger Info
-                DBManager.getUserById(trip.getPassengerUId(), userInfo -> {
-                    showNotificationforDriver(userInfo, trip);
-                });
-
-            });
+            showNotificationforDriver(tripUId);
             Toast.makeText(getApplicationContext(), "found driver", Toast.LENGTH_LONG).show();
             refreshList(false);
         }
@@ -847,6 +884,7 @@ public class RouteRequestManagerActivity extends AppCompatActivity
 
         if (id == R.id.nav_about) {
             Intent i = new Intent(RouteRequestManagerActivity.this, AboutApp.class);
+            overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
             RouteRequestManagerActivity.this.startActivity(i);
         } else if (id == R.id.nav_logout) {
             FirebaseAuth.getInstance().signOut();
