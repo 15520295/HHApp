@@ -5,6 +5,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
+import android.os.Build;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AlertDialog;
@@ -115,6 +116,7 @@ public class AboutUser extends AppCompatActivity {
 
 
         et_NameUser.setText(userInfo.getName());
+        et_Yob.setText(userInfo.getYearOfBirth());
 
         // avatar
         if (userInfo.getPhoto() != null) {
@@ -189,7 +191,13 @@ public class AboutUser extends AppCompatActivity {
                     Uri uri = data.getData();
                     circleImageView.setImageURI(uri);
                     String base64Photo = null;
-                    base64Photo = ImageUtils.bitmapToBase64(ImageUtils.compressImage(AboutUser.this.getContentResolver(), uri.toString()));
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                        base64Photo = ImageUtils.bitmapToBase64(ImageUtils.uriToBitmap(AboutUser.this.getContentResolver(), uri));
+//                        base64Photo = ImageUtils.bitmapToBase64(ImageUtils.compressImage(AboutUser.this.getContentResolver(), uri.toString()));
+                    } else {
+                        base64Photo = ImageUtils.bitmapToBase64(ImageUtils.compressImage(AboutUser.this.getContentResolver(), uri.toString()));
+
+                    }
                     userInfo.setPhoto(base64Photo);
                 }
                 break;

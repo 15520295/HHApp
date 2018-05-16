@@ -59,9 +59,7 @@ public class MapCameraManager {
         }
 
         LatLngBounds bounds = builder.build();
-        int width = context.getResources().getDisplayMetrics().widthPixels;
-        int height = context.getResources().getDisplayMetrics().heightPixels;
-        CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(bounds,width, height, Define.MAP_BOUND_ROUTE_PADDING);
+        CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(bounds, Define.MAP_BOUND_ROUTE_PADDING);
         mMap.animateCamera(cu);
     }
 

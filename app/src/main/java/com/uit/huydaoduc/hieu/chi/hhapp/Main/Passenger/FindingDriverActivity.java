@@ -298,10 +298,14 @@ public class FindingDriverActivity extends AppCompatActivity {
             for (DataSnapshot requestSnapshot : postSnapshot.getChildren()) {
                 RouteRequest routeRequest = requestSnapshot.getValue(RouteRequest.class);
 
+                long passTimeBetweenDrAndPas = TimeUtils.getPassTime(routeRequest.func_getStartTimeAsDate(),passengerRequest.getTripFareInfo().func_getStartTimeAsDate())/60;
+                int waitMin = passengerRequest.getWaitMinute();
+
                 if (routeRequest.getRouteRequestState() == RouteRequestState.FINDING_PASSENGER
                         && routeRequest.getCarType() == carType
                         && routeRequest.func_isInTheFuture()
-                        && ! routeRequest.getDriverUId().equals(getCurUid())) {
+                        && ! routeRequest.getDriverUId().equals(getCurUid())
+                        && passTimeBetweenDrAndPas < waitMin) {
 //                    LatLng latLng_startLocation = request.getStartPlace().func_getLatLngLocation();
 //                    // check validate HH request before add to list
 //                    if ((LocationUtils.calcDistance(latLng_startLocation, mLastLocation) < limitHHRadius)

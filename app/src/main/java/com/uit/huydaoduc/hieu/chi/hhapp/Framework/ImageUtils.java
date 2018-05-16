@@ -35,7 +35,14 @@ public class ImageUtils {
 //      by setting this field as true, the actual bitmap pixels are not loaded in the memory. Just the bounds are loaded. If
 //      you try the use the bitmap here, you will get null.
         options.inJustDecodeBounds = true;
-        Bitmap bmp = BitmapFactory.decodeFile(filePath, options);
+        Bitmap bmp = null;
+        try {
+            InputStream in = cr.openInputStream(Uri.parse(imageUri));
+            BitmapFactory.decodeStream(in, null, options);
+        } catch (FileNotFoundException e) {
+            Log.e("ImageUtils", e.getMessage());
+            return null;
+        }
 
         int actualHeight = options.outHeight;
         int actualWidth = options.outWidth;
@@ -127,20 +134,6 @@ public class ImageUtils {
         }
         return scaledBitmap;
 
-//        FileOutputStream out = null;
-//        String filename = getFilename();
-//        try {
-//            out = new FileOutputStream(filename);
-//
-////          write the compressed bitmap at the destination specified by filename.
-//            scaledBitmap.compress(Bitmap.CompressFormat.JPEG, 80, out);
-//
-//        } catch (FileNotFoundException e) {
-//            e.printStackTrace();
-//        }
-//
-//        return filename;
-
     }
 
     public String getFilename() {
@@ -192,29 +185,6 @@ public class ImageUtils {
             e.printStackTrace();
         }
         return null;
-
-//        String filePath = imageUri.toString();
-//        // Decode image size
-//        BitmapFactory.Options o = new BitmapFactory.Options();
-//        o.inJustDecodeBounds = true;
-//        BitmapFactory.decodeFile(filePath, o);
-//        // The new size we want to scale to
-//        final int REQUIRED_SIZE = 680;
-//        // Find the correct scale value. It should be the power of 2.
-//        int width_tmp = o.outWidth, height_tmp = o.outHeight;
-//        int scale = 1;
-//        while (true) {
-//            if (width_tmp < REQUIRED_SIZE && height_tmp < REQUIRED_SIZE)
-//                break;
-//            width_tmp /= 2;
-//            height_tmp /= 2;
-//            scale *= 2;
-//        }
-//
-//        // Decode with inSampleSize
-//        BitmapFactory.Options o2 = new BitmapFactory.Options();
-//        o2.inSampleSize = scale;
-//        return BitmapFactory.decodeFile(filePath, o2);
     }
 
     public static String bitmapToBase64(Bitmap bm)

@@ -180,7 +180,7 @@ public class PassengerRequestManagerActivity extends AppCompatActivity
     public void showNotificationforPassenger(String tripUId) {
         DBManager.getTripById(tripUId, trip -> {
             // get driverInfo
-            DBManager.getUserById(trip.getPassengerUId(), driverInfo -> {
+            DBManager.getUserById(trip.getDriverUId(), driverInfo -> {
                 NotificationCompat.Builder mBuilder;
 
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {

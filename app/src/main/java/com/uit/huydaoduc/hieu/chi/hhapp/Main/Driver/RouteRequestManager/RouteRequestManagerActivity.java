@@ -202,7 +202,6 @@ public class RouteRequestManagerActivity extends AppCompatActivity
                                     String tripUId = notifyTrip.getTripUId();
                                     showNotificationforDriver(tripUId);
 
-
                                     Toast.makeText(getApplicationContext(), "Found your passenger", Toast.LENGTH_LONG).show();
                                     refreshList(false);
                                 }
@@ -522,10 +521,15 @@ public class RouteRequestManagerActivity extends AppCompatActivity
                 for (DataSnapshot requestSnapshot : postSnapshot.getChildren()) {
                     PassengerRequest passengerRequest = requestSnapshot.getValue(PassengerRequest.class);
 
+                    long passTimeBetweenDrAndPas = TimeUtils.getPassTime(routeRequest.func_getStartTimeAsDate(),passengerRequest.getTripFareInfo().func_getStartTimeAsDate())/60;
+                    int waitMin = passengerRequest.getWaitMinute();
+
                     // check all the condition
                     if (passengerRequest.getPassengerRequestState() == PassengerRequestState.FINDING_DRIVER
                             && passengerRequest.getTripFareInfo().getCarType() == routeRequest.getCarType()
-                            && !passengerRequest.getPassengerUId().equals(FirebaseAuth.getInstance().getCurrentUser().getUid())) {
+                            && !passengerRequest.getPassengerUId().equals(FirebaseAuth.getInstance().getCurrentUser().getUid())
+                            && passTimeBetweenDrAndPas < waitMin) {
+
                         Date passengerRequestStartTime = passengerRequest.func_getStartTimeAsDate();
                         Date driverRequestStartTime = routeRequest.func_getStartTimeAsDate();
                         int waitMinute = passengerRequest.getWaitMinute();
@@ -533,6 +537,7 @@ public class RouteRequestManagerActivity extends AppCompatActivity
                         // first estimate check time ( still have one more check in checkListPassengerRequest)
                         if (TimeUtils.getPassTime(passengerRequestStartTime, driverRequestStartTime) < waitMinute * 60) {
                             requestList.add(passengerRequest);
+                            long a = TimeUtils.getPassTime(passengerRequest.getTripFareInfo().getStartTime())/60;
                         }
                     }
                 }
