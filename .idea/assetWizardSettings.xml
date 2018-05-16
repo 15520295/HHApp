@@ -23,7 +23,7 @@
                                           <PersistentState>
                                             <option name="values">
                                               <map>
-                                                <entry key="scalingPercent" value="70" />
+                                                <entry key="scalingPercent" value="65" />
                                               </map>
                                             </option>
                                           </PersistentState>
@@ -33,10 +33,24 @@
                                   </option>
                                   <option name="values">
                                     <map>
-                                      <entry key="backgroundLayerName" value="ic_launcher_background_logo_sbike" />
-                                      <entry key="foregroundImage" value="D:\Hieu\UIT\Cong nghe phan mem CS\pic\logosbike5.png" />
-                                      <entry key="foregroundLayerName" value="ic_launcher_foreground_logo_sbike" />
-                                      <entry key="outputName" value="ic_launcher_logo_sbike" />
+                                      <entry key="backgroundLayerName" value="ic_launcher_background_logo_sbike2" />
+                                      <entry key="foregroundImage" value="D:\Hieu\UIT\Cong nghe phan mem CS\pic\logosbike6.png" />
+                                      <entry key="foregroundLayerName" value="ic_launcher_foreground_logo_sbike2" />
+                                      <entry key="outputName" value="ic_launcher_logo_sbike2" />
+                                    </map>
+                                  </option>
+                                </PersistentState>
+                              </value>
+                            </entry>
+                            <entry key="launcherLegacy">
+                              <value>
+                                <PersistentState>
+                                  <option name="values">
+                                    <map>
+                                      <entry key="assetType" value="IMAGE" />
+                                      <entry key="iconShape" value="CIRCLE" />
+                                      <entry key="imageAsset" value="D:\Hieu\UIT\Cong nghe phan mem CS\pic\logosbike6.png" />
+                                      <entry key="outputName" value="ic_launcher_circle" />
                                     </map>
                                   </option>
                                 </PersistentState>
