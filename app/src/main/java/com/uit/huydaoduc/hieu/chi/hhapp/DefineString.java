@@ -27,7 +27,7 @@ public class DefineString {
     }};
 
     // Wait time
-    public static final Pair<String, Integer> DEFAULT_WAIT_TIME = new Pair<>("How long can you wait the driver?", 5);
+    public static final Pair<String, Integer> DEFAULT_WAIT_TIME = new Pair<>("How long can you wait the driver?", 10);
     public static final LinkedHashMap<String,Integer> WAIT_TIME_MAP = new LinkedHashMap<String, Integer>() {{
         put("5 minute", 5);
         put("10 minute", 10);

@@ -358,7 +358,7 @@ public class CreateRouteActivity extends SimpleMapActivity implements SimpleMapA
         btn_time_picker.setText(TimeUtils.curDateToUserDateStr());
 
         selectedDateTime = Calendar.getInstance();
-        selectedDateTime.add(Calendar.MINUTE, 20);
+        selectedDateTime.add(Calendar.MINUTE, 10);
         btn_time_picker.setText(TimeUtils.timeToUserTimeStr(selectedDateTime.getTime()));
 
         // Date

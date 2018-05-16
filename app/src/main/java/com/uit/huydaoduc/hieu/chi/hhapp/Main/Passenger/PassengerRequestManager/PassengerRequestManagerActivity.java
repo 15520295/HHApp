@@ -236,9 +236,6 @@ public class PassengerRequestManagerActivity extends AppCompatActivity
                 mNotificationManager.notify(mNotificationId, mBuilder.build());
             });
         });
-
-
-
     }
 
     private void Init() {
@@ -322,7 +319,6 @@ public class PassengerRequestManagerActivity extends AppCompatActivity
                     }
                 });
     }
-
 
     //region -------------- Init Recycle View + Event ----------------
     RecyclerView rycv_passenger_request;
@@ -649,7 +645,6 @@ public class PassengerRequestManagerActivity extends AppCompatActivity
     }
 
     //endregion
-
 
     //region -------------- Smart Refresh Layout ----------------
 
