@@ -1,50 +1,63 @@
 package com.uit.huydaoduc.hieu.chi.hhapp;
 
+
+import android.content.Context;
 import android.util.Pair;
 
 import com.uit.huydaoduc.hieu.chi.hhapp.Model.Car.CarType;
 import com.uit.huydaoduc.hieu.chi.hhapp.Model.Passenger.PassengerRequestState;
 import com.uit.huydaoduc.hieu.chi.hhapp.Model.RouteRequest.RouteRequestState;
+import com.uit.huydaoduc.hieu.chi.hhapp.R;
 
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 
 public class DefineString {
+    private static Context context;
+
+    public static void setContext(Context context) {
+        DefineString.context = context;
+    }
+
+    private static String getStringById(int id) {
+        return context.getResources().getString(id);
+    }
+
     // Route Request State
     public static final HashMap<RouteRequestState,String> ROUTE_REQUEST_STATE_MAP = new HashMap<RouteRequestState, String>() {{
-        put(RouteRequestState.FINDING_PASSENGER,"Finding passenger...");
-        put(RouteRequestState.PAUSE,"Pause finding");
-        put(RouteRequestState.FOUND_PASSENGER,"Found your passenger");
-        put(RouteRequestState.TIME_OUT,"Time out");
+        put(RouteRequestState.FINDING_PASSENGER, getStringById(R.string.finding_passenger));
+        put(RouteRequestState.PAUSE, getStringById(R.string.pause_finding));
+        put(RouteRequestState.FOUND_PASSENGER, getStringById(R.string.click_to_see_passenger_info));
+        put(RouteRequestState.TIME_OUT, getStringById(R.string.time_out));
     }};
 
     // Passenger Request State
     public static final HashMap<PassengerRequestState,String> PASSENGER_REQUEST_STATE_MAP = new HashMap<PassengerRequestState, String>() {{
-        put(PassengerRequestState.FINDING_DRIVER,"Finding driver ...");
-        put(PassengerRequestState.PAUSE,"Pause");
-        put(PassengerRequestState.FOUND_DRIVER,"Found your driver");
-        put(PassengerRequestState.TIME_OUT,"Time out");
+        put(PassengerRequestState.FINDING_DRIVER, getStringById(R.string.finding_driver));
+        put(PassengerRequestState.PAUSE, getStringById(R.string.pause_finding));
+        put(PassengerRequestState.FOUND_DRIVER,getStringById(R.string.click_to_see_driver_info));
+        put(PassengerRequestState.TIME_OUT, getStringById(R.string.time_out));
     }};
 
     // Wait time
-    public static final Pair<String, Integer> DEFAULT_WAIT_TIME = new Pair<>("How long can you wait the driver?", 10);
+    public static final Pair<String, Integer> DEFAULT_WAIT_TIME = new Pair<>(getStringById(R.string.how_long_can_you_wait), 10);
     public static final LinkedHashMap<String,Integer> WAIT_TIME_MAP = new LinkedHashMap<String, Integer>() {{
-        put("5 minute", 5);
-        put("10 minute", 10);
-        put("20 minute", 20);
-        put("30 minute", 30);
+        put( getStringById(R.string.min_5) , 5);
+        put( getStringById(R.string.min_10), 10);
+        put( getStringById(R.string.min_20), 20);
+        put( getStringById(R.string.min_30), 30);
     }};
 
     // Car type
     public static final LinkedHashMap<CarType,String> CAR_TYPE_MAP = new LinkedHashMap<CarType, String>() {{
-        put(CarType.BIKE, "BIKE");
-        put(CarType.CAR_4,"4 SEAT CAR");
-        put(CarType.CAR_7,"7 SEAT CAR");
+        put(CarType.BIKE, getStringById(R.string.BIKE));
+        put(CarType.CAR_4, getStringById(R.string.CAR_4));
+        put(CarType.CAR_7, getStringById(R.string.CAR_7));
     }};
 
     // Note
-    public static final String NOTES_TO_DRIVER_TITLE = "Notes to Driver";
-    public static final String NOTES_TO_DRIVER_HINT = "I'm standing at the entrance";
+    public static final String NOTES_TO_DRIVER_TITLE = getStringById(R.string.note_to_driver);
+    public static final String NOTES_TO_DRIVER_HINT = getStringById(R.string.note_to_driver_hint);
 
 
 }

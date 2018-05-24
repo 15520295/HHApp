@@ -19,6 +19,7 @@ import android.view.animation.AnimationUtils;
 
 import com.uit.huydaoduc.hieu.chi.hhapp.ActivitiesAuth.UpdateInfoActivity;
 import com.uit.huydaoduc.hieu.chi.hhapp.Define;
+import com.uit.huydaoduc.hieu.chi.hhapp.DefineString;
 import com.uit.huydaoduc.hieu.chi.hhapp.Model.User.UserInfo;
 import com.uit.huydaoduc.hieu.chi.hhapp.R;
 import com.uit.huydaoduc.hieu.chi.hhapp.ActivitiesAuth.PhoneAuthActivity;
@@ -75,6 +76,8 @@ public class SplashActivity extends AppCompatActivity {
         animation.setRepeatCount(Animation.INFINITE);
         animation.setFillEnabled(true);
         ivSplash.startAnimation(animation);
+
+        DefineString.setContext(getApplicationContext());
 
 
         checkInternetAndGetUserInfo();

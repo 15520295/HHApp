@@ -1,13 +1,13 @@
 <resources>
     <string name="app_name">SBike</string>
     <string name="map_api_key" translatable="false">AIzaSyDdrNdC2sIbOYQirRIHthf1_VIcgYEDuk0</string>
-    <string name="title_activity_driver_in_map">Map</string>
-    <string name="title_activity_home">Home</string>
-    <string name="navigation_drawer_open">Open navigation drawer</string>
-    <string name="navigation_drawer_close">Close navigation drawer</string>
-    <string name="nav_header_title">Android Studio</string>
-    <string name="nav_header_subtitle">android.studio@android.com</string>
-    <string name="nav_header_desc">Navigation header</string>
+    <string name="title_activity_driver_in_map" translatable="false">Map</string>
+    <string name="title_activity_home" translatable="false">Home</string>
+    <string name="navigation_drawer_open" translatable="false">Open navigation drawer</string>
+    <string name="navigation_drawer_close" translatable="false">Close navigation drawer</string>
+    <string name="nav_header_title" translatable="false">Android Studio</string>
+    <string name="nav_header_subtitle" translatable="false">android.studio@android.com</string>
+    <string name="nav_header_desc" translatable="false">Navigation header</string>
     <string name="action_settings">Settings</string>
 
     <!--   LOGIN Activity   -->
@@ -17,7 +17,7 @@
     <string name="signup_title">Sign up</string>
 
     <!--Welcome messages-->
-    <string name="splash_welcome_txt">Easiest way to\nfind the best product</string>
+    <string name="splash_welcome_txt" translatable="false">Easiest way to\nfind the best product</string>
     <string name="login_welcome_txt">Hello there! Welcome back</string>
     <string name="signup_welcome_txt">Hello there !\nWelcome to you</string>
 
@@ -42,7 +42,7 @@
     <string name="forgot_password">Forgot password?</string>
     <string name="no_account">Don\’t have an account?</string>
     <string name="have_account">Have an account?</string>
-    <string name="divider_or">OR</string>
+    <string name="divider_or" translatable="false">OR</string>
 
 
     <!--   LOGIN Facebook   -->
@@ -56,28 +56,16 @@
     <string name="title_activity_enter_phone_number" translatable="false">EnterPhoneNumberActivity</string>
     <string name="title_activity_update_info">Update Info</string>
 
-    <!-- Strings related to login -->
-    <string name="prompt_password">Password (optional)</string>
-    <string name="action_sign_in">Sign in or register</string>
-    <string name="action_sign_in_short">Sign in</string>
-    <string name="error_invalid_email">This email address is invalid</string>
-    <string name="error_invalid_password">This password is too short</string>
-    <string name="error_incorrect_password">This password is incorrect</string>
-    <string name="error_field_required">This field is required</string>
-    <string name="permission_rationale">"Contacts permissions are needed for providing email completions."</string>
 
     <!-- Set when Null -->
     <string name="can_find_driver">Can not find Driver in your Route</string>
 
 
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
-
     <!--Request Menu Item-->
     <string name="pause_request_title">Do you want to pause your request?</string>
     <string name="pause_request_content_driver">If you pause this request, we can not find passenger for this request.</string>
     <string name="pause_request_content_passenger">If you pause this request, we can not find driver for this request.</string>
-    <string name="ok">OK</string>
+    <string name="ok" translatable="false">OK</string>
     <string name="cancel">CANCEL</string>
     <string name="cancel_request_warning_driver">We have found passenger for this request, if you want to cancel you can call the passenger to confirm.</string>
     <string name="cancel_request_warning_passenger">We have found driver for this request, if you want to cancel you can call the driver to confirm.</string>
@@ -93,7 +81,7 @@
     <string name="loading_passenger_info">Loading passenger info</string>
     <string name="please_wait">Please wait...</string>
     <string name="add_waiting_list_title">Do you want to put your request to waiting list?</string>
-    <string name="add_waiting_list_content">Sorry now we can\'t find any driver matching your request right now. You can add your requests to waiting list so drivers can find your requests later</string>
+    <string name="add_waiting_list_content">Sorry we can\'t find any driver matching your request right now. You can add your requests to waiting list so drivers can find your requests later</string>
     <string name="can_not_get_location">Sorry because of the slow network so we can\'t get the location please try again.</string>
     <string name="select_car_type">What type of vehicle are you driving?</string>
     <string name="cant_connect_network">Can\'t connect to the network. Please check your connection</string>
@@ -107,11 +95,11 @@
     <string name="phone_number">Phone number</string>
     <string name="verified">Verified</string>
     <string name="input_info_request">Please input your information</string>
-    <string name="loading_saving">Saving your information</string>
+    <string name="loading_saving">Saving your information...</string>
     <string name="share">Share</string>
     <string name="about">About</string>
     <string name="logout">Logout</string>
-    <string name="call_permission_granted">Call Permission Granted..Please dial again.</string>
+    <string name="call_permission_granted">Call Permission Granted... Please dial again.</string>
     <string name="call_permission_not_granted">Call permission not granted</string>
     <string name="welcome_to_sbike">Welcome to SBike</string>
     <string name="enter_your_mobile_number">Enter your mobile number</string>
@@ -124,17 +112,17 @@
     <string name="which_time">Which time?</string>
     <string name="create_your_trip">Create Your Trip</string>
     <string name="please_enter_your_password">Please enter your password</string>
-    <string name="enter_your_pass_word">Enter your pass word</string>
+    <string name="enter_your_pass_word">Enter your password</string>
     <string name="please_enter_your_mobile_number">Please enter your mobile number</string>
-    <string name="finding_you_a_driver">Finding you a Driver</string>
+    <string name="finding_you_a_driver">Finding your Driver</string>
     <string name="book_a_trip">Book a trip</string>
-    <string name="click_here_to_find_you_a_driver">Click here to find you a driver</string>
+    <string name="click_here_to_find_you_a_driver">Click here to find your driver</string>
     <string name="you_have_a_car_want_to_find_a_companion">You have a car \nWant to find a companion</string>
     <string name="create_a_trip">Create a Trip</string>
     <string name="start_time">Start time</string>
     <string name="passenger_note">Passenger note</string>
     <string name="note">Note ...</string>
-    <string name="enter_your_place">Enter your place</string>
+    <string name="enter_your_place">Enter place\'s name</string>
     <string name="set_location_on_map">Set location on map</string>
     <string name="what_s_your_full_name">What\'s your full name?</string>
     <string name="jim_carry">Jim Carry</string>
@@ -159,5 +147,22 @@
     <string name="verification_code_invailid">The verification code entered was invalid. Please check a gain!</string>
     <string name="please_enter_code">Please enter the code</string>
     <string name="cant_verify_code">Can\'t verify the code.Please try again!</string>
+    <string name="error_invalid_email">Invalid email</string>
+    <string name="finding_passenger">Finding passenger...</string>
+    <string name="pause_finding">Pause finding</string>
+    <string name="time_out">Started</string>
+    <string name="click_to_see_passenger_info">Click to see Passenger info</string>
+    <string name="finding_driver">Finding driver...</string>
+    <string name="click_to_see_driver_info">Click to see Driver info</string>
+    <string name="how_long_can_you_wait">How long can you wait the driver?</string>
+    <string name="min_5">5 minute</string>
+    <string name="min_10">10 minute</string>
+    <string name="min_20">20 minute</string>
+    <string name="min_30">30 minute</string>
+    <string name="BIKE">BIKE</string>
+    <string name="CAR_4">4 SEAT CAR</string>
+    <string name="CAR_7">7 SEAT CAR</string>
+    <string name="note_to_driver">Notes to Driver</string>
+    <string name="note_to_driver_hint">I\'m standing at the entrance</string>
 
 </resources>
