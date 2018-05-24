@@ -13,7 +13,7 @@
         style="@style/CusTitleBar"
         app:bgatitlebar_leftDrawablePadding="15dp"
         app:bgatitlebar_leftDrawable="@drawable/ic_back_v2_white_26px"
-        app:bgatitlebar_leftText="Create your route"
+        app:bgatitlebar_leftText="@string/create_your_trip"
         app:bgatitlebar_leftMaxWidth="500dp"
         app:bgatitlebar_leftAndRightTextSize="19sp"
         />
@@ -30,7 +30,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             style="@style/CusFlatButtonStyle"
-            android:text="Select start point"
+            android:text="@string/where_do_you_start_your_trip"
             android:drawablePadding="10dp"
             android:paddingEnd="20dp"
             android:paddingStart="@dimen/margin_default_25"
@@ -54,7 +54,7 @@
             android:layout_height="wrap_content"
             style="@style/CusFlatButtonStyle"
             android:textSize="18sp"
-            android:text="Select end point"
+            android:text="@string/where_are_you_going"
             android:drawablePadding="10dp"
             android:paddingEnd="20dp"
             android:paddingStart="@dimen/margin_default_25"
@@ -76,7 +76,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             style="@style/CusFlatButtonStyle"
-            android:text="Select date"
+            android:text="@string/which_date"
             android:drawablePadding="15dp"
             android:paddingTop="12dp"
             android:paddingBottom="12dp"
@@ -100,7 +100,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             style="@style/CusFlatButtonStyle"
-            android:text="Select time"
+            android:text="@string/which_time"
             android:drawablePadding="15dp"
             android:paddingTop="12dp"
             android:paddingBottom="12dp"
@@ -170,12 +170,8 @@
         fancy:mfb_focusColor="@color/btn_pressed"
         fancy:mfb_iconPosition="left"
         fancy:mfb_radius="5dp"
-        fancy:mfb_text="Create Route"
+        fancy:mfb_text="@string/create_your_trip"
         fancy:mfb_textColor="#FFFFFF"
         fancy:mfb_textSize="18sp"/>
-
-
-
-
 
 </RelativeLayout>

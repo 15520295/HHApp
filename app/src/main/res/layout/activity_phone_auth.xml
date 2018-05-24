@@ -28,7 +28,7 @@
         android:layout_alignParentBottom="true"
         android:layout_marginBottom="25dp"
         android:layout_marginStart="25dp"
-        android:text="Or connect with socail"
+        android:text="@string/or_connect_with_social"
         android:textColor="@color/text_link"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
@@ -85,7 +85,7 @@
         android:layout_toEndOf="@id/tv_country_code"
         android:focusable="false"
         android:focusableInTouchMode="false"
-        android:text="Enter your mobile number"
+        android:text="@string/enter_your_mobile_number"
         android:textColor="@color/edit_text_hint"
         android:textSize="@dimen/text_size_normal"
         app:layout_constraintBottom_toBottomOf="@+id/tv_country_code"
@@ -100,7 +100,7 @@
         android:layout_above="@id/tv_country_code"
         android:layout_marginBottom="40dp"
         android:layout_marginStart="25dp"
-        android:text="Wellcome to SBike"
+        android:text="@string/welcome_to_sbike"
         android:textSize="28dp"
         app:layout_constraintBottom_toTopOf="@+id/tv_country_code"
         app:layout_constraintStart_toStartOf="parent" />

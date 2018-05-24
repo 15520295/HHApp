@@ -62,7 +62,7 @@ public class PhoneAuthActivity extends AppCompatActivity {
 
         // Events
         tv_connect_social.setOnClickListener(v ->{
-            Toast.makeText(PhoneAuthActivity.this, "Login With Social Feature Is Coming Soon!", Toast.LENGTH_LONG).show();
+            Toast.makeText(PhoneAuthActivity.this, R.string.login_with_soicial_feature_comming_soon, Toast.LENGTH_LONG).show();
         });
 
         tv_request.setOnClickListener(new View.OnClickListener() {

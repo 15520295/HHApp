@@ -1,6 +1,6 @@
 <resources>
     <string name="app_name">SBike</string>
-    <string name="map_api_key">AIzaSyDdrNdC2sIbOYQirRIHthf1_VIcgYEDuk0</string>
+    <string name="map_api_key" translatable="false">AIzaSyDdrNdC2sIbOYQirRIHthf1_VIcgYEDuk0</string>
     <string name="title_activity_driver_in_map">Map</string>
     <string name="title_activity_home">Home</string>
     <string name="navigation_drawer_open">Open navigation drawer</string>
@@ -53,11 +53,10 @@
     <!-- Twitter consumer key and secret -->
     <string name="twitter_consumer_key" translatable="false">YOUR_CONSUMER_KEY</string>
     <string name="twitter_consumer_secret" translatable="false">YOUR_CONSUMER_SECRET</string>
-    <string name="title_activity_enter_phone_number">EnterPhoneNumberActivity</string>
+    <string name="title_activity_enter_phone_number" translatable="false">EnterPhoneNumberActivity</string>
     <string name="title_activity_update_info">Update Info</string>
 
     <!-- Strings related to login -->
-    <string name="prompt_email">Email</string>
     <string name="prompt_password">Password (optional)</string>
     <string name="action_sign_in">Sign in or register</string>
     <string name="action_sign_in_short">Sign in</string>
@@ -88,7 +87,8 @@
     <string name="request_out_of_date">Your request is out of date</string>
     <string name="confirm">CONFIRM</string>
     <string name="enter_pick_up">Choose your pick up location</string>
-    <string name="estimate_fare">Estimate fare:</string>
+    <string name="estimate_fare_">Estimate fare:</string>
+    <string name="estimate_fare">Estimate fare</string>
     <string name="loading_driver_info">Loading driver info</string>
     <string name="loading_passenger_info">Loading passenger info</string>
     <string name="please_wait">Please wait...</string>
@@ -99,7 +99,8 @@
     <string name="cant_connect_network">Can\'t connect to the network. Please check your connection</string>
     <string name="cant_send_sms">Failed to send sms to your number. Please Try again!</string>
     <string name="server_storage_overload">The server storage quota has been exceeded. Please go back other time.</string>
-    <string name="resend_code">Resend code in 00:%02d</string>
+    <string name="resend_code_in">Resend code in 00:%02d</string>
+    <string name="resend_code">Click to resend the code</string>
     <string name="click_to_resend_code">Click to resend the code</string>
     <string name="year_of_birth">Year of birth</string>
     <string name="full_name">Full name</string>
@@ -112,5 +113,51 @@
     <string name="logout">Logout</string>
     <string name="call_permission_granted">Call Permission Granted..Please dial again.</string>
     <string name="call_permission_not_granted">Call permission not granted</string>
+    <string name="welcome_to_sbike">Welcome to SBike</string>
+    <string name="enter_your_mobile_number">Enter your mobile number</string>
+    <string name="or_connect_with_social">Or connect with social</string>
+    <string name="edit_account">Edit account</string>
+    <string name="save">Save</string>
+    <string name="where_do_you_start_your_trip">Where do you start your trip?</string>
+    <string name="where_are_you_going">Where are you going?</string>
+    <string name="which_date">Which date?</string>
+    <string name="which_time">Which time?</string>
+    <string name="create_your_trip">Create Your Trip</string>
+    <string name="please_enter_your_password">Please enter your password</string>
+    <string name="enter_your_pass_word">Enter your pass word</string>
+    <string name="please_enter_your_mobile_number">Please enter your mobile number</string>
+    <string name="finding_you_a_driver">Finding you a Driver</string>
+    <string name="book_a_trip">Book a trip</string>
+    <string name="click_here_to_find_you_a_driver">Click here to find you a driver</string>
+    <string name="you_have_a_car_want_to_find_a_companion">You have a car \nWant to find a companion</string>
+    <string name="create_a_trip">Create a Trip</string>
+    <string name="start_time">Start time</string>
+    <string name="passenger_note">Passenger note</string>
+    <string name="note">Note ...</string>
+    <string name="enter_your_place">Enter your place</string>
+    <string name="set_location_on_map">Set location on map</string>
+    <string name="what_s_your_full_name">What\'s your full name?</string>
+    <string name="jim_carry">Jim Carry</string>
+    <string name="what_s_your_year_of_birth">What\'s your year of birth?</string>
+    <string name="please_enter_your_information">Please enter your information</string>
+    <string name="enter_the_6_digit_code_sent_to_you_at">Enter the 6-digit code sent to you at</string>
+    <string name="please_input_the_code">Please input the code</string>
+    <string name="book_your_trip">Book your trip</string>
+    <string name="my_route">My trips</string>
+    <string name="my_request_trip">My trip requests</string>
+    <string name="car_type">Car type</string>
+    <string name="pick_up">PICK-UP</string>
+    <string name="drop_off">DROP-OFF</string>
+    <string name="driver_information">Driver Information</string>
+    <string name="where_do_you_start">Where do you start?</string>
+    <string name="Book">Book</string>
+    <string name="cant_get_user_info">Can\'t get user information.Please try again!</string>
+    <string name="login_with_soicial_feature_comming_soon">Login With Social Feature Is Coming Soon!</string>
+    <string name="yob_not_correct">Year of birth not correct</string>
+    <string name="loading">Loading...</string>
+    <string name="login_success">Login successfully</string>
+    <string name="verification_code_invailid">The verification code entered was invalid. Please check a gain!</string>
+    <string name="please_enter_code">Please enter the code</string>
+    <string name="cant_verify_code">Can\'t verify the code.Please try again!</string>
 
 </resources>

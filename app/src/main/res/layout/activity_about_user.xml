@@ -12,10 +12,10 @@
         style="@style/CusTitleBarBlue"
         app:bgatitlebar_leftDrawablePadding="15dp"
         app:bgatitlebar_leftDrawable="@drawable/ic_back_v2_white_26px"
-        app:bgatitlebar_leftText="Edit account"
+        app:bgatitlebar_leftText="@string/edit_account"
         app:bgatitlebar_leftMaxWidth="500dp"
         app:bgatitlebar_leftAndRightTextSize="19sp"
-        app:bgatitlebar_rightText="Save"
+        app:bgatitlebar_rightText="@string/save"
         />
 
     <android.support.constraint.ConstraintLayout

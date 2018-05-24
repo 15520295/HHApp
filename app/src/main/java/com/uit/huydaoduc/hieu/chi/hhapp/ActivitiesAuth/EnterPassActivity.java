@@ -128,8 +128,8 @@ public class EnterPassActivity extends AppCompatActivity {
 
     private void canNotGetUser()
     {
-        Snackbar.make(rootLayout, "Can't get user information.Please try again!", Snackbar.LENGTH_SHORT)
-                .setAction("Ok", new View.OnClickListener() {
+        Snackbar.make(rootLayout, R.string.cant_get_user_info, Snackbar.LENGTH_SHORT)
+                .setAction(R.string.ok, new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         Intent intent = new Intent(getApplicationContext(),EnterPhoneNumberActivity.class);

@@ -29,4 +29,8 @@
     <string name="pause_request_title">Bạn có muốn tạm dừng?</string>
     <string name="can_find_driver">Không tìm được người cùng chuyến đi với bạn</string>
     <string name="error_invalid_email">Email không đúng</string>
+    <string name="title_activity_update_info">Cập nhật thông tin</string>
+    <string name="prompt_password">Mật khẩu</string>
+    <string name="action_sign_in">Đăng nhập hoặc đăng ký</string>
+    <string name="action_sign_in_short">Đăng nhập</string>
 </resources>

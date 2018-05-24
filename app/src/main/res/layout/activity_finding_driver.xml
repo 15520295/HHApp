@@ -20,7 +20,7 @@
         android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="@dimen/margin_default_30"
-        android:text="Finding you a Driver"
+        android:text="@string/finding_you_a_driver"
         android:textColor="@color/title_bar_text_color"
         android:textSize="25sp" />
 
@@ -103,7 +103,7 @@
                         android:id="@+id/tv_estimate_fare_title"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="@string/estimate_fare"
+                        android:text="@string/estimate_fare_"
                         android:textColor="@color/deep_blue_gray"
                         android:layout_marginStart="@dimen/margin_default_25"
                         android:layout_marginTop="@dimen/dp_10"

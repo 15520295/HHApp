@@ -313,7 +313,7 @@ public class EnterPhoneNumberActivity extends AppCompatActivity {
     {
         // check invalid number
         if (TextUtils.isEmpty(et_phone_number.getText())) {
-            tv_error.setText("Please enter your phone number");
+            tv_error.setText(R.string.please_enter_your_mobile_number);
             return;
         }
         showLoading();

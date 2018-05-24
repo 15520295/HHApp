@@ -94,12 +94,12 @@ public class UpdateInfoActivity extends AppCompatActivity {
 
     private boolean isValid() {
         if (TextUtils.isEmpty(et_name.getText().toString()) || TextUtils.isEmpty(et_yob.getText().toString())) {
-            tv_error.setText("Please fill out your personal information");
+            tv_error.setText(R.string.please_enter_your_information);
             return false;
         }
         int i = Integer.valueOf(et_yob.getText().toString());
         if (i <= 1900 && i > Calendar.getInstance().get(Calendar.YEAR)) {
-            tv_error.setText("Year of birth not correct");
+            tv_error.setText(R.string.yob_not_correct);
             return false;
         }
         return true;
@@ -114,7 +114,7 @@ public class UpdateInfoActivity extends AppCompatActivity {
 
     private void showLoading() {
         dialog = new ProgressDialog(this);
-        dialog.setMessage("Loading...");
+        dialog.setMessage(getString(R.string.loading));
         dialog.setCancelable(false);
         dialog.setInverseBackgroundForced(false);
         dialog.show();

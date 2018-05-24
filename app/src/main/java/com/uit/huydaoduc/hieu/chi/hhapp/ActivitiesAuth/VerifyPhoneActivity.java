@@ -79,7 +79,7 @@ public class VerifyPhoneActivity extends AppCompatActivity {
         Bundle extras = getIntent().getExtras();
         if (extras == null) {
             verify_code = null;
-            Snackbar.make(rootLayout, "Can't get user information.Please try again!", Snackbar.LENGTH_SHORT)
+            Snackbar.make(rootLayout, R.string.cant_get_user_info, Snackbar.LENGTH_SHORT)
                     .setAction("Ok", new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
@@ -130,7 +130,7 @@ public class VerifyPhoneActivity extends AppCompatActivity {
                                         @Override
                                         public void onDataChange(DataSnapshot snapshot) {
                                             if (snapshot.hasChild(uid)) {
-                                                Toast.makeText(getApplicationContext(), "Login successfully", Toast.LENGTH_SHORT).show();
+                                                Toast.makeText(getApplicationContext(), R.string.login_success, Toast.LENGTH_SHORT).show();
 
                                                 Intent intent = new Intent(getApplicationContext(), MainActivity.class);
                                                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
@@ -187,7 +187,7 @@ public class VerifyPhoneActivity extends AppCompatActivity {
         countDownTimer = new CountDownTimer(45 * 1000, 1000 - 500) {
             @Override
             public void onTick(long millisUntilFinished) {
-                tv_resend_code.setText(String.format(getString(R.string.resend_code), millisUntilFinished / 1000));
+                tv_resend_code.setText(String.format(getString(R.string.resend_code_in), millisUntilFinished / 1000));
             }
 
             @Override
@@ -307,7 +307,7 @@ public class VerifyPhoneActivity extends AppCompatActivity {
     }
     private void initDialog() {
         dialog = new ProgressDialog(VerifyPhoneActivity.this);
-        dialog.setMessage("Loading...");
+        dialog.setMessage(getResources().getString(R.string.loading));
         dialog.setCancelable(false);
         dialog.setInverseBackgroundForced(false);
     }
@@ -368,7 +368,7 @@ public class VerifyPhoneActivity extends AppCompatActivity {
                             Log.w(TAG, "signInWithCredential:failure", task.getException());
                             if (task.getException() instanceof FirebaseAuthInvalidCredentialsException) {
                                 // The verification code entered was invalid
-                                tv_error.setText("The verification code entered was invalid. Please check a gain!");
+                                tv_error.setText(R.string.verification_code_invailid);
                             }
                             hideLoading();
                         }
@@ -394,7 +394,7 @@ public class VerifyPhoneActivity extends AppCompatActivity {
             for (final Map.Entry<Integer, EditText> pair : editTextMap.entrySet()) {
                 //check not input
                 if (TextUtils.isEmpty(pair.getValue().getText().toString())) {
-                    tv_error.setText("Please enter the code");
+                    tv_error.setText(R.string.please_enter_code);
                     return;
                 }
                 input_code.append(pair.getValue().getText().toString());
@@ -409,8 +409,8 @@ public class VerifyPhoneActivity extends AppCompatActivity {
     }
 
     private void cannotVerify() {
-        Snackbar.make(rootLayout, "Can't verify the code.Please try again!", Snackbar.LENGTH_LONG)
-                .setAction("Ok", new View.OnClickListener() {
+        Snackbar.make(rootLayout, R.string.cant_verify_code, Snackbar.LENGTH_LONG)
+                .setAction(R.string.ok, new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         VerifyPhoneActivity.this.finish();

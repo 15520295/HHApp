@@ -23,7 +23,7 @@
         android:layout_below="@+id/btn_back"
         android:layout_marginStart="25dp"
         android:layout_marginTop="25dp"
-        android:text="What's your full name?"
+        android:text="@string/what_s_your_full_name"
         android:textSize="@dimen/text_size_normal" />
 
     <EditText
@@ -38,7 +38,7 @@
         android:layout_toEndOf="@id/tv_country_code"
         android:focusable="true"
         android:focusableInTouchMode="true"
-        android:hint="John Cena"
+        android:hint="@string/jim_carry"
         android:textColorHint="@color/edit_text_hint"
         android:textSize="@dimen/text_size_normal"
         />
@@ -50,7 +50,7 @@
         android:layout_below="@+id/et_name"
         android:layout_marginStart="25dp"
         android:layout_marginTop="25dp"
-        android:text="What's your year of birth?"
+        android:text="@string/what_s_your_year_of_birth"
         android:textSize="@dimen/text_size_normal" />
 
     <EditText
@@ -80,7 +80,7 @@
         android:layout_marginEnd="@dimen/margin_default_25"
         android:layout_marginStart="4dp"
         android:layout_marginTop="10dp"
-        android:text="Please enter your pass word"
+        android:text="@string/please_enter_your_information"
         android:textColor="@color/color_error"
         android:textSize="16sp"
         android:visibility="invisible"

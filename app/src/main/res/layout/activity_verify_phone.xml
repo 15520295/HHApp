@@ -24,7 +24,7 @@
         android:layout_below="@+id/btn_back"
         android:layout_marginStart="@dimen/margin_default_25"
         android:layout_marginTop="@dimen/margin_default_25"
-        android:text="Enter the 6-digit code sent to you at"
+        android:text="@string/enter_the_6_digit_code_sent_to_you_at"
         android:textSize="@dimen/text_size_normal" />
 
     <TextView
@@ -142,7 +142,7 @@
         android:layout_marginEnd="6dp"
         android:layout_marginStart="6dp"
         android:layout_marginTop="@dimen/margin_default_25"
-        android:text="Please input the code"
+        android:text="@string/please_input_the_code"
         android:textColor="@color/color_error"
         android:textSize="16sp"/>
 
@@ -170,7 +170,7 @@
         android:layout_marginStart="@dimen/margin_default_25"
         android:layout_marginTop="@dimen/margin_default_25"
         android:layout_marginBottom="@dimen/margin_default_25"
-        android:text="Resend code"
+        android:text="@string/resend_code"
         android:textColor="@color/text_link"
         android:textSize="@dimen/text_size_small" />
 </RelativeLayout>

@@ -497,7 +497,7 @@ public class PassengerActivity extends SimpleMapActivity
 
     private void mainBtnChangeState(BtnState state) {
         if (state == BtnState.ENTER_PICK_UP) {
-            btn_findDriver.setText("Choose your pick up");
+            btn_findDriver.setText(R.string.where_do_you_start);
             group_trip_info.setVisibility(View.INVISIBLE);
             btn_findDriver.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -506,7 +506,7 @@ public class PassengerActivity extends SimpleMapActivity
                 }
             });
         } else if (state == BtnState.ENTER_DROP_OFF) {
-            btn_findDriver.setText("Choose your drop off");
+            btn_findDriver.setText(R.string.where_are_you_going);
             group_trip_info.setVisibility(View.INVISIBLE);
             btn_findDriver.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -516,7 +516,7 @@ public class PassengerActivity extends SimpleMapActivity
             });
         } else {
             group_trip_info.setVisibility(View.VISIBLE);
-            btn_findDriver.setText("Book");
+            btn_findDriver.setText(R.string.Book);
             btn_findDriver.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {

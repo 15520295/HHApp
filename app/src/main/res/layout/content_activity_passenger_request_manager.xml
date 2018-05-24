@@ -13,7 +13,7 @@
         style="@style/CusTitleBarBlue"
         app:bgatitlebar_leftDrawablePadding="15dp"
         app:bgatitlebar_leftDrawable="@drawable/ic_menu_white"
-        app:bgatitlebar_titleText="My Routes"
+        app:bgatitlebar_titleText="@string/my_route"
         app:bgatitlebar_leftMaxWidth="500dp"
         app:bgatitlebar_leftAndRightTextSize="19sp"
         />

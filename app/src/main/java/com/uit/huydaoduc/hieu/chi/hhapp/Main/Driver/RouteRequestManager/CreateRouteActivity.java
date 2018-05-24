@@ -79,7 +79,7 @@ public class CreateRouteActivity extends SimpleMapActivity implements SimpleMapA
 
     private void mainBtnChangeState(BtnState state) {
         if (state == BtnState.ENTER_START_POINT) {
-            btn_create_route.setText("Choose your Start point");
+            btn_create_route.setText(R.string.where_do_you_start);
             btn_create_route.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -87,7 +87,7 @@ public class CreateRouteActivity extends SimpleMapActivity implements SimpleMapA
                 }
             });
         } else if (state == BtnState.ENTER_END_POINT) {
-            btn_create_route.setText("Choose your End point");
+            btn_create_route.setText(R.string.where_are_you_going);
             btn_create_route.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -95,7 +95,7 @@ public class CreateRouteActivity extends SimpleMapActivity implements SimpleMapA
                 }
             });
         } else {
-            btn_create_route.setText("Create Route");
+            btn_create_route.setText(R.string.create_your_trip);
             btn_create_route.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {

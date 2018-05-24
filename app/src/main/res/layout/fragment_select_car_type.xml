@@ -27,7 +27,7 @@
                 android:id="@+id/tv_car_type"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Car type"
+                android:text="@string/car_type"
                 android:textStyle="bold"
                 android:textColor="@color/deep_blue_gray"
                 android:padding="@dimen/dp_10"/>
@@ -36,7 +36,7 @@
                 android:id="@+id/tv_estimate_fare"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Estimate fare"
+                android:text="@string/estimate_fare"
                 android:textStyle="bold"
                 android:textColor="@color/deep_blue_gray"
                 android:layout_alignParentEnd="true"
