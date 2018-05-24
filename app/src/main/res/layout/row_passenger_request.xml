@@ -24,8 +24,8 @@
                 android:layout_alignParentTop="true"
                 android:layout_marginStart="@dimen/margin_default_25"
                 android:layout_marginEnd="30dp"
-                android:layout_marginTop="@dimen/margin_default_25"
-                android:textColor="@color/route_request_title"
+                android:layout_marginTop="@dimen/margin_default_20"
+                android:textColor="@color/light_black"
                 android:textSize="17sp"
                 android:textStyle="bold"
                 android:text="Office to home"
@@ -42,7 +42,7 @@
                 android:layout_alignParentTop="true"
                 android:layout_alignParentEnd="true"
                 android:src="@drawable/ic_vertical_menu"
-                android:layout_marginTop="@dimen/margin_default_25"
+                android:layout_marginTop="@dimen/margin_default_20"
                 android:layout_marginEnd="@dimen/dp_10"
                 />
 
@@ -53,11 +53,33 @@
                 android:layout_below="@id/tv_request_title"
                 android:layout_marginStart="@dimen/margin_default_25"
                 android:layout_marginEnd="@dimen/margin_default_25"
-                android:layout_marginTop="@dimen/dp_10"
+                android:layout_marginTop="@dimen/dp8"
                 android:layout_marginBottom="5dp"
                 android:textSize="16dp"
                 android:textColor="@color/route_request_time"
                 android:text="Today 6:30"/>
+
+            <android.support.v7.widget.CardView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_toStartOf="@id/iv_menu"
+                android:layout_alignTop="@id/tv_time"
+                android:layout_gravity="top"
+                app:cardBackgroundColor="#FAC835"
+                app:cardCornerRadius="2dp"
+                app:cardElevation="0dp">
+
+                <TextView
+                    android:id="@+id/tv_estimate_fare"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="4dp"
+                    android:layout_marginTop="4dp"
+                    android:text="VND 0K"
+                    android:textColor="#ffffff"
+                    android:textSize="8sp"
+                    android:textStyle="bold" />
+            </android.support.v7.widget.CardView>
 
             <TextView
                 android:id="@+id/tv_pick_up_address"
@@ -65,8 +87,9 @@
                 android:layout_height="wrap_content"
                 android:layout_alignParentStart="true"
                 android:layout_marginStart="@dimen/margin_default_25"
-                android:layout_marginEnd="@dimen/margin_default_25"
+                android:layout_marginEnd="@dimen/dp_35"
                 android:layout_below="@+id/tv_time"
+                android:textColor="@color/light_black"
                 android:drawableLeft="@drawable/ic_vertical_line_blue"
                 android:drawablePadding="10dp"
                 android:ellipsize="marquee"
@@ -83,8 +106,9 @@
                 android:layout_height="wrap_content"
                 android:layout_below="@id/tv_pick_up_address"
                 android:layout_marginStart="@dimen/margin_default_25"
-                android:layout_marginEnd="@dimen/margin_default_25"
+                android:layout_marginEnd="@dimen/dp_35"
                 android:text="End"
+                android:textColor="@color/light_black"
                 android:textSize="15dp"
                 android:gravity="center_vertical"
                 android:drawableLeft="@drawable/ic_vertical_line_red"
@@ -116,6 +140,7 @@
                     android:layout_height="wrap_content"
                     style="@style/CusFlatButtonStyle"
                     android:text="Select time"
+                    android:textColor="@color/light_black"
                     android:paddingLeft="@dimen/margin_default_25"
                     android:gravity="left|center_vertical"
                     android:singleLine="true"/>

@@ -155,14 +155,16 @@
     <string name="finding_driver">Finding driver...</string>
     <string name="click_to_see_driver_info">Click to see Driver info</string>
     <string name="how_long_can_you_wait">How long can you wait the driver?</string>
-    <string name="min_5">5 minute</string>
-    <string name="min_10">10 minute</string>
-    <string name="min_20">20 minute</string>
-    <string name="min_30">30 minute</string>
+    <string name="min_5">5 minutes</string>
+    <string name="min_10">10 minutes</string>
+    <string name="min_20">20 minutes</string>
+    <string name="min_30">30 minutes</string>
     <string name="BIKE">BIKE</string>
     <string name="CAR_4">4 SEAT CAR</string>
     <string name="CAR_7">7 SEAT CAR</string>
     <string name="note_to_driver">Notes to Driver</string>
     <string name="note_to_driver_hint">I\'m standing at the entrance</string>
+    <string name="passenger_list">Passenger list</string>
+    <string name="my_list">My list</string>
 
 </resources>

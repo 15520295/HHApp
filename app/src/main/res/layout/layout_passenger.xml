@@ -304,7 +304,7 @@
         android:layout_margin="5dp"
         android:paddingBottom="15dp"
         android:paddingTop="15dp"
-        fancy:mfb_text="@string/BOOK"
+        fancy:mfb_text="@string/Book"
         fancy:mfb_borderColor="#FFFFFF"
         fancy:mfb_borderWidth="1dp"
         fancy:mfb_defaultColor="@color/btn_unpressed_blue"
@@ -312,7 +312,6 @@
         fancy:mfb_iconPosition="left"
         fancy:mfb_radius="5dp"
         fancy:mfb_textColor="#FFFFFF"
-        fancy:mfb_textSize="16sp"
-        app:mfb_text="@string/Book" />
+        fancy:mfb_textSize="16sp" />
 
 </RelativeLayout>

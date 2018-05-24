@@ -117,6 +117,7 @@ dependencies {
     // Tab
     implementation 'com.ogaclejapan.smarttablayout:library:1.6.1@aar'
     implementation 'com.ogaclejapan.smarttablayout:utils-v4:1.6.1@aar'
+    implementation 'lib.kingja.switchbutton:switchbutton:1.1.7'
 
     // Hieu
     implementation 'com.rilixtech:materialfancybuttons:1.8.7'

@@ -13,21 +13,69 @@
         style="@style/CusTitleBar"
         app:bgatitlebar_leftDrawablePadding="15dp"
         app:bgatitlebar_leftDrawable="@drawable/ic_menu_white"
-        app:bgatitlebar_titleText="@string/my_request_trip"
-        app:bgatitlebar_leftMaxWidth="500dp"
-        app:bgatitlebar_leftAndRightTextSize="19sp"
+        app:bgatitlebar_titleText="SBIKE"
+        app:bgatitlebar_titleMaxWidth="500dp"
+        app:bgatitlebar_leftAndRightTextSize="18sp"
         />
+
+    <LinearLayout
+        android:id="@+id/group_tab"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_below="@+id/titlebar"
+        android:weightSum="2">
+
+        <RelativeLayout
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="50dp">
+            <TextView
+                android:id="@+id/tv_tab_my_list"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:textAllCaps="true"
+                android:text="@string/my_list"
+                android:textSize="17sp"
+                android:textColor="#ffffff"
+                android:textStyle="bold"
+                android:paddingTop="5dp"
+                android:paddingBottom="@dimen/margin_default_15"
+                android:background="@color/title_bar_background_color"
+                />
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="4dp"
+                android:layout_alignBottom="@+id/tv_tab_my_list"
+                android:background="#ffffff" />
+
+        </RelativeLayout>
+
+        <TextView
+            android:id="@+id/tv_tab_passenger_list"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:textAllCaps="true"
+            android:text="@string/passenger_list"
+            android:textSize="15sp"
+            android:textColor="#f6f5f5"
+            android:background="@color/title_bar_background_color"
+            />
+    </LinearLayout>
 
     <com.scwang.smartrefresh.layout.SmartRefreshLayout
         xmlns:app="http://schemas.android.com/apk/res-auto"
         android:id="@+id/refreshLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@+id/titlebar"
-        android:background="#ffffff"
+        android:layout_below="@+id/group_tab"
+        android:background="@color/list_background"
         app:srlAccentColor="#000000"
         app:srlEnablePreviewInEditMode="true"
-        app:srlPrimaryColor="#eaffffff">
+        app:srlPrimaryColor="@color/list_background">
         <!--srlAccentColor and srlPrimaryColor, Will change the Header and Footer theme colors-->
         <!--srlEnablePreviewInEditMode, Can open and close the preview function-->
         <com.scwang.smartrefresh.layout.header.ClassicsHeader
@@ -41,7 +89,8 @@
             <android.support.v7.widget.RecyclerView
                 android:id="@+id/recycler_view_requests"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:background="@color/list_background">
 
             </android.support.v7.widget.RecyclerView>
 

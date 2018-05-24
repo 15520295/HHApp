@@ -330,8 +330,8 @@ public class CreateRouteActivity extends SimpleMapActivity implements SimpleMapA
                         updateButtonView();
                     }
                 })
-                .widgetColorRes(R.color.title_bar_background_color_blue)
-                .titleColor(getResources().getColor(R.color.title_bar_background_color_blue))
+                .widgetColorRes(R.color.title_bar_background_color)
+                .titleColor(getResources().getColor(R.color.title_bar_background_color))
                 .show();
     }
 
@@ -370,7 +370,7 @@ public class CreateRouteActivity extends SimpleMapActivity implements SimpleMapA
 
         datePickerDialog = DatePickerDialog.newInstance(dateSetListener, Calendar.getInstance());
         datePickerDialog.setVersion(DatePickerDialog.Version.VERSION_2);
-        datePickerDialog.setAccentColor(ResourcesCompat.getColor(getResources(), R.color.date_picker_bar, null));
+        datePickerDialog.setAccentColor(ResourcesCompat.getColor(getResources(), R.color.title_bar_background_color, null));
 
         btn_date_picker.setOnClickListener(view -> {
             if (datePickerDialog.isAdded())
@@ -390,7 +390,7 @@ public class CreateRouteActivity extends SimpleMapActivity implements SimpleMapA
         };
 
         timePickerDialog = TimePickerDialog.newInstance(timeSetListener, true);
-        timePickerDialog.setAccentColor(ResourcesCompat.getColor(getResources(), R.color.date_picker_bar, null));
+        timePickerDialog.setAccentColor(ResourcesCompat.getColor(getResources(), R.color.title_bar_background_color, null));
 
         btn_time_picker.setOnClickListener(v -> {
             if (timePickerDialog.isAdded())

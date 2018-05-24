@@ -151,8 +151,8 @@ public class PassengerRequestInfoActivity extends SimpleMapActivity implements S
 
         tv_estimate_fare.setText(passengerRequest.getTripFareInfo().func_getEstimateFareText());
 
-        tv_start_address.setText(passengerRequest.getPickUpSavePlace().getPrimaryText());
-        tv_end_address.setText(passengerRequest.getDropOffSavePlace().getPrimaryText());
+        tv_start_address.setText(passengerRequest.getPickUpSavePlace().getAddress());
+        tv_end_address.setText(passengerRequest.getDropOffSavePlace().getAddress());
 
         findViewById(R.id.tv_pick_up_address).setOnClickListener(v -> {
             if (v.isSelected())

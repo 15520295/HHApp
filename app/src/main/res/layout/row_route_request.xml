@@ -24,8 +24,8 @@
                 android:layout_alignParentTop="true"
                 android:layout_marginStart="@dimen/margin_default_25"
                 android:layout_marginEnd="30dp"
-                android:layout_marginTop="@dimen/margin_default_25"
-                android:textColor="@color/route_request_title"
+                android:layout_marginTop="@dimen/margin_default_20"
+                android:textColor="@color/light_black"
                 android:textSize="17sp"
                 android:textStyle="bold"
                 android:text="Office to home"
@@ -42,7 +42,7 @@
                 android:layout_alignParentTop="true"
                 android:layout_alignParentEnd="true"
                 android:src="@drawable/ic_vertical_menu"
-                android:layout_marginTop="@dimen/margin_default_25"
+                android:layout_marginTop="@dimen/margin_default_20"
                 android:layout_marginEnd="@dimen/dp_10"
                 />
 
@@ -53,7 +53,7 @@
                 android:layout_below="@id/tv_request_title"
                 android:layout_marginStart="@dimen/margin_default_25"
                 android:layout_marginEnd="@dimen/margin_default_25"
-                android:layout_marginTop="@dimen/dp_10"
+                android:layout_marginTop="@dimen/dp8"
                 android:layout_marginBottom="5dp"
                 android:textSize="16dp"
                 android:textColor="@color/route_request_time"
@@ -75,7 +75,8 @@
                 android:marqueeRepeatLimit="marquee_forever"
                 android:scrollHorizontally="true"
                 android:singleLine="true"
-                android:text="Start " />
+                android:text="Start "
+                android:textColor="@color/light_black" />
 
             <TextView
                 android:id="@+id/tv_drop_off_address"
@@ -85,6 +86,7 @@
                 android:layout_marginStart="@dimen/margin_default_25"
                 android:layout_marginEnd="@dimen/margin_default_25"
                 android:text="End"
+                android:textColor="@color/light_black"
                 android:textSize="15dp"
                 android:gravity="center_vertical"
                 android:drawableLeft="@drawable/ic_vertical_line_red"
@@ -116,6 +118,7 @@
                     android:layout_height="wrap_content"
                     style="@style/CusFlatButtonStyle"
                     android:text="Select time"
+                    android:textColor="@color/light_black"
                     android:paddingLeft="@dimen/margin_default_25"
                     android:gravity="left|center_vertical"
                     android:singleLine="true"/>
