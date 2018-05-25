@@ -32,7 +32,7 @@ public class AboutApp extends Activity {
                 .setSubTitle(getString(R.string.tks_sub))
                 .setAppIcon(R.drawable.logosbike6)
                 .setAppName(R.string.app_name)
-                .addGooglePlayStoreLink("https://play.google.com/store/apps/details?id=com.uit.huydaoduc.hieu.chi.hhapp")
+                .addWebsiteLink("https://play.google.com/store/apps/details?id=com.uit.huydaoduc.hieu.chi.hhapp")
                 .addGitHubLink("15520295")
                 .addFacebookLink("huydd.1997")
                 .addFiveStarsAction()

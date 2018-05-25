@@ -64,6 +64,9 @@ public class MainActivity extends AppCompatActivity {
 
         checkPermissions();
 
+        TextView tv_estimate_fare_note = findViewById(R.id.tv_estimate_fare_note);
+        tv_estimate_fare_note.setSelected(true);
+
         firstLoadInfo();
     }
 
@@ -76,7 +79,7 @@ public class MainActivity extends AppCompatActivity {
             }
         };
         if (CurUserInfo.getInstance().getUserInfo(listener) == null) {
-            showLoading("Getting your information, please wait...");
+            showLoading(getString(R.string.get_your_info));
         }
     }
 

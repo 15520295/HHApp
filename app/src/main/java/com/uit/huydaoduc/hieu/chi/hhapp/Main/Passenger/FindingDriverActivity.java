@@ -77,6 +77,9 @@ public class FindingDriverActivity extends AppCompatActivity {
             }
         });
 
+        TextView tv_estimate_fare_note = findViewById(R.id.tv_estimate_fare_note);
+        tv_estimate_fare_note.setSelected(true);
+
         startBooking();
     }
 

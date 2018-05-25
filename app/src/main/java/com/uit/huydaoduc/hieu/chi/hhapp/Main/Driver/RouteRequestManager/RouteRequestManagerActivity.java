@@ -227,7 +227,7 @@ public class RouteRequestManagerActivity extends AppCompatActivity
         NavigationResultHandle(requestCode, resultCode, data);
     }
 
-    //region -------------- Listen to Route request Create && Notify & Change Route Request State ----------------
+    //region -------------- LISTEN to Route request CREATE - Notify & Change Route Request State ----------------
 
     private void handleResultCreateRoute(RouteRequest routeRequest) {
 
@@ -843,6 +843,11 @@ public class RouteRequestManagerActivity extends AppCompatActivity
 
                 rycv_route_request.setAdapter(adapter);
                 stopLoading();
+
+                if (routeRequests.size() == 0) {
+                    Toast.makeText(getApplicationContext(), R.string.click_plus_to_create_trip, Toast.LENGTH_LONG)
+                            .show();
+                }
             }
 
             @Override

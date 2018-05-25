@@ -75,8 +75,8 @@
     <string name="request_out_of_date">Your request is out of date</string>
     <string name="confirm">CONFIRM</string>
     <string name="enter_pick_up">Choose your pick up location</string>
-    <string name="estimate_fare_">Estimate fare:</string>
-    <string name="estimate_fare">Estimate fare</string>
+    <string name="estimate_fare_">Estimated fare:</string>
+    <string name="estimate_fare">Estimated fare</string>
     <string name="loading_driver_info">Loading driver info</string>
     <string name="loading_passenger_info">Loading passenger info</string>
     <string name="please_wait">Please wait...</string>
@@ -175,5 +175,10 @@
     <string name="pause_request_content">If you pause this request, we can not find user for this request.</string>
     <string name="accept_trip_title">Are you sure taking this trip ?</string>
     <string name="accept_trip_content">If you accept we will notify your passenger and the trip info will be moved to your trips list.</string>
+    <string name="slow_network">Sorry, It may take a bit longer than normal because of a slow network.</string>
+    <string name="negotiate_estimated_fare">"              Passenger can call the Driver to negotiate the trip estimated fare."</string>
+    <string name="get_your_info">Getting your information, please wait...</string>
+    <string name="cant_find_request_now">Can\'t find any request right now. Please comeback later!</string>
+    <string name="click_plus_to_create_trip">Click \"+\" symbol to create new trip!</string>
 
 </resources>

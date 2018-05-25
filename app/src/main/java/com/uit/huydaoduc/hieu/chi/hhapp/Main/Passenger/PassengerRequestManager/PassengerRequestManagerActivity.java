@@ -42,6 +42,7 @@ import com.uit.huydaoduc.hieu.chi.hhapp.Main.AboutApp;
 import com.uit.huydaoduc.hieu.chi.hhapp.Main.AboutUser;
 import com.uit.huydaoduc.hieu.chi.hhapp.Main.CurUserInfo;
 import com.uit.huydaoduc.hieu.chi.hhapp.Main.Driver.RouteRequestManager.RouteRequestManagerActivity;
+import com.uit.huydaoduc.hieu.chi.hhapp.Main.MainActivity;
 import com.uit.huydaoduc.hieu.chi.hhapp.Main.Passenger.PassengerActivity;
 import com.uit.huydaoduc.hieu.chi.hhapp.Model.Passenger.PassengerRequest;
 import com.uit.huydaoduc.hieu.chi.hhapp.Model.Passenger.PassengerRequestState;
@@ -97,8 +98,11 @@ public class PassengerRequestManagerActivity extends AppCompatActivity
 
     @Override
     public void onBackPressed() {
-        if (!drawer_layout.isDrawerOpen(GravityCompat.START))
-            super.onBackPressed();
+        if (!drawer_layout.isDrawerOpen(GravityCompat.START)) {
+            Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+            PassengerRequestManagerActivity.this.startActivity(intent);
+            PassengerRequestManagerActivity.this.finish();
+        }
         else {
             drawer_layout.closeDrawer(GravityCompat.START);
         }
@@ -435,6 +439,11 @@ public class PassengerRequestManagerActivity extends AppCompatActivity
 
                         rycv_passenger_request.setAdapter(adapter);
                         stopLoadingRecycler();
+
+                        if (passengerRequests.size() == 0) {
+                            Toast.makeText(getApplicationContext(), R.string.click_plus_to_create_trip, Toast.LENGTH_LONG)
+                                    .show();
+                        }
                     }
 
                     @Override

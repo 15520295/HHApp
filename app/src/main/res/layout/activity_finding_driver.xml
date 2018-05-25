@@ -58,7 +58,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
-            android:src="@drawable/find_location_40px" />
+            android:foregroundGravity="center"
+            android:src="@drawable/ic_finding_42px" />
     </RelativeLayout>
 
 
@@ -131,6 +132,24 @@
             </LinearLayout>
         </android.support.v7.widget.CardView>
 
+        <TextView
+            android:id="@+id/tv_estimate_fare_note"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/group_request_info"
+            android:layout_marginStart="@dimen/dp_10"
+            android:layout_marginEnd="@dimen/dp_10"
+            android:text="@string/negotiate_estimated_fare"
+            android:ellipsize="marquee"
+            android:gravity="center_vertical"
+            android:marqueeRepeatLimit="marquee_forever"
+            android:scrollHorizontally="true"
+            android:textSize="16sp"
+            android:singleLine="true"
+            android:textColor="#ffffff"
+            android:layout_marginTop="@dimen/dp_10"
+            android:layout_marginBottom="@dimen/dp_10"
+            />
 
         <com.rilixtech.materialfancybutton.MaterialFancyButton
             android:id="@+id/btn_cancel"

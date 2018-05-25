@@ -22,6 +22,7 @@ import com.uit.huydaoduc.hieu.chi.hhapp.Framework.Place.SavedPlace;
 import com.uit.huydaoduc.hieu.chi.hhapp.Framework.Place.SearchActivity;
 import com.uit.huydaoduc.hieu.chi.hhapp.Framework.SimpleMapActivity;
 import com.uit.huydaoduc.hieu.chi.hhapp.Framework.TimeUtils;
+import com.uit.huydaoduc.hieu.chi.hhapp.Main.Passenger.PassengerActivity;
 import com.uit.huydaoduc.hieu.chi.hhapp.Model.Car.CarType;
 import com.uit.huydaoduc.hieu.chi.hhapp.Model.RouteRequest.RouteRequest;
 import com.uit.huydaoduc.hieu.chi.hhapp.Model.User.UserState;
@@ -234,7 +235,7 @@ public class CreateRouteActivity extends SimpleMapActivity implements SimpleMapA
                         directionManager.drawRoutes(routes, true);
 
                         // move camera
-                        cameraManager.moveCamWithRoutes(routes);
+                        cameraManager.moveCam(50,50,50,50, getStartPlace().func_getLatLngLocation(),getEndPlace().func_getLatLngLocation());
 
                         autoCompleteRoute = routes.get(0);
                     }

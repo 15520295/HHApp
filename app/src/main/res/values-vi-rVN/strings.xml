@@ -57,7 +57,7 @@
     <string name="input_info_request">Xin điền đầy đủ thông tin</string>
     <string name="loading_saving">Lưu thông tin...</string>
     <string name="share">Chia sẽ</string>
-    <string name="about">Liên hệ</string>
+    <string name="about">Về chúng tôi</string>
     <string name="logout">Đăng xuất</string>
     <string name="call_permission_granted">Đã cấp quyền, xin nhấn gọi lại.</string>
     <string name="call_permission_not_granted">Chưa cấp quyền</string>
@@ -123,7 +123,7 @@
     <string name="CAR_7">Xe hơi 7 chỗ</string>
     <string name="note_to_driver">Lời nhắn cho tài xế</string>
     <string name="note_to_driver_hint">Tôi đang đứng trước cổng</string>
-    <string name="passenger_list">Chuyến đang đợi</string>
+    <string name="passenger_list">Chuyến đề nghị</string>
     <string name="my_list">Chuyến của tôi</string>
     <string name="found_your_passenger">Đã tìm thấy khách</string>
     <string name="tks">Cảm ơn</string>
@@ -132,4 +132,9 @@
     <string name="click_to_get_the_trip">Nhấn để xem thông tin chuyến đi</string>
     <string name="accept_trip_title">Bạn có thực sự muốn nhận chuyến đi?</string>
     <string name="accept_trip_content">Nếu chấp nhận, chúng tôi sẽ thông báo chuyến đi cho khách hàng và thông tin chuyến đi sẽ chuyển sang danh sách chuyến đi của bạn.</string>
+    <string name="slow_network">Việc tải thông tin sẽ chậm hơn một ít do mạng chậm. Xin vui lòng chờ!</string>
+    <string name="negotiate_estimated_fare">"                 Hành khách có thể gọi tài xế để thương lượng lại giá chuyến đi."</string>
+    <string name="get_your_info">Đang cập nhật thông tin của bạn. Vui lòng đợi ...</string>
+    <string name="cant_find_request_now">Hiện tại không thể tìm thấy yêu cầu nào.</string>
+    <string name="click_plus_to_create_trip">Nhấn dấu \"+\" để tạo chuyến đi mới</string>
 </resources>

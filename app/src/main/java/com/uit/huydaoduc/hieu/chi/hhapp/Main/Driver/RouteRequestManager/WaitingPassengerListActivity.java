@@ -341,6 +341,11 @@ public class WaitingPassengerListActivity extends AppCompatActivity
 
                 rycv_route_request.setAdapter(adapter);
                 stopLoading();
+
+                if (passengerRequests.size() == 0) {
+                    Toast.makeText(getApplicationContext(), R.string.cant_find_request_now, Toast.LENGTH_LONG)
+                            .show();
+                }
             }
 
             @Override

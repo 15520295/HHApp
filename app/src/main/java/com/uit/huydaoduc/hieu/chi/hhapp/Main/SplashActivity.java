@@ -15,7 +15,6 @@ import android.view.animation.RotateAnimation;
 import android.widget.ImageView;
 import android.widget.Toast;
 import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
 
 import com.uit.huydaoduc.hieu.chi.hhapp.ActivitiesAuth.UpdateInfoActivity;
 import com.uit.huydaoduc.hieu.chi.hhapp.Define;
@@ -30,8 +29,6 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
-import java.util.concurrent.atomic.AtomicInteger;
-
 
 public class SplashActivity extends AppCompatActivity {
 
@@ -40,12 +37,12 @@ public class SplashActivity extends AppCompatActivity {
     private BroadcastReceiver broadcastReceiver;
     private ImageView ivSplash;
 
-
+    private int animationRepeatCount;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         overridePendingTransition(R.anim.anim_fade_in, R.anim.anim_fade_out);
-
+        animationRepeatCount = 0;
 
         setContentView(R.layout.activity_splash);
         ivSplash = findViewById(R.id.imageView);
@@ -54,7 +51,7 @@ public class SplashActivity extends AppCompatActivity {
         animation.setAnimationListener(new Animation.AnimationListener() {
             @Override
             public void onAnimationStart(Animation animation) {
-                int i = 1;
+
             }
 
             @Override
@@ -64,6 +61,11 @@ public class SplashActivity extends AppCompatActivity {
 
             @Override
             public void onAnimationRepeat(Animation animation) {
+                animationRepeatCount++;
+
+                if (animationRepeatCount == 4) {
+                    Toast.makeText(getApplicationContext(),getString(R.string.slow_network),Toast.LENGTH_LONG).show();
+                }
                 if (startIntent != null) {
                     ivSplash.clearAnimation();
                     SplashActivity.this.startActivity(startIntent);
