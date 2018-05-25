@@ -166,5 +166,8 @@
     <string name="note_to_driver_hint">I\'m standing at the entrance</string>
     <string name="passenger_list">Passenger list</string>
     <string name="my_list">My list</string>
+    <string name="found_your_passenger">Found your passenger</string>
+    <string name="click_to_get_the_trip">Click to get the trip</string>
+    <string name="phone">Phone: </string>
 
 </resources>

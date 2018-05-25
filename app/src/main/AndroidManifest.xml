@@ -139,16 +139,23 @@
         <!-- Driver -->
         <activity
             android:name=".Main.Driver.RouteRequestManager.RouteRequestManagerActivity"
+            android:launchMode="singleTask"
             android:screenOrientation="portrait" />
         <activity
             android:name=".Main.Driver.RouteRequestManager.CreateRouteActivity"
+            android:launchMode="singleTask"
             android:screenOrientation="portrait" />
         <activity
             android:name=".Main.Driver.PassengerRequestInfoActivity"
             android:screenOrientation="portrait" />
         <activity
             android:name=".Main.Driver.v2.DriverActivity"
-            android:screenOrientation="portrait"></activity>
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".Main.Driver.RouteRequestManager.WaitingPassengerListActivity"
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait" />
     </application>
 
 </manifest>

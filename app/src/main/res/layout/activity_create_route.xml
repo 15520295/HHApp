@@ -16,6 +16,7 @@
         app:bgatitlebar_leftText="@string/create_your_trip"
         app:bgatitlebar_leftMaxWidth="500dp"
         app:bgatitlebar_leftAndRightTextSize="19sp"
+        app:bgatitlebar_rightDrawable="@drawable/ic_list_white"
         />
 
     <LinearLayout

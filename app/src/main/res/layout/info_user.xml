@@ -53,41 +53,24 @@
         android:textColor="@color/light_black"
         android:textSize="26sp" />
 
-    <LinearLayout
-        android:id="@+id/group_phone_info"
+    <TextView
+        android:id="@+id/tvPhone"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@id/tvName"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="@dimen/margin_default_15"
-        android:orientation="horizontal">
-        <TextView
-            android:id="@+id/tv_phone_title"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:lines="1"
-            android:text="SDT: "
-            android:textColor="@color/light_black"
-            android:textSize="22sp" />
-
-        <TextView
-            android:id="@+id/tvPhone"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:textColor="@color/light_black"
-            android:lines="1"
-            android:text="0123456789"
-            android:textSize="22sp" />
-    </LinearLayout>
-
+        android:gravity="center"
+        android:textColor="@color/light_black"
+        android:lines="1"
+        android:text="0123456789"
+        android:textSize="22sp" />
 
     <TextView
         android:id="@+id/tv_yob"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@id/group_phone_info"
+        android:layout_below="@id/tvPhone"
         android:layout_centerHorizontal="true"
         android:gravity="center"
         android:layout_marginBottom="4dp"
@@ -121,7 +104,7 @@
             android:layout_marginStart="@dimen/margin_default_25"
             fancy:mfb_defaultColor="#ffffff"
             fancy:mfb_focusColor="#ffffff"
-            fancy:mfb_borderColor="#21d82a"
+            fancy:mfb_borderColor="@color/title_bar_background_color_blue"
             fancy:mfb_borderWidth="2dp"
             android:padding="8dp"
             fancy:mfb_iconResource="@drawable/ic_message_primary_color"
@@ -138,9 +121,9 @@
             android:padding="8dp"
             android:layout_centerVertical="true"
             fancy:mfb_iconPosition="top"
-            fancy:mfb_defaultColor="#21d82a"
+            fancy:mfb_defaultColor="@color/title_bar_background_color_blue"
             fancy:mfb_focusColor="#7b989898"
-            fancy:mfb_borderColor="#21d82a"
+            fancy:mfb_borderColor="@color/title_bar_background_color_blue"
             fancy:mfb_borderWidth="2dp"
             fancy:mfb_iconResource="@drawable/ic_call_white"
             fancy:mfb_radius="5dp" />

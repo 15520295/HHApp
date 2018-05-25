@@ -14,6 +14,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.afollestad.materialdialogs.MaterialDialog;
+import com.uit.huydaoduc.hieu.chi.hhapp.Main.Driver.RouteRequestManager.CreateRouteActivity;
 import com.uit.huydaoduc.hieu.chi.hhapp.Main.Driver.RouteRequestManager.RouteRequestManagerActivity;
 import com.uit.huydaoduc.hieu.chi.hhapp.Main.Passenger.PassengerActivity;
 import com.uit.huydaoduc.hieu.chi.hhapp.Model.User.UserInfo;
@@ -75,7 +76,7 @@ public class MainActivity extends AppCompatActivity {
         btn_driver.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(MainActivity.this, RouteRequestManagerActivity.class);
+                Intent intent = new Intent(MainActivity.this, CreateRouteActivity.class);
                 MainActivity.this.startActivityForResult(intent, ROUTE_REQUEST_MANAGER_REQUEST_CODE);
             }
         });

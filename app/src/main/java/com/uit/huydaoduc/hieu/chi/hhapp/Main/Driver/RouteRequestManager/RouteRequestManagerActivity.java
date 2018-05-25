@@ -42,6 +42,7 @@ import com.uit.huydaoduc.hieu.chi.hhapp.Main.AboutApp;
 import com.uit.huydaoduc.hieu.chi.hhapp.Main.AboutUser;
 import com.uit.huydaoduc.hieu.chi.hhapp.Main.CurUserInfo;
 import com.uit.huydaoduc.hieu.chi.hhapp.Main.Driver.PassengerRequestInfoActivity;
+import com.uit.huydaoduc.hieu.chi.hhapp.Main.MainActivity;
 import com.uit.huydaoduc.hieu.chi.hhapp.Model.Passenger.PassengerRequest;
 import com.uit.huydaoduc.hieu.chi.hhapp.Model.Passenger.PassengerRequestState;
 import com.uit.huydaoduc.hieu.chi.hhapp.Model.Trip.NotifyTrip;
@@ -93,11 +94,20 @@ public class RouteRequestManagerActivity extends AppCompatActivity
 
     @Override
     public void onBackPressed() {
-        if (!drawer_layout.isDrawerOpen(GravityCompat.START))
-            super.onBackPressed();
+        if (!drawer_layout.isDrawerOpen(GravityCompat.START)) {
+            Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+            RouteRequestManagerActivity.this.startActivity(intent);
+            RouteRequestManagerActivity.this.finish();
+        }
         else {
             drawer_layout.closeDrawer(GravityCompat.START);
         }
+    }
+    
+    @Override
+    protected void onResume() {
+        super.onResume();
+        refreshList(false);
     }
 
     @Override
@@ -110,6 +120,22 @@ public class RouteRequestManagerActivity extends AppCompatActivity
         Init();
 
         Event();
+
+        RouteRequest routeRequest;
+        if (savedInstanceState == null) {
+            Bundle extras = getIntent().getExtras();
+            if (extras == null) {
+                routeRequest = null;
+            } else {
+                routeRequest = extras.getParcelable("routeRequest");
+            }
+        } else {
+            routeRequest = (RouteRequest) savedInstanceState.getParcelable("routeRequest");
+        }
+
+        if (routeRequest != null) {
+            handleResultCreateRoute(routeRequest);
+        }
 
         refreshList(true);
     }
@@ -127,9 +153,7 @@ public class RouteRequestManagerActivity extends AppCompatActivity
 
         routeRequests = new ArrayList<>();
 
-
         initRefeshLayout();
-
     }
 
     private void Event() {
@@ -160,65 +184,63 @@ public class RouteRequestManagerActivity extends AppCompatActivity
             RouteRequestManagerActivity.this.startActivityForResult(intent, CREATE_ROUTE_REQUEST_CODE);
         });
 
+        ((TextView) findViewById(R.id.tv_tab_passenger_list)).setOnClickListener(v -> {
+            Intent intent = new Intent(getApplicationContext(), WaitingPassengerListActivity.class);
+            RouteRequestManagerActivity.this.startActivity(intent);
+            RouteRequestManagerActivity.this.overridePendingTransition(R.anim.anim_activity_none, R.anim.anim_activity_none);
+        });
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        handleResultCreateRoute(requestCode, resultCode, data);
-
         NavigationResultHandle(requestCode, resultCode, data);
     }
 
 
-    //region -------------- Route request & Change Route Request State ----------------
+    //region -------------- Listen to Route request Create & Change Route Request State ----------------
 
-    private void handleResultCreateRoute(int requestCode, int resultCode, Intent data) {
-        if (requestCode == CREATE_ROUTE_REQUEST_CODE) {
-            if (resultCode == Activity.RESULT_OK) {
-                RouteRequest routeRequest = data.getParcelableExtra("routeRequest");
+    private void handleResultCreateRoute(RouteRequest routeRequest) {
 
-                //Listen to Trip Notify - asynchronous with service
-                dbRefe.child(Define.DB_ROUTE_REQUESTS)
-                        .child(getCurUid())
-                        .child(routeRequest.getRouteRequestUId())
-                        .child(Define.DB_ROUTE_REQUESTS_NOTIFY_TRIP)
-                        .addValueEventListener(new ValueEventListener() {
-                            @Override
-                            public void onDataChange(DataSnapshot dataSnapshot) {
-                                NotifyTrip notifyTrip = dataSnapshot.getValue(NotifyTrip.class);
+        //Listen to Trip Notify - asynchronous with service
+        dbRefe.child(Define.DB_ROUTE_REQUESTS)
+                .child(getCurUid())
+                .child(routeRequest.getRouteRequestUId())
+                .child(Define.DB_ROUTE_REQUESTS_NOTIFY_TRIP)
+                .addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        NotifyTrip notifyTrip = dataSnapshot.getValue(NotifyTrip.class);
 
-                                if (notifyTrip != null && !notifyTrip.isNotified()) {
-                                    notifyTrip.setNotified(true);
-                                    dbRefe.child(Define.DB_ROUTE_REQUESTS)
-                                            .child(routeRequest.getDriverUId())
-                                            .child(routeRequest.getRouteRequestUId())
-                                            .child(Define.DB_ROUTE_REQUESTS_NOTIFY_TRIP)
-                                            .setValue(notifyTrip);
+                        if (notifyTrip != null && !notifyTrip.isNotified()) {
+                            notifyTrip.setNotified(true);
+                            dbRefe.child(Define.DB_ROUTE_REQUESTS)
+                                    .child(routeRequest.getDriverUId())
+                                    .child(routeRequest.getRouteRequestUId())
+                                    .child(Define.DB_ROUTE_REQUESTS_NOTIFY_TRIP)
+                                    .setValue(notifyTrip);
 
-                                    // notify driver
-                                    //todo: notify Notification
-                                    String tripUId = notifyTrip.getTripUId();
-                                    showNotificationforDriver(tripUId);
+                            // notify driver
+                            //todo: notify Notification
+                            String tripUId = notifyTrip.getTripUId();
+                            showNotificationforDriver(tripUId);
 
-                                    Toast.makeText(getApplicationContext(), "Found your passenger", Toast.LENGTH_LONG).show();
-                                    refreshList(false);
-                                }
-                            }
+                            Toast.makeText(getApplicationContext(), R.string.found_your_passenger, Toast.LENGTH_LONG).show();
+                            refreshList(false);
+                        }
+                    }
 
-                            @Override
-                            public void onCancelled(DatabaseError databaseError) {
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
 
-                            }
-                        });
+                    }
+                });
 
-                // Run finding waiting Passenger Request in asynchronous
-                findMatchingPassengerRequest(routeRequest);
+        // Run finding waiting Passenger Request in asynchronous
+        findMatchingPassengerRequest(routeRequest);
 
-                refreshList(false);
-            }
-        }
+        refreshList(false);
     }
 
     public void showNotificationforDriver(String tripUId) {
@@ -234,7 +256,7 @@ public class RouteRequestManagerActivity extends AppCompatActivity
                             .setDefaults(Notification.DEFAULT_ALL)
                             .setWhen(System.currentTimeMillis())
                             .setSmallIcon(R.drawable.ic_location_on)
-                            .setTicker("Found your Passenger")
+                            .setTicker(getResources().getString(R.string.found_your_passenger))
                             .setPriority(2) // this is deprecated in API 26 but you can still use for below 26. check below update for 26 API
                             .setContentTitle(userInfo.getName())
                             .setContentText(userInfo.getPhoneNumber())
@@ -662,7 +684,7 @@ public class RouteRequestManagerActivity extends AppCompatActivity
         if (routeRequests.get(position).getRouteRequestState() != RouteRequestState.FOUND_PASSENGER)
             return;
 
-        showLoadingPassengerRequestInfo("Loading passenger info");
+        showLoadingPassengerRequestInfo(getResources().getString(R.string.loading_passenger_info));
 
         NotifyTrip notifyTrip = routeRequests.get(position).getNotifyTrip();
         if (notifyTrip == null) {
@@ -705,7 +727,6 @@ public class RouteRequestManagerActivity extends AppCompatActivity
             // todo: notification
             String tripUId = notifyTrip.getTripUId();
             showNotificationforDriver(tripUId);
-            Toast.makeText(getApplicationContext(), "found driver", Toast.LENGTH_LONG).show();
             refreshList(false);
         }
         request.setNotifyTrip(notifyTrip);
@@ -717,7 +738,7 @@ public class RouteRequestManagerActivity extends AppCompatActivity
     private void showLoadingPassengerRequestInfo(String title) {
         loadingPassengerInfo = new MaterialDialog.Builder(this)
                 .title(title)
-                .content("Please wait...")
+                .content(getResources().getString(R.string.please_wait))
                 .progress(true, 0)
                 .titleColor(getResources().getColor(R.color.title_bar_background_color_blue))
                 .widgetColorRes(R.color.title_bar_background_color_blue)
@@ -752,7 +773,10 @@ public class RouteRequestManagerActivity extends AppCompatActivity
 
                     checkRequestNotify(request);
 
-                    routeRequests.add(request);
+                    long passTime = TimeUtils.getPassTime(request.getStartTime())/60;
+                    if (passTime < 60) {
+                        routeRequests.add(request);
+                    }
                 }
 
                 Collections.reverse(routeRequests);

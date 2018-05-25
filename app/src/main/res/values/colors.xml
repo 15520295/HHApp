@@ -78,6 +78,7 @@
     <color name="nav_header">#f7f9fb</color>
     <color name="white">#ffffff</color>
     <color name="list_background">#f7f6f6</color>
+    <color name="estimate_fare">#FAC835</color>
 
 
 </resources>

@@ -96,15 +96,4 @@
 
         </RelativeLayout>
     </com.scwang.smartrefresh.layout.SmartRefreshLayout>
-
-    <android.support.design.widget.FloatingActionButton
-        android:id="@+id/fab_add_request"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:src="@drawable/ic_add_white"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentRight="true"
-        android:layout_margin="20dp"
-        android:layout_marginBottom="@dimen/margin_default_20"
-        app:backgroundTint="@color/title_bar_background_color"/>
 </RelativeLayout>

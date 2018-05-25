@@ -48,7 +48,7 @@
                 android:layout_below="@+id/iv_passenger_avatar"
                 android:layout_gravity="top"
                 android:background="@color/transparent"
-                app:cardBackgroundColor="#02aef0"
+                app:cardBackgroundColor="@color/title_bar_background_color"
                 app:cardElevation="2dp">
                 <RelativeLayout
                     android:layout_width="match_parent"
@@ -125,7 +125,7 @@
                 android:layout_height="wrap_content"
                 android:layout_alignParentEnd="true"
                 android:layout_gravity="top"
-                app:cardBackgroundColor="#21d82a"
+                app:cardBackgroundColor="@color/estimate_fare"
                 app:cardCornerRadius="5dp"
                 app:cardElevation="0dp">
 

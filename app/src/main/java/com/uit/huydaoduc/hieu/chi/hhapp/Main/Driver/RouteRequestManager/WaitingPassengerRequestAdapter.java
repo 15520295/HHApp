@@ -1,4 +1,4 @@
-package com.uit.huydaoduc.hieu.chi.hhapp.Main.Passenger.PassengerRequestManager;
+package com.uit.huydaoduc.hieu.chi.hhapp.Main.Driver.RouteRequestManager;
 
 import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.chad.library.adapter.base.BaseViewHolder;
@@ -13,10 +13,10 @@ import com.uit.huydaoduc.hieu.chi.hhapp.R;
 import java.util.List;
 
 
-public class PassengerRequestAdapter extends BaseQuickAdapter<PassengerRequest, BaseViewHolder> {
+public class WaitingPassengerRequestAdapter extends BaseQuickAdapter<PassengerRequest, BaseViewHolder> {
 
-    public PassengerRequestAdapter(List data) {
-        super(R.layout.row_passenger_request, data);
+    public WaitingPassengerRequestAdapter(List data) {
+        super(R.layout.row_waiting_pas_request, data);
     }
 
     @Override
@@ -24,6 +24,7 @@ public class PassengerRequestAdapter extends BaseQuickAdapter<PassengerRequest, 
         TripFareInfo tripFareInfo = passengerRequest.getTripFareInfo();
 
         helper.setText(R.id.tv_time, tripFareInfo.getStartTime())
+                .setText(R.id.tv_estimate_fare, tripFareInfo.func_getEstimateFareText())
                 .setText(R.id.tv_pick_up_address, passengerRequest.getPickUpSavePlace().getAddress())
                 .setText(R.id.tv_drop_off_address, passengerRequest.getDropOffSavePlace().getAddress());
 
@@ -34,36 +35,9 @@ public class PassengerRequestAdapter extends BaseQuickAdapter<PassengerRequest, 
         title = startPlace + " - " + endPlace;
         helper.setText(R.id.tv_request_title, title);
 
-        // State
-        PassengerRequestState state = passengerRequest.getPassengerRequestState();
-        helper.setText(R.id.btn_request_state, DefineString.PASSENGER_REQUEST_STATE_MAP.get(state));
-        if (state == PassengerRequestState.FOUND_DRIVER) {
-            helper.setVisible(R.id.prb_finding_passenger, false);
-            helper.setVisible(R.id.iv_check, true);
-            helper.setVisible(R.id.iv_pause, false);
-        } else if (state == PassengerRequestState.FINDING_DRIVER) {
-            helper.setVisible(R.id.prb_finding_passenger, true);
-            helper.setVisible(R.id.iv_check, false);
-            helper.setVisible(R.id.iv_pause, false);
-        } else if (state == PassengerRequestState.PAUSE) {
-            helper.setVisible(R.id.prb_finding_passenger, false);
-            helper.setVisible(R.id.iv_check, false);
-            helper.setVisible(R.id.iv_pause, true);
-        }
-
-        long passTime = TimeUtils.getPassTime(passengerRequest.getTripFareInfo().getStartTime())/60;
-        int waitMin = passengerRequest.getWaitMinute();
-        if (passTime > waitMin) {
-            helper.setVisible(R.id.prb_finding_passenger, false);
-            helper.setVisible(R.id.iv_pause, false);
-            helper.setText(R.id.btn_request_state, DefineString.PASSENGER_REQUEST_STATE_MAP.get(PassengerRequestState.TIME_OUT));
-        }
-
 
         // Event
-        helper.addOnClickListener(R.id.btn_request_state)
-                .addOnClickListener(R.id.iv_menu);
-
+        helper.addOnClickListener(R.id.btn_accept_trip);
 
         // moving text
         helper.getView(R.id.tv_request_title).setOnClickListener(v -> {

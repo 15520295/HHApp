@@ -34,17 +34,6 @@
                 android:marqueeRepeatLimit ="marquee_forever"
                 android:singleLine="true" />
 
-            <ImageView
-                android:id="@+id/iv_menu"
-                android:layout_width="30dp"
-                android:layout_height="30dp"
-                android:padding="5dp"
-                android:layout_alignParentTop="true"
-                android:layout_alignParentEnd="true"
-                android:src="@drawable/ic_vertical_menu"
-                android:layout_marginTop="@dimen/margin_default_20"
-                android:layout_marginEnd="@dimen/dp_10"
-                />
 
             <TextView
                 android:id="@+id/tv_time"
@@ -59,13 +48,37 @@
                 android:textColor="@color/route_request_time"
                 android:text="Today 6:30"/>
 
+            <android.support.v7.widget.CardView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_toStartOf="@id/iv_menu"
+                android:layout_alignTop="@id/tv_time"
+                android:layout_alignParentEnd="true"
+                android:layout_marginEnd="@dimen/dp_35"
+                android:layout_gravity="top"
+                app:cardBackgroundColor="@color/estimate_fare"
+                app:cardCornerRadius="2dp"
+                app:cardElevation="0dp">
+
+                <TextView
+                    android:id="@+id/tv_estimate_fare"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="4dp"
+                    android:layout_marginTop="4dp"
+                    android:text="VND 0K"
+                    android:textColor="#ffffff"
+                    android:textSize="8sp"
+                    android:textStyle="bold" />
+            </android.support.v7.widget.CardView>
+
             <TextView
                 android:id="@+id/tv_pick_up_address"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentStart="true"
                 android:layout_marginStart="@dimen/margin_default_25"
-                android:layout_marginEnd="@dimen/margin_default_25"
+                android:layout_marginEnd="@dimen/margin_default_30"
                 android:layout_below="@+id/tv_time"
                 android:drawableLeft="@drawable/ic_vertical_line_blue"
                 android:drawablePadding="10dp"
@@ -84,7 +97,7 @@
                 android:layout_height="wrap_content"
                 android:layout_below="@id/tv_pick_up_address"
                 android:layout_marginStart="@dimen/margin_default_25"
-                android:layout_marginEnd="@dimen/margin_default_25"
+                android:layout_marginEnd="@dimen/margin_default_30"
                 android:text="End"
                 android:textColor="@color/light_black"
                 android:textSize="15dp"
@@ -113,53 +126,15 @@
                 android:layout_below="@id/bar">
 
                 <Button
-                    android:id="@+id/btn_request_state"
+                    android:id="@+id/btn_accept_trip"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     style="@style/CusFlatButtonStyle"
-                    android:text="Select time"
-                    android:paddingLeft="@dimen/margin_default_25"
-                    android:gravity="left|center_vertical"
+                    android:text="@string/click_to_get_the_trip"
+                    android:gravity="center"
                     android:singleLine="true"
                     android:textColor="@color/light_black"/>
 
-                <com.wang.avi.AVLoadingIndicatorView
-                    android:id="@+id/prb_finding_passenger"
-                    style="@style/AVLoadingIndicatorView"
-                    android:layout_alignParentEnd="true"
-                    android:layout_width="45dp"
-                    android:layout_height="45dp"
-                    android:padding="@dimen/dp_10"
-                    android:layout_centerVertical="true"
-                    app:indicatorColor="#c3c5c8"
-                    android:layout_marginEnd="20dp"
-                    app:indicatorName="BallPulseIndicator"/>
-
-                <ImageView
-                    android:id="@+id/iv_check"
-                    android:layout_width="45dp"
-                    android:layout_height="45dp"
-                    android:layout_centerVertical="true"
-                    android:layout_alignParentEnd="true"
-                    android:src="@drawable/ic_check_20"
-                    android:padding="5dp"
-                    android:visibility="invisible"
-                    android:layout_marginEnd="20dp"
-                    />
-
-                <ImageView
-                    android:id="@+id/iv_pause"
-                    android:layout_width="45dp"
-                    android:layout_height="45dp"
-                    android:layout_centerVertical="true"
-                    android:layout_alignParentEnd="true"
-                    android:src="@drawable/ic_pause_20"
-                    android:visibility="invisible"
-                    android:padding="5dp"
-                    android:layout_marginEnd="20dp"
-                    />
             </RelativeLayout>
-
-
         </RelativeLayout>
 </android.support.v7.widget.CardView>

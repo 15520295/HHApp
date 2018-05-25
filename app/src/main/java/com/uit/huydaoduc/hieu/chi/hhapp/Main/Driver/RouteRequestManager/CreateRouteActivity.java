@@ -150,7 +150,9 @@ public class CreateRouteActivity extends SimpleMapActivity implements SimpleMapA
 
             @Override
             public void onClickRightCtv() {
-
+                Intent intent = new Intent(getApplicationContext(), RouteRequestManagerActivity.class);
+                CreateRouteActivity.this.startActivity(intent);
+                finish();
             }
 
             @Override
@@ -207,7 +209,6 @@ public class CreateRouteActivity extends SimpleMapActivity implements SimpleMapA
         }
 
     }
-
 
     // Activity Property
     DatabaseReference dbRefe;
@@ -301,9 +302,9 @@ public class CreateRouteActivity extends SimpleMapActivity implements SimpleMapA
 //                });
 
         // close and add to list
-        Intent returnIntent = new Intent();
-        returnIntent.putExtra("routeRequest", routeRequest);
-        setResult(Activity.RESULT_OK, returnIntent);
+        Intent intent = new Intent(getApplicationContext(), RouteRequestManagerActivity.class);
+        intent.putExtra("routeRequest", routeRequest);
+        CreateRouteActivity.this.startActivity(intent);
         finish();
     }
 

@@ -283,6 +283,7 @@ public class PassengerRequestManagerActivity extends AppCompatActivity
         fab_add_request.setOnClickListener(e -> {
             Intent intent = new Intent(getApplicationContext(), PassengerActivity.class);
             PassengerRequestManagerActivity.this.startActivityForResult(intent, CREATE_PASSENGER_REQUEST_CODE);
+            PassengerRequestManagerActivity.this.finish();
         });
 
     }
@@ -369,7 +370,11 @@ public class PassengerRequestManagerActivity extends AppCompatActivity
                             }
                             request.setNotifyTrip(notifyTrip);
 
-                            passengerRequests.add(request);
+                            long passTime = TimeUtils.getPassTime(request.getTripFareInfo().getStartTime())/60;
+                            int waitMin = request.getWaitMinute();
+                            if (passTime - waitMin < 60) {
+                                passengerRequests.add(request);
+                            }
                         }
 
                         Collections.reverse(passengerRequests);
@@ -404,10 +409,11 @@ public class PassengerRequestManagerActivity extends AppCompatActivity
      * @param position item in passengerRequests list
      */
     private void btnRequestStateClick(int position) {
-        showLoadingPassengerRequestInfo(getString(R.string.loading_driver_info));
-
         PassengerRequest passengerRequest = passengerRequests.get(position);
         if (passengerRequest.getPassengerRequestState() == PassengerRequestState.FOUND_DRIVER) {
+
+            showLoadingPassengerRequestInfo(getString(R.string.loading_driver_info));
+
             String tripUId = passengerRequest.getNotifyTrip().getTripUId();
 
             DBManager.getTripById(tripUId, trip -> {
