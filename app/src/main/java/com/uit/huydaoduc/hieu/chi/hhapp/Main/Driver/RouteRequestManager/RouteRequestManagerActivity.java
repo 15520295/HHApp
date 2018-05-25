@@ -21,6 +21,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
@@ -111,6 +112,25 @@ public class RouteRequestManagerActivity extends AppCompatActivity
     }
 
     @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        this.setIntent(intent);
+
+        // show PassengerRequest info after click notification
+        String showTripInfo;
+        showTripInfo = this.getIntent().getStringExtra("showTripInfo");
+        if (! TextUtils.isEmpty(showTripInfo)) {
+            showPassengerInfoActivityItem(showTripInfo);
+        }
+
+        // listen to RouteRequest create
+        RouteRequest routeRequest = this.getIntent().getParcelableExtra("routeRequest") ;
+        if (routeRequest != null) {
+            handleResultCreateRoute(routeRequest);
+        }
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_route_request_manager);
@@ -122,19 +142,27 @@ public class RouteRequestManagerActivity extends AppCompatActivity
         Event();
 
         RouteRequest routeRequest;
+        String showTripInfo;
+
         if (savedInstanceState == null) {
             Bundle extras = getIntent().getExtras();
             if (extras == null) {
                 routeRequest = null;
+                showTripInfo = null;
             } else {
                 routeRequest = extras.getParcelable("routeRequest");
+                showTripInfo = extras.getString("showTripInfo");
             }
         } else {
             routeRequest = (RouteRequest) savedInstanceState.getParcelable("routeRequest");
+            showTripInfo = (String) savedInstanceState.getString("showTripInfo");
         }
 
         if (routeRequest != null) {
             handleResultCreateRoute(routeRequest);
+        }
+        if (! TextUtils.isEmpty(showTripInfo)) {
+            showPassengerInfoActivityItem(showTripInfo);
         }
 
         refreshList(true);
@@ -182,6 +210,7 @@ public class RouteRequestManagerActivity extends AppCompatActivity
         fab_add_route.setOnClickListener(e -> {
             Intent intent = new Intent(getApplicationContext(), CreateRouteActivity.class);
             RouteRequestManagerActivity.this.startActivityForResult(intent, CREATE_ROUTE_REQUEST_CODE);
+//            RouteRequestManagerActivity.this.finish();
         });
 
         ((TextView) findViewById(R.id.tv_tab_passenger_list)).setOnClickListener(v -> {
@@ -198,7 +227,7 @@ public class RouteRequestManagerActivity extends AppCompatActivity
         NavigationResultHandle(requestCode, resultCode, data);
     }
 
-    //region -------------- Listen to Route request Create & Change Route Request State ----------------
+    //region -------------- Listen to Route request Create && Notify & Change Route Request State ----------------
 
     private void handleResultCreateRoute(RouteRequest routeRequest) {
 
@@ -247,7 +276,6 @@ public class RouteRequestManagerActivity extends AppCompatActivity
             // get Passenger Info
             DBManager.getUserById(trip.getPassengerUId(), userInfo -> {
 
-
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                     NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(getApplicationContext(), "my_channel_01");
 
@@ -263,8 +291,7 @@ public class RouteRequestManagerActivity extends AppCompatActivity
 
                     Intent resultIntent = new Intent(getApplicationContext(), RouteRequestManagerActivity.class);
 
-                    resultIntent.putExtra("trip", trip);
-                    resultIntent.putExtra("userInfo", userInfo);
+                    resultIntent.putExtra("showTripInfo", trip.getTripUId());
 
                     PendingIntent resultPendingIntent =
                             PendingIntent.getActivity(
@@ -291,8 +318,7 @@ public class RouteRequestManagerActivity extends AppCompatActivity
 
                     Intent resultIntent = new Intent(getApplicationContext(), RouteRequestManagerActivity.class);
 
-                    resultIntent.putExtra("trip", trip);
-                    resultIntent.putExtra("userInfo", userInfo);
+                    resultIntent.putExtra("showTripInfo", trip.getTripUId());
 
                     PendingIntent resultPendingIntent =
                             PendingIntent.getActivity(
@@ -678,6 +704,29 @@ public class RouteRequestManagerActivity extends AppCompatActivity
     //endregion
 
     //region -------------- Notify & show Passenger Request Info ----------------
+
+    private void showPassengerInfoActivityItem(String tripUId) {
+        showLoadingPassengerRequestInfo(getResources().getString(R.string.loading_passenger_info));
+
+        DBManager.getTripById(tripUId, trip -> {
+            // get Passenger Info
+            DBManager.getUserById(trip.getPassengerUId(), userInfo -> {
+                // get Passenger Request
+                DBManager.getPassengerRequestById(trip.getPassengerRequestUId(), trip.getPassengerUId(), passengerRequest -> {
+
+                    Intent intent = new Intent(RouteRequestManagerActivity.this, PassengerRequestInfoActivity.class);
+                    intent.putExtra("trip", trip);
+                    intent.putExtra("userInfo", userInfo);
+                    intent.putExtra("passengerRequest", passengerRequest);
+
+                    RouteRequestManagerActivity.this.startActivity(intent);
+
+                    hideLoadingPassengerRequestInfo();
+                });
+            });
+
+        });
+    }
 
     private void showPassengerInfoActivityItem(int position) {
         if (routeRequests.get(position).getRouteRequestState() != RouteRequestState.FOUND_PASSENGER)

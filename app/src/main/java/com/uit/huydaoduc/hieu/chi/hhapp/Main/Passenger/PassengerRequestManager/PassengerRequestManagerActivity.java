@@ -24,6 +24,7 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
@@ -104,6 +105,44 @@ public class PassengerRequestManagerActivity extends AppCompatActivity
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+        refreshList(true);
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        this.setIntent(intent);
+
+        // show Driver info after click notification
+        UserInfo driverInfo;
+        driverInfo = this.getIntent().getParcelableExtra("driverInfo");
+        if (driverInfo != null) {
+            setUpDialogInfo(userInfo);
+            hideLoadingPassengerRequestInfo();
+        }
+
+        // show Driver info when found
+        RouteRequest routeRequest = this.getIntent().getParcelableExtra("routeRequest") ;
+        if (routeRequest != null) {
+            // show driver info
+            DBManager.getUserById(routeRequest.getDriverUId(), (userInfo) ->
+                    {
+                        setUpDialogInfo(userInfo);
+                        hideLoadingPassengerRequestInfo();
+                    }
+            );
+        }
+
+        // listen pas request create
+        PassengerRequest passengerRequest = this.getIntent().getParcelableExtra("passengerRequest") ;
+        if (passengerRequest != null) {
+            listenToPassengerRequestNotify(passengerRequest);
+        }
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_passenger_request_manager);
@@ -121,6 +160,8 @@ public class PassengerRequestManagerActivity extends AppCompatActivity
         } else {
             userInfo = (UserInfo) savedInstanceState.getParcelable("userInfo");
         }
+
+        // if user not put info then show put info activity
         if (userInfo == null) {
             dbRefe.child(Define.DB_USERS_INFO)
                     .child(getCurUid())
@@ -210,7 +251,7 @@ public class PassengerRequestManagerActivity extends AppCompatActivity
 
                 Intent resultIntent = new Intent(getApplicationContext(), PassengerRequestManagerActivity.class);
 
-                resultIntent.putExtra("userInfo", driverInfo);
+                resultIntent.putExtra("driverInfo", driverInfo);
 
                 PendingIntent resultPendingIntent =
                         PendingIntent.getActivity(

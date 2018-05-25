@@ -321,7 +321,20 @@ public class WaitingPassengerListActivity extends AppCompatActivity
                 adapter.setOnItemChildClickListener((adapter1, view, position) -> {
                     if (view.getId() == R.id.btn_accept_trip) {
                         if ((loadingPassengerInfo != null && !loadingPassengerInfo.isShowing()) || loadingPassengerInfo == null) {
-                            acceptingPassengerRequest(passengerRequests.get(position));
+                            new MaterialDialog.Builder(WaitingPassengerListActivity.this)
+                                    .title(R.string.accept_trip_title)
+                                    .content(R.string.accept_trip_content)
+                                    .positiveText(R.string.confirm)
+                                    .negativeText(R.string.cancel)
+                                    .titleColor(getResources().getColor(R.color.title_bar_background_color))
+                                    .positiveColor(getResources().getColor(R.color.title_bar_background_color))
+                                    .widgetColorRes(R.color.title_bar_background_color)
+                                    .buttonRippleColorRes(R.color.title_bar_background_color)
+                                    .onPositive((dialog, which) -> {
+                                        acceptingPassengerRequest(passengerRequests.get(position));
+                                    })
+                                    .show();
+
                         }
                     }
                 });

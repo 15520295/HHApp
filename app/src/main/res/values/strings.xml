@@ -164,12 +164,16 @@
     <string name="CAR_7">7 SEAT CAR</string>
     <string name="note_to_driver">Notes to Driver</string>
     <string name="note_to_driver_hint">I\'m standing at the entrance</string>
-    <string name="passenger_list">Passenger list</string>
-    <string name="my_list">My list</string>
+    <string name="passenger_list">Passenger Requests</string>
+    <string name="my_list">My trips</string>
     <string name="found_your_passenger">Found your passenger</string>
-    <string name="click_to_get_the_trip">Click to get the trip</string>
+    <string name="click_to_get_the_trip">Click to see the trip info</string>
     <string name="phone">Phone: </string>
     <string name="tks">Thank You</string>
     <string name="tks_sub">I really appreciate your help with my project!</string>
+    <string name="cancel_request_warning" translatable="false">We have found user for this request, if you want to cancel you can call the driver to confirm.</string>
+    <string name="pause_request_content">If you pause this request, we can not find user for this request.</string>
+    <string name="accept_trip_title">Are you sure taking this trip ?</string>
+    <string name="accept_trip_content">If you accept we will notify your passenger and the trip info will be moved to your trips list.</string>
 
 </resources>

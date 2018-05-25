@@ -34,7 +34,7 @@
             android:gravity="center"
             android:textAllCaps="true"
             android:text="@string/my_list"
-            android:textSize="15sp"
+            android:textSize="14sp"
             android:textColor="#f6f5f5"
             android:background="@color/title_bar_background_color"
             />
@@ -50,11 +50,12 @@
                 android:gravity="center"
                 android:textAllCaps="true"
                 android:text="@string/passenger_list"
-                android:textSize="17sp"
+                android:textSize="14sp"
                 android:textColor="#ffffff"
                 android:textStyle="bold"
                 android:paddingTop="5dp"
                 android:paddingBottom="@dimen/margin_default_15"
+                android:maxLines="1"
                 android:background="@color/title_bar_background_color"
                 />
             <View

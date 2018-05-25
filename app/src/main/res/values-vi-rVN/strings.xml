@@ -23,8 +23,7 @@
     <string name="resume">Tiếp tục</string>
     <string name="delete">Xóa</string>
     <string name="pause">Dừng lại</string>
-    <string name="cancel_request_warning">Chuyến đi của bạn đã được xác nhận, Nếu bạn muốn xóa chuyến đi hãy liên hệ người đi cùng để được chấp thuận</string>
-    <string name="cancel">Hủy bỏ</string>
+    <string name="cancel">HỦY</string>
     <string name="pause_request_content">Không thể tìm người đi chung khi Tạm Dừng</string>
     <string name="pause_request_title">Bạn có muốn tạm dừng?</string>
     <string name="can_find_driver">Không tìm được người cùng chuyến đi với bạn</string>
@@ -124,4 +123,13 @@
     <string name="CAR_7">Xe hơi 7 chỗ</string>
     <string name="note_to_driver">Lời nhắn cho tài xế</string>
     <string name="note_to_driver_hint">Tôi đang đứng trước cổng</string>
+    <string name="passenger_list">Chuyến đang đợi</string>
+    <string name="my_list">Chuyến của tôi</string>
+    <string name="found_your_passenger">Đã tìm thấy khách</string>
+    <string name="tks">Cảm ơn</string>
+    <string name="tks_sub">Chúng tôi rất cảm kích vì sự đóng góp và hỗ trợ của mọi người.</string>
+    <string name="phone">SĐT:</string>
+    <string name="click_to_get_the_trip">Nhấn để xem thông tin chuyến đi</string>
+    <string name="accept_trip_title">Bạn có thực sự muốn nhận chuyến đi?</string>
+    <string name="accept_trip_content">Nếu chấp nhận, chúng tôi sẽ thông báo chuyến đi cho khách hàng và thông tin chuyến đi sẽ chuyển sang danh sách chuyến đi của bạn.</string>
 </resources>
