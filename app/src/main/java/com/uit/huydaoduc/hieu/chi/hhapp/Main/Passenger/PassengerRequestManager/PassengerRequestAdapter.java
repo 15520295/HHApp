@@ -24,6 +24,7 @@ public class PassengerRequestAdapter extends BaseQuickAdapter<PassengerRequest, 
         TripFareInfo tripFareInfo = passengerRequest.getTripFareInfo();
 
         helper.setText(R.id.tv_time, tripFareInfo.getStartTime())
+                .setText(R.id.tv_estimate_fare, tripFareInfo.func_getEstimateFareText())
                 .setText(R.id.tv_pick_up_address, passengerRequest.getPickUpSavePlace().getAddress())
                 .setText(R.id.tv_drop_off_address, passengerRequest.getDropOffSavePlace().getAddress());
 

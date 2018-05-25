@@ -8,6 +8,8 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.View;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.afollestad.materialdialogs.MaterialDialog;
@@ -35,6 +37,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.rilixtech.materialfancybutton.MaterialFancyButton;
+import com.wang.avi.AVLoadingIndicatorView;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -49,6 +52,7 @@ public class FindingDriverActivity extends AppCompatActivity {
 
     private TextView tv_start_address, tv_end_address, tv_estimate_fare;
     private MaterialFancyButton btn_cancel;
+    private AVLoadingIndicatorView prb_finding_passenger;
 
     @SuppressLint("ResourceType")
     @Override
@@ -60,9 +64,21 @@ public class FindingDriverActivity extends AppCompatActivity {
         Init();
         Event();
 
+        // set finding animation to center
+        View r =  findViewById(R.id.frame_layout);
+        r.post(new Runnable() {
+            @Override
+            public void run() {
+                RelativeLayout.LayoutParams mParams;
+                mParams = (RelativeLayout.LayoutParams) r.getLayoutParams();
+                mParams.width = r.getHeight();
+                r.setLayoutParams(mParams);
+                r.postInvalidate();
+            }
+        });
+
         startBooking();
     }
-
 
     Trip trip;
     PassengerRequest passengerRequest;
@@ -87,13 +103,14 @@ public class FindingDriverActivity extends AppCompatActivity {
         }
     }
 
-
     private void Init() {
         // View
         tv_start_address = findViewById(R.id.tv_pick_up_address);
         tv_end_address = findViewById(R.id.tv_drop_off_address);
         btn_cancel = findViewById(R.id.btn_cancel);
         tv_estimate_fare = findViewById(R.id.tv_estimate_fare);
+
+        prb_finding_passenger = findViewById(R.id.prb_finding_passenger);
 
         // init value
         tv_start_address.setText(passengerRequest.getPickUpSavePlace().getPrimaryText());

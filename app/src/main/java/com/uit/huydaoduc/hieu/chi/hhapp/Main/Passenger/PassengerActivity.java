@@ -492,7 +492,8 @@ public class PassengerActivity extends SimpleMapActivity
     private enum BtnState {
         BOOK,
         ENTER_PICK_UP,
-        ENTER_DROP_OFF
+        ENTER_DROP_OFF,
+        SELECT_WAIT_TIME
     }
 
     private void mainBtnChangeState(BtnState state) {
@@ -514,7 +515,16 @@ public class PassengerActivity extends SimpleMapActivity
                     btn_dropLocation.callOnClick();
                 }
             });
-        } else {
+        } else if (state == BtnState.SELECT_WAIT_TIME) {
+            btn_findDriver.setText(DefineString.DEFAULT_WAIT_TIME.first);
+            group_trip_info.setVisibility(View.VISIBLE);
+            btn_findDriver.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    btn_cd_wait_time.callOnClick();
+                }
+            });
+        } else{
             group_trip_info.setVisibility(View.VISIBLE);
             btn_findDriver.setText(R.string.Book);
             btn_findDriver.setOnClickListener(new View.OnClickListener() {
@@ -525,6 +535,7 @@ public class PassengerActivity extends SimpleMapActivity
             });
         }
 
+
     }
 
     private void notifyBtnState() {
@@ -532,6 +543,8 @@ public class PassengerActivity extends SimpleMapActivity
             mainBtnChangeState(BtnState.ENTER_PICK_UP);
         } else if (dropPlace == null) {
             mainBtnChangeState(BtnState.ENTER_DROP_OFF);
+        } else if (btn_cd_wait_time.getText().equals(DefineString.DEFAULT_WAIT_TIME.first)) {
+            mainBtnChangeState(BtnState.SELECT_WAIT_TIME);
         } else {
             mainBtnChangeState(BtnState.BOOK);
         }
@@ -651,6 +664,7 @@ public class PassengerActivity extends SimpleMapActivity
                         @Override
                         public void onSelection(MaterialDialog dialog, View view, int which, CharSequence text) {
                             btn_cd_wait_time.setText(other.get(which));
+                            notifyBtnState();
                         }
                     })
                     .widgetColorRes(R.color.title_bar_background_color_blue)
