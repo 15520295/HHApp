@@ -390,7 +390,11 @@ public class CreateRouteActivity extends SimpleMapActivity implements SimpleMapA
             selectedDateTime.set(Calendar.MILLISECOND, 0);
         };
 
-        timePickerDialog = TimePickerDialog.newInstance(timeSetListener, true);
+        timePickerDialog = TimePickerDialog.newInstance(timeSetListener
+                ,selectedDateTime.get(Calendar.HOUR_OF_DAY)
+                ,selectedDateTime.get(Calendar.MINUTE)
+                ,selectedDateTime.get(Calendar.SECOND)
+                , true);
         timePickerDialog.setAccentColor(ResourcesCompat.getColor(getResources(), R.color.title_bar_background_color, null));
 
         btn_time_picker.setOnClickListener(v -> {

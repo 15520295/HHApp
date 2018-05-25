@@ -150,7 +150,7 @@
     <string name="error_invalid_email">Invalid email</string>
     <string name="finding_passenger">Finding passenger...</string>
     <string name="pause_finding">Pause finding</string>
-    <string name="time_out">Started</string>
+    <string name="time_out">Can\'t find any Driver</string>
     <string name="click_to_see_passenger_info">Click to see Passenger info</string>
     <string name="finding_driver">Finding driver...</string>
     <string name="click_to_see_driver_info">Click to see Driver info</string>
@@ -169,5 +169,7 @@
     <string name="found_your_passenger">Found your passenger</string>
     <string name="click_to_get_the_trip">Click to get the trip</string>
     <string name="phone">Phone: </string>
+    <string name="tks">Thank You</string>
+    <string name="tks_sub">I really appreciate your help with my project!</string>
 
 </resources>

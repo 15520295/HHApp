@@ -23,7 +23,7 @@ public class WaitingPassengerRequestAdapter extends BaseQuickAdapter<PassengerRe
     protected void convert(BaseViewHolder helper, PassengerRequest passengerRequest) {
         TripFareInfo tripFareInfo = passengerRequest.getTripFareInfo();
 
-        helper.setText(R.id.tv_time, tripFareInfo.getStartTime())
+        helper.setText(R.id.tv_time, TimeUtils.dateToUserDateTimeStr(tripFareInfo.getStartTime()))
                 .setText(R.id.tv_estimate_fare, tripFareInfo.func_getEstimateFareText())
                 .setText(R.id.tv_pick_up_address, passengerRequest.getPickUpSavePlace().getAddress())
                 .setText(R.id.tv_drop_off_address, passengerRequest.getDropOffSavePlace().getAddress());

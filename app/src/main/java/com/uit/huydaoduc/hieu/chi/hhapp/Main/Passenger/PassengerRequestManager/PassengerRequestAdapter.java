@@ -23,7 +23,7 @@ public class PassengerRequestAdapter extends BaseQuickAdapter<PassengerRequest, 
     protected void convert(BaseViewHolder helper, PassengerRequest passengerRequest) {
         TripFareInfo tripFareInfo = passengerRequest.getTripFareInfo();
 
-        helper.setText(R.id.tv_time, tripFareInfo.getStartTime())
+        helper.setText(R.id.tv_time, TimeUtils.dateToUserDateTimeStr(tripFareInfo.getStartTime()))
                 .setText(R.id.tv_estimate_fare, tripFareInfo.func_getEstimateFareText())
                 .setText(R.id.tv_pick_up_address, passengerRequest.getPickUpSavePlace().getAddress())
                 .setText(R.id.tv_drop_off_address, passengerRequest.getDropOffSavePlace().getAddress());
@@ -54,9 +54,10 @@ public class PassengerRequestAdapter extends BaseQuickAdapter<PassengerRequest, 
 
         long passTime = TimeUtils.getPassTime(passengerRequest.getTripFareInfo().getStartTime())/60;
         int waitMin = passengerRequest.getWaitMinute();
-        if (passTime > waitMin) {
+        if (passTime > waitMin && state != PassengerRequestState.FOUND_DRIVER) {
             helper.setVisible(R.id.prb_finding_passenger, false);
             helper.setVisible(R.id.iv_pause, false);
+            helper.setVisible(R.id.iv_check, false);
             helper.setText(R.id.btn_request_state, DefineString.PASSENGER_REQUEST_STATE_MAP.get(PassengerRequestState.TIME_OUT));
         }
 

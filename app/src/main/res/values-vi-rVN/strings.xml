@@ -110,7 +110,7 @@
     <string name="cant_verify_code">Không thể xác nhận mã. Vui lòng thử lại!</string>
     <string name="finding_passenger">Đang tìm khách...</string>
     <string name="pause_finding">Tạm ngưng tìm kiếm</string>
-    <string name="time_out">Chuyến đi đã bắt đầu</string>
+    <string name="time_out">Không tìm thấy tài xế</string>
     <string name="click_to_see_passenger_info">Nhấn để xem thông tin Khách</string>
     <string name="finding_driver">Đang tìm tài xế...</string>
     <string name="click_to_see_driver_info">Nhấn để xem thông tin tài xế</string>

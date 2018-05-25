@@ -35,6 +35,7 @@ import com.uit.huydaoduc.hieu.chi.hhapp.Framework.SimpleMapActivity;
 import com.uit.huydaoduc.hieu.chi.hhapp.Main.AboutApp;
 import com.uit.huydaoduc.hieu.chi.hhapp.Main.AboutUser;
 import com.uit.huydaoduc.hieu.chi.hhapp.Main.CurUserInfo;
+import com.uit.huydaoduc.hieu.chi.hhapp.Main.Driver.RouteRequestManager.WaitingPassengerListActivity;
 import com.uit.huydaoduc.hieu.chi.hhapp.Main.Passenger.PassengerRequestManager.PassengerRequestManagerActivity;
 import com.uit.huydaoduc.hieu.chi.hhapp.Model.Passenger.PassengerRequest;
 import com.uit.huydaoduc.hieu.chi.hhapp.Framework.TimeUtils;
@@ -565,6 +566,8 @@ public class PassengerActivity extends SimpleMapActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_passenger);
+        PassengerActivity.this.overridePendingTransition(R.anim.anim_fade_in, R.anim.anim_fade_out);
+
         // Init firebase
         dbRefe = FirebaseDatabase.getInstance().getReference();
 
@@ -638,6 +641,8 @@ public class PassengerActivity extends SimpleMapActivity
             public void onClickRightCtv() {
                 Intent intent = new Intent(getApplicationContext(), PassengerRequestManagerActivity.class);
                 PassengerActivity.this.startActivity(intent);
+                PassengerActivity.this.overridePendingTransition(R.anim.anim_activity_none, R.anim.anim_fade_out);
+
                 finish();
             }
 

@@ -1,24 +1,14 @@
 package com.uit.huydaoduc.hieu.chi.hhapp.Main;
 
 import android.app.Activity;
-import android.content.Context;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v7.app.AppCompatActivity;
-import android.util.DisplayMetrics;
 import android.view.Gravity;
 import android.view.WindowManager;
 
-import com.danielstone.materialaboutlibrary.MaterialAboutActivity;
-import com.danielstone.materialaboutlibrary.items.MaterialAboutActionItem;
-import com.danielstone.materialaboutlibrary.model.MaterialAboutCard;
-import com.danielstone.materialaboutlibrary.model.MaterialAboutList;
 import com.uit.huydaoduc.hieu.chi.hhapp.R;
 import com.vansuita.materialabout.builder.AboutBuilder;
 import com.vansuita.materialabout.views.AboutView;
-
-import java.util.List;
 
 public class AboutApp extends Activity {
 
@@ -38,12 +28,11 @@ public class AboutApp extends Activity {
         AboutView view = AboutBuilder.with(this)
                 .setPhoto(R.drawable.logosbike6)
                 .setCover(R.mipmap.profile_cover)
-                .setName("Thank You")
-                .setSubTitle("I really appreciate your help with my project!")
-                .setBrief("I'm warmed of mobile technologies. Ideas maker, curious and nature lover.")
+                .setName(getString(R.string.tks))
+                .setSubTitle(getString(R.string.tks_sub))
                 .setAppIcon(R.drawable.logosbike6)
                 .setAppName(R.string.app_name)
-                .addGooglePlayStoreLink("https://play.google.com/store/apps/details?id=com.example.huydaoduc.hieu.chi.hhapp")
+                .addGooglePlayStoreLink("https://play.google.com/store/apps/details?id=com.uit.huydaoduc.hieu.chi.hhapp")
                 .addGitHubLink("15520295")
                 .addFacebookLink("huydd.1997")
                 .addFiveStarsAction()

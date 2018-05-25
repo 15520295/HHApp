@@ -198,7 +198,6 @@ public class RouteRequestManagerActivity extends AppCompatActivity
         NavigationResultHandle(requestCode, resultCode, data);
     }
 
-
     //region -------------- Listen to Route request Create & Change Route Request State ----------------
 
     private void handleResultCreateRoute(RouteRequest routeRequest) {
@@ -837,7 +836,7 @@ public class RouteRequestManagerActivity extends AppCompatActivity
                         changeRouteRequestState(position, command);
                     }
                 })
-                .showAsDropDown(view, -250, 0);    //带偏移量
+                .showAsDropDown(view, -250, 0);
     }
 
     //endregion

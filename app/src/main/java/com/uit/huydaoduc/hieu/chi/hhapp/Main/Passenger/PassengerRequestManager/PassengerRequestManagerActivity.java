@@ -107,6 +107,8 @@ public class PassengerRequestManagerActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_passenger_request_manager);
+        PassengerRequestManagerActivity.this.overridePendingTransition(R.anim.anim_activity_none, R.anim.anim_fade_out);
+
         dbRefe = FirebaseDatabase.getInstance().getReference();
 
         if (savedInstanceState == null) {
@@ -438,7 +440,7 @@ public class PassengerRequestManagerActivity extends AppCompatActivity
         menuItems.add(new MenuItem(R.drawable.ic_resume_20, getString(R.string.resume)));
 
         topRightMenu
-                .setHeight(340)
+                .setHeight(320)
                 .setWidth(320)
                 .showIcon(true)
                 .dimBackground(true)
@@ -461,7 +463,7 @@ public class PassengerRequestManagerActivity extends AppCompatActivity
                         changeRequestState(position, command);
                     }
                 })
-                .showAsDropDown(view, -250, 0);    //带偏移量
+                .showAsDropDown(view, -250, 0);
     }
 
     //endregion

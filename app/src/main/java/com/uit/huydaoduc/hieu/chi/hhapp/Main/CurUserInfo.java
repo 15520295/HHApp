@@ -39,7 +39,7 @@ public class CurUserInfo {
                         }
                     });
         }
-        return userInfo;
+        return userInfo;    // can be null
     }
 
     public UserInfo getUserInfo(GetUserInfoListener listener) {
