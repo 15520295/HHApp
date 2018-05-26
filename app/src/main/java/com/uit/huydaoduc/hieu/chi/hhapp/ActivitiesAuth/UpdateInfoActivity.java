@@ -70,6 +70,7 @@ public class UpdateInfoActivity extends AppCompatActivity {
                     Intent intent = new Intent(UpdateInfoActivity.this, MainActivity.class);
                     intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                     UpdateInfoActivity.this.startActivity(intent);
+                    UpdateInfoActivity.this.finish();
                 }
             }
         });
