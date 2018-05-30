@@ -15,3 +15,6 @@ SimpleMapActivity components: you can add these component to the Activity that e
 + DB Manager: get data from Firebase like user info, request info...
 + MapCameraManager: for controling the map fragment camera
 + MarkerManager: draw maker on map fragment
+
+
+All main Activities are in Main Packed and models're in Model Packed. ActivitiesAuth for authentication Activities.
