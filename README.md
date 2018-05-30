@@ -1,5 +1,5 @@
 # SBike
-This App for hitchhiking perpuse. Both driver and passenger can use and put thier request to server. The we find the matching request we will notify you to inform about the trip.
+This App for hitchhiking perpuse. Both driver and passenger can use and put thier request to server. The App will find the matching request and will notify you to inform about the trip.
 ----------------------
 You can find most of the Class to handle the Maps API and Place API in Framework packed:
 + Direction Packed: for finding direction and return a Route object. The Route will hold all the information about the direction
