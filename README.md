@@ -18,3 +18,6 @@ SimpleMapActivity components: you can add these component to the Activity that e
 
 
 All main Activities are in Main Packed and models're in Model Packed. ActivitiesAuth for authentication Activities.
+
+If you have any bug or any question please put in Issues tab. We will answer as soon as we can.
+Tks for reading.
